@@ -10,7 +10,6 @@ Breve descripción del sistema de software, el problema que busca solucionar y e
 ## Equipo del Proyecto
 | Nombre        | Rol                   | GitHub / Perfil |
 |--------------|-----------------------|-----------------|
-| Estudiante 1 | Scrum Master          | github.com/usuario1 |
 | Mateo Salazar| Product Owner         | github.com/Mateosalazar543 |
 | Valentina Carrillo P| Diseñadora UI       | github.com/valcarrpe |
 | Alejandro Rodriguez | Desarrollador Backend | github.com/alejormolina3 |
