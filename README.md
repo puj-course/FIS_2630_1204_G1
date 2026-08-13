@@ -3,7 +3,8 @@
 # CARE STOCK
 
 ## Descripción
-Breve descripción del sistema de software, el problema que busca solucionar y el contexto general del proyecto.
+es una plataforma SaaS integral orientada a la gestión, trazabilidad y optimización de inventarios en droguerías independientes e Instituciones Prestadoras de Salud (IPS) en Colombia. 
+El sistema aborda directamente la problemática de las pérdidas operativas por vencimiento de medicamentos y el riesgo de sanciones regulatorias. A través de alertas en tiempo real, automatización de trazabilidad y analítica de datos, **CareStock** garantiza el cumplimiento estricto de la **Resolución 1403 de 2007** de la normativa colombiana de salud.
 
 ---
 
