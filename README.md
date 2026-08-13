@@ -12,10 +12,10 @@ Breve descripción del sistema de software, el problema que busca solucionar y e
 |--------------|-----------------------|-----------------|
 | Estudiante 1 | Scrum Master          | github.com/usuario1 |
 | Mateo Salazar| Product Owner         | github.com/Mateosalazar543 |
-| Estudiante 3 | Sprint Planner        | github.com/usuario3 |
+| Valentina Carrillo P| Diseñadora UI       | github.com/valcarrpe |
 | Alejandro Rodriguez | Desarrollador Backend | github.com/alejormolina3 |
 | Santiago Cadena | Ingeniero De Datos             | github.com/Jsanti13|
-| Estudiante 6 | DevOps Engineer       | github.com/usuario6 |
+| Laura Sofía Ortiz | Scrum Máster       | github.com/lau1216 |
 
 ---
 
