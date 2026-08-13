@@ -14,7 +14,7 @@ Breve descripción del sistema de software, el problema que busca solucionar y e
 | Mateo Salazar| Product Owner         | github.com/Mateosalazar543 |
 | Estudiante 3 | Sprint Planner        | github.com/usuario3 |
 | Estudiante 4 | Configuration Manager | github.com/usuario4 |
-| Santiago Cadena | Ingeniero De Datos             | github.com/usuario5 |
+| Santiago Cadena | Ingeniero De Datos             | github.com/Jsanti13|
 | Estudiante 6 | DevOps Engineer       | github.com/usuario6 |
 
 ---
