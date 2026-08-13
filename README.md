@@ -164,6 +164,10 @@ Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana
 Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
 📧 alejandrorodriguezm@javeriana.edu.co
 
+**Estudiante 3**  
+Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
+📧 cadenag.js@javeriana.edu.co
+
 --- 
 
 ## Licencia
