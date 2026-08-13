@@ -14,7 +14,7 @@ Breve descripción del sistema de software, el problema que busca solucionar y e
 | Valentina Carrillo P| Diseñadora UI       | github.com/valcarrpe |
 | Alejandro Rodriguez | Desarrollador Backend | github.com/alejormolina3 |
 | Santiago Cadena | Ingeniero De Datos             | github.com/Jsanti13|
-| Laura Sofía Ortiz | Scrum Máster       | github.com/lau1216 |
+| Laura Sofía Ortiz | Scrum Máster       | github.com/Lau1216 |
 
 ---
 
