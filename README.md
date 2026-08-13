@@ -152,15 +152,14 @@ docker-compose run ai-model pytest
 
 ## Contacto
 
-**Equipo de desarrollo:**
-
 **Estudiante 1**  
-Estudiante de Ciencia de Datos, Pontificia Universidad Javeriana  
-📧 est1.u@javeriana.edu.co  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana  
+📧 Carrillo-Valentina@javeriana.edu.co  
 
 **Estudiante 2**  
 Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
-📧 est2@javeriana.edu.co  
+📧 lauras.ortizg@javeriana.edu.co  
+
 
 --- 
 
