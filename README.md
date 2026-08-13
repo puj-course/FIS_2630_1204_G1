@@ -11,7 +11,7 @@ Breve descripción del sistema de software, el problema que busca solucionar y e
 | Nombre        | Rol                   | GitHub / Perfil |
 |--------------|-----------------------|-----------------|
 | Estudiante 1 | Scrum Master          | github.com/usuario1 |
-| Estudiante 2 | Product Owner         | github.com/usuario2 |
+| Mateo Salazar| Product Owner         | github.com/Mateosalazar543 |
 | Estudiante 3 | Sprint Planner        | github.com/usuario3 |
 | Estudiante 4 | Configuration Manager | github.com/usuario4 |
 | Estudiante 5 | QA Lead               | github.com/usuario5 |
