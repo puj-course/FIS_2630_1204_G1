@@ -9,14 +9,13 @@ El sistema aborda directamente la problemática de las pérdidas operativas por 
 ---
 
 ## Equipo del Proyecto
-| Nombre        | Rol                   | GitHub / Perfil |
-|--------------|-----------------------|-----------------|
-| Mateo Salazar| Product Owner         | github.com/Mateosalazar543 |
-| Valentina Carrillo P| Diseñadora UI       | github.com/valcarrpe |
-| Alejandro Rodriguez | Desarrollador Backend | github.com/alejormolina3 |
-| Santiago Cadena | Ingeniero De Datos             | github.com/Jsanti13|
-| Laura Sofía Ortiz | Scrum Máster       | github.com/Lau1216 |
-
+| Nombre | Rol | GitHub / Perfil |
+|--------|-----|-----------------|
+| Mateo Salazar | Product Owner | [github.com/Mateosalazar543](https://github.com/Mateosalazar543) |
+| Valentina Carrillo P | Diseñadora UI | [github.com/valcarrpe](https://github.com/valcarrpe) |
+| Alejandro Rodriguez | Desarrollador Backend | [github.com/alejormolina3](https://github.com/alejormolina3) |
+| Santiago Cadena | Ingeniero De Datos | [github.com/Jsanti13](https://github.com/Jsanti13) |
+| Laura Sofía Ortiz | Scrum Máster | [github.com/Lau1216](https://github.com/Lau1216) |
 ---
 
 ## Tecnologías Utilizadas
