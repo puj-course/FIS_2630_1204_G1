@@ -7,115 +7,57 @@ es una plataforma SaaS integral orientada a la gestión, trazabilidad y optimiza
 El sistema aborda directamente la problemática de las pérdidas operativas por vencimiento de medicamentos y el riesgo de sanciones regulatorias. A través de alertas en tiempo real, automatización de trazabilidad y analítica de datos, **CareStock** garantiza el cumplimiento estricto de la **Resolución 1403 de 2007** de la normativa colombiana de salud.
 
 ---
-
-## Equipo del Proyecto
+## Equipo del Proyecto (Grupo 1)
 | Nombre | Rol | GitHub / Perfil |
 |--------|-----|-----------------|
-| Mateo Salazar | Product Owner | [github.com/Mateosalazar543](https://github.com/Mateosalazar543) |
-| Valentina Carrillo P | Diseñadora UI | [github.com/valcarrpe](https://github.com/valcarrpe) |
-| Alejandro Rodriguez | Desarrollador Backend | [github.com/alejormolina3](https://github.com/alejormolina3) |
-| Santiago Cadena | Ingeniero De Datos | [github.com/Jsanti13](https://github.com/Jsanti13) |
-| Laura Sofía Ortiz | Scrum Máster | [github.com/Lau1216](https://github.com/Lau1216) |
+| **Mateo Salazar Bogotá** | Product Owner | [@Mateosalazar543](https://github.com/Mateosalazar543) |
+| **Laura Sofía Ortiz Gómez** | Scrum Master | [@Lau1216](https://github.com/Lau1216) |
+| **Valentina Carrillo Peñuela** | Diseñadora UI/UX | [@valcarrpe](https://github.com/valcarrpe) |
+| **Alejandro Rodríguez Molina** | Desarrollador Backend | [@alejormolina3](https://github.com/alejormolina3) |
+| **Santiago Cadena Goyeneche** | Ingeniero de Datos | [@Jsanti13](https://github.com/Jsanti13) |
+
+---
+
+## Funcionalidades Núcleo (MVP - Sprint 1)
+1. **Búsqueda en Tiempo Real:** Filtros por nombre comercial, principio activo y autocompletado en mostrador.
+2. **Carga y Gestión de Lotes:** Registro de lotes del fabricante y control estricto de fechas de vencimiento.
+3. **Despacho Asistido (FEFO):** Sugerencia automática de salida para el lote más próximo a vencer (*First Expired, First Out*).
+4. **Panel Semafórico de Vencimientos:** Indicadores visuales de estado (Normal, Alerta de Stock Bajo y Crítico/Vencimiento).
+5. **Alertas de Stock Mínimo:** Notificaciones para reabastecimiento oportuno.
+6. **Autocompletado y Filtros Rápidos:** Interfaz ágil diseñada para la atención rápida en mostrador.
+7. **Reportes y Auditoría:** Historial trazable de movimientos y salidas para inspección normativa.
+
 ---
 
 ## Tecnologías Utilizadas
-- **Frontend:** JavaFX
-- **Backend:** Java – Spring Boot
-- **Base de Datos:** PostgreSQL
-- **IA / Data Science:** Python, Pandas, Scikit-learn
-- **DevOps:** GitHub Actions, Docker, SonarQube
-- **Control de versiones:** Git
+* **Frontend:** JavaFX / FXML
+* **Backend:** Java (JDK 17+) – Spring Boot
+* **Base de Datos:** Oracle Database (Containerizado en Docker + JetBrains DataGrip)
+* **IA & Analítica:** Python 3.10+, Pandas, Scikit-learn
+* **DevOps & Herramientas:** Docker, GitHub Actions, Git, Visual Studio Code / IntelliJ IDEA
 
 ---
 
-## Estructura del Proyecto
+## Sistema de Diseño (UI/UX)
+El frontend implementa la paleta cromática **Pastel Farmacéutico** bajo la regla 60-30-10 para reducir la fatiga visual en la operación diaria de mostrador:
+* `Dominante (60%)`: `#FDFBF7` (Fondo principal / Lienzo)
+* `Secundario (30%)`: `#A7DBD8` (Estructura, barras laterales y navegación)
+* `Acento (10%)`: `#B7A6E0` (Botones primarios e interacción)
+* `Alerta Stock Bajo`: `#F6CEBE` (Indicador Preventivo)
+* `Alerta Crítica / Vencimiento`: `#F0ABA8` (Indicador de Riesgo)
+
+---
+
+## Estructura del Repositorio
 ```text
-project-name/
-├── app/
-│   ├── index.js
-│   │   └── Punto de entrada principal de la aplicación.
-│   ├── package.json
-│   │   └── Define las dependencias, scripts y configuración del proyecto.
-│   ├── routes/
-│   │   ├── index.js
-│   │   └── Define las rutas o endpoints principales de la aplicación.
-│   ├── controllers/
-│   │   ├── userController.js
-│   │   └── Contiene la lógica encargada de procesar las solicitudes.
-│   └── services/
-│       ├── userService.js
-│       └── Contiene la lógica de negocio y servicios reutilizables.
-│
-├── conf/
-│   ├── config.json
-│   │   └── Contiene parámetros generales de configuración.
-│   ├── database.js
-│   │   └── Configura la conexión con la base de datos.
-│   └── environment.example
-│       └── Ejemplo de las variables de entorno necesarias para ejecutar el proyecto.
-│
-├── docs/
-│   ├── architecture.md
-│   │   └── Describe la arquitectura general del sistema.
-│   ├── api.md
-│   │   └── Documenta los endpoints, parámetros y respuestas de la API.
-│   ├── installation.md
-│   │   └── Explica cómo instalar y configurar el proyecto.
-│   └── user_guide.md
-│       └── Guía básica para el uso de la aplicación.
-│
-├── scripts/
-│   ├── setup.sh
-│   │   └── Automatiza la instalación y configuración inicial del proyecto.
-│   ├── start.sh
-│   │   └── Permite iniciar la aplicación.
-│   ├── test.sh
-│   │   └── Ejecuta las pruebas automatizadas.
-│   └── deploy.sh
-│       └── Automatiza tareas relacionadas con el despliegue.
-│
-├── src/
-│   ├── models/
-│   │   ├── user.js
-│   │   └── Define las estructuras o modelos de datos del sistema.
-│   ├── utils/
-│   │   ├── helpers.js
-│   │   └── Contiene funciones auxiliares reutilizables.
-│   ├── middleware/
-│   │   ├── auth.js
-│   │   └── Contiene funciones que se ejecutan antes o después de una solicitud.
-│   └── tests/
-│       ├── user.test.js
-│       └── Contiene pruebas unitarias o de integración del proyecto.
-│
-├── temp/
-│   ├── .gitkeep
-│   │   └── Permite conservar la carpeta vacía dentro del repositorio.
-│   ├── example.tmp
-│   │   └── Ejemplo de archivo temporal generado durante la ejecución.
-│   └── uploads/
-│       └── Carpeta destinada a almacenar archivos temporales cargados por usuarios.
-│
-├── BOILERPLATE_template.md
-│   └── Documento que explica la estructura base y cómo utilizar este boilerplate.
-│
-├── CONTRIBUTING.md
-│   └── Define las normas y recomendaciones para contribuir al proyecto.
-│
-├── LICENSE
-│   └── Especifica la licencia bajo la cual se distribuye el proyecto.
-│
-├── README.md
-│   └── Documento principal con la descripción, instalación, uso y características del proyecto.
-│
-├── .gitignore
-│   └── Define los archivos y carpetas que Git no debe versionar.
-│
-└── .env.example
-    └── Plantilla de las variables de entorno necesarias para ejecutar la aplicación.
-```
-
----
+FIS_2630_1204_G1/
+├── app/                      # Código fuente principal de la aplicación (Java/JavaFX)
+├── conf/                     # Archivos de configuración del sistema y conexiones
+├── DOCS/                     # Documentación técnica, diagramas y especificaciones
+├── Proto/                    # Prototipos visuales y mockups UI/UX
+├── BOILERPLATE_template.md   # Guía de estructura base
+├── LICENSE                   # Licencia del proyecto
+└── README.md                 # Documento principal del repositorio
 
 ## Instalación y Ejecución
 **Requisitos**
@@ -126,7 +68,7 @@ project-name/
 
 ## Clonar el repositorio
 ```text
-git clone https://github.com/organizacion/proyecto.git
+git clone https://github.com/puj-course/FIS_2630_1204_G1
 cd proyecto
 ```
 
