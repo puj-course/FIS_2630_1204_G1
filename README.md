@@ -17,16 +17,13 @@ El sistema aborda directamente la problemática de las pérdidas operativas por 
 | **Santiago Cadena Goyeneche** | Ingeniero de Datos | [@Jsanti13](https://github.com/Jsanti13) |
 
 ---
+## Funcionalidades Principales
 
-## Funcionalidades Núcleo (MVP - Sprint 1)
-1. **Búsqueda en Tiempo Real:** Filtros por nombre comercial, principio activo y autocompletado en mostrador.
-2. **Carga y Gestión de Lotes:** Registro de lotes del fabricante y control estricto de fechas de vencimiento.
-3. **Despacho Asistido (FEFO):** Sugerencia automática de salida para el lote más próximo a vencer (*First Expired, First Out*).
-4. **Panel Semafórico de Vencimientos:** Indicadores visuales de estado (Normal, Alerta de Stock Bajo y Crítico/Vencimiento).
-5. **Alertas de Stock Mínimo:** Notificaciones para reabastecimiento oportuno.
-6. **Autocompletado y Filtros Rápidos:** Interfaz ágil diseñada para la atención rápida en mostrador.
-7. **Reportes y Auditoría:** Historial trazable de movimientos y salidas para inspección normativa.
-
+- **Despacho Asistido (FEFO):** Priorización automática de salida para el lote más próximo a vencer (*First Expired, First Out*).
+- **Control de Lotes y Vencimientos:** Registro detallado de fechas de caducidad con semaforización visual de alertas.
+- **Búsqueda y Filtros Rápidos:** Búsqueda en tiempo real por nombre comercial o principio activo optimizada para atención en mostrador.
+- **Alertas de Stock Mínimo:** Notificaciones automáticas para reabastecimiento oportuno.
+- **Trazabilidad y Reportes:** Historial de movimientos listo para inspecciones normativas.
 ---
 
 ## Tecnologías Utilizadas
@@ -35,17 +32,6 @@ El sistema aborda directamente la problemática de las pérdidas operativas por 
 * **Base de Datos:** Oracle Database (Containerizado en Docker + JetBrains DataGrip)
 * **IA & Analítica:** Python 3.10+, Pandas, Scikit-learn
 * **DevOps & Herramientas:** Docker, GitHub Actions, Git, Visual Studio Code / IntelliJ IDEA
-
----
-
-## Sistema de Diseño (UI/UX)
-El frontend implementa la paleta cromática **Pastel Farmacéutico** bajo la regla 60-30-10 para reducir la fatiga visual en la operación diaria de mostrador:
-* `Dominante (60%)`: `#FDFBF7` (Fondo principal / Lienzo)
-* `Secundario (30%)`: `#A7DBD8` (Estructura, barras laterales y navegación)
-* `Acento (10%)`: `#B7A6E0` (Botones primarios e interacción)
-* `Alerta Stock Bajo`: `#F6CEBE` (Indicador Preventivo)
-* `Alerta Crítica / Vencimiento`: `#F0ABA8` (Indicador de Riesgo)
-
 ---
 
 ## Estructura del Repositorio
