@@ -106,3 +106,4 @@ Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana
 Proyecto desarrollado con fines académicos.
 
 Johan Santiago - https://github.com/Jsanti13
+- Rol: Data Engineer
