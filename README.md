@@ -105,4 +105,4 @@ Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana
 ## Licencia
 Proyecto desarrollado con fines académicos.
 
-Johan Cadena (Jsanti13) - Rol: Data Engineer
+Johan Santiago Cadena (Jsanti13) - Rol: Data Engineer
