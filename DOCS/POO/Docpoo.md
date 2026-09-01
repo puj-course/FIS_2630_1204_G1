@@ -14,8 +14,7 @@ Este documento define la arquitectura orientada a objetos para el sistema **Care
 
 ## 📊 Diagrama de Clases UML (Mermaid)
 <p align="center">
-  <img src="https://kroki.io/mermaid/svg/eNp1VNtu2zAMfc9XCFqAFU76tF6DIFvWd-zQpQsGY2nSjhZ1J8pJ22X_fbSdrE6yZ02-yEMeHw5J-rE0jR6x4M2f6O_4s6SStZ0iG4w-xP1y-Q45g0v7-n62-7u_3R9-H0b3f_XjS-L6YmD6vU-fFymV7hT6xY1vJmsqG6_6f_eHw2m2dK7l4x5cndm-HnF1V3s11_7y9_X142P39jM2o3e96z5e-eG6h4l96d3I9R6eLg1e_x3w48Q0l-602D5N-dMdf_d2f9w__j6NlM3x8mN13F4KkX90Dk30lWz_k0K-e8i-lW23kym3a-3t_p39Hj719_3-2_9pP-_f_2j7b0O6d38N9b2R-v2IymJ_Sfp02-1y_1T7wF23lO2t7o_uV7_3l519f-zffm5_7B7p_l--9D7s" alt="Diagrama de Clases CareStock" width="100%">
-</p>
+
 
 <details>
   <summary><b>💻 Ver Código Fuente del Diagrama</b></summary>
