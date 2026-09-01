@@ -1,7 +1,7 @@
 -- ========================================================
 -- CareStock Database - Datos de Prueba Resilientes (Seed)
 -- ========================================================
---Codigo actualizado v2
+
 -- 1. ROLES
 INSERT INTO ROLES (nombre_rol, descripcion) VALUES
 ('ADMINISTRADOR', 'Acceso total al sistema'),
