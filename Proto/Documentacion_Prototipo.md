@@ -577,3 +577,16 @@ javac --module-path "$JAVAFX_LIB" --add-modules javafx.controls,javafx.fxml -d P
 
 B. Ejecutar la aplicacion:
 java --module-path "$JAVAFX_LIB" --add-modules javafx.controls,javafx.fxml -cp "Proto/bin;postgresql-driver.jar" com.carestock.view.MainDashboardFX
+A continuación se presentan las capturas de pantalla correspondientes a la ejecución del prototipo del sistema CareStock:
+
+### Figura 1: Vista general del Dashboard del sistema
+![Ejecución del prototipo - Dashboard general](https://github.com/user-attachments/assets/f996f8db-28db-4ee0-a506-efed6cc7848c)
+
+### Figura 2: Vista de gestión de inventario y medicamentos
+![Ejecución del prototipo - Gestión de inventario](https://github.com/user-attachments/assets/1a894d4d-3340-49a1-b507-cb1c2dbeb93c)
+
+### Figura 3: Detalle de alertas y estado de stock
+![Ejecución del prototipo - Alertas y stock](https://github.com/user-attachments/assets/b94eabe5-2619-44b2-915d-aa36c2dbef1f)
+
+### Figura 4: Funcionalidades adicionales del prototipo
+![Ejecución del prototipo - Funcionalidades adicionales](https://github.com/user-attachments/assets/6b6f6f26-088b-46ab-948d-4eff4fe75660)
