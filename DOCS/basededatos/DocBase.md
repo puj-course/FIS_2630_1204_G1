@@ -13,6 +13,75 @@ Todos los scripts relacionados con la base de datos se encuentran organizados de
 
 ---
 
+## Diagrama Entidad-Relacion Base de datos
+
+```mermaid
+erDiagram
+    ROLES ||--o{ USUARIOS : "asigna a"
+    CATEGORIAS ||--o{ MEDICAMENTOS : "clasifica a"
+    MEDICAMENTOS ||--o{ LOTES : "posee"
+    UBICACIONES ||--o{ LOTES : "almacena en"
+    USUARIOS ||--o{ LOG_MOVIMIENTOS : "ejecuta"
+    LOTES ||--o{ LOG_MOVIMIENTOS : "registra cambios en"
+
+    ROLES {
+        NUMBER id_rol PK
+        VARCHAR2 nombre_rol
+        VARCHAR2 descripcion
+    }
+    USUARIOS {
+        NUMBER id_usuario PK
+        VARCHAR2 nombre_completo
+        VARCHAR2 email
+        VARCHAR2 password_hash
+        NUMBER id_rol FK
+        VARCHAR2 estado
+        TIMESTAMP fecha_creacion
+    }
+    CATEGORIAS {
+        NUMBER id_categoria PK
+        VARCHAR2 nombre_categoria
+        VARCHAR2 descripcion
+    }
+    MEDICAMENTOS {
+        NUMBER id_medicamento PK
+        VARCHAR2 codigo_invima
+        VARCHAR2 nombre_comercial
+        VARCHAR2 principio_activo
+        VARCHAR2 concentracion
+        VARCHAR2 forma_farmaceutica
+        NUMBER id_categoria FK
+        NUMBER stock_minimo
+        NUMBER stock_total
+        VARCHAR2 estado
+    }
+    UBICACIONES {
+        NUMBER id_ubicacion PK
+        VARCHAR2 estante
+        VARCHAR2 nivel
+        VARCHAR2 descripcion
+    }
+    LOTES {
+        NUMBER id_lote PK
+        VARCHAR2 numero_lote
+        NUMBER id_medicamento FK
+        NUMBER cantidad_actual
+        DATE fecha_vencimiento
+        NUMBER id_ubicacion FK
+        VARCHAR2 estado_lote
+        TIMESTAMP fecha_ingreso
+    }
+    LOG_MOVIMIENTOS {
+        NUMBER id_log PK
+        NUMBER id_usuario FK
+        NUMBER id_lote FK
+        VARCHAR2 tipo_movimiento
+        NUMBER cantidad_afectada
+        VARCHAR2 detalle_cambio
+        TIMESTAMP fecha_hora
+    }
+```
+
 ## 🌱 Script de Carga Inicial (Seed Data)
 
 El script `DOCS/database/seed_carestock.sql` utiliza cláusulas `ON CONFLICT` para garantizar la idempotencia de las inserciones y evitar errores por registros duplicados al ejecutar múltiples pruebas.
