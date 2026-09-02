@@ -1,13 +1,12 @@
-==============================================================================
-GUIA COMPLETA DE DESARROLLO Y DESPLIEGUE - CARESTOCK JAVAFX & NEON DB
-===============================================================================
+
+**GUIA COMPLETA DE DESARROLLO Y DESPLIEGUE - CARESTOCK JAVAFX & NEON DB**
+
 
 Este archivo contiene la documentacion integral, especificaciones tecnicas,
 comandos de ejecucion, scripts de base de datos y el codigo fuente del prototipo.
 
--------------------------------------------------------------------------------
-1. ESTRUCTURA DEL PROYECTO
--------------------------------------------------------------------------------
+
+**1. ESTRUCTURA DEL PROYECTO**
 
 FIS_2630_1204_G1/
 ├── Proto/
@@ -27,9 +26,9 @@ FIS_2630_1204_G1/
 ├── postgresql-driver.jar             # Driver JDBC de PostgreSQL
 └── DOCUMENTACION_CARESTOCK.txt
 
--------------------------------------------------------------------------------
-2. CONFIGURACION DE BASE DE DATOS (NEON DB)
--------------------------------------------------------------------------------
+
+**2. CONFIGURACION DE BASE DE DATOS (NEON DB)**
+
 
 -- Tabla CATEGORIAS
 CREATE TABLE IF NOT EXISTS CATEGORIAS (
@@ -54,9 +53,9 @@ INSERT INTO CATEGORIAS (nombre_categoria)
 VALUES ('General') 
 ON CONFLICT (nombre_categoria) DO NOTHING;
 
--------------------------------------------------------------------------------
-3. CODIGO FUENTE DEL SISTEMA
--------------------------------------------------------------------------------
+
+##3. CODIGO FUENTE DEL SISTEMA
+
 
 A. Modelo: Medicamento.java
 Ubicacion: Proto/src/com/carestock/model/Medicamento.java
@@ -114,7 +113,7 @@ public class Medicamento {
 }
 
 
-B. Configuracion JDBC: DatabaseConfig.java
+**B. Configuracion JDBC: DatabaseConfig.java**
 Ubicacion: Proto/src/com/carestock/config/DatabaseConfig.java
 
 package com.carestock.config;
@@ -140,7 +139,7 @@ public class DatabaseConfig {
 }
 
 
-C. Capa de Datos: MedicamentoDAO.java
+**C. Capa de Datos: MedicamentoDAO.java**
 Ubicacion: Proto/src/com/carestock/dao/MedicamentoDAO.java
 
 package com.carestock.dao;
