@@ -1,4 +1,4 @@
-[Requerimientos_CareStock.md](https://github.com/user-attachments/files/31890742/Requerimientos_CareStock.md)
+
 # Especificación de Requisitos de Software - CareStock
 
 | CÓDIGO   | ESPECIFICACIÓN DE REQUISITOS                                                                                                                                                                   | PRIORIDAD   | ALCANZABLE                                                                                                                | MEDIBLE                                                                                                                                    | TIPO DE REQUISITO (FURPS+)   |
