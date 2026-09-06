@@ -1,1 +1,0 @@
-En esta carpeta se llevará la documentación de cada Sprint y de cada Reunión que se haga durante el desarrollo de este proyecto.
