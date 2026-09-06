@@ -1,26 +1,29 @@
-**Iteración:** Sprint 2  
-**Fecha de Cierre:** 22 de agosto de 2026  
----
+# Sprint Planning – Sprint 2
 
-## 1. Información General del Sprint
-* **Sprint Goal:** Avanzar en la definición funcional y técnica del sistema CareStock, documentando los requerimientos funcionales detallados para los módulos de inventario, alertas y reportes, definiendo el modelo relacional de la base de datos a partir del MER existente, investigando la implementación técnica en Oracle Database y realizando el seguimiento del avance del sprint para garantizar el cumplimiento de los entregables.
-* **Duración:** 1 semana (Sesión de planificación realizada el 18 de agosto de 2026)
-* **Capacidad Compromiso:** 14 Puntos de Historia (5 Hitos Unificados: #6 a #10)
-* **Integrantes del Equipo:**
-  * Mateo Salazar Bogotá (Product Owner)
-  * Laura Sofía Ortiz Gómez (Scrum Master / Desarrolladora)
-  * Valentina Carrillo Peñuela (Diseñadora UI/UX / Desarrolladora)
-  * Alejandro Rodríguez Molina (Desarrollador Backend)
-  * Johan Santiago Cadena Goyeneche (Ingeniero de Datos / Gestión)
+**Fecha:** 18/08/2026  
+**Duración del Sprint:** 1 semana (18/08/2026 a 22/08/2026)  
 
 ---
 
-## 2. Resultado de las Historias de Usuario / Hitos Unificados
+## Sprint Goal
 
-| ID | Hito Unificado | Responsables | Est. (Pts) | Estado Final | Criterios de Aceptación Cumplidos |
-|---|---|---|---|---|---|
-| **#6** | **HU.6:** Documentación de Requerimientos Funcionales - Inventario y Alertas | Laura Ortiz, Valentina Carrillo | 4 (L) | **Done** | Documentación de requerimientos para inventario (entradas, lotes, stock mínimo) y alertas (vencimiento a 30/60 días, panel semafórico) vinculada al Sprint 1. |
-| **#7** | **HU.7:** Documentación de Requerimientos Funcionales - Despacho y Reportes | Laura Ortiz, Valentina Carrillo | 4 (L) | **Done** | Especificación de reglas de negocio para el despacho con lógica FEFO, sugerencia de lotes y reportes con filtros y formatos de salida. |
-| **#8** | **HU.8:** Definición del Modelo Relacional a partir del MER | Mateo Salazar | 2 (M) | **Done** | Elaboración del modelo relacional completo con tablas, atributos, tipos de datos, restricciones (PK, FK) y DDL inicial validado. |
-| **#9** | **HU.9:** Investigación de Implementación en Oracle Database | Alejandro Rodríguez, Santiago Cadena | 2 (M) | **Done** | Configuración del entorno Oracle, estrategia JDBC, scripts DDL/DML de población inicial y directrices de seguridad. |
-| **#10** | **HU.10:** Seguimiento de Tareas y Coordinación del Sprint | Santiago Cadena, Laura Ortiz | 2 (M) | **Done** | Facilitación de ceremonias Scrum, actualización del tablero Kanban en GitHub Projects y gestión de impedimentos. |
+Completar las Historias de Usuario #6, #7, #8 y #9, relacionadas con la trazabilidad de inventario en tiempo real, mejora de la interfaz para el registro de medicamentos, gestión de lotes y sugerencias automáticas de reabastecimiento, sentando las bases funcionales del sistema CareStock.
+
+---
+
+## Sprint Backlog
+
+Las historias de usuario del sprint llevaron a la definición de las siguientes tareas en el sprint backlog:
+
+| Historia de Usuario | Tareas Asociadas | Responsable(s) | Estimación (Pts) |
+|----------------------|------------------|----------------|------------------|
+| **#6 – HU.6:** Como jefe de farmacia quiero ver en tiempo real las modificaciones que realizan los auxiliares de farmacia en el sistema para poder mantener la trazabilidad, supervisar el inventario de manera efectiva y tomar decisiones oportunas. | - Definir eventos de auditoría a capturar (creación, edición, eliminación, ajustes de stock)<br>- Diseñar vista de trazabilidad con filtros por usuario, fecha y tipo de modificación<br>- Especificar actualización en tiempo real (WebSockets o polling) | Laura Ortiz, Valentina Carrillo | 4 (L) |
+| **#7 – HU.7:** Como auxiliar de farmacia quiero contar con una interfaz fácil e intuitiva al momento de registrar medicamentos para poder agilizar el proceso de ingreso y ahorrar tiempo en las tareas operativas. | - Diseñar flujo de registro de medicamentos (paso a paso)<br>- Definir campos mínimos y validaciones en frontend<br>- Especificar autocompletado y búsqueda de medicamentos existentes | Laura Ortiz, Valentina Carrillo | 4 (L) |
+| **#8 – HU.8:** Como auxiliar de farmacia, quiero registrar el ingreso de nuevos lotes de medicamentos indicando cantidad, número de lote, fecha de vencimiento y ubicación, para poder mantener el inventario actualizado. | - Definir estructura de datos para lotes (cantidad, lote, vencimiento, ubicación)<br>- Especificar reglas de validación (fechas, cantidades positivas, ubicaciones válidas)<br>- Diseñar flujo de ingreso de lote asociado a un medicamento existente | Mateo Salazar | 2 (M) |
+| **#9 – HU.9:** Como jefe de farmacia, quiero recibir sugerencias automáticas de pedidos de reabastecimiento cuando el stock esté por debajo del mínimo configurado, para poder aprobar o ajustar las compras a proveedores. | - Definir lógica de cálculo de stock mínimo vs disponible<br>- Especificar reglas de generación de sugerencias (umbral, periodicidad)<br>- Diseñar vista de sugerencias con opción de aprobar/rechazar/ajustar | Alejandro Rodríguez, Santiago Cadena | 2 (M) |
+
+---
+
+## Incremento Esperado
+
+Una vez finalizado el sprint, el jefe de farmacia podrá visualizar en tiempo real la trazabilidad de todas las modificaciones realizadas por los auxiliares sobre el inventario, los auxiliares contarán con una interfaz ágil e intuitiva para registrar medicamentos y gestionar lotes con sus respectivas fechas de vencimiento y ubicación, y el sistema generará automáticamente sugerencias de reabastecimiento cuando el stock caiga por debajo del mínimo configurado, permitiendo al jefe de farmacia aprobar o ajustar pedidos a proveedores. Esto completará el núcleo funcional de gestión de inventario del sistema CareStock.
