@@ -37,13 +37,19 @@ El sistema aborda directamente la problemática de las pérdidas operativas por 
 ## Estructura del Repositorio
 ```text
 FIS_2630_1204_G1/
-├── app/                      # Código fuente principal de la aplicación (Java/JavaFX)
-├── conf/                     # Archivos de configuración del sistema y conexiones
-├── DOCS/                     # Documentación técnica, diagramas y especificaciones
-├── Proto/                    # Prototipos visuales y mockups UI/UX
-├── BOILERPLATE_template.md   # Guía de estructura base
-├── LICENSE                   # Licencia del proyecto
-└── README.md                 # Documento principal del repositorio
+├── BOILERPLATE_template.md     # Guía de estructura base del repositorio
+├── docs/                       # Documentación técnica, metodológica y de arquitectura
+│   ├── architecture/           # Decisiones de diseño, diagramas de despliegue y reglas del modelo de negocio
+│   ├── scrum/                  # Artefactos de gestión ágil (Planning, Review y Retrospectives)
+│   └── user_guide/             # Guías de despliegue y manuales de usuario
+├── LICENSE                     # Licencia del proyecto
+├── postgresql-driver.jar       # Conector JDBC para la base de datos PostgreSQL
+├── README.md                   # Documento principal del repositorio y visión general del proyecto
+├── src/                        # Código fuente principal de la aplicación y recursos
+│   ├── main/
+│   │   ├── java/               # Clases y lógica en Java/JavaFX (Model-View-Controller)
+│   │   └── resources/          # Archivos multimedia, FXML y configuraciones de la interfaz
+│   └── sql/                    # Scripts SQL para la inicialización, esquemas, cargas y rollbacks de la base de datos
 
 ## Instalación y Ejecución
 **Requisitos**
