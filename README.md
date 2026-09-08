@@ -43,7 +43,6 @@ FIS_2630_1204_G1/
 │   ├── scrum/                  # Artefactos de gestión ágil (Planning, Review y Retrospectives)
 │   └── user_guide/             # Guías de despliegue y manuales de usuario
 ├── LICENSE                     # Licencia del proyecto
-├── postgresql-driver.jar       # Conector JDBC para la base de datos PostgreSQL
 ├── README.md                   # Documento principal del repositorio y visión general del proyecto
 ├── src/                        # Código fuente principal de la aplicación y recursos
 │   ├── main/
