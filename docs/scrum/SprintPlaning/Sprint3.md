@@ -1,6 +1,6 @@
 # Sprint Planning – Sprint 3
 
-**Fecha:** 24/08/2026  
+**Fecha:** 24/08/2026   
 **Duración del Sprint:** 1 semana (24/08/2026 a 29/08/2026)  
 
 ---
