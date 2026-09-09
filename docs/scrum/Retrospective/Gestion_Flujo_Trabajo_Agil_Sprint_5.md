@@ -33,6 +33,7 @@
 | **#133** | Script de migración DDL para tabla usuarios | Johan Santiago Cadena | — (tarea única) | **En progreso** |
 | **#137** | Script de índices de búsqueda para USUARIOS | Alejandro Rodríguez | — (tarea única) | **En progreso** |
 | **#138** | Acompañamiento y verificación de la HU.25 | Laura Ortiz | — | **En progreso** (rol de seguimiento del SM) |
+| **#151** | Diseño de vistas/mockups para la gestión de usuarios y roles (HU.25) | Valentina Carrillo | 2 / 2 | **Done** — prototipo de UI completado y validado |
 
 * **Puntos de Historia:** pendiente asignación de Pts por el PO para cálculo de velocity.
 * **Dato clave:** 3 de 4 historias de usuario (HU.22, HU.23, HU.24) ya tienen todas sus subtareas cerradas — falta cerrar el issue padre. HU.25 continúa en desarrollo activo.
@@ -63,7 +64,7 @@
 * **Asignación en GitHub:** HU.23 no tiene responsable asignado en GitHub aunque sus subtareas están completas.
 * **Carga de trabajo concentrada:** HU.25 concentra el trabajo pendiente y depende de un único responsable (Johan), lo que puede generar un cuello de botella.
 * **Estimaciones:** Faltan los puntos de historia (Pts) asignados en el backlog para poder calcular la velocidad del sprint.
-* **Asignación de roles:** Valentina (UI/UX) no aparece asignada a historias en este sprint en GitHub.
+* **Asignación de roles:** Valentina (UI/UX) Consolidar la asignación oportuna de tareas de diseño UI/UX desde el inicio del planning para evitar registros extemporáneos.
 
 ### 4.3 Acciones de Mejora Acordadas
 1. Asignar formalmente un responsable a HU.23 (#104) en GitHub.
