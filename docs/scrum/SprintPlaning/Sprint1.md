@@ -1,4 +1,4 @@
-**Iteración:** Sprint 1
+**Iteración:** Sprint 1 
 **Fecha de Cierre:** 16 de agosto de 2026
 ## 1. Información General del Sprint
 * **Sprint Goal:** Sentar las bases conceptuales, técnicas y visuales del sistema CareStock, delimitando el alcance para farmacias independientes e IPS pequeñas, evaluando la arquitectura de datos y definiendo la identidad visual y los casos de uso principales.
