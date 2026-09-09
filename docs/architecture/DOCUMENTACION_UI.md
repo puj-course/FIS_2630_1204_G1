@@ -2,12 +2,11 @@
 
 Este documento consolida la definición del sistema de diseño, paleta cromática e interfaz de usuario para el sistema **CareStock**.
 
-
 ## 1. Paleta de Colores Oficial
 
 Luego del proceso de evaluación, se seleccionó la **Opción B — Pastel farmacéutico** por sus tonos suaves que reducen el estrés visual y facilitan el uso prolongado en entornos de salud.
 
-![Paleta Oficial de Colores](paleta_seleccionada_pastel.png)
+![Paleta Oficial de Colores](./paleta_seleccionada_pastel.png)
 
 ### Especificación Cromática
 
@@ -25,7 +24,7 @@ Luego del proceso de evaluación, se seleccionó la **Opción B — Pastel farma
 
 Se diseñaron e integraron en la encuesta de decisión 5 alternativas de diseño para el sistema de inventario:
 
-![Opciones de Paleta de Color](PaletasColores_Opciones.JPEG)
+![Opciones de Paleta de Color](./PaletasColores_Opciones.jpeg)
 
 * **Opción A:** Clínico confiable (Azul médico + Verde OK).
 * **Opción B:** Pastel farmacéutico *(Seleccionada por el equipo)*.
@@ -39,4 +38,4 @@ Se diseñaron e integraron en la encuesta de decisión 5 alternativas de diseño
 
 Vista previa del panel principal aplicando el sistema de diseño y paleta oficial seleccionada:
 
-![Dashboard General CareStock](Interfaz_Mockup.JPEG)
+![Dashboard General CareStock](./Interfaz_Mockup.jpeg)
