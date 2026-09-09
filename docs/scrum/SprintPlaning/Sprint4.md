@@ -1,7 +1,7 @@
 # Sprint Planning – Sprint 4
 
 **Fecha:** 31/08/2026  
-**Duración del Sprint:** 6 días (31/08/2026 a 05/09/2026)  
+**Duración del Sprint:** 6 días (31/08/2026 a 05/09/2026)   
 
 ---
 
