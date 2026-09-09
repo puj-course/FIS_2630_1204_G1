@@ -1,7 +1,7 @@
 # Sprint Planning – Sprint 2
 
 **Fecha:** 18/08/2026  
-**Duración del Sprint:** 1 semana (18/08/2026 a 22/08/2026)  
+**Duración del Sprint:** 1 semana (18/08/2026 a 22/08/2026)   
 
 ---
 
