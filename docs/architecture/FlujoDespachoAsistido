@@ -1,8 +1,0 @@
-Flujo de Despacho Asistido (FEFO)
-1. Usuario busca el medicamento por nombre comercial o principio activo.
-2. Sistema muestra los lotes disponibles de ese medicamento, ordenados del más próximo a vencer al más lejano.
-3. Usuario selecciona el lote a despachar (por defecto, el primero de la lista).
-4. Usuario ingresa la cantidad a despachar.
-5. Sistema valida que haya stock suficiente en ese lote.
-6. Usuario confirma el despacho.
-7. Sistema registra el movimiento con fecha/hora y actualiza el stock del lote.
