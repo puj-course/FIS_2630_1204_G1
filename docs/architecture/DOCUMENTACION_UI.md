@@ -80,3 +80,18 @@ System default de JavaFX (Segoe UI / San Francisco según SO) — no requiere fu
 | **Stock OK** | `#A7D8D8` | Stock por encima del mínimo |
 | **Próximos a vencer** | `#F6CE8E` | Vencimiento dentro de 30 días |
 | **Crítico / Vencido** | `#F0A8A8` | Stock bajo el mínimo o medicamento vencido |
+
+---
+
+## 7. Especificación de Alertas de Vencimiento y Accesibilidad (HU-30)
+
+### Guía de Reglas de Color para Vencimientos
+| Estado | Condición | Tono | Código Hex |
+| :--- | :--- | :--- | :--- |
+| **OK** | Más de 30 días para vencer | Menta pastel | `#A7D8D8` |
+| **Próximo a vencer** | Entre 1 y 30 días | Durazno pastel | `#F6CE8E` |
+| **Vencido** | Fecha de vencimiento cumplida | Coral pastel | `#F0A8A8` |
+
+### Criterios de Accesibilidad (WCAG 2.1 AA)
+- **Contraste Mínimo de Texto (Criterio 1.4.3):** Para garantizar una relación de contraste mínima de 4.5:1 sobre los fondos pastel (`#A7D8D8`, `#F6CE8E`, `#F0A8A8`), se establece el uso obligatorio de tipografía en tonos oscuros (`#1E1E1E` / `#222222`). Se prohíbe el uso de texto blanco sobre estas etiquetas.
+- **Uso del Color (Criterio 1.4.1 - Doble Codificación):** El color no debe ser el único medio visual para transmitir la alerta. Cada badge debe integrar texto explícito con el nombre del estado (*OK*, *Próximo a vencer*, *Vencido*) acompañado de su respectivo tono indicador.
