@@ -2,12 +2,11 @@
 
 Este documento consolida la definición del sistema de diseño, paleta cromática e interfaz de usuario para el sistema **CareStock**.
 
-
 ## 1. Paleta de Colores Oficial
 
 Luego del proceso de evaluación, se seleccionó la **Opción B — Pastel farmacéutico** por sus tonos suaves que reducen el estrés visual y facilitan el uso prolongado en entornos de salud.
 
-![Paleta Oficial de Colores](paleta_seleccionada_pastel.png)
+![Paleta Oficial de Colores](./paleta_seleccionada_pastel.png)
 
 ### Especificación Cromática
 
@@ -25,7 +24,7 @@ Luego del proceso de evaluación, se seleccionó la **Opción B — Pastel farma
 
 Se diseñaron e integraron en la encuesta de decisión 5 alternativas de diseño para el sistema de inventario:
 
-![Opciones de Paleta de Color](PaletasColores_Opciones.JPEG)
+![Opciones de Paleta de Color](./PaletasColores_Opciones.jpeg)
 
 * **Opción A:** Clínico confiable (Azul médico + Verde OK).
 * **Opción B:** Pastel farmacéutico *(Seleccionada por el equipo)*.
@@ -33,10 +32,51 @@ Se diseñaron e integraron en la encuesta de decisión 5 alternativas de diseño
 * **Opción D:** Alto contraste institucional.
 * **Opción E:** Aguamarina y azul pastel.
 
----
+
 
 ## 3. Prototipo de Interfaz (Dashboard General)
 
 Vista previa del panel principal aplicando el sistema de diseño y paleta oficial seleccionada:
 
-![Dashboard General CareStock](Interfaz_Mockup.JPEG)
+![Dashboard General CareStock](./Interfaz_Mockup.jpeg)
+
+
+## 4. Tipografía y Jerarquía de Textos
+
+| Nivel | Tamaño | Peso | Uso |
+| :--- | :--- | :--- | :--- |
+| **Título principal** | 22px | Bold | Nombre de módulo ("CareStock"), título de vista ("Dashboard general") |
+| **Subtítulo** | 16px | Semi-bold | Encabezado de sección ("Inventario reciente"), números grandes en tarjetas ("1,284", "37", "12") |
+| **Cuerpo** | 13px | Regular | Texto del menú lateral ("Dashboard"), botón ("+ Agregar Medicamento"), encabezados de tabla ("Código INVIMA", "Producto", "Principio Activo", "Cantidad") y estados ("Tabla sin contenido") |
+| **Etiqueta pequeña** | 11px | Regular | Subtextos de tarjetas ("Unidades en stock", "Próximos a vencer", "Alertas críticas") |
+
+**Familia tipográfica:**  
+System default de JavaFX (Segoe UI / San Francisco según SO) — no requiere fuente externa, evita problemas de licencias y carga.
+
+
+
+## 5. Catálogo de Botones e Inputs
+
+### Botones
+| Estado | Color de fondo | Color de texto | Uso / Contexto |
+| :--- | :--- | :--- | :--- |
+| **Primario - Normal** | `#B7A6E0` | `#FFFFFF` | Botón principal de acción ("+ Agregar Medicamento") |
+| **Primario - Hover** | `#A08BD1` | `#FFFFFF` | Estado activo al pasar el cursor sobre botón principal |
+| **Primario - Disabled** | `#E0E0E0` | `#9E9E9E` | Acciones no disponibles en el estado actual |
+| **Alerta crítica** | `#F0A8A8` | `#7A2E2E` | Botones de eliminación o acciones destructivas |
+
+### Inputs de Texto
+| Estado | Borde | Fondo | Uso / Contexto |
+| :--- | :--- | :--- | :--- |
+| **Normal** | `#D0D0D0` | `#FFFFFF` | Campo de texto en estado reposo |
+| **Focus** | `#B7A6E0` | `#FFFFFF` | Campo de texto activo/seleccionado |
+| **Error** | `#F0A8A8` | `#FDF5F5` | Campo de texto con validación fallida |
+
+
+## 6. Catálogo de Badges/Etiquetas de Alerta
+
+| Badge | Color de Fondo | Cuándo se usa |
+| :--- | :--- | :--- |
+| **Stock OK** | `#A7D8D8` | Stock por encima del mínimo |
+| **Próximos a vencer** | `#F6CE8E` | Vencimiento dentro de 30 días |
+| **Crítico / Vencido** | `#F0A8A8` | Stock bajo el mínimo o medicamento vencido |
