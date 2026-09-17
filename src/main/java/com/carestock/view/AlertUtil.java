@@ -27,7 +27,7 @@ public class AlertUtil {
     public static void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("CareStock");
-        alert.setHeaderText("✅ Operación exitosa");
+        alert.setHeaderText("Operación exitosa");
         alert.setContentText(mensaje);
         aplicarEstilo(alert, ESTILO_EXITO, "#2E5E4E");
         alert.showAndWait();
@@ -36,7 +36,7 @@ public class AlertUtil {
     public static void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("CareStock");
-        alert.setHeaderText("⚠️ No se pudo completar la operación");
+        alert.setHeaderText("No se pudo completar la operación");
         alert.setContentText(mensaje);
         aplicarEstilo(alert, ESTILO_ERROR, "#7A2E2E");
         alert.showAndWait();
