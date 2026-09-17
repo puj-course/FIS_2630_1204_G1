@@ -1,11 +1,6 @@
 # Diccionario de datos — CareStock
 
-> Generado a partir de `MedicamentoDAO.java` (consultas reales contra Neon) y del
-> script de migración de `MEDICAMENTOS` compartido por el equipo.
-> Las columnas marcadas como **"No confirmado"** no aparecen en el código ni en
-> los scripts que he visto — verifícalas directamente en DataGrip/Neon antes de
-> confiar en este documento al 100%.
-
+> Generado a partir de `MedicamentoDAO.java` (consultas reales contra Neon) y Usuario.
 ---
 
 ## Tabla `MEDICAMENTOS`
@@ -52,9 +47,3 @@
 
 **No confirmado / pendiente de verificar:**
 - El resto de columnas de `USUARIOS` (nombre, rol, contraseña, etc.) no aparecen en ningún archivo compartido hasta ahora — HU.25 (registro de usuarios) fue reportada como **no completada** en el Sprint Retrospective 5, lo que es consistente con que su documentación esté incompleta.
-
----
-
-## Nota sobre inconsistencia encontrada
-
-Un script anterior del equipo (`lotes` / `shrinkage_events`) referenciaba `medicamentos(id)` y `usuarios(id)` como nombres de columna, mientras que el código real en `MedicamentoDAO.java` usa `id_medicamento`. Este documento asume que **`id_medicamento` / `id_usuario` son los nombres correctos**, por ser los que efectivamente usa el código que ya corre contra Neon. Si encuentran ese script antiguo dando vueltas, está desactualizado.
