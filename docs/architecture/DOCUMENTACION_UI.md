@@ -113,3 +113,10 @@ System default de JavaFX (Segoe UI / San Francisco según SO) — no requiere fu
 Dropdown (ComboBox de JavaFX) dentro del formulario de registro de lote.
 Formato de cada opción: "Bodega [X] - Estante [Y] - Nivel [Z]"
 Ej: "Bodega A - Estante 3 - Nivel 2"
+
+### Estados visuales
+| Estado | Borde | Comportamiento |
+|---|---|---|
+| Normal | #D0D0D0 | Placeholder "Selecciona una ubicación" |
+| Focus | #B7A6E0 (lavanda oficial) | Despliega la lista |
+| Error (vacío al guardar) | #F0A8A8 (coral oficial) | Mensaje: "Debes asignar una ubicación al lote" |
