@@ -133,4 +133,12 @@ MockUp Ubicacion
 <img width="300" height="233" alt="MockupUbicacion_HU44" src="https://github.com/user-attachments/assets/cda4bcb3-02c7-4777-979f-41bb76777347" />
 
 
+## 10. Reglas de Fecha de Vencimiento Bloqueada (HU-45)
+
+### Reglas de negocio (tomadas de Reglas_Modelo_Negocio.md, sección 2)
+| Rango | Color | Comportamiento |
+|---|---|---|
+| Más de 90 días | Sin alerta | Se guarda normal |
+| Entre 16 y 90 días | #F6CE8E (durazno) | Muestra advertencia de confirmación, pero permite guardar |
+| 15 días o menos | #F0A8A8 (coral) | Bloqueo absoluto, no permite guardar |
 
