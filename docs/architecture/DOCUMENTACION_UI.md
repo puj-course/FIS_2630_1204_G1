@@ -120,3 +120,15 @@ Ej: "Bodega A - Estante 3 - Nivel 2"
 | Normal | #D0D0D0 | Placeholder "Selecciona una ubicación" |
 | Focus | #B7A6E0 (lavanda oficial) | Despliega la lista |
 | Error (vacío al guardar) | #F0A8A8 (coral oficial) | Mensaje: "Debes asignar una ubicación al lote" |
+
+### Flujo de asignación
+1. Usuario abre el formulario de registro de lote.
+2. Sistema carga automáticamente las ubicaciones físicas disponibles.
+3. Usuario selecciona una ubicación de la lista.
+4. Si intenta guardar sin seleccionar, se bloquea con el estado de error de arriba.
+
+MockUp Ubicacion
+<img width="300" height="233" alt="MockupUbicacion_HU44" src="https://github.com/user-attachments/assets/cda4bcb3-02c7-4777-979f-41bb76777347" />
+
+
+
