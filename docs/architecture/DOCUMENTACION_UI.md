@@ -130,7 +130,7 @@ Ej: "Bodega A - Estante 3 - Nivel 2"
 MockUp Ubicacion
 
 
-<img width="300" height="233" alt="MockupUbicacion_HU44" src="https://github.com/user-attachments/assets/cda4bcb3-02c7-4777-979f-41bb76777347" />
+<img width="500" height="388" alt="MockupUbicacion_HU44" src="https://github.com/user-attachments/assets/cda4bcb3-02c7-4777-979f-41bb76777347" />
 
 
 ## 10. Reglas de Fecha de Vencimiento Bloqueada (HU-45)
@@ -141,4 +141,16 @@ MockUp Ubicacion
 | Más de 90 días | Sin alerta | Se guarda normal |
 | Entre 16 y 90 días | #F6CE8E (durazno) | Muestra advertencia de confirmación, pero permite guardar |
 | 15 días o menos | #F0A8A8 (coral) | Bloqueo absoluto, no permite guardar |
+
+
+### Estados visuales del campo de fecha
+- **Normal:** borde gris estándar.
+- **Advertencia (16-90 días):** borde durazno #F6CE8E + ícono ⚠️ + texto "Vida útil corta, confirma para continuar".
+- **Bloqueado (≤15 días):** borde coral #F0A8A8 + ícono 🚫 + texto "Fecha no permitida: vida útil mínima de 15 días" + botón Guardar deshabilitado.
+
+MockUp campo de fecha Bloqueado
+
+
+<img width="500" height="388" alt="MockupFecha_HU45" src="https://github.com/user-attachments/assets/5e8882a6-5b10-49ad-bb28-81702c9d707c" />
+
 
