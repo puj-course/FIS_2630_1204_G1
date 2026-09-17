@@ -203,14 +203,14 @@ public class MainDashboardFX extends Application {
         FormularioMedicamentoDialog dialog = new FormularioMedicamentoDialog();
         Optional<Medicamento> result = dialog.showAndWait();
         result.ifPresent(medicamento -> {
-            boolean exito = medicamentoDAO.guardar(medicamento);
-            if (exito) {
-                cargarDatosDesdeBD();
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Error al guardar el medicamento en Neon DB.");
-                alert.showAndWait();
-            }
-        });
+    boolean exito = medicamentoDAO.guardar(medicamento);
+    if (exito) {
+        cargarDatosDesdeBD();
+        AlertUtil.mostrarExito("El medicamento \"" + medicamento.getNombreComercial() + "\" se registró correctamente.");
+    } else {
+        AlertUtil.mostrarError("No se pudo guardar el medicamento en la base de datos. Verifica los datos e intenta nuevamente.");
+    }
+});
     }
 
     public static void main(String[] args) {
