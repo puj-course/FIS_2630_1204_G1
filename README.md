@@ -37,18 +37,32 @@ El sistema aborda directamente la problemática de las pérdidas operativas por 
 ## Estructura del Repositorio
 ```text
 FIS_2630_1204_G1/
-├── BOILERPLATE_template.md     # Guía de estructura base del repositorio
-├── docs/                       # Documentación técnica, metodológica y de arquitectura
-│   ├── architecture/           # Decisiones de diseño, diagramas de despliegue y reglas del modelo de negocio
-│   ├── scrum/                  # Artefactos de gestión ágil (Planning, Review y Retrospectives)
-│   └── user_guide/             # Guías de despliegue y manuales de usuario
-├── LICENSE                     # Licencia del proyecto
-├── README.md                   # Documento principal del repositorio y visión general del proyecto
-├── src/                        # Código fuente principal de la aplicación y recursos
-│   ├── main/
-│   │   ├── java/               # Clases y lógica en Java/JavaFX (Model-View-Controller)
-│   │   └── resources/          # Archivos multimedia, FXML y configuraciones de la interfaz
-│   └── sql/                    # Scripts SQL para la inicialización, esquemas, cargas y rollbacks de la base de datos
+├── .gitignore
+├── BOILERPLATE_template.md
+├── LICENSE
+├── README.md
+├── .github/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── feature_request.md
+│   │   └── user_story.md
+│   └── workflows/
+│       ├── cd.yml
+│       └── ci.yml
+├── docs/
+│   ├── architecture/          # Diagramas, paletas de color y requerimientos
+│   ├── scrum/                 # Actas de Sprint Planning, Review y Retrospectivas
+│   └── user_guide/            # Guías de despliegue (DEPLOY.md)
+└── src/
+    ├── main/
+    │   ├── java/com/carestock/
+    │   │   ├── config/        # Configuración de base de datos (DatabaseConfig)
+    │   │   ├── dao/           # Capa de acceso a datos (MedicamentoDAO)
+    │   │   ├── model/         # Entidades del dominio (Medicamento, Producto)
+    │   │   └── view/          # Interfaz gráfica JavaFX (MainDashboardFX)
+    │   └── resources/
+    └── sql/                   # Scripts DDL/DML de PostgreSQL
 
 ## Instalación y Ejecución
 **Requisitos**
