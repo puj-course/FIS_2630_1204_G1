@@ -101,8 +101,15 @@ System default de JavaFX (Segoe UI / San Francisco según SO) — no requiere fu
 
 | Situación | Título | Mensaje |
 |---|---|---|
-| Registro exitoso | ✅ Operación exitosa | "El [elemento] se registró correctamente." |
-| Error genérico | ⚠️ No se pudo completar la operación | "No se pudo guardar en la base de datos. Verifica los datos e intenta nuevamente." |
-| Fecha bloqueada | ⚠️ Fecha no permitida | "La fecha de vencimiento ingresada no cumple con la política mínima de CareStock." |
+| Registro exitoso | Operación exitosa | "El [elemento] se registró correctamente." |
+| Error genérico |  No se pudo completar la operación | "No se pudo guardar en la base de datos. Verifica los datos e intenta nuevamente." |
+| Fecha bloqueada |  Fecha no permitida | "La fecha de vencimiento ingresada no cumple con la política mínima de CareStock." |
 
 **Tono:** directo, sin tecnicismos, sin culpar al usuario.
+
+## 9. Selector de Ubicación Física (HU-44)
+
+### Estructura del componente
+Dropdown (ComboBox de JavaFX) dentro del formulario de registro de lote.
+Formato de cada opción: "Bodega [X] - Estante [Y] - Nivel [Z]"
+Ej: "Bodega A - Estante 3 - Nivel 2"
