@@ -101,8 +101,36 @@ System default de JavaFX (Segoe UI / San Francisco según SO) — no requiere fu
 
 | Situación | Título | Mensaje |
 |---|---|---|
-| Registro exitoso | ✅ Operación exitosa | "El [elemento] se registró correctamente." |
-| Error genérico | ⚠️ No se pudo completar la operación | "No se pudo guardar en la base de datos. Verifica los datos e intenta nuevamente." |
-| Fecha bloqueada | ⚠️ Fecha no permitida | "La fecha de vencimiento ingresada no cumple con la política mínima de CareStock." |
+| Registro exitoso | Operación exitosa | "El [elemento] se registró correctamente." |
+| Error genérico |  No se pudo completar la operación | "No se pudo guardar en la base de datos. Verifica los datos e intenta nuevamente." |
+| Fecha bloqueada |  Fecha no permitida | "La fecha de vencimiento ingresada no cumple con la política mínima de CareStock." |
 
 **Tono:** directo, sin tecnicismos, sin culpar al usuario.
+
+## 9. Selector de Ubicación Física (HU-44)
+
+### Estructura del componente
+Dropdown (ComboBox de JavaFX) dentro del formulario de registro de lote.
+Formato de cada opción: "Bodega [X] - Estante [Y] - Nivel [Z]"
+Ej: "Bodega A - Estante 3 - Nivel 2"
+
+### Estados visuales
+| Estado | Borde | Comportamiento |
+|---|---|---|
+| Normal | #D0D0D0 | Placeholder "Selecciona una ubicación" |
+| Focus | #B7A6E0 (lavanda oficial) | Despliega la lista |
+| Error (vacío al guardar) | #F0A8A8 (coral oficial) | Mensaje: "Debes asignar una ubicación al lote" |
+
+### Flujo de asignación
+1. Usuario abre el formulario de registro de lote.
+2. Sistema carga automáticamente las ubicaciones físicas disponibles.
+3. Usuario selecciona una ubicación de la lista.
+4. Si intenta guardar sin seleccionar, se bloquea con el estado de error de arriba.
+
+MockUp Ubicacion
+
+
+<img width="300" height="233" alt="MockupUbicacion_HU44" src="https://github.com/user-attachments/assets/cda4bcb3-02c7-4777-979f-41bb76777347" />
+
+
+
