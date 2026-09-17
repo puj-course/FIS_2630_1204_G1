@@ -95,3 +95,14 @@ System default de JavaFX (Segoe UI / San Francisco según SO) — no requiere fu
 ### Criterios de Accesibilidad (WCAG 2.1 AA)
 - **Contraste Mínimo de Texto (Criterio 1.4.3):** Para garantizar una relación de contraste mínima de 4.5:1 sobre los fondos pastel (`#A7D8D8`, `#F6CE8E`, `#F0A8A8`), se establece el uso obligatorio de tipografía en tonos oscuros (`#1E1E1E` / `#222222`). Se prohíbe el uso de texto blanco sobre estas etiquetas.
 - **Uso del Color (Criterio 1.4.1 - Doble Codificación):** El color no debe ser el único medio visual para transmitir la alerta. Cada badge debe integrar texto explícito con el nombre del estado (*OK*, *Próximo a vencer*, *Vencido*) acompañado de su respectivo tono indicador.
+
+
+## 8. Mensajes de Confirmación y Error (HU-43)
+
+| Situación | Título | Mensaje |
+|---|---|---|
+| Registro exitoso | ✅ Operación exitosa | "El [elemento] se registró correctamente." |
+| Error genérico | ⚠️ No se pudo completar la operación | "No se pudo guardar en la base de datos. Verifica los datos e intenta nuevamente." |
+| Fecha bloqueada | ⚠️ Fecha no permitida | "La fecha de vencimiento ingresada no cumple con la política mínima de CareStock." |
+
+**Tono:** directo, sin tecnicismos, sin culpar al usuario.
