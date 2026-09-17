@@ -128,6 +128,8 @@ Ej: "Bodega A - Estante 3 - Nivel 2"
 4. Si intenta guardar sin seleccionar, se bloquea con el estado de error de arriba.
 
 MockUp Ubicacion
+
+
 <img width="300" height="233" alt="MockupUbicacion_HU44" src="https://github.com/user-attachments/assets/cda4bcb3-02c7-4777-979f-41bb76777347" />
 
 
