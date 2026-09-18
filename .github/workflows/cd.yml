@@ -1,22 +1,33 @@
-name: Java CD Deployment & Release
+name: Java Package
 
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  package:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-    - name: Descargar código del repositorio
-      uses: actions/checkout@v4
+      - name: Descargar el código
+        uses: actions/checkout@v4
 
-    - name: Configurar JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Configurar JDK 17 y caché de Maven
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: Confirmación de despliegue
-      run: echo "Workflow de CD listo para integrarse con el build de Maven."
+      - name: Empaquetar aplicación
+        run: mvn -B clean package
+
+      - name: Publicar artefacto Maven
+        uses: actions/upload-artifact@v4
+        with:
+          name: carestock-package
+          path: target/*.jar
+          if-no-files-found: error

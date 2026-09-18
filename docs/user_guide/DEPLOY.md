@@ -1,36 +1,48 @@
-# 🚀 Guía de Despliegue y Ejecución - CareStock (Prototipo Entrega 1)
+# Guía de compilación y ejecución — CareStock
 
-Esta guía detalla los pasos necesarios para configurar el entorno local, compilar y ejecutar el primer incremento funcional del sistema **CareStock**, conectando la interfaz gráfica de JavaFX con la base de datos PostgreSQL en la nube (Neon DB).
+## Requisitos
 
----
+- JDK 17+
+- Maven 3.9+
+- PostgreSQL/Neon accesible desde el equipo
 
-## 📋 Requisitos Previos
+## Variables de entorno
 
-Antes de ejecutar el proyecto, asegúrate de tener instalado en tu equipo:
-1. **Java Development Kit (JDK 21):** Asegúrate de que esté correctamente configurado en las variables de entorno de tu sistema.
-2. **JavaFX SDK 21:** Descargado y descomprimido localmente en tu equipo (necesario para la interfaz gráfica).
-3. **Driver JDBC de PostgreSQL:** El archivo `postgresql-driver.jar` debe estar ubicado en la raíz del proyecto para permitir la persistencia de datos.
-4. **Conexión a Internet:** Requerida para que el prototipo pueda consultar y escribir en la base de datos de Neon DB.
+La aplicación lee:
 
----
+- `DB_URL`
+- `DB_USER`
+- `DB_PASSWORD`
+- `CARESTOCK_USER_EMAIL` (opcional; por defecto `admin@carestock.com`)
 
-## 🛠️ Configuración de Variables de Entorno (Opcional)
+No agregue credenciales reales a archivos versionados.
 
-Si el prototipo lee la cadena de conexión mediante variables de entorno, asegúrate de configurarlas en tu terminal o sistema operativo:
-* `DB_URL`: URL de conexión a tu base de datos PostgreSQL (Neon DB).
-* `DB_USER`: Usuario de la base de datos.
-* `DB_PASSWORD`: Contraseña de acceso.
+## Windows PowerShell
 
-*(Nota: Si las credenciales están quemadas directamente en el DAO de prueba, puedes omitir este paso).*
+```powershell
+$env:DB_URL="jdbc:postgresql://HOST:5432/neondb?sslmode=require"
+$env:DB_USER="usuario"
+$env:DB_PASSWORD="contraseña"
+$env:CARESTOCK_USER_EMAIL="admin@carestock.com"
 
----
+mvn clean verify
+mvn javafx:run
+```
 
-## ▶️ Instrucciones de Ejecución
+También puede ejecutar `scripts/run.ps1` una vez definidas las variables.
 
-Abre tu terminal (por ejemplo, Git Bash o CMD) posicionándote en la raíz del repositorio y sigue estos pasos:
+## Linux / macOS / Git Bash
 
-### 1. Definir la ruta de JavaFX
-Configura la variable `JAVAFX_LIB` apuntando a la carpeta `lib` de tu SDK de JavaFX descargado. 
-*(Ejemplo en Git Bash / Linux):*
 ```bash
-export JAVAFX_LIB="/ruta/a/javafx-sdk-21/lib"
+export DB_URL='jdbc:postgresql://HOST:5432/neondb?sslmode=require'
+export DB_USER='usuario'
+export DB_PASSWORD='contraseña'
+export CARESTOCK_USER_EMAIL='admin@carestock.com'
+
+mvn clean verify
+mvn javafx:run
+```
+
+## GitHub Actions
+
+Las pruebas de CI no necesitan conexión a la base porque las pruebas actuales son unitarias. Las credenciales de producción no deben almacenarse en el repositorio; si más adelante se agregan pruebas de integración o despliegue, use GitHub Actions Secrets.

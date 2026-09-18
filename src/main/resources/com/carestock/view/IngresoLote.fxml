@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="520.0" spacing="20.0" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carestock.controller.IngresoLoteController">
+    <padding>
+        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+    </padding>
+    <children>
+        <Label text="Registro de ingreso de nuevo lote" textFill="#1f2937">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+
+        <GridPane hgap="15.0" vgap="15.0">
+            <columnConstraints>
+                <ColumnConstraints minWidth="140.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="280.0" prefWidth="300.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="35.0" />
+                <RowConstraints minHeight="35.0" />
+                <RowConstraints minHeight="35.0" />
+                <RowConstraints minHeight="35.0" />
+                <RowConstraints minHeight="35.0" />
+            </rowConstraints>
+            <children>
+                <Label text="Medicamento:" GridPane.rowIndex="0" />
+                <ComboBox fx:id="cmbMedicamento" promptText="Seleccionar medicamento activo"
+                          prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Número de lote:" GridPane.rowIndex="1" />
+                <TextField fx:id="txtNumeroLote" promptText="Ej: LOT-2026-001"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Cantidad de unidades:" GridPane.rowIndex="2" />
+                <TextField fx:id="txtCantidad" promptText="Ej: 100"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Fecha de vencimiento:" GridPane.rowIndex="3" />
+                <DatePicker fx:id="dpFechaVencimiento" promptText="dd/mm/aaaa"
+                            prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label text="Ubicación física:" GridPane.rowIndex="4" />
+                <ComboBox fx:id="cmbUbicacion" promptText="Seleccionar estante / nivel"
+                          prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            </children>
+        </GridPane>
+
+        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+            <children>
+                <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#handleCancelar" text="Cancelar" />
+                <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#handleGuardarLote"
+                        style="-fx-background-color: #2563eb; -fx-text-fill: white;" text="Guardar lote" />
+            </children>
+            <VBox.margin>
+                <Insets top="10.0" />
+            </VBox.margin>
+        </HBox>
+    </children>
+</VBox>

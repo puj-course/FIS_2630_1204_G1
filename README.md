@@ -1,123 +1,225 @@
-# Plantilla del README del proyecto 2630
+# CareStock
 
-# CARE STOCK
+CareStock es un proyecto académico para la gestión y trazabilidad de inventario de medicamentos. La versión actual integra una interfaz de escritorio JavaFX con PostgreSQL/Neon mediante JDBC y contiene el flujo de catálogo de medicamentos e ingreso de lotes.
 
-## Descripción
-es una plataforma SaaS integral orientada a la gestión, trazabilidad y optimización de inventarios en droguerías independientes e Instituciones Prestadoras de Salud (IPS) en Colombia. 
-El sistema aborda directamente la problemática de las pérdidas operativas por vencimiento de medicamentos y el riesgo de sanciones regulatorias. A través de alertas en tiempo real, automatización de trazabilidad y analítica de datos, **CareStock** garantiza el cumplimiento estricto de la **Resolución 1403 de 2007** de la normativa colombiana de salud.
+## Equipo del proyecto — Grupo 1
 
----
-## Equipo del Proyecto (Grupo 1)
-| Nombre | Rol | GitHub / Perfil |
-|--------|-----|-----------------|
-| **Mateo Salazar Bogotá** | Product Owner | [@Mateosalazar543](https://github.com/Mateosalazar543) |
-| **Laura Sofía Ortiz Gómez** | Scrum Master | [@Lau1216](https://github.com/Lau1216) |
-| **Valentina Carrillo Peñuela** | Diseñadora UI/UX | [@valcarrpe](https://github.com/valcarrpe) |
-| **Alejandro Rodríguez Molina** | Desarrollador Backend | [@alejormolina3](https://github.com/alejormolina3) |
-| **Santiago Cadena Goyeneche** | Ingeniero de Datos | [@Jsanti13](https://github.com/Jsanti13) |
+|Nombre|Rol|GitHub / Perfil|
+|-|-|-|
+|Mateo Salazar Bogotá|Product Owner|@Mateosalazar543|
+|Laura Sofía Ortiz Gómez|Scrum Master|@Lau1216|
+|Valentina Carrillo Peñuela|Diseñadora UI/UX|@valcarrpe|
+|Alejandro Rodríguez Molina|Desarrollador Backend|@alejormolina3|
+|Santiago Cadena Goyeneche|Ingeniero de Datos|@Jsanti13|
 
----
-## Funcionalidades Principales
+## Estado funcional actual
 
-- **Despacho Asistido (FEFO):** Priorización automática de salida para el lote más próximo a vencer (*First Expired, First Out*).
-- **Control de Lotes y Vencimientos:** Registro detallado de fechas de caducidad con semaforización visual de alertas.
-- **Búsqueda y Filtros Rápidos:** Búsqueda en tiempo real por nombre comercial o principio activo optimizada para atención en mostrador.
-- **Alertas de Stock Mínimo:** Notificaciones automáticas para reabastecimiento oportuno.
-- **Trazabilidad y Reportes:** Historial de movimientos listo para inspecciones normativas.
----
+* Dashboard JavaFX conectado a PostgreSQL.
+* Consulta del catálogo de medicamentos.
+* Registro de medicamentos.
+* Filtro de medicamentos con stock crítico.
+* Métrica de lotes próximos a vencer en 30 días.
+* Registro de un nuevo lote mediante FXML.
+* Validación de medicamento, número de lote, cantidad, vencimiento y ubicación.
+* Uso del procedimiento `sp\_registrar\_nuevo\_lote` para registrar el lote y su trazabilidad.
+* Actualización automática de `MEDICAMENTOS.stock\_total` mediante trigger SQL.
+* Pruebas unitarias para las reglas principales del ingreso de lotes.
 
-## Tecnologías Utilizadas
-* **Frontend:** JavaFX / FXML
-* **Backend:** Java (JDK 17+) – Spring Boot
-* **Base de Datos:** Oracle Database (Containerizado en Docker + JetBrains DataGrip)
-* **IA & Analítica:** Python 3.10+, Pandas, Scikit-learn
-* **DevOps & Herramientas:** Docker, GitHub Actions, Git, Visual Studio Code / IntelliJ IDEA
----
+> El proyecto actual no depende de Spring Boot, Oracle, Python ni Docker para compilar o ejecutar la aplicación JavaFX.
 
-## Estructura del Repositorio
+## Estructura principal
+
 ```text
-FIS_2630_1204_G1/
-├── .gitignore
-├── BOILERPLATE_template.md
-├── LICENSE
-├── README.md
+FIS\_2630\_1204\_G1/
 ├── .github/
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   ├── feature_request.md
-│   │   └── user_story.md
+│   ├── ISSUE\_TEMPLATE/
 │   └── workflows/
-│       ├── cd.yml
-│       └── ci.yml
+│       ├── ci.yml
+│       └── cd.yml
+├── conf/
+│   ├── config.yaml
+│   └── settings.json
 ├── docs/
-│   ├── architecture/          # Diagramas, paletas de color y requerimientos
-│   ├── scrum/                 # Actas de Sprint Planning, Review y Retrospectivas
-│   └── user_guide/            # Guías de despliegue (DEPLOY.md)
-└── src/
-    ├── main/
-    │   ├── java/com/carestock/
-    │   │   ├── config/        # Configuración de base de datos (DatabaseConfig)
-    │   │   ├── dao/           # Capa de acceso a datos (MedicamentoDAO)
-    │   │   ├── model/         # Entidades del dominio (Medicamento, Producto)
-    │   │   └── view/          # Interfaz gráfica JavaFX (MainDashboardFX)
-    │   └── resources/
-    └── sql/                   # Scripts DDL/DML de PostgreSQL
-
-## Instalación y Ejecución
-**Requisitos**
-- Docker y Docker Compose
-- Git
-- Java 17+
-- Python 3.10+
-
-## Clonar el repositorio
-```text
-git clone https://github.com/puj-course/FIS_2630_1204_G1
-cd proyecto
+│   ├── architecture/
+│   ├── qa/
+│   ├── scrum/
+│   └── user\_guide/
+├── scripts/
+│   ├── setup.sh
+│   ├── test.sh
+│   ├── run.sh
+│   ├── deploy.sh
+│   ├── test.ps1
+│   └── run.ps1
+├── src/
+│   ├── main/
+│   │   ├── java/com/carestock/
+│   │   │   ├── config/
+│   │   │   ├── controller/
+│   │   │   ├── dao/
+│   │   │   ├── model/
+│   │   │   ├── service/
+│   │   │   ├── utils/
+│   │   │   └── view/
+│   │   └── resources/com/carestock/view/
+│   ├── test/java/com/carestock/
+│   └── sql/
+├── .env.example
+├── .gitignore
+├── pom.xml
+└── README.md
 ```
 
-## Ejecución con Docker
+## Tecnologías
+
+* Java 17
+* JavaFX 21
+* FXML
+* Maven
+* JDBC
+* PostgreSQL / Neon
+* JUnit 5
+* GitHub Actions
+
+
+
+## Arquitectura del ingreso de lotes
+
 ```text
-docker-compose up --build
+MainDashboardFX
+      |
+      v
+IngresoLote.fxml
+      |
+      v
+IngresoLoteController
+      |
+      +--> MedicamentoDAO ------> MEDICAMENTOS
+      +--> UbicacionDAO --------> UBICACIONES
+      |
+      v
+IngresoLoteValidator
+      |
+      v
+IngresoLoteService
+      |
+      +--> UsuarioDAO ----------> USUARIOS
+      +--> LoteDAO
+              |
+              v
+      sp\_registrar\_nuevo\_lote
+              |
+              +--> LOTES
+              +--> LOG\_MOVIMIENTOS
+              |
+              v
+      trg\_actualizar\_stock\_total
+              |
+              v
+         MEDICAMENTOS
 ```
 
-## Ejecución de pruebas
+## Requisitos
+
+1. JDK 17 o superior.
+2. Maven 3.9 o superior.
+3. Una base PostgreSQL con el esquema CareStock.
+4. Variables de entorno de conexión.
+
+## Configuración de la base de datos
+
+No se almacenan contraseñas dentro del código. Use `.env.example` únicamente como referencia y defina estas variables en su sistema:
+
 ```text
-docker-compose run backend mvn test
-docker-compose run ai-model pytest
+DB\_URL=jdbc:postgresql://HOST:5432/neondb?sslmode=require
+DB\_USER=usuario\_postgresql
+DB\_PASSWORD=contraseña\_postgresql
+CARESTOCK\_USER\_EMAIL=admin@carestock.com
 ```
 
----
+`CARESTOCK\_USER\_EMAIL` debe corresponder a un registro de `USUARIOS` con estado `ACTIVO`; se utiliza para la trazabilidad de los movimientos mientras no exista un módulo de autenticación completo.
 
-## Contexto Académico
-- **Asignatura:** Fundamentos de Ingeniería de Software
-- **Docente:** Luis Gabriel Moreno Sandoval, PhD
-- **Contacto:** morenoluis@javeriana.edu.co
+### PowerShell (Windows)
 
----
+```powershell
+$env:DB\_URL="jdbc:postgresql://HOST:5432/neondb?sslmode=require"
+$env:DB\_USER="usuario\_postgresql"
+$env:DB\_PASSWORD="contraseña\_postgresql"
+$env:CARESTOCK\_USER\_EMAIL="admin@carestock.com"
+```
 
-## Contacto
+### Bash (Linux/macOS/Git Bash)
 
-**Estudiante 1**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana  
-📧 Carrillo-Valentina@javeriana.edu.co  
+```bash
+export DB\_URL='jdbc:postgresql://HOST:5432/neondb?sslmode=require'
+export DB\_USER='usuario\_postgresql'
+export DB\_PASSWORD='contraseña\_postgresql'
+export CARESTOCK\_USER\_EMAIL='admin@carestock.com'
+```
 
-**Estudiante 2**  
-Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
-📧 lauras.ortizg@javeriana.edu.co  
+## Preparar la base de datos
 
-**Estudiante 3**  
-Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
-📧 alejandrorodriguezm@javeriana.edu.co
+Ejecute los scripts SQL en este orden cuando cree una base nueva:
 
-**Estudiante 4**  
-Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
-📧 cadenag.js@javeriana.edu.co
+```text
+src/sql/ddl/01\_schema\_carestock.sql
+src/sql/ddl/02\_functions\_triggers.sql
+src/sql/dml/01\_seed\_roles\_permisos.sql
+src/sql/dml/02\_seed\_catalogo\_base.sql
+src/sql/DatosPrueba.sql
+src/sql/procedures/01\_sp\_ingreso\_lotes.sql
+```
 
-**Estudiante 5**  
-Estudiante de Ingeniería en Sistemas, Pontificia Universidad Javeriana  
-📧 mateo.salazarb@javeriana.edu.co
+Si la base existente ya contiene las migraciones adicionales de `MEDICAMENTOS`, el DAO detecta las columnas `presentacion` e `id\_usuario\_creacion` y las completa al insertar.
 
---- 
+## Compilar y probar
+
+```bash
+mvn clean verify
+```
+
+## Ejecutar la interfaz JavaFX
+
+```bash
+mvn javafx:run
+```
+
+En Windows también puede usar:
+
+```powershell
+.\\scripts\\run.ps1
+```
+
+## Flujo de ingreso de lote
+
+1. Abra CareStock.
+2. Pulse **Ingresar lote**.
+3. Seleccione un medicamento activo.
+4. Digite el número de lote y la cantidad.
+5. Seleccione una fecha de vencimiento futura.
+6. Seleccione una ubicación física.
+7. Pulse **Guardar lote**.
+8. La aplicación invoca el procedimiento almacenado, registra la trazabilidad y el trigger recalcula el stock total.
+
+## Seguridad
+
+* No suba `.env` ni credenciales reales a GitHub.
+* Si una contraseña estuvo previamente publicada en el repositorio o en su historial Git, debe rotarse en Neon/PostgreSQL.
+* El ZIP preparado para distribución no incluye la carpeta `.git` del equipo local.
+
+## CI/CD
+
+El workflow `ci.yml` ejecuta:
+
+```bash
+mvn -B clean verify
+```
+
+El workflow `cd.yml` empaqueta el proyecto con Maven y publica el `.jar` generado como artefacto de GitHub Actions.
+
+## Contexto académico
+
+* Asignatura: Fundamentos de Ingeniería de Software
+* Pontificia Universidad Javeriana
+* Grupo: FIS\_2630\_1204\_G1
 
