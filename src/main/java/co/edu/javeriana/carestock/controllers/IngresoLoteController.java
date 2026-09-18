@@ -66,28 +66,28 @@ public class IngresoLoteController implements Initializable {
         );
         cmbUbicacion.setItems(ubicacionesMock);
     }
+@FXML
+private void handleGuardarLote(ActionEvent event) {
+    Medicamento medicamentoSel = cmbMedicamento.getValue();
+    String numeroLote = txtNumeroLote.getText();
+    String cantidadStr = txtCantidad.getText();
+    LocalDate fechaVencimiento = dpFechaVencimiento.getValue();
+    Ubicacion ubicacionSel = cmbUbicacion.getValue();
 
-    @FXML
-    private void handleGuardarLote(ActionEvent event) {
-        Medicamento medicamentoSel = cmbMedicamento.getValue();
-        String numeroLote = txtNumeroLote.getText();
-        String cantidadStr = txtCantidad.getText();
-        LocalDate fechaVencimiento = dpFechaVencimiento.getValue();
-        Ubicacion ubicacionSel = cmbUbicacion.getValue();
+    String errorValidacion = IngresoLoteValidator.validar(
+        medicamentoSel, numeroLote, cantidadStr, fechaVencimiento, ubicacionSel
+    );
 
-        if (medicamentoSel == null || numeroLote == null || numeroLote.isBlank() || 
-            cantidadStr == null || cantidadStr.isBlank() || fechaVencimiento == null || ubicacionSel == null) {
-            mostrarAlerta("Campos incompletos", "Por favor diligencie todos los campos obligatorios.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        mostrarAlerta("Modelo vinculado", 
-            "Lote listo para guardar:\n" +
-            "• Medicamento ID: " + medicamentoSel.getIdMedicamento() + "\n" +
-            "• Ubicación ID: " + ubicacionSel.getIdUbicacion(), 
-            Alert.AlertType.INFORMATION);
+    if (errorValidacion != null) {
+        mostrarAlerta("Error de Validación", errorValidacion, Alert.AlertType.WARNING);
+        return;
     }
 
+    int cantidad = Integer.parseInt(cantidadStr.trim());
+    mostrarAlerta("Validación Exitosa", 
+        "Datos válidos para el Lote: " + numeroLote.trim() + "\nListo para guardar en BD.", 
+        Alert.AlertType.INFORMATION);
+}
     @FXML
     private void handleCancelar(ActionEvent event) {
         Stage stage = (Stage) btnCancelar.getScene().getWindow();
