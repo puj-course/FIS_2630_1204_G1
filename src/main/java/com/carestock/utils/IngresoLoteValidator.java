@@ -1,17 +1,19 @@
-package co.edu.javeriana.carestock.utils;
+package com.carestock.utils;
+
+import com.carestock.model.Medicamento;
+import com.carestock.model.Ubicacion;
 
 import java.time.LocalDate;
-import co.edu.javeriana.carestock.models.Medicamento;
-import co.edu.javeriana.carestock.models.Ubicacion;
 
-public class IngresoLoteValidator {
+public final class IngresoLoteValidator {
 
-    // Regex: Alfanumérico y guiones, entre 3 y 50 caracteres
     private static final String LOTE_REGEX = "^[a-zA-Z0-9-]{3,50}$";
 
-    public static String validar(Medicamento medicamento, String numeroLote, String cantidadStr, 
-                                 LocalDate fechaVencimiento, Ubicacion ubicacion) {
+    private IngresoLoteValidator() {
+    }
 
+    public static String validar(Medicamento medicamento, String numeroLote, String cantidadStr,
+                                 LocalDate fechaVencimiento, Ubicacion ubicacion) {
         if (medicamento == null) {
             return "Debe seleccionar un medicamento activo.";
         }
@@ -49,6 +51,6 @@ public class IngresoLoteValidator {
             return "Debe seleccionar una ubicación física disponible.";
         }
 
-        return null; // Retorna null si la validación fue exitosa
+        return null;
     }
 }

@@ -1,0 +1,12 @@
+application:
+  name: CareStock
+  java: 17
+  ui: JavaFX
+  database: PostgreSQL
+
+inventory:
+  expiration_warning_days: 30
+  lot_strategy: FEFO
+
+# Las credenciales no se guardan aquí.
+# La aplicación usa DB_URL, DB_USER, DB_PASSWORD y CARESTOCK_USER_EMAIL.

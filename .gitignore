@@ -1,4 +1,23 @@
-Proto/
+# IDE / sistema
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Java / Maven
 *.class
+target/
 bin/
 out/
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Prototipos locales / temporales
+Proto/

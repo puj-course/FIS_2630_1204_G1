@@ -1,33 +1,49 @@
 package com.carestock.view;
 
+import com.carestock.controller.IngresoLoteController;
+import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.model.Medicamento;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class MainDashboardFX extends Application {
 
-    private TableView<Medicamento> tablaInventario = new TableView<>();
-    private ObservableList<Medicamento> listaMedicamentos = FXCollections.observableArrayList();
-    private FilteredList<Medicamento> listaFiltrada = new FilteredList<>(listaMedicamentos, p -> true);
+    private final TableView<Medicamento> tablaInventario = new TableView<>();
+    private final ObservableList<Medicamento> listaMedicamentos = FXCollections.observableArrayList();
+    private final FilteredList<Medicamento> listaFiltrada = new FilteredList<>(listaMedicamentos, p -> true);
 
-    private MedicamentoDAO medicamentoDAO = new MedicamentoDAO();
+    private final MedicamentoDAO medicamentoDAO = new MedicamentoDAO();
+    private final LoteDAO loteDAO = new LoteDAO();
 
-    private Label lblTotalStock = new Label("0");
-    private Label lblProximosVencer = new Label("0");
-    private Label lblAlertasCriticas = new Label("0");
+    private final Label lblTotalStock = new Label("0");
+    private final Label lblProximosVencer = new Label("0");
+    private final Label lblAlertasCriticas = new Label("0");
 
     private Button btnFiltrarCriticos;
     private boolean filtrandoCriticos = false;
@@ -35,50 +51,41 @@ public class MainDashboardFX extends Application {
     @Override
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();
-
-        VBox sidebar = buildSidebar();
-        root.setLeft(sidebar);
+        root.setLeft(buildSidebar());
 
         VBox mainContent = new VBox(20);
         mainContent.setPadding(new Insets(20));
         mainContent.setStyle("-fx-background-color: #F8F9FA;");
-
-        HBox topbar = buildTopbar();
-        HBox metricCards = buildMetricCards();
-        VBox tableContainer = buildTableSection();
-
-        mainContent.getChildren().addAll(topbar, metricCards, tableContainer);
+        mainContent.getChildren().addAll(buildTopbar(), buildMetricCards(), buildTableSection());
         root.setCenter(mainContent);
 
-        cargarDatosDesdeBD();
-
         Scene scene = new Scene(root, 1200, 700);
-        primaryStage.setTitle("CareStock - Módulo de Inventarios (Conectado a Neon DB)");
+        primaryStage.setTitle("CareStock - Gestión de Inventario");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        cargarDatosDesdeBD();
     }
 
-    private void cargarDatosDesdeBD() {
+    public void cargarDatosDesdeBD() {
+        List<Medicamento> desdeBD = medicamentoDAO.obtenerTodos();
+        listaMedicamentos.setAll(desdeBD);
+
+        lblTotalStock.setText(String.format("%,d", medicamentoDAO.obtenerTotalUnidadesStock()));
+        lblAlertasCriticas.setText(String.valueOf(medicamentoDAO.obtenerAlertasCriticas()));
+
         try {
-            List<Medicamento> desdeBD = medicamentoDAO.obtenerTodos();
-            listaMedicamentos.setAll(desdeBD);
-
-            int totalStock = medicamentoDAO.obtenerTotalUnidadesStock();
-            int alertas = medicamentoDAO.obtenerAlertasCriticas();
-
-            lblTotalStock.setText(String.format("%,d", totalStock));
+            lblProximosVencer.setText(String.valueOf(loteDAO.contarProximosAVencer(30)));
+        } catch (SQLException e) {
             lblProximosVencer.setText("0");
-            lblAlertasCriticas.setText(String.valueOf(alertas));
-
-        } catch (Exception e) {
-            System.err.println("Error al cargar datos desde Neon DB: " + e.getMessage());
+            System.err.println("No fue posible consultar lotes próximos a vencer: " + e.getMessage());
         }
     }
 
     private VBox buildSidebar() {
         VBox sidebar = new VBox(15);
         sidebar.setPadding(new Insets(20));
-        sidebar.setPrefWidth(200);
+        sidebar.setPrefWidth(210);
         sidebar.setStyle("-fx-background-color: #A3D9D2;");
 
         Label logo = new Label("CareStock");
@@ -88,12 +95,16 @@ public class MainDashboardFX extends Application {
         btnDashboard.setMaxWidth(Double.MAX_VALUE);
         btnDashboard.setStyle("-fx-background-color: #B39DDB; -fx-text-fill: white; -fx-font-weight: bold;");
 
-        sidebar.getChildren().addAll(logo, new Separator(), btnDashboard);
+        Button btnIngresoLote = new Button("Ingreso de lotes");
+        btnIngresoLote.setMaxWidth(Double.MAX_VALUE);
+        btnIngresoLote.setOnAction(e -> abrirIngresoLote());
+
+        sidebar.getChildren().addAll(logo, new Separator(), btnDashboard, btnIngresoLote);
         return sidebar;
     }
 
     private HBox buildTopbar() {
-        HBox topbar = new HBox();
+        HBox topbar = new HBox(10);
         topbar.setAlignment(Pos.CENTER_LEFT);
 
         Label title = new Label("Dashboard general");
@@ -105,32 +116,35 @@ public class MainDashboardFX extends Application {
         VBox botonesAccion = new VBox(8);
         botonesAccion.setAlignment(Pos.CENTER_RIGHT);
 
-        Button btnAgregar = new Button("+ Agregar Medicamento");
+        HBox filaPrincipal = new HBox(8);
+        Button btnAgregar = new Button("+ Agregar medicamento");
         btnAgregar.setStyle("-fx-background-color: #A3D9D2; -fx-font-weight: bold;");
         btnAgregar.setOnAction(e -> abrirFormularioAgregar());
 
-        btnFiltrarCriticos = new Button("⚠️ Ver Alertas Críticas");
+        Button btnLote = new Button("+ Ingresar lote");
+        btnLote.setStyle("-fx-background-color: #B39DDB; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnLote.setOnAction(e -> abrirIngresoLote());
+        filaPrincipal.getChildren().addAll(btnAgregar, btnLote);
+
+        btnFiltrarCriticos = new Button("Ver alertas críticas");
         btnFiltrarCriticos.setStyle("-fx-background-color: #FFCDD2; -fx-text-fill: #C62828; -fx-font-weight: bold;");
         btnFiltrarCriticos.setOnAction(e -> alternarFiltroCriticos());
 
-        botonesAccion.getChildren().addAll(btnAgregar, btnFiltrarCriticos);
-
+        botonesAccion.getChildren().addAll(filaPrincipal, btnFiltrarCriticos);
         topbar.getChildren().addAll(title, spacer, botonesAccion);
         return topbar;
     }
 
     private void alternarFiltroCriticos() {
         filtrandoCriticos = !filtrandoCriticos;
-
         if (filtrandoCriticos) {
-            listaFiltrada.setPredicate(m -> 
-                m.getStockTotal() != null && m.getStockMinimo() != null && m.getStockTotal() <= m.getStockMinimo()
-            );
-            btnFiltrarCriticos.setText("📋 Ver Todos los Medicamentos");
+            listaFiltrada.setPredicate(m -> m.getStockTotal() != null && m.getStockMinimo() != null
+                    && m.getStockTotal() <= m.getStockMinimo());
+            btnFiltrarCriticos.setText("Ver todos los medicamentos");
             btnFiltrarCriticos.setStyle("-fx-background-color: #E0E0E0; -fx-text-fill: #333333; -fx-font-weight: bold;");
         } else {
             listaFiltrada.setPredicate(p -> true);
-            btnFiltrarCriticos.setText("⚠️ Ver Alertas Críticas");
+            btnFiltrarCriticos.setText("Ver alertas críticas");
             btnFiltrarCriticos.setStyle("-fx-background-color: #FFCDD2; -fx-text-fill: #C62828; -fx-font-weight: bold;");
         }
     }
@@ -139,7 +153,7 @@ public class MainDashboardFX extends Application {
         HBox container = new HBox(15);
         container.getChildren().addAll(
             createCard(lblTotalStock, "Unidades en stock"),
-            createCard(lblProximosVencer, "Próximos a vencer"),
+            createCard(lblProximosVencer, "Lotes próximos a vencer (30 días)"),
             createCard(lblAlertasCriticas, "Alertas críticas")
         );
         return container;
@@ -148,13 +162,11 @@ public class MainDashboardFX extends Application {
     private VBox createCard(Label numLabel, String label) {
         VBox card = new VBox(5);
         card.setPadding(new Insets(15));
-        card.setPrefWidth(200);
+        card.setPrefWidth(230);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
-
         numLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
         Label subText = new Label(label);
         subText.setStyle("-fx-text-fill: #7F8C8D; -fx-font-size: 11px;");
-
         card.getChildren().addAll(numLabel, subText);
         return card;
     }
@@ -164,7 +176,7 @@ public class MainDashboardFX extends Application {
         section.setPadding(new Insets(15));
         section.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
 
-        Label lblSection = new Label("Inventario en Neon DB");
+        Label lblSection = new Label("Inventario PostgreSQL");
         lblSection.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
         TableColumn<Medicamento, Long> colId = new TableColumn<>("ID");
@@ -180,7 +192,7 @@ public class MainDashboardFX extends Application {
         TableColumn<Medicamento, String> colPrincipio = new TableColumn<>("PRINCIPIO");
         colPrincipio.setCellValueFactory(new PropertyValueFactory<>("principioActivo"));
 
-        TableColumn<Medicamento, String> colCategoria = new TableColumn<>("CATEGORIA");
+        TableColumn<Medicamento, String> colCategoria = new TableColumn<>("CATEGORÍA");
         colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
 
         TableColumn<Medicamento, Integer> colStock = new TableColumn<>("STOCK");
@@ -189,11 +201,9 @@ public class MainDashboardFX extends Application {
         TableColumn<Medicamento, Integer> colStockMin = new TableColumn<>("STOCK MÍN");
         colStockMin.setCellValueFactory(new PropertyValueFactory<>("stockMinimo"));
 
-        tablaInventario.getColumns().clear();
-        tablaInventario.getColumns().addAll(colId, colInvima, colNombre, colPrincipio, colCategoria, colStock, colStockMin);
-        
+        tablaInventario.getColumns().setAll(colId, colInvima, colNombre, colPrincipio, colCategoria, colStock, colStockMin);
         tablaInventario.setItems(listaFiltrada);
-        tablaInventario.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tablaInventario.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
         section.getChildren().addAll(lblSection, tablaInventario);
         return section;
@@ -203,14 +213,34 @@ public class MainDashboardFX extends Application {
         FormularioMedicamentoDialog dialog = new FormularioMedicamentoDialog();
         Optional<Medicamento> result = dialog.showAndWait();
         result.ifPresent(medicamento -> {
-    boolean exito = medicamentoDAO.guardar(medicamento);
-    if (exito) {
-        cargarDatosDesdeBD();
-        AlertUtil.mostrarExito("El medicamento \"" + medicamento.getNombreComercial() + "\" se registró correctamente.");
-    } else {
-        AlertUtil.mostrarError("No se pudo guardar el medicamento en la base de datos. Verifica los datos e intenta nuevamente.");
+            if (medicamentoDAO.guardar(medicamento)) {
+                cargarDatosDesdeBD();
+                AlertUtil.mostrarExito("El medicamento \"" + medicamento.getNombreComercial() + "\" se registró correctamente.");
+            } else {
+                AlertUtil.mostrarError("No se pudo guardar el medicamento. Verifique la categoría, los datos y la conexión a PostgreSQL.");
+            }
+        });
     }
-});
+
+    private void abrirIngresoLote() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/carestock/view/IngresoLote.fxml"));
+            Parent root = loader.load();
+            IngresoLoteController controller = loader.getController();
+            controller.setOnSaved(this::cargarDatosDesdeBD);
+
+            Stage stage = new Stage();
+            stage.setTitle("CareStock - Ingreso de lote");
+            stage.initModality(Modality.WINDOW_MODAL);
+            if (tablaInventario.getScene() != null) {
+                stage.initOwner(tablaInventario.getScene().getWindow());
+            }
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (IOException | RuntimeException e) {
+            AlertUtil.mostrarError("No fue posible abrir el formulario de ingreso de lote. " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
