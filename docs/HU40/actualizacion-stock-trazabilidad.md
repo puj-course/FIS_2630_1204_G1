@@ -1,7 +1,6 @@
 # Documentación de la actualización del stock total y la generación de 
 trazabilidad
 
-**Sprint:** 6
 **Historia de Usuario:** HU.40
 **Tarea:** #241
 **Responsable:** Laura Sofía Ortiz Gómez (Scrum Master)
