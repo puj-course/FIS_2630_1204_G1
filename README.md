@@ -52,7 +52,7 @@ FIS_2630_1204_G1/
 ├── CHANGELOG.md             # Historial de cambios y registro de versiones del proyecto
 ├── pom.xml                  # Archivo de configuración y gestión de dependencias de Maven
 └── README.md                # Documentación principal e introducción al proyecto```
-
+```
 ## Tecnologías
 * Java 17
 * JavaFX 21
