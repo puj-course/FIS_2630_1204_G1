@@ -30,48 +30,30 @@ CareStock es un proyecto académico para la gestión y trazabilidad de inventari
 ## Estructura principal
 
 ```text
-FIS\_2630\_1204\_G1/
-├── .github/
-│   ├── ISSUE\_TEMPLATE/
-│   └── workflows/
-│       ├── ci.yml
-│       └── cd.yml
-├── conf/
-│   ├── config.yaml
-│   └── settings.json
-├── docs/
-│   ├── architecture/
-│   ├── qa/
-│   ├── scrum/
-│   └── user\_guide/
-├── scripts/
-│   ├── setup.sh
-│   ├── test.sh
-│   ├── run.sh
-│   ├── deploy.sh
-│   ├── test.ps1
-│   └── run.ps1
-├── src/
-│   ├── main/
-│   │   ├── java/com/carestock/
-│   │   │   ├── config/
-│   │   │   ├── controller/
-│   │   │   ├── dao/
-│   │   │   ├── model/
-│   │   │   ├── service/
-│   │   │   ├── utils/
-│   │   │   └── view/
-│   │   └── resources/com/carestock/view/
-│   ├── test/java/com/carestock/
-│   └── sql/
-├── .env.example
-├── .gitignore
-├── pom.xml
-└── README.md
-```
+FIS_2630_1204_G1/
+├── .github/                 # Configuración de GitHub, plantillas de Issues/PRs y pipelines CI/CD
+│   ├── ISSUE_TEMPLATE/      # Plantillas para reportes de bugs, características e historias de usuario
+│   └── workflows/           # Automatización de compilación (ci.yml) y despliegue (cd.yml)
+├── conf/                    # Archivos de configuración general de la aplicación (.yaml y .json)
+├── docs/                    # Documentación técnica, arquitectónica y de gestión ágil
+│   ├── architecture/        # Diagramas C4, despliegue, modelos ER y diccionario de datos
+│   ├── qa/                  # Pruebas de aceptación de usuario (UAT) y reportes de calidad
+│   ├── scrum/               # Evidencia de ceremonias ágiles (Sprint Planning, Reviews y Retrospectivas)
+│   └── user_guide/          # Guías de usuario e instrucciones de despliegue local (DEPLOY.md)
+├── scripts/                 # Scripts de automatización para ejecución, pruebas y despliegue (.sh y .ps1)
+├── src/                     # Código fuente principal, pruebas unitarias y scripts de base de datos
+│   ├── main/                # Lógica del sistema Java / JavaFX
+│   │   ├── java/com/carestock/ # Clases organizadas por capas (config, controller, dao, model, service, utils, view)
+│   │   └── resources/       # Recursos gráficos, archivos FXML de interfaces y manifiestos
+│   ├── test/                # Pruebas unitarias automatizadas (JUnit)
+│   └── sql/                 # Scripts DDL, DML, procedimientos almacenados y datasets de prueba para Neon DB
+├── .env.example             # Plantilla de variables de entorno requeridas para la conexión a BD
+├── .gitignore               # Archivos y carpetas ignorados por el control de versiones Git
+├── CHANGELOG.md             # Historial de cambios y registro de versiones del proyecto
+├── pom.xml                  # Archivo de configuración y gestión de dependencias de Maven
+└── README.md                # Documentación principal e introducción al proyecto```
 
 ## Tecnologías
-
 * Java 17
 * JavaFX 21
 * FXML
@@ -80,8 +62,6 @@ FIS\_2630\_1204\_G1/
 * PostgreSQL / Neon
 * JUnit 5
 * GitHub Actions
-
-
 
 ## Arquitectura del ingreso de lotes
 
