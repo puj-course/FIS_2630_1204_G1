@@ -30,28 +30,57 @@ CareStock es un proyecto académico para la gestión y trazabilidad de inventari
 ## Estructura principal
 
 ```text
+```text
 FIS_2630_1204_G1/
-├── .github/                 # Configuración de GitHub, plantillas de Issues/PRs y pipelines CI/CD
-│   ├── ISSUE_TEMPLATE/      # Plantillas para reportes de bugs, características e historias de usuario
-│   └── workflows/           # Automatización de compilación (ci.yml) y despliegue (cd.yml)
-├── conf/                    # Archivos de configuración general de la aplicación (.yaml y .json)
-├── docs/                    # Documentación técnica, arquitectónica y de gestión ágil
-│   ├── architecture/        # Diagramas C4, despliegue, modelos ER y diccionario de datos
-│   ├── qa/                  # Pruebas de aceptación de usuario (UAT) y reportes de calidad
-│   ├── scrum/               # Evidencia de ceremonias ágiles (Sprint Planning, Reviews y Retrospectivas)
-│   └── user_guide/          # Guías de usuario e instrucciones de despliegue local (DEPLOY.md)
-├── scripts/                 # Scripts de automatización para ejecución, pruebas y despliegue (.sh y .ps1)
-├── src/                     # Código fuente principal, pruebas unitarias y scripts de base de datos
-│   ├── main/                # Lógica del sistema Java / JavaFX
-│   │   ├── java/com/carestock/ # Clases organizadas por capas (config, controller, dao, model, service, utils, view)
-│   │   └── resources/       # Recursos gráficos, archivos FXML de interfaces y manifiestos
-│   ├── test/                # Pruebas unitarias automatizadas (JUnit)
-│   └── sql/                 # Scripts DDL, DML, procedimientos almacenados y datasets de prueba para Neon DB
-├── .env.example             # Plantilla de variables de entorno requeridas para la conexión a BD
-├── .gitignore               # Archivos y carpetas ignorados por el control de versiones Git
-├── CHANGELOG.md             # Historial de cambios y registro de versiones del proyecto
-├── pom.xml                  # Archivo de configuración y gestión de dependencias de Maven
-└── README.md                # Documentación principal e introducción al proyecto```
+├── .github/                     # Configuración de GitHub, plantillas de Issues/PRs y pipelines CI/CD
+│   ├── ISSUE_TEMPLATE/          # Plantillas para bugs, nuevas funcionalidades e historias de usuario
+│   └── workflows/               # Automatización de integración continua y despliegue
+│
+├── .mvn/
+│   └── wrapper/                 # Configuración de Maven Wrapper para ejecutar Maven sin instalación global
+│
+├── conf/                        # Archivos de configuración general de la aplicación
+│
+├── docs/                        # Documentación técnica, arquitectónica y de gestión del proyecto
+│   ├── architecture/            # Diagramas de arquitectura, despliegue, modelo ER y documentación técnica
+│   ├── qa/                      # Pruebas de aceptación y documentación de calidad
+│   ├── scrum/                   # Evidencias de Sprint Planning, Review y Retrospective
+│   └── user_guide/              # Manuales de usuario e instrucciones de despliegue local
+│
+├── scripts/                     # Scripts para compilación, pruebas, ejecución y despliegue
+│
+├── src/                         # Código fuente, pruebas y scripts de base de datos
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── carestock/   # Código Java organizado por capas
+│   │   │           ├── config/      # Configuración de conexión y servicios generales
+│   │   │           ├── controller/  # Controladores de las interfaces JavaFX
+│   │   │           ├── dao/         # Acceso y persistencia de datos
+│   │   │           ├── model/       # Entidades y modelos del dominio
+│   │   │           ├── service/     # Lógica de negocio
+│   │   │           ├── utils/       # Validadores y utilidades
+│   │   │           └── view/        # Componentes y vistas JavaFX
+│   │   │
+│   │   └── resources/           # Archivos FXML y recursos utilizados por JavaFX
+│   │
+│   ├── test/                    # Pruebas unitarias automatizadas con JUnit
+│   │
+│   └── sql/                     # Scripts relacionados con PostgreSQL / Neon DB
+│       ├── ddl/                 # Definición de tablas y estructura de base de datos
+│       ├── dml/                 # Inserción y manipulación de datos
+│       ├── procedures/          # Procedimientos almacenados y lógica SQL
+│       └── test_data/           # Datos destinados a pruebas
+│
+├── .env.example                 # Plantilla de variables de entorno requeridas por CareStock
+├── .gitignore                   # Archivos y directorios excluidos del repositorio
+├── BOILERPLATE_template.md      # Plantilla de referencia para la estructura del proyecto
+├── CHANGELOG.md                 # Historial de cambios y versiones
+├── LICENSE                      # Licencia del proyecto
+├── mvnw                         # Maven Wrapper para Linux, macOS y Git Bash
+├── mvnw.cmd                     # Maven Wrapper para Windows
+├── pom.xml                      # Dependencias, plugins y configuración de Maven
+└── README.md                    # Documentación principal del proyecto
 ```
 ## Tecnologías
 * Java 17
