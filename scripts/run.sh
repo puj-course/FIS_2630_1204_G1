@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
-: "${DB_URL:?Debe definir DB_URL}"
-: "${DB_USER:?Debe definir DB_USER}"
-: "${DB_PASSWORD:?Debe definir DB_PASSWORD}"
-export CARESTOCK_USER_EMAIL="${CARESTOCK_USER_EMAIL:-admin@carestock.com}"
+set -e
 
-mvn javafx:run
+cd "$(dirname "$0")/.."
+
+if [ ! -f ".env" ]; then
+    echo "ERROR: No existe el archivo .env"
+    exit 1
+fi
+
+set -a
+source .env
+set +a
+
+echo "=== CareStock ==="
+echo "Compilando y ejecutando pruebas..."
+
+./mvnw clean verify
+
+echo "Compilacion correcta."
+echo "Iniciando CareStock..."
+
+./mvnw javafx:run
