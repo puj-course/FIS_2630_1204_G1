@@ -1,4 +1,3 @@
-Historias de Usuario e Issue Tasks Associated
 ---
 name: "Sprint Planning"
 about: "Plantilla para la planificación y definición del Sprint Backlog"
@@ -11,6 +10,7 @@ assignees: ""
 
 * **Número del Sprint:** 
 * **Duración del Sprint:** [DD/MM/AAAA] - [DD/MM/AAAA]
+
 ---
 
 ## Sprint Goal
@@ -19,26 +19,30 @@ assignees: ""
 * 
 
 ---
-Historias de Usuario e Issue Tasks Associated
-### Sprint Backlog
+
+## Sprint Backlog
+
+### Historias de Usuario e Issue Tasks Associated
 * [ ] **HU.[ID]: [Nombre de la HU]** — *Responsable:* @usuario
   * [ ] [Nombre o tarea de apoyo] (#Issue) — *Responsable:* @usuario
   * [ ] [Nombre o tarea de apoyo] (#Issue) — *Responsable:* @usuario
 
 ---
 
-## Entregables 
-* 
-* 
+##  Entregables 
+
+*
+*
+
 ---
 
-##  Criterios de Aceptación
+##  Criterios de Aceptación 
+*
+*
 
-* 
-* 
 ---
 
-## Notas Adicionales 
+##  Notas Adicionales 
 
 * **Inicio del Sprint:** 
 * **Cierre del Sprint:** 
