@@ -17,6 +17,11 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 
+/**
+ * Interfaz de inicio de sesión de CareStock.
+ *
+ * HU-51 / Issue #314
+ */
 public class LoginFX extends Application {
 
     private final AuthenticationService authenticationService =
@@ -28,18 +33,18 @@ public class LoginFX extends Application {
     private final PasswordField txtPassword =
             new PasswordField();
 
-    private final Label lblMensaje =
-            new Label();
-
     private final Button btnIngresar =
             new Button("Iniciar sesión");
+
+    private final LoginNotification notification =
+            new LoginNotification();
 
     @Override
     public void start(Stage primaryStage) {
 
         /*
          * Si ya existe una sesión válida,
-         * no mostramos nuevamente el Login.
+         * redirige directamente al Dashboard.
          */
         if (UserSession.getInstance().isLoggedIn()) {
 
@@ -51,38 +56,57 @@ public class LoginFX extends Application {
             return;
         }
 
-        Label lblLogo =
+        Label titulo =
                 new Label("CareStock");
 
-        lblLogo.setStyle(
-                "-fx-font-size: 30px;" +
+        titulo.setStyle(
+                "-fx-font-size: 28px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #1C313A;"
+                "-fx-text-fill: #2C2C2A;"
         );
 
-        Label lblTitulo =
-                new Label("Inicio de sesión");
-
-        lblTitulo.setStyle(
-                "-fx-font-size: 20px;" +
-                "-fx-font-weight: bold;"
-        );
-
-        Label lblDescripcion =
+        Label subtitulo =
                 new Label(
-                        "Ingrese sus credenciales para continuar"
+                        "Inicia sesión para continuar"
                 );
 
-        lblDescripcion.setStyle(
-                "-fx-text-fill: #607D8B;"
+        subtitulo.setStyle(
+                "-fx-font-size: 12px;" +
+                "-fx-text-fill: #8A8880;"
+        );
+
+        Label lblCorreo =
+                new Label(
+                        "Correo institucional"
+                );
+
+        lblCorreo.setStyle(
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #4A4A46;"
         );
 
         txtEmail.setPromptText(
-                "Correo electrónico"
+                "nombre@carestock.com"
         );
 
         txtEmail.setPrefHeight(40);
         txtEmail.setMaxWidth(320);
+
+        txtEmail.setStyle(
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-border-color: #D3D1C7;"
+        );
+
+        Label lblPassword =
+                new Label("Contraseña");
+
+        lblPassword.setStyle(
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #4A4A46;"
+        );
 
         txtPassword.setPromptText(
                 "Contraseña"
@@ -91,80 +115,103 @@ public class LoginFX extends Application {
         txtPassword.setPrefHeight(40);
         txtPassword.setMaxWidth(320);
 
-        btnIngresar.setPrefHeight(40);
-        btnIngresar.setMaxWidth(320);
+        txtPassword.setStyle(
+                "-fx-background-radius: 8;" +
+                "-fx-border-radius: 8;" +
+                "-fx-border-color: #B7A6E0;" +
+                "-fx-border-width: 1.5;"
+        );
+
+        btnIngresar.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnIngresar.setPrefHeight(42);
+
         btnIngresar.setDefaultButton(true);
 
         btnIngresar.setStyle(
-                "-fx-background-color: #B39DDB;" +
+                "-fx-background-color: #B7A6E0;" +
                 "-fx-text-fill: white;" +
                 "-fx-font-weight: bold;" +
-                "-fx-background-radius: 6;"
+                "-fx-background-radius: 8;" +
+                "-fx-cursor: hand;"
         );
 
-        lblMensaje.setStyle(
-                "-fx-text-fill: #C62828;" +
-                "-fx-font-size: 12px;"
+        /*
+         * Enter desde el campo correo lleva
+         * directamente al campo contraseña.
+         */
+        txtEmail.setOnAction(
+                e -> txtPassword.requestFocus()
         );
 
-        lblMensaje.setWrapText(true);
-        lblMensaje.setMaxWidth(320);
+        /*
+         * Enter desde contraseña intenta
+         * realizar el inicio de sesión.
+         */
+        txtPassword.setOnAction(
+                e -> iniciarSesion(primaryStage)
+        );
 
         btnIngresar.setOnAction(
-                event -> iniciarSesion(primaryStage)
+                e -> iniciarSesion(primaryStage)
         );
 
-        VBox formulario =
+        VBox card =
                 new VBox(
-                        12,
-                        lblLogo,
-                        lblTitulo,
-                        lblDescripcion,
+                        10,
+                        titulo,
+                        subtitulo,
+                        lblCorreo,
                         txtEmail,
+                        lblPassword,
                         txtPassword,
                         btnIngresar,
-                        lblMensaje
+                        notification.getView()
                 );
 
-        formulario.setAlignment(
-                Pos.CENTER
+        card.setPadding(
+                new Insets(30)
         );
 
-        formulario.setPadding(
-                new Insets(40)
+        card.setMaxWidth(340);
+
+        card.setAlignment(
+                Pos.CENTER_LEFT
         );
 
-        formulario.setMaxWidth(400);
-
-        formulario.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 12;"
+        card.setStyle(
+                "-fx-background-color: #FFFFFF;" +
+                "-fx-background-radius: 16;" +
+                "-fx-effect: dropshadow(" +
+                "gaussian, rgba(0,0,0,0.10), 12, 0, 0, 4);"
         );
 
         VBox root =
-                new VBox(formulario);
+                new VBox(card);
 
         root.setAlignment(
                 Pos.CENTER
         );
 
         root.setPadding(
-                new Insets(60)
+                new Insets(40)
         );
 
         root.setStyle(
-                "-fx-background-color: #A3D9D2;"
+                "-fx-background-color: #FDFBF7;"
         );
 
         Scene scene =
                 new Scene(
                         root,
-                        520,
-                        520
+                        440,
+                        500
                 );
 
         primaryStage.setTitle(
-                "CareStock - Inicio de sesión"
+                "CareStock - Iniciar sesión"
         );
 
         primaryStage.setScene(scene);
@@ -176,19 +223,65 @@ public class LoginFX extends Application {
         txtEmail.requestFocus();
     }
 
+    /**
+     * Valida primero el formulario en el cliente
+     * y luego ejecuta la autenticación.
+     */
     private void iniciarSesion(
             Stage primaryStage
     ) {
 
-        lblMensaje.setText("");
-
-        btnIngresar.setDisable(true);
+        notification.limpiar();
 
         String email =
-                txtEmail.getText();
+                txtEmail.getText() == null
+                        ? ""
+                        : txtEmail.getText().trim();
 
         String password =
-                txtPassword.getText();
+                txtPassword.getText() == null
+                        ? ""
+                        : txtPassword.getText();
+
+        /*
+         * Validaciones del formulario antes
+         * de consultar la base de datos.
+         */
+        if (email.isBlank() && password.isBlank()) {
+
+            notification.mostrarError(
+                    "Ingrese su correo y contraseña."
+            );
+
+            txtEmail.requestFocus();
+
+            return;
+        }
+
+        if (email.isBlank()) {
+
+            notification.mostrarError(
+                    "Ingrese su correo."
+            );
+
+            txtEmail.requestFocus();
+
+            return;
+        }
+
+        if (password.isBlank()) {
+
+            notification.mostrarError(
+                    "Ingrese su contraseña."
+            );
+
+            txtPassword.requestFocus();
+
+            return;
+        }
+
+        btnIngresar.setDisable(true);
+        btnIngresar.setText("Ingresando...");
 
         try {
 
@@ -199,34 +292,34 @@ public class LoginFX extends Application {
                     );
 
             /*
-             * La autenticación fue exitosa.
-             *
-             * Guardamos únicamente:
-             * - ID
-             * - nombre
-             * - email
-             * - rol
-             *
-             * No almacenamos el hash de contraseña.
+             * Autenticación correcta:
+             * se crea la sesión global.
              */
             UserSession
                     .getInstance()
                     .setCurrentUser(usuario);
 
-            abrirDashboard(
+            /*
+             * Redirección automática
+             * al Dashboard.
+             */
+            MainDashboardFX dashboard =
+                    new MainDashboardFX();
+
+            dashboard.start(
                     primaryStage
             );
 
         } catch (IllegalArgumentException e) {
 
             /*
-             * Usuario inexistente,
-             * contraseña incorrecta,
+             * Credenciales incorrectas,
+             * usuario inexistente,
              * INACTIVO o BLOQUEADO:
              *
-             * mismo mensaje para todos los casos.
+             * siempre se usa el mismo mensaje.
              */
-            lblMensaje.setText(
+            notification.mostrarError(
                     AuthenticationService.ERROR_CREDENCIALES
             );
 
@@ -236,59 +329,34 @@ public class LoginFX extends Application {
 
         } catch (SQLException e) {
 
-            lblMensaje.setText(
+            /*
+             * No se exponen errores internos
+             * de PostgreSQL al usuario.
+             */
+            notification.mostrarError(
                     "No fue posible iniciar sesión. Intente nuevamente."
             );
 
             System.err.println(
-                    "Error de base de datos durante autenticación: "
+                    "Error de autenticación: "
                     + e.getMessage()
             );
 
         } catch (RuntimeException e) {
 
-            lblMensaje.setText(
+            notification.mostrarError(
                     "No fue posible iniciar sesión. Intente nuevamente."
             );
 
             System.err.println(
-                    "Error inesperado durante autenticación: "
+                    "Error inesperado en Login: "
                     + e.getMessage()
             );
 
         } finally {
 
             btnIngresar.setDisable(false);
-        }
-    }
-
-    private void abrirDashboard(
-            Stage primaryStage
-    ) {
-
-        try {
-
-            MainDashboardFX dashboard =
-                    new MainDashboardFX();
-
-            dashboard.start(
-                    primaryStage
-            );
-
-        } catch (RuntimeException e) {
-
-            UserSession
-                    .getInstance()
-                    .cleanUserSession();
-
-            lblMensaje.setText(
-                    "No fue posible abrir CareStock."
-            );
-
-            System.err.println(
-                    "Error al abrir dashboard: "
-                    + e.getMessage()
-            );
+            btnIngresar.setText("Iniciar sesión");
         }
     }
 
