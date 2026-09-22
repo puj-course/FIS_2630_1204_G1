@@ -1,8 +1,8 @@
 package com.carestock.view;
 
-import com.carestock.config.AppConfig;
 import com.carestock.model.Usuario;
 import com.carestock.service.AuthenticationService;
+import com.carestock.session.UserSession;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -22,39 +22,72 @@ public class LoginFX extends Application {
     private final AuthenticationService authenticationService =
             new AuthenticationService();
 
-    private final TextField txtEmail = new TextField();
-    private final PasswordField txtPassword = new PasswordField();
-    private final Label lblMensaje = new Label();
-    private final Button btnIngresar = new Button("Iniciar sesión");
+    private final TextField txtEmail =
+            new TextField();
+
+    private final PasswordField txtPassword =
+            new PasswordField();
+
+    private final Label lblMensaje =
+            new Label();
+
+    private final Button btnIngresar =
+            new Button("Iniciar sesión");
 
     @Override
     public void start(Stage primaryStage) {
 
-        Label lblLogo = new Label("CareStock");
+        /*
+         * Si ya existe una sesión válida,
+         * no mostramos nuevamente el Login.
+         */
+        if (UserSession.getInstance().isLoggedIn()) {
+
+            MainDashboardFX dashboard =
+                    new MainDashboardFX();
+
+            dashboard.start(primaryStage);
+
+            return;
+        }
+
+        Label lblLogo =
+                new Label("CareStock");
+
         lblLogo.setStyle(
                 "-fx-font-size: 30px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #1C313A;"
         );
 
-        Label lblTitulo = new Label("Inicio de sesión");
+        Label lblTitulo =
+                new Label("Inicio de sesión");
+
         lblTitulo.setStyle(
                 "-fx-font-size: 20px;" +
                 "-fx-font-weight: bold;"
         );
 
         Label lblDescripcion =
-                new Label("Ingrese sus credenciales para continuar");
+                new Label(
+                        "Ingrese sus credenciales para continuar"
+                );
 
         lblDescripcion.setStyle(
                 "-fx-text-fill: #607D8B;"
         );
 
-        txtEmail.setPromptText("Correo electrónico");
+        txtEmail.setPromptText(
+                "Correo electrónico"
+        );
+
         txtEmail.setPrefHeight(40);
         txtEmail.setMaxWidth(320);
 
-        txtPassword.setPromptText("Contraseña");
+        txtPassword.setPromptText(
+                "Contraseña"
+        );
+
         txtPassword.setPrefHeight(40);
         txtPassword.setMaxWidth(320);
 
@@ -81,19 +114,26 @@ public class LoginFX extends Application {
                 event -> iniciarSesion(primaryStage)
         );
 
-        VBox formulario = new VBox(
-                12,
-                lblLogo,
-                lblTitulo,
-                lblDescripcion,
-                txtEmail,
-                txtPassword,
-                btnIngresar,
-                lblMensaje
+        VBox formulario =
+                new VBox(
+                        12,
+                        lblLogo,
+                        lblTitulo,
+                        lblDescripcion,
+                        txtEmail,
+                        txtPassword,
+                        btnIngresar,
+                        lblMensaje
+                );
+
+        formulario.setAlignment(
+                Pos.CENTER
         );
 
-        formulario.setAlignment(Pos.CENTER);
-        formulario.setPadding(new Insets(40));
+        formulario.setPadding(
+                new Insets(40)
+        );
+
         formulario.setMaxWidth(400);
 
         formulario.setStyle(
@@ -101,50 +141,97 @@ public class LoginFX extends Application {
                 "-fx-background-radius: 12;"
         );
 
-        VBox root = new VBox(formulario);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(60));
+        VBox root =
+                new VBox(formulario);
+
+        root.setAlignment(
+                Pos.CENTER
+        );
+
+        root.setPadding(
+                new Insets(60)
+        );
 
         root.setStyle(
                 "-fx-background-color: #A3D9D2;"
         );
 
-        Scene scene = new Scene(root, 520, 520);
+        Scene scene =
+                new Scene(
+                        root,
+                        520,
+                        520
+                );
 
-        primaryStage.setTitle("CareStock - Inicio de sesión");
+        primaryStage.setTitle(
+                "CareStock - Inicio de sesión"
+        );
+
         primaryStage.setScene(scene);
+
         primaryStage.setResizable(false);
+
         primaryStage.show();
 
         txtEmail.requestFocus();
     }
 
-    private void iniciarSesion(Stage primaryStage) {
+    private void iniciarSesion(
+            Stage primaryStage
+    ) {
 
         lblMensaje.setText("");
+
         btnIngresar.setDisable(true);
 
-        String email = txtEmail.getText();
-        String password = txtPassword.getText();
+        String email =
+                txtEmail.getText();
+
+        String password =
+                txtPassword.getText();
 
         try {
 
             Usuario usuario =
-                    authenticationService.autenticar(email, password);
+                    authenticationService.autenticar(
+                            email,
+                            password
+                    );
 
-            AppConfig.setCurrentUserEmail(
-                    usuario.getEmail()
+            /*
+             * La autenticación fue exitosa.
+             *
+             * Guardamos únicamente:
+             * - ID
+             * - nombre
+             * - email
+             * - rol
+             *
+             * No almacenamos el hash de contraseña.
+             */
+            UserSession
+                    .getInstance()
+                    .setCurrentUser(usuario);
+
+            abrirDashboard(
+                    primaryStage
             );
-
-            abrirDashboard(primaryStage);
 
         } catch (IllegalArgumentException e) {
 
+            /*
+             * Usuario inexistente,
+             * contraseña incorrecta,
+             * INACTIVO o BLOQUEADO:
+             *
+             * mismo mensaje para todos los casos.
+             */
             lblMensaje.setText(
                     AuthenticationService.ERROR_CREDENCIALES
             );
 
             txtPassword.clear();
+
             txtPassword.requestFocus();
 
         } catch (SQLException e) {
@@ -175,18 +262,24 @@ public class LoginFX extends Application {
         }
     }
 
-    private void abrirDashboard(Stage primaryStage) {
+    private void abrirDashboard(
+            Stage primaryStage
+    ) {
 
         try {
 
             MainDashboardFX dashboard =
                     new MainDashboardFX();
 
-            dashboard.start(primaryStage);
+            dashboard.start(
+                    primaryStage
+            );
 
         } catch (RuntimeException e) {
 
-            AppConfig.clearCurrentUser();
+            UserSession
+                    .getInstance()
+                    .cleanUserSession();
 
             lblMensaje.setText(
                     "No fue posible abrir CareStock."
