@@ -1,0 +1,32 @@
+name: CI - CareStock
+
+on:
+  push:
+    branches:
+      - main
+      - Pull
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Compilar y verificar proyecto
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Dar permisos al Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Compilar y ejecutar verificaciones
+        run: ./mvnw -B clean verify
