@@ -134,6 +134,7 @@ IngresoLoteService
 2. Maven 3.9 o superior.
 3. Una base PostgreSQL con el esquema CareStock.
 4. Variables de entorno de conexión.
+git clone https://github.com/puj-course/FIS_2630_1204_G1.git
 
 ## Configuración de la base de datos
 
