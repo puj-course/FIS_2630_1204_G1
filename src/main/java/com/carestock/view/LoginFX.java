@@ -204,12 +204,7 @@ public class LoginFX extends Application {
         );
 
         Scene scene =
-                new Scene(
-                        root,
-                        440,
-                        500
-                );
-
+                new Scene(root, 1200, 700);
         primaryStage.setTitle(
                 "CareStock - Iniciar sesión"
         );
