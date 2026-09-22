@@ -1,10 +1,10 @@
 package com.carestock.view;
 
-import com.carestock.config.AppConfig;
 import com.carestock.controller.IngresoLoteController;
 import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.model.Medicamento;
+import com.carestock.session.UserSession;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -45,7 +45,10 @@ public class MainDashboardFX extends Application {
             FXCollections.observableArrayList();
 
     private final FilteredList<Medicamento> listaFiltrada =
-            new FilteredList<>(listaMedicamentos, p -> true);
+            new FilteredList<>(
+                    listaMedicamentos,
+                    p -> true
+            );
 
     private final MedicamentoDAO medicamentoDAO =
             new MedicamentoDAO();
@@ -69,13 +72,32 @@ public class MainDashboardFX extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        this.primaryStage = primaryStage;
+        /*
+         * Protección adicional:
+         * el Dashboard no puede abrirse sin sesión.
+         */
+        if (!UserSession.getInstance().isLoggedIn()) {
 
-        BorderPane root = new BorderPane();
+            LoginFX login =
+                    new LoginFX();
 
-        root.setLeft(buildSidebar());
+            login.start(primaryStage);
 
-        VBox mainContent = new VBox(20);
+            return;
+        }
+
+        this.primaryStage =
+                primaryStage;
+
+        BorderPane root =
+                new BorderPane();
+
+        root.setLeft(
+                buildSidebar()
+        );
+
+        VBox mainContent =
+                new VBox(20);
 
         mainContent.setPadding(
                 new Insets(20)
@@ -85,16 +107,24 @@ public class MainDashboardFX extends Application {
                 "-fx-background-color: #F8F9FA;"
         );
 
-        mainContent.getChildren().addAll(
-                buildTopbar(),
-                buildMetricCards(),
-                buildTableSection()
+        mainContent
+                .getChildren()
+                .addAll(
+                        buildTopbar(),
+                        buildMetricCards(),
+                        buildTableSection()
+                );
+
+        root.setCenter(
+                mainContent
         );
 
-        root.setCenter(mainContent);
-
         Scene scene =
-                new Scene(root, 1200, 700);
+                new Scene(
+                        root,
+                        1200,
+                        700
+                );
 
         primaryStage.setTitle(
                 "CareStock - Gestión de Inventario"
@@ -114,18 +144,22 @@ public class MainDashboardFX extends Application {
         List<Medicamento> desdeBD =
                 medicamentoDAO.obtenerTodos();
 
-        listaMedicamentos.setAll(desdeBD);
+        listaMedicamentos.setAll(
+                desdeBD
+        );
 
         lblTotalStock.setText(
                 String.format(
                         "%,d",
-                        medicamentoDAO.obtenerTotalUnidadesStock()
+                        medicamentoDAO
+                                .obtenerTotalUnidadesStock()
                 )
         );
 
         lblAlertasCriticas.setText(
                 String.valueOf(
-                        medicamentoDAO.obtenerAlertasCriticas()
+                        medicamentoDAO
+                                .obtenerAlertasCriticas()
                 )
         );
 
@@ -133,13 +167,16 @@ public class MainDashboardFX extends Application {
 
             lblProximosVencer.setText(
                     String.valueOf(
-                            loteDAO.contarProximosAVencer(30)
+                            loteDAO
+                                    .contarProximosAVencer(30)
                     )
             );
 
         } catch (SQLException e) {
 
-            lblProximosVencer.setText("0");
+            lblProximosVencer.setText(
+                    "0"
+            );
 
             System.err.println(
                     "No fue posible consultar lotes próximos a vencer: "
@@ -172,6 +209,31 @@ public class MainDashboardFX extends Application {
                 "-fx-text-fill: #1C313A;"
         );
 
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
+        Label lblNombre =
+                new Label(
+                        usuario.getNombre()
+                );
+
+        lblNombre.setStyle(
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #1C313A;"
+        );
+
+        Label lblRol =
+                new Label(
+                        usuario.getRol()
+                );
+
+        lblRol.setStyle(
+                "-fx-font-size: 11px;" +
+                "-fx-text-fill: #546E7A;"
+        );
+
         Button btnDashboard =
                 new Button("Dashboard");
 
@@ -186,7 +248,9 @@ public class MainDashboardFX extends Application {
         );
 
         Button btnIngresoLote =
-                new Button("Ingreso de lotes");
+                new Button(
+                        "Ingreso de lotes"
+                );
 
         btnIngresoLote.setMaxWidth(
                 Double.MAX_VALUE
@@ -196,12 +260,37 @@ public class MainDashboardFX extends Application {
                 e -> abrirIngresoLote()
         );
 
-        sidebar.getChildren().addAll(
-                logo,
-                new Separator(),
-                btnDashboard,
-                btnIngresoLote
+        Button btnCerrarSesion =
+                new Button(
+                        "Cerrar sesión"
+                );
+
+        btnCerrarSesion.setMaxWidth(
+                Double.MAX_VALUE
         );
+
+        btnCerrarSesion.setStyle(
+                "-fx-background-color: #ECEFF1;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnCerrarSesion.setOnAction(
+                e -> cerrarSesion()
+        );
+
+        sidebar
+                .getChildren()
+                .addAll(
+                        logo,
+                        new Separator(),
+                        lblNombre,
+                        lblRol,
+                        new Separator(),
+                        btnDashboard,
+                        btnIngresoLote,
+                        btnCerrarSesion
+                );
 
         return sidebar;
     }
@@ -216,7 +305,9 @@ public class MainDashboardFX extends Application {
         );
 
         Label title =
-                new Label("Dashboard general");
+                new Label(
+                        "Dashboard general"
+                );
 
         title.setStyle(
                 "-fx-font-size: 24px;" +
@@ -231,28 +322,22 @@ public class MainDashboardFX extends Application {
                 Priority.ALWAYS
         );
 
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
         Label lblUsuario =
                 new Label(
                         "Sesión: "
-                        + AppConfig.getCurrentUserEmail()
+                        + usuario.getNombre()
+                        + " | "
+                        + usuario.getRol()
                 );
 
         lblUsuario.setStyle(
                 "-fx-text-fill: #607D8B;" +
                 "-fx-font-size: 12px;"
-        );
-
-        Button btnCerrarSesion =
-                new Button("Cerrar sesión");
-
-        btnCerrarSesion.setStyle(
-                "-fx-background-color: #ECEFF1;" +
-                "-fx-text-fill: #37474F;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnCerrarSesion.setOnAction(
-                e -> cerrarSesion()
         );
 
         VBox botonesAccion =
@@ -266,7 +351,9 @@ public class MainDashboardFX extends Application {
                 new HBox(8);
 
         Button btnAgregar =
-                new Button("+ Agregar medicamento");
+                new Button(
+                        "+ Agregar medicamento"
+                );
 
         btnAgregar.setStyle(
                 "-fx-background-color: #A3D9D2;" +
@@ -278,7 +365,9 @@ public class MainDashboardFX extends Application {
         );
 
         Button btnLote =
-                new Button("+ Ingresar lote");
+                new Button(
+                        "+ Ingresar lote"
+                );
 
         btnLote.setStyle(
                 "-fx-background-color: #B39DDB;" +
@@ -290,10 +379,12 @@ public class MainDashboardFX extends Application {
                 e -> abrirIngresoLote()
         );
 
-        filaPrincipal.getChildren().addAll(
-                btnAgregar,
-                btnLote
-        );
+        filaPrincipal
+                .getChildren()
+                .addAll(
+                        btnAgregar,
+                        btnLote
+                );
 
         btnFiltrarCriticos =
                 new Button(
@@ -310,18 +401,21 @@ public class MainDashboardFX extends Application {
                 e -> alternarFiltroCriticos()
         );
 
-        botonesAccion.getChildren().addAll(
-                filaPrincipal,
-                btnFiltrarCriticos
-        );
+        botonesAccion
+                .getChildren()
+                .addAll(
+                        filaPrincipal,
+                        btnFiltrarCriticos
+                );
 
-        topbar.getChildren().addAll(
-                title,
-                spacer,
-                lblUsuario,
-                btnCerrarSesion,
-                botonesAccion
-        );
+        topbar
+                .getChildren()
+                .addAll(
+                        title,
+                        spacer,
+                        lblUsuario,
+                        botonesAccion
+                );
 
         return topbar;
     }
@@ -338,7 +432,7 @@ public class MainDashboardFX extends Application {
                             m.getStockTotal() != null
                             && m.getStockMinimo() != null
                             && m.getStockTotal()
-                               <= m.getStockMinimo()
+                            <= m.getStockMinimo()
             );
 
             btnFiltrarCriticos.setText(
@@ -374,23 +468,25 @@ public class MainDashboardFX extends Application {
         HBox container =
                 new HBox(15);
 
-        container.getChildren().addAll(
+        container
+                .getChildren()
+                .addAll(
 
-                createCard(
-                        lblTotalStock,
-                        "Unidades en stock"
-                ),
+                        createCard(
+                                lblTotalStock,
+                                "Unidades en stock"
+                        ),
 
-                createCard(
-                        lblProximosVencer,
-                        "Lotes próximos a vencer (30 días)"
-                ),
+                        createCard(
+                                lblProximosVencer,
+                                "Lotes próximos a vencer (30 días)"
+                        ),
 
-                createCard(
-                        lblAlertasCriticas,
-                        "Alertas críticas"
-                )
-        );
+                        createCard(
+                                lblAlertasCriticas,
+                                "Alertas críticas"
+                        )
+                );
 
         return container;
     }
@@ -427,10 +523,12 @@ public class MainDashboardFX extends Application {
                 "-fx-font-size: 11px;"
         );
 
-        card.getChildren().addAll(
-                numLabel,
-                subText
-        );
+        card
+                .getChildren()
+                .addAll(
+                        numLabel,
+                        subText
+                );
 
         return card;
     }
@@ -524,15 +622,17 @@ public class MainDashboardFX extends Application {
                 )
         );
 
-        tablaInventario.getColumns().setAll(
-                colId,
-                colInvima,
-                colNombre,
-                colPrincipio,
-                colCategoria,
-                colStock,
-                colStockMin
-        );
+        tablaInventario
+                .getColumns()
+                .setAll(
+                        colId,
+                        colInvima,
+                        colNombre,
+                        colPrincipio,
+                        colCategoria,
+                        colStock,
+                        colStockMin
+                );
 
         tablaInventario.setItems(
                 listaFiltrada
@@ -542,10 +642,12 @@ public class MainDashboardFX extends Application {
                 TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
         );
 
-        section.getChildren().addAll(
-                lblSection,
-                tablaInventario
-        );
+        section
+                .getChildren()
+                .addAll(
+                        lblSection,
+                        tablaInventario
+                );
 
         return section;
     }
@@ -562,9 +664,9 @@ public class MainDashboardFX extends Application {
                 medicamento -> {
 
                     if (
-                        medicamentoDAO.guardar(
-                                medicamento
-                        )
+                            medicamentoDAO.guardar(
+                                    medicamento
+                            )
                     ) {
 
                         cargarDatosDesdeBD();
@@ -620,8 +722,8 @@ public class MainDashboardFX extends Application {
             );
 
             if (
-                tablaInventario.getScene()
-                != null
+                    tablaInventario.getScene()
+                    != null
             ) {
 
                 stage.initOwner(
@@ -652,9 +754,14 @@ public class MainDashboardFX extends Application {
         }
     }
 
+    /**
+     * Finaliza la sesión actual y regresa al Login.
+     */
     private void cerrarSesion() {
 
-        AppConfig.clearCurrentUser();
+        UserSession
+                .getInstance()
+                .cleanUserSession();
 
         try {
 

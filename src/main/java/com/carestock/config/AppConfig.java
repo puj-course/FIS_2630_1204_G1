@@ -1,27 +1,15 @@
 package com.carestock.config;
 
+import com.carestock.session.UserSession;
+
 /**
- * Mantiene la información funcional de la sesión actual de CareStock.
+ * Configuración funcional de CareStock.
+ *
+ * El usuario actual se obtiene desde UserSession.
  */
 public final class AppConfig {
 
-    private static String currentUserEmail;
-
     private AppConfig() {
-    }
-
-    /**
-     * Registra el usuario que inició sesión correctamente.
-     */
-    public static void setCurrentUserEmail(String email) {
-
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException(
-                    "El correo del usuario autenticado no puede estar vacío."
-            );
-        }
-
-        currentUserEmail = email.trim();
     }
 
     /**
@@ -29,26 +17,35 @@ public final class AppConfig {
      */
     public static String getCurrentUserEmail() {
 
-        if (currentUserEmail == null || currentUserEmail.isBlank()) {
+        UserSession session =
+                UserSession.getInstance();
+
+        if (!session.isLoggedIn()) {
             throw new IllegalStateException(
-                    "No existe un usuario autenticado en la sesión actual."
+                    "No existe un usuario autenticado."
             );
         }
 
-        return currentUserEmail;
+        return session
+                .getCurrentUser()
+                .getEmail();
     }
 
     /**
-     * Indica si actualmente existe una sesión autenticada.
+     * Indica si hay un usuario autenticado.
      */
     public static boolean hasAuthenticatedUser() {
-        return currentUserEmail != null && !currentUserEmail.isBlank();
+        return UserSession
+                .getInstance()
+                .isLoggedIn();
     }
 
     /**
-     * Cierra la sesión actual.
+     * Limpia la sesión actual.
      */
     public static void clearCurrentUser() {
-        currentUserEmail = null;
+        UserSession
+                .getInstance()
+                .cleanUserSession();
     }
 }
