@@ -1,0 +1,36 @@
+name: CD - CareStock
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: Generar artefacto CareStock
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Dar permisos al Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Compilar aplicación
+        run: ./mvnw -B clean package
+
+      - name: Publicar artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: CareStock-build
+          path: target/*.jar
+          if-no-files-found: warn
