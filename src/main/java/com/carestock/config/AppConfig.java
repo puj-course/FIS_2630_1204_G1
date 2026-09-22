@@ -1,18 +1,54 @@
 package com.carestock.config;
 
-/** Configuración funcional de la aplicación. */
+/**
+ * Mantiene la información funcional de la sesión actual de CareStock.
+ */
 public final class AppConfig {
 
-    private static final String DEFAULT_USER_EMAIL = "admin@carestock.com";
+    private static String currentUserEmail;
 
     private AppConfig() {
     }
 
-    public static String getCurrentUserEmail() {
-        String value = System.getProperty("carestock.user.email");
-        if (value == null || value.isBlank()) {
-            value = System.getenv("CARESTOCK_USER_EMAIL");
+    /**
+     * Registra el usuario que inició sesión correctamente.
+     */
+    public static void setCurrentUserEmail(String email) {
+
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException(
+                    "El correo del usuario autenticado no puede estar vacío."
+            );
         }
-        return (value == null || value.isBlank()) ? DEFAULT_USER_EMAIL : value.trim();
+
+        currentUserEmail = email.trim();
+    }
+
+    /**
+     * Devuelve el correo del usuario autenticado.
+     */
+    public static String getCurrentUserEmail() {
+
+        if (currentUserEmail == null || currentUserEmail.isBlank()) {
+            throw new IllegalStateException(
+                    "No existe un usuario autenticado en la sesión actual."
+            );
+        }
+
+        return currentUserEmail;
+    }
+
+    /**
+     * Indica si actualmente existe una sesión autenticada.
+     */
+    public static boolean hasAuthenticatedUser() {
+        return currentUserEmail != null && !currentUserEmail.isBlank();
+    }
+
+    /**
+     * Cierra la sesión actual.
+     */
+    public static void clearCurrentUser() {
+        currentUserEmail = null;
     }
 }
