@@ -26,6 +26,12 @@
             </font>
         </Label>
 
+        <!-- El usuario responsable proviene de la sesión; no es editable. -->
+        <Label fx:id="lblUsuarioSesion"
+               text="Responsable: sesión activa"
+               textFill="#607D8B"
+               wrapText="true" />
+
         <GridPane hgap="15.0" vgap="15.0">
             <columnConstraints>
                 <ColumnConstraints minWidth="140.0" prefWidth="150.0" />

@@ -72,22 +72,21 @@ public class MainDashboardFX extends Application {
     @Override
     public void start(Stage primaryStage) {
 
+        this.primaryStage =
+                primaryStage;
+
         /*
          * Protección adicional:
          * el Dashboard no puede abrirse sin sesión.
          */
         if (!UserSession.getInstance().isLoggedIn()) {
 
-            LoginFX login =
-                    new LoginFX();
+            AlertUtil.mostrarSesionExpirada();
 
-            login.start(primaryStage);
+            redirigirAlLogin();
 
             return;
         }
-
-        this.primaryStage =
-                primaryStage;
 
         BorderPane root =
                 new BorderPane();
@@ -654,6 +653,10 @@ public class MainDashboardFX extends Application {
 
     private void abrirFormularioAgregar() {
 
+        if (!validarSesionActiva()) {
+            return;
+        }
+
         FormularioMedicamentoDialog dialog =
                 new FormularioMedicamentoDialog();
 
@@ -663,33 +666,57 @@ public class MainDashboardFX extends Application {
         result.ifPresent(
                 medicamento -> {
 
-                    if (
-                            medicamentoDAO.guardar(
-                                    medicamento
-                            )
-                    ) {
+                    /*
+                     * La sesión se comprueba nuevamente justo
+                     * antes de ejecutar la escritura.
+                     */
+                    if (!validarSesionActiva()) {
+                        return;
+                    }
 
-                        cargarDatosDesdeBD();
+                    try {
 
-                        AlertUtil.mostrarExito(
-                                "El medicamento \""
-                                + medicamento.getNombreComercial()
-                                + "\" se registró correctamente."
-                        );
+                        if (
+                                medicamentoDAO.guardar(
+                                        medicamento
+                                )
+                        ) {
 
-                    } else {
+                            cargarDatosDesdeBD();
 
-                        AlertUtil.mostrarError(
-                                "No se pudo guardar el medicamento. "
-                                + "Verifique la categoría, los datos "
-                                + "y la conexión a PostgreSQL."
-                        );
+                            AlertUtil.mostrarExito(
+                                    "El medicamento \""
+                                    + medicamento.getNombreComercial()
+                                    + "\" se registró correctamente."
+                            );
+
+                        } else {
+
+                            AlertUtil.mostrarError(
+                                    "No se pudo guardar el medicamento. "
+                                    + "Verifique la categoría, los datos "
+                                    + "y la conexión a PostgreSQL."
+                            );
+                        }
+
+                    } catch (IllegalStateException e) {
+
+                        /*
+                         * MedicamentoDAO obtiene el usuario actual
+                         * desde el contexto de sesión. Si ya no
+                         * existe, la UI no permite continuar.
+                         */
+                        manejarSesionExpirada();
                     }
                 }
         );
     }
 
     private void abrirIngresoLote() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
 
         try {
 
@@ -708,6 +735,10 @@ public class MainDashboardFX extends Application {
 
             controller.setOnSaved(
                     this::cargarDatosDesdeBD
+            );
+
+            controller.setOnSessionExpired(
+                    this::redirigirAlLogin
             );
 
             Stage stage =
@@ -755,13 +786,36 @@ public class MainDashboardFX extends Application {
     }
 
     /**
-     * Finaliza la sesión actual y regresa al Login.
+     * Comprueba la sesión antes de iniciar operaciones
+     * de escritura desde el Dashboard.
      */
-    private void cerrarSesion() {
+    private boolean validarSesionActiva() {
 
-        UserSession
-                .getInstance()
-                .cleanUserSession();
+        if (
+                UserSession
+                        .getInstance()
+                        .isLoggedIn()
+        ) {
+            return true;
+        }
+
+        manejarSesionExpirada();
+
+        return false;
+    }
+
+    /**
+     * Informa que la sesión ya no está disponible
+     * y regresa a la autenticación.
+     */
+    private void manejarSesionExpirada() {
+
+        AlertUtil.mostrarSesionExpirada();
+
+        redirigirAlLogin();
+    }
+
+    private void redirigirAlLogin() {
 
         try {
 
@@ -775,15 +829,27 @@ public class MainDashboardFX extends Application {
         } catch (Exception e) {
 
             AlertUtil.mostrarError(
-                    "No fue posible cerrar "
-                    + "la sesión correctamente."
+                    "No fue posible regresar a la pantalla "
+                    + "de inicio de sesión."
             );
 
             System.err.println(
-                    "Error cerrando sesión: "
+                    "Error redirigiendo al Login: "
                     + e.getMessage()
             );
         }
+    }
+
+    /**
+     * Finaliza la sesión actual y regresa al Login.
+     */
+    private void cerrarSesion() {
+
+        UserSession
+                .getInstance()
+                .cleanUserSession();
+
+        redirigirAlLogin();
     }
 
     public static void main(String[] args) {
