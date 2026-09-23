@@ -27,23 +27,34 @@ public class IngresoLoteService {
 
     public void registrar(Medicamento medicamento, String numeroLote, String cantidadStr,
                           LocalDate fechaVencimiento, Ubicacion ubicacion) throws SQLException {
+
         String error = IngresoLoteValidator.validar(
-            medicamento, numeroLote, cantidadStr, fechaVencimiento, ubicacion
+            medicamento,
+            numeroLote,
+            cantidadStr,
+            fechaVencimiento,
+            ubicacion
         );
+
         if (error != null) {
             throw new IllegalArgumentException(error);
         }
 
         int cantidad = Integer.parseInt(cantidadStr.trim());
+
+        int idUsuario = usuarioDAO.obtenerIdActivoPorEmail(
+            AppConfig.getCurrentUserEmail()
+        );
+
         Lote lote = new Lote(
             numeroLote.trim(),
             Math.toIntExact(medicamento.getIdMedicamento()),
             cantidad,
             fechaVencimiento,
-            ubicacion.getIdUbicacion()
+            ubicacion.getIdUbicacion(),
+            idUsuario
         );
 
-        int idUsuario = usuarioDAO.obtenerIdActivoPorEmail(AppConfig.getCurrentUserEmail());
         loteDAO.registrarNuevoLote(lote, idUsuario);
     }
 }
