@@ -5,6 +5,7 @@ import com.carestock.dao.UbicacionDAO;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
 import com.carestock.service.IngresoLoteService;
+import com.carestock.session.UserSession;
 import com.carestock.utils.IngresoLoteValidator;
 import com.carestock.view.AlertUtil;
 import javafx.collections.FXCollections;
@@ -14,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -29,6 +31,7 @@ public class IngresoLoteController implements Initializable {
     @FXML private TextField txtCantidad;
     @FXML private DatePicker dpFechaVencimiento;
     @FXML private ComboBox<Ubicacion> cmbUbicacion;
+    @FXML private Label lblUsuarioSesion;
     @FXML private Button btnGuardar;
     @FXML private Button btnCancelar;
 
@@ -36,6 +39,7 @@ public class IngresoLoteController implements Initializable {
     private final UbicacionDAO ubicacionDAO = new UbicacionDAO();
     private final IngresoLoteService ingresoLoteService = new IngresoLoteService();
     private Runnable onSaved;
+    private Runnable onSessionExpired;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -46,7 +50,50 @@ public class IngresoLoteController implements Initializable {
                 setDisable(empty || !date.isAfter(LocalDate.now()));
             }
         });
+
+        if (!actualizarUsuarioSesion()) {
+            btnGuardar.setDisable(true);
+            AlertUtil.mostrarSesionExpirada();
+            return;
+        }
+
         cargarDatos();
+    }
+
+    /**
+     * El responsable mostrado en pantalla proviene exclusivamente
+     * de UserSession y nunca puede editarse desde el formulario.
+     */
+    private boolean actualizarUsuarioSesion() {
+
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
+        if (usuario == null) {
+
+            lblUsuarioSesion.setText(
+                    "Responsable: sesión no disponible"
+            );
+
+            lblUsuarioSesion.setStyle(
+                    "-fx-text-fill: #C62828;" +
+                    "-fx-font-weight: bold;"
+            );
+
+            return false;
+        }
+
+        lblUsuarioSesion.setText(
+                "Responsable: "
+                + usuario.getNombre()
+                + " ("
+                + usuario.getRol()
+                + ") · asignado automáticamente"
+        );
+
+        return true;
     }
 
     private void cargarDatos() {
@@ -61,6 +108,17 @@ public class IngresoLoteController implements Initializable {
 
     @FXML
     private void handleGuardarLote(ActionEvent event) {
+
+        /*
+         * Defensa adicional de UI.
+         * Si la sesión desapareció después de abrir la ventana,
+         * se impide ejecutar la operación.
+         */
+        if (!UserSession.getInstance().isLoggedIn()) {
+            manejarSesionExpirada();
+            return;
+        }
+
         Medicamento medicamento = cmbMedicamento.getValue();
         Ubicacion ubicacion = cmbUbicacion.getValue();
         String numeroLote = txtNumeroLote.getText();
@@ -80,6 +138,9 @@ public class IngresoLoteController implements Initializable {
                 onSaved.run();
             }
             cerrarVentana();
+        } catch (IllegalStateException e) {
+            manejarSesionExpirada();
+
         } catch (IllegalArgumentException e) {
             AlertUtil.mostrarAdvertencia(e.getMessage());
         } catch (SQLException e) {
@@ -94,6 +155,32 @@ public class IngresoLoteController implements Initializable {
 
     public void setOnSaved(Runnable onSaved) {
         this.onSaved = onSaved;
+    }
+
+    public void setOnSessionExpired(
+            Runnable onSessionExpired
+    ) {
+        this.onSessionExpired =
+                onSessionExpired;
+    }
+
+    /**
+     * Bloquea el formulario, informa al usuario y permite
+     * al Dashboard regresar al Login.
+     */
+    private void manejarSesionExpirada() {
+
+        btnGuardar.setDisable(true);
+
+        actualizarUsuarioSesion();
+
+        AlertUtil.mostrarSesionExpirada();
+
+        cerrarVentana();
+
+        if (onSessionExpired != null) {
+            onSessionExpired.run();
+        }
     }
 
     private void cerrarVentana() {
