@@ -16,13 +16,43 @@ AS $$
 DECLARE
     v_id_lote INT;
 BEGIN
-    -- 1. Inserción del lote
-    INSERT INTO LOTES (numero_lote, id_medicamento, cantidad_actual, fecha_vencimiento, id_ubicacion, estado_lote)
-    VALUES (p_numero_lote, p_id_medicamento, p_cantidad, p_fecha_vencimiento, p_id_ubicacion, 'DISPONIBLE')
+
+    -- 1. Inserción del lote incluyendo el usuario responsable
+    INSERT INTO LOTES (
+        numero_lote,
+        id_medicamento,
+        cantidad_actual,
+        fecha_vencimiento,
+        id_ubicacion,
+        estado_lote,
+        id_usuario
+    )
+    VALUES (
+        p_numero_lote,
+        p_id_medicamento,
+        p_cantidad,
+        p_fecha_vencimiento,
+        p_id_ubicacion,
+        'DISPONIBLE',
+        p_id_usuario
+    )
     RETURNING id_lote INTO v_id_lote;
 
     -- 2. Registro en el log de auditoría / trazabilidad
-    INSERT INTO LOG_MOVIMIENTOS (id_usuario, id_lote, tipo_movimiento, cantidad_afectada, detalle_cambio)
-    VALUES (p_id_usuario, v_id_lote, 'ENTRADA', p_cantidad, 'Ingreso inicial del lote al inventario');
+    INSERT INTO LOG_MOVIMIENTOS (
+        id_usuario,
+        id_lote,
+        tipo_movimiento,
+        cantidad_afectada,
+        detalle_cambio
+    )
+    VALUES (
+        p_id_usuario,
+        v_id_lote,
+        'ENTRADA',
+        p_cantidad,
+        'Ingreso inicial del lote al inventario'
+    );
+
 END;
 $$;
