@@ -6,12 +6,7 @@ import com.carestock.session.SessionContext;
 
 import java.sql.SQLException;
 
-/**
- * Servicio encargado de realizar operaciones de despacho.
- *
- * El usuario responsable nunca se recibe desde la interfaz.
- * Siempre se obtiene desde SessionContext.
- */
+
 public class DespachoService {
 
     private final LoteDAO loteDAO;
@@ -50,10 +45,7 @@ public class DespachoService {
             int cantidad
     ) throws SQLException {
 
-        /*
-         * El usuario nunca se recibe como parámetro.
-         * Se extrae únicamente de la sesión autenticada.
-         */
+      
         int idUsuario =
                 sessionContext.requireAuthenticatedUserId();
 
