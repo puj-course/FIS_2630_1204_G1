@@ -1,5 +1,7 @@
 package com.carestock.view;
 
+import javafx.animation.PauseTransition;
+
 import com.carestock.controller.IngresoLoteController;
 import com.carestock.controller.SessionController;
 import com.carestock.dao.LoteDAO;
@@ -38,6 +40,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import javafx.util.Duration;
 
 public class MainDashboardFX extends Application {
 
@@ -895,10 +898,76 @@ public class MainDashboardFX extends Application {
 
         sessionController.cerrarSesion();
 
+        /*
+         * Primero se realiza la navegación inmediata
+         * hacia la pantalla de inicio de sesión.
+         */
         redirigirAlLogin();
+
+        /*
+         * Una vez visible el Login se informa al usuario
+         * que la sesión fue cerrada correctamente.
+         */
+        mostrarNotificacionCierreSeguro();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
+
+
+    /**
+     * Informa visualmente al usuario que la sesión
+     * terminó de forma segura.
+     *
+     * El Alert se muestra después de la redirección
+     * al Login y se cierra automáticamente.
+     */
+    private void mostrarNotificacionCierreSeguro() {
+
+        Alert notificacion =
+                new Alert(
+                        Alert.AlertType.INFORMATION
+                );
+
+        notificacion.initOwner(
+                primaryStage
+        );
+
+        notificacion.setTitle(
+                "CareStock"
+        );
+
+        notificacion.setHeaderText(
+                "Cierre de sesión exitoso"
+        );
+
+        notificacion.setContentText(
+                "Sesión finalizada de forma segura"
+        );
+
+        notificacion
+                .getDialogPane()
+                .setStyle(
+                        "-fx-background-color: #E8F5E9;"
+                );
+
+        /*
+         * show() permite que la navegación al Login
+         * ya haya ocurrido antes de mostrar el mensaje.
+         */
+        notificacion.show();
+
+        PauseTransition cierreAutomatico =
+                new PauseTransition(
+                        Duration.seconds(3)
+                );
+
+        cierreAutomatico.setOnFinished(
+                event -> notificacion.close()
+        );
+
+        cierreAutomatico.play();
+    }
+
 }
