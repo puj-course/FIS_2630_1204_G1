@@ -67,6 +67,8 @@ public class LoginFX extends Application {
     private final LoginNotification notification =
             new LoginNotification();
 
+    private String mensajeInicial;
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -284,6 +286,15 @@ public class LoginFX extends Application {
 
         primaryStage.show();
 
+        if (
+                mensajeInicial != null
+                && !mensajeInicial.isBlank()
+        ) {
+            notification.mostrarExito(
+                    mensajeInicial
+            );
+        }
+
         txtEmail.requestFocus();
     }
 
@@ -291,6 +302,21 @@ public class LoginFX extends Application {
      * Envuelve la tarjeta de login centrada
      * sobre el fondo claro del formulario.
      */
+    /**
+     * Define un mensaje que se mostrará al abrir la pantalla
+     * de inicio de sesión.
+     *
+     * @param mensajeInicial mensaje informativo para el usuario
+     */
+    public void setMensajeInicial(
+            String mensajeInicial
+    ) {
+
+        this.mensajeInicial =
+                mensajeInicial;
+    }
+
+
     private Region envolverCard(VBox card) {
 
         VBox root = new VBox(card);
