@@ -12,11 +12,7 @@ import java.util.List;
 
 public class UsuarioDAO {
 
-    /**
-     * Obtiene el ID de un usuario activo por su correo.
-     * Este método se conserva porque ya es utilizado
-     * por otros componentes del proyecto.
-     */
+
     public int obtenerIdActivoPorEmail(String email) throws SQLException {
 
         String sql =
@@ -43,10 +39,7 @@ public class UsuarioDAO {
         );
     }
 
-    /**
-     * Busca un usuario por correo electrónico.
-     * Se utiliza durante el proceso de autenticación.
-     */
+
     public Usuario buscarPorEmail(String email) throws SQLException {
 
         String sql =
@@ -88,12 +81,7 @@ public class UsuarioDAO {
         return null;
     }
 
-    /**
-     * Lista todos los usuarios registrados, con su rol resuelto.
-     *
-     * Se usa para poblar el filtro por usuario en la pantalla
-     * de Historial de accesos (solo visible para ADMINISTRADOR).
-     */
+
     public List<Usuario> listarTodos() throws SQLException {
 
         String sql =
