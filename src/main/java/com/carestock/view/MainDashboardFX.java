@@ -1,6 +1,7 @@
 package com.carestock.view;
 
 import com.carestock.controller.IngresoLoteController;
+import com.carestock.controller.SessionController;
 import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.model.Medicamento;
@@ -15,7 +16,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
@@ -38,6 +42,9 @@ import java.util.Optional;
 public class MainDashboardFX extends Application {
 
     private Stage primaryStage;
+
+    private final SessionController sessionController =
+            new SessionController();
 
     private final TableView<Medicamento> tablaInventario =
             new TableView<>();
@@ -247,6 +254,25 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;"
         );
 
+        Button btnAgregarMedicamento =
+                new Button(
+                        "Agregar medicamento"
+                );
+
+        btnAgregarMedicamento.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnAgregarMedicamento.setStyle(
+                "-fx-background-color: #E8F5F2;" +
+                "-fx-text-fill: #1C313A;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnAgregarMedicamento.setOnAction(
+                e -> abrirFormularioAgregar()
+        );
+
         Button btnIngresoLote =
                 new Button(
                         "Ingreso de lotes"
@@ -256,8 +282,33 @@ public class MainDashboardFX extends Application {
                 Double.MAX_VALUE
         );
 
+        btnIngresoLote.setStyle(
+                "-fx-background-color: #D1C4E9;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
+
         btnIngresoLote.setOnAction(
                 e -> abrirIngresoLote()
+        );
+
+        btnFiltrarCriticos =
+                new Button(
+                        "Ver alertas críticas"
+                );
+
+        btnFiltrarCriticos.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnFiltrarCriticos.setStyle(
+                "-fx-background-color: #FFCDD2;" +
+                "-fx-text-fill: #C62828;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnFiltrarCriticos.setOnAction(
+                e -> alternarFiltroCriticos()
         );
 
         Button btnHistorialAccesos =
@@ -283,25 +334,6 @@ public class MainDashboardFX extends Application {
                 e -> abrirHistorialAccesos()
         );
 
-        Button btnCerrarSesion =
-                new Button(
-                        "Cerrar sesión"
-                );
-
-        btnCerrarSesion.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        btnCerrarSesion.setStyle(
-                "-fx-background-color: #ECEFF1;" +
-                "-fx-text-fill: #37474F;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnCerrarSesion.setOnAction(
-                e -> cerrarSesion()
-        );
-
         sidebar
                 .getChildren()
                 .addAll(
@@ -311,9 +343,10 @@ public class MainDashboardFX extends Application {
                         lblRol,
                         new Separator(),
                         btnDashboard,
+                        btnAgregarMedicamento,
                         btnIngresoLote,
-                        btnHistorialAccesos,
-                        btnCerrarSesion
+                        btnFiltrarCriticos,
+                        btnHistorialAccesos
                 );
 
         return sidebar;
@@ -364,73 +397,21 @@ public class MainDashboardFX extends Application {
                 "-fx-font-size: 12px;"
         );
 
-        VBox botonesAccion =
-                new VBox(8);
-
-        botonesAccion.setAlignment(
-                Pos.CENTER_RIGHT
-        );
-
-        HBox filaPrincipal =
-                new HBox(8);
-
-        Button btnAgregar =
+        Button btnCerrarSesion =
                 new Button(
-                        "+ Agregar medicamento"
+                        "Cerrar sesión"
                 );
 
-        btnAgregar.setStyle(
-                "-fx-background-color: #A3D9D2;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnAgregar.setOnAction(
-                e -> abrirFormularioAgregar()
-        );
-
-        Button btnLote =
-                new Button(
-                        "+ Ingresar lote"
-                );
-
-        btnLote.setStyle(
-                "-fx-background-color: #B39DDB;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnLote.setOnAction(
-                e -> abrirIngresoLote()
-        );
-
-        filaPrincipal
-                .getChildren()
-                .addAll(
-                        btnAgregar,
-                        btnLote
-                );
-
-        btnFiltrarCriticos =
-                new Button(
-                        "Ver alertas críticas"
-                );
-
-        btnFiltrarCriticos.setStyle(
-                "-fx-background-color: #FFCDD2;" +
+        btnCerrarSesion.setStyle(
+                "-fx-background-color: #ECEFF1;" +
                 "-fx-text-fill: #C62828;" +
-                "-fx-font-weight: bold;"
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 8;"
         );
 
-        btnFiltrarCriticos.setOnAction(
-                e -> alternarFiltroCriticos()
+        btnCerrarSesion.setOnAction(
+                e -> solicitarCierreSesion()
         );
-
-        botonesAccion
-                .getChildren()
-                .addAll(
-                        filaPrincipal,
-                        btnFiltrarCriticos
-                );
 
         topbar
                 .getChildren()
@@ -438,7 +419,7 @@ public class MainDashboardFX extends Application {
                         title,
                         spacer,
                         lblUsuario,
-                        botonesAccion
+                        btnCerrarSesion
                 );
 
         return topbar;
@@ -867,11 +848,52 @@ public class MainDashboardFX extends Application {
         }
     }
 
+    private void solicitarCierreSesion() {
+
+        Alert confirmacion =
+                new Alert(
+                        Alert.AlertType.CONFIRMATION
+                );
+
+        confirmacion.initOwner(primaryStage);
+        confirmacion.setTitle("CareStock");
+        confirmacion.setHeaderText("Cerrar sesión");
+        confirmacion.setContentText(
+                "¿Estás seguro que deseas cerrar sesión?"
+        );
+
+        ButtonType btnConfirmar =
+                new ButtonType(
+                        "Cerrar sesión"
+                );
+
+        ButtonType btnCancelar =
+                new ButtonType(
+                        "Cancelar",
+                        ButtonBar.ButtonData.CANCEL_CLOSE
+                );
+
+        confirmacion
+                .getButtonTypes()
+                .setAll(
+                        btnConfirmar,
+                        btnCancelar
+                );
+
+        Optional<ButtonType> respuesta =
+                confirmacion.showAndWait();
+
+        if (
+                respuesta.isPresent()
+                && respuesta.get() == btnConfirmar
+        ) {
+            cerrarSesion();
+        }
+    }
+
     private void cerrarSesion() {
 
-        UserSession
-                .getInstance()
-                .cleanUserSession();
+        sessionController.cerrarSesion();
 
         redirigirAlLogin();
     }
