@@ -13,12 +13,7 @@ import java.sql.SQLException;
 
 public class LoteDAO {
 
-    /**
-     * Registra un nuevo lote.
-     *
-     * El usuario responsable ya debe haber sido inyectado
-     * por la capa de servicio.
-     */
+   
     public void registrarNuevoLote(
             Lote lote
     ) throws SQLException {
@@ -74,10 +69,7 @@ public class LoteDAO {
         }
     }
 
-    /**
-     * Despacha unidades de un lote utilizando la función
-     * PostgreSQL ya existente fn_despachar_lote.
-     */
+   
     public void despacharLote(
             DespachoLote despacho
     ) throws SQLException {
