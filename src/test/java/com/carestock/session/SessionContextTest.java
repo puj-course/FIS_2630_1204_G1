@@ -18,7 +18,7 @@ class SessionContextTest {
     @BeforeEach
     void setUp() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         sessionContext =
                 new SessionContext(userSession);
@@ -27,7 +27,7 @@ class SessionContextTest {
     @AfterEach
     void tearDown() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
     }
 
     @Test

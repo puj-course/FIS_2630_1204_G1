@@ -28,6 +28,6 @@ public final class SessionController {
      * Cierra la sesión activa eliminando el usuario de memoria.
      */
     public void cerrarSesion() {
-        userSession.cleanUserSession();
+        userSession.clearSession();
     }
 }

@@ -27,7 +27,7 @@ class DespachoServiceTest {
     @BeforeEach
     void setUp() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         loteDAO =
                 new FakeLoteDAO();
@@ -42,7 +42,7 @@ class DespachoServiceTest {
     @AfterEach
     void tearDown() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
     }
 
     @Test
