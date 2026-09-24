@@ -28,6 +28,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -259,6 +260,29 @@ public class MainDashboardFX extends Application {
                 e -> abrirIngresoLote()
         );
 
+        Button btnHistorialAccesos =
+                new Button(
+                        "Historial de accesos"
+                );
+
+        btnHistorialAccesos.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnHistorialAccesos.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnHistorialAccesos.setManaged(
+                btnHistorialAccesos.isVisible()
+        );
+
+        btnHistorialAccesos.setOnAction(
+                e -> abrirHistorialAccesos()
+        );
+
         Button btnCerrarSesion =
                 new Button(
                         "Cerrar sesión"
@@ -288,6 +312,7 @@ public class MainDashboardFX extends Application {
                         new Separator(),
                         btnDashboard,
                         btnIngresoLote,
+                        btnHistorialAccesos,
                         btnCerrarSesion
                 );
 
@@ -789,6 +814,22 @@ public class MainDashboardFX extends Application {
      * Comprueba la sesión antes de iniciar operaciones
      * de escritura desde el Dashboard.
      */
+    private void abrirHistorialAccesos() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        HistorialAccesosFX historial = new HistorialAccesosFX();
+
+        Window owner =
+                tablaInventario.getScene() != null
+                        ? tablaInventario.getScene().getWindow()
+                        : null;
+
+        historial.mostrar(owner);
+    }
+
     private boolean validarSesionActiva() {
 
         if (
