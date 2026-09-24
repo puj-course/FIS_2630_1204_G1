@@ -2,11 +2,6 @@ package com.carestock.model;
 
 import java.time.LocalDateTime;
 
-/**
- * Representa un registro del historial de accesos (login) al sistema.
- *
- * Se alimenta desde la vista PostgreSQL vw_historial_accesos.
- */
 public class AccesoLog {
 
     private final int idAcceso;
