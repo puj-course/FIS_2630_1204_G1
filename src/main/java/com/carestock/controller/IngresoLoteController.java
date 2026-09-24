@@ -4,10 +4,13 @@ import com.carestock.dao.MedicamentoDAO;
 import com.carestock.dao.UbicacionDAO;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
+import com.carestock.security.AccessControl;
 import com.carestock.service.IngresoLoteService;
 import com.carestock.session.UserSession;
 import com.carestock.utils.IngresoLoteValidator;
 import com.carestock.view.AlertUtil;
+import com.carestock.view.ProtectedNavigationGuard;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +21,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -43,6 +47,35 @@ public class IngresoLoteController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        /*
+         * Defensa contra carga directa del FXML/controlador.
+         * No se consultan datos ni se habilita la vista
+         * si la sesión es inexistente o inválida.
+         */
+        if (!AccessControl.hasValidSession()) {
+
+            btnGuardar.setDisable(true);
+
+            Platform.runLater(
+                    () -> {
+
+                        Window owner =
+                                btnCancelar.getScene() != null
+                                        ? btnCancelar
+                                                .getScene()
+                                                .getWindow()
+                                        : null;
+
+                        ProtectedNavigationGuard
+                                .ensureAuthenticated(
+                                        owner
+                                );
+                    }
+            );
+
+            return;
+        }
         dpFechaVencimiento.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
@@ -114,7 +147,7 @@ public class IngresoLoteController implements Initializable {
          * Si la sesión desapareció después de abrir la ventana,
          * se impide ejecutar la operación.
          */
-        if (!UserSession.getInstance().isLoggedIn()) {
+        if (!AccessControl.hasValidSession()) {
             manejarSesionExpirada();
             return;
         }

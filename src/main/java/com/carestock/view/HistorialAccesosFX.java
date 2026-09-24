@@ -49,6 +49,16 @@ public class HistorialAccesosFX {
 
     public void mostrar(Window owner) {
 
+        /*
+         * La autenticación se valida antes de construir
+         * o cargar cualquier contenido protegido.
+         */
+        if (!ProtectedNavigationGuard.ensureAuthenticated(
+                owner
+        )) {
+            return;
+        }
+
         UserSession.CurrentUser usuarioActual =
                 UserSession.getInstance().getCurrentUser();
 

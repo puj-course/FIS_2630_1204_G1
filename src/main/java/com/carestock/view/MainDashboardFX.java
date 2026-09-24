@@ -86,6 +86,13 @@ public class MainDashboardFX extends Application {
         this.primaryStage =
                 primaryStage;
 
+        if (!ProtectedNavigationGuard.ensureAuthenticated(
+                primaryStage
+        )) {
+            return;
+        }
+
+
         /*
          * Protección adicional:
          * el Dashboard no puede abrirse sin sesión.
@@ -150,6 +157,13 @@ public class MainDashboardFX extends Application {
     }
 
     public void cargarDatosDesdeBD() {
+
+        if (!ProtectedNavigationGuard.ensureAuthenticated(
+                primaryStage
+        )) {
+            return;
+        }
+
 
         List<Medicamento> desdeBD =
                 medicamentoDAO.obtenerTodos();
@@ -805,17 +819,10 @@ public class MainDashboardFX extends Application {
 
     private boolean validarSesionActiva() {
 
-        if (
-                UserSession
-                        .getInstance()
-                        .isLoggedIn()
-        ) {
-            return true;
-        }
-
-        manejarSesionExpirada();
-
-        return false;
+        return ProtectedNavigationGuard
+                .ensureAuthenticated(
+                        primaryStage
+                );
     }
 
   
