@@ -45,15 +45,7 @@ public class AuthenticationService {
 
         Usuario usuario = usuarioDAO.buscarPorEmail(email.trim());
 
-        /*
-         * No revelar si el usuario existe o no.
-         *
-         * Nota de auditoría: si el correo no corresponde a ningún
-         * usuario registrado, no existe un id_usuario válido contra
-         * el cual registrar el intento fallido (log_accesos exige
-         * FK a usuarios), por lo que este caso no queda en el
-         * historial de accesos.
-         */
+     
         if (usuario == null) {
             throw new IllegalArgumentException(ERROR_CREDENCIALES);
         }
@@ -78,13 +70,7 @@ public class AuthenticationService {
 
         } catch (IllegalArgumentException e) {
 
-            /*
-             * BCrypt lanza IllegalArgumentException si el hash
-             * almacenado no tiene un formato válido.
-             *
-             * No revelamos esa información hacia la interfaz, pero
-             * sí queda registrado el intento fallido.
-             */
+           
             accesoDAO.registrarAcceso(
                     usuario.getIdUsuario(),
                     RESULTADO_FALLIDO
