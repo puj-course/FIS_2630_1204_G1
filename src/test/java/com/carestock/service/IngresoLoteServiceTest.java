@@ -52,7 +52,7 @@ class IngresoLoteServiceTest {
     @BeforeEach
     void setUp() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         loteDAO =
                 new FakeLoteDAO();
@@ -67,7 +67,7 @@ class IngresoLoteServiceTest {
     @AfterEach
     void tearDown() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
     }
 
     @Test

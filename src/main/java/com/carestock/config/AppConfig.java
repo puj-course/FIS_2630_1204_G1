@@ -46,6 +46,6 @@ public final class AppConfig {
     public static void clearCurrentUser() {
         UserSession
                 .getInstance()
-                .cleanUserSession();
+                .clearSession();
     }
 }

@@ -60,7 +60,7 @@ class FirmaInmutableIT {
     @BeforeEach
     void setUp() throws Exception {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         /*
          * Se genera un identificador único para que la prueba
@@ -140,7 +140,7 @@ class FirmaInmutableIT {
     @AfterEach
     void tearDown() throws Exception {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         limpiarDatosPrueba();
     }
@@ -311,7 +311,7 @@ class FirmaInmutableIT {
     void operacionSinSesionEsBloqueadaYNoPersiste()
             throws Exception {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         IngresoLoteService service =
                 new IngresoLoteService();

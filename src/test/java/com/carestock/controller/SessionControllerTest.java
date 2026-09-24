@@ -19,7 +19,7 @@ class SessionControllerTest {
     @BeforeEach
     void setUp() {
 
-        userSession.cleanUserSession();
+        userSession.clearSession();
 
         sessionController =
                 new SessionController(userSession);
@@ -27,7 +27,7 @@ class SessionControllerTest {
 
     @AfterEach
     void tearDown() {
-        userSession.cleanUserSession();
+        userSession.clearSession();
     }
 
     @Test
