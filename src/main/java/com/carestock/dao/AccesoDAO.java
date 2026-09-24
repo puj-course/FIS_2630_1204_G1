@@ -11,21 +11,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Acceso a datos del historial de inicios de sesión (log_accesos).
- *
- * HU: Consultar el historial de inicios de sesión de los usuarios.
- */
+
 public class AccesoDAO {
 
-    /**
-     * Registra un intento de inicio de sesión (EXITOSO o FALLIDO)
-     * llamando a la función fn_registrar_acceso ya existente en PostgreSQL.
-     *
-     * No lanza la excepción hacia arriba: un fallo al registrar la
-     * auditoría no debe impedir que el login funcione, pero sí
-     * queda impreso en consola para diagnóstico.
-     */
     public void registrarAcceso(int idUsuario, String resultado) {
 
         String sql = "SELECT fn_registrar_acceso(?, ?)";
@@ -49,11 +37,7 @@ public class AccesoDAO {
         }
     }
 
-    /**
-     * Lista el historial de accesos consultando vw_historial_accesos.
-     *
-     * Si idUsuarioFiltro es null, trae el historial completo.
-     */
+
     public List<AccesoLog> listarHistorial(
             Integer idUsuarioFiltro
     ) throws SQLException {
