@@ -27,15 +27,6 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Pantalla de consulta del historial de inicios de sesión.
- *
- * Solo debe abrirse para usuarios con rol ADMINISTRADOR; esta clase
- * hace una segunda validación por seguridad, además de la que ya
- * hace MainDashboardFX antes de mostrar el botón.
- *
- * HU: Consultar el historial de inicios de sesión de los usuarios.
- */
 public class HistorialAccesosFX {
 
     private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
