@@ -691,10 +691,7 @@ public class MainDashboardFX extends Application {
         result.ifPresent(
                 medicamento -> {
 
-                    /*
-                     * La sesión se comprueba nuevamente justo
-                     * antes de ejecutar la escritura.
-                     */
+                   
                     if (!validarSesionActiva()) {
                         return;
                     }
@@ -726,11 +723,7 @@ public class MainDashboardFX extends Application {
 
                     } catch (IllegalStateException e) {
 
-                        /*
-                         * MedicamentoDAO obtiene el usuario actual
-                         * desde el contexto de sesión. Si ya no
-                         * existe, la UI no permite continuar.
-                         */
+                      
                         manejarSesionExpirada();
                     }
                 }
@@ -810,10 +803,6 @@ public class MainDashboardFX extends Application {
         }
     }
 
-    /**
-     * Comprueba la sesión antes de iniciar operaciones
-     * de escritura desde el Dashboard.
-     */
     private void abrirHistorialAccesos() {
 
         if (!validarSesionActiva()) {
@@ -845,10 +834,7 @@ public class MainDashboardFX extends Application {
         return false;
     }
 
-    /**
-     * Informa que la sesión ya no está disponible
-     * y regresa a la autenticación.
-     */
+  
     private void manejarSesionExpirada() {
 
         AlertUtil.mostrarSesionExpirada();
@@ -881,9 +867,6 @@ public class MainDashboardFX extends Application {
         }
     }
 
-    /**
-     * Finaliza la sesión actual y regresa al Login.
-     */
     private void cerrarSesion() {
 
         UserSession
