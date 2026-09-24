@@ -1,5 +1,7 @@
 package com.carestock.view;
 
+import com.carestock.session.IdleSessionManager;
+
 import com.carestock.security.AccessControl;
 import com.carestock.session.UserSession;
 
@@ -38,6 +40,18 @@ public final class ProtectedNavigationGuard {
          * Defensa adicional:
          * elimina cualquier contexto residual o incompleto.
          */
+        IdleSessionManager
+                .getInstance()
+                .stopMonitoring();
+
+        IdleSessionManager
+                .getInstance()
+                .stopMonitoring();
+
+        IdleSessionManager
+                .getInstance()
+                .stopMonitoring();
+
         UserSession
                 .getInstance()
                 .clearSession();
