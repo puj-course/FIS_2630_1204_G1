@@ -1,11 +1,5 @@
 package com.carestock.model;
 
-/**
- * Representa una operación de despacho lista para persistencia.
- *
- * El usuario responsable se fija al crear el objeto y no puede
- * modificarse posteriormente.
- */
 public final class DespachoLote {
 
     private final int idLote;
