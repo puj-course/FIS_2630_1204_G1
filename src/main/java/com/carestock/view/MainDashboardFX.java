@@ -1,216 +1,879 @@
 package com.carestock.view;
 
+import com.carestock.controller.IngresoLoteController;
+import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.model.Medicamento;
+import com.carestock.session.UserSession;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class MainDashboardFX extends Application {
 
-    private TableView<Medicamento> tablaInventario = new TableView<>();
-    private ObservableList<Medicamento> listaMedicamentos = FXCollections.observableArrayList();
-    private FilteredList<Medicamento> listaFiltrada = new FilteredList<>(listaMedicamentos, p -> true);
+    private Stage primaryStage;
 
-    private MedicamentoDAO medicamentoDAO = new MedicamentoDAO();
+    private final TableView<Medicamento> tablaInventario =
+            new TableView<>();
 
-    private Label lblTotalStock = new Label("0");
-    private Label lblProximosVencer = new Label("0");
-    private Label lblAlertasCriticas = new Label("0");
+    private final ObservableList<Medicamento> listaMedicamentos =
+            FXCollections.observableArrayList();
+
+    private final FilteredList<Medicamento> listaFiltrada =
+            new FilteredList<>(
+                    listaMedicamentos,
+                    p -> true
+            );
+
+    private final MedicamentoDAO medicamentoDAO =
+            new MedicamentoDAO();
+
+    private final LoteDAO loteDAO =
+            new LoteDAO();
+
+    private final Label lblTotalStock =
+            new Label("0");
+
+    private final Label lblProximosVencer =
+            new Label("0");
+
+    private final Label lblAlertasCriticas =
+            new Label("0");
 
     private Button btnFiltrarCriticos;
+
     private boolean filtrandoCriticos = false;
 
     @Override
     public void start(Stage primaryStage) {
-        BorderPane root = new BorderPane();
 
-        VBox sidebar = buildSidebar();
-        root.setLeft(sidebar);
+        this.primaryStage =
+                primaryStage;
 
-        VBox mainContent = new VBox(20);
-        mainContent.setPadding(new Insets(20));
-        mainContent.setStyle("-fx-background-color: #F8F9FA;");
+        /*
+         * Protección adicional:
+         * el Dashboard no puede abrirse sin sesión.
+         */
+        if (!UserSession.getInstance().isLoggedIn()) {
 
-        HBox topbar = buildTopbar();
-        HBox metricCards = buildMetricCards();
-        VBox tableContainer = buildTableSection();
+            AlertUtil.mostrarSesionExpirada();
 
-        mainContent.getChildren().addAll(topbar, metricCards, tableContainer);
-        root.setCenter(mainContent);
+            redirigirAlLogin();
+
+            return;
+        }
+
+        BorderPane root =
+                new BorderPane();
+
+        root.setLeft(
+                buildSidebar()
+        );
+
+        VBox mainContent =
+                new VBox(20);
+
+        mainContent.setPadding(
+                new Insets(20)
+        );
+
+        mainContent.setStyle(
+                "-fx-background-color: #F8F9FA;"
+        );
+
+        mainContent
+                .getChildren()
+                .addAll(
+                        buildTopbar(),
+                        buildMetricCards(),
+                        buildTableSection()
+                );
+
+        root.setCenter(
+                mainContent
+        );
+
+        Scene scene =
+                new Scene(
+                        root,
+                        1200,
+                        700
+                );
+
+        primaryStage.setTitle(
+                "CareStock - Gestión de Inventario"
+        );
+
+        primaryStage.setScene(scene);
+
+        primaryStage.setResizable(true);
+
+        primaryStage.show();
 
         cargarDatosDesdeBD();
-
-        Scene scene = new Scene(root, 1200, 700);
-        primaryStage.setTitle("CareStock - Módulo de Inventarios (Conectado a Neon DB)");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
-    private void cargarDatosDesdeBD() {
+    public void cargarDatosDesdeBD() {
+
+        List<Medicamento> desdeBD =
+                medicamentoDAO.obtenerTodos();
+
+        listaMedicamentos.setAll(
+                desdeBD
+        );
+
+        lblTotalStock.setText(
+                String.format(
+                        "%,d",
+                        medicamentoDAO
+                                .obtenerTotalUnidadesStock()
+                )
+        );
+
+        lblAlertasCriticas.setText(
+                String.valueOf(
+                        medicamentoDAO
+                                .obtenerAlertasCriticas()
+                )
+        );
+
         try {
-            List<Medicamento> desdeBD = medicamentoDAO.obtenerTodos();
-            listaMedicamentos.setAll(desdeBD);
 
-            int totalStock = medicamentoDAO.obtenerTotalUnidadesStock();
-            int alertas = medicamentoDAO.obtenerAlertasCriticas();
+            lblProximosVencer.setText(
+                    String.valueOf(
+                            loteDAO
+                                    .contarProximosAVencer(30)
+                    )
+            );
 
-            lblTotalStock.setText(String.format("%,d", totalStock));
-            lblProximosVencer.setText("0");
-            lblAlertasCriticas.setText(String.valueOf(alertas));
+        } catch (SQLException e) {
 
-        } catch (Exception e) {
-            System.err.println("Error al cargar datos desde Neon DB: " + e.getMessage());
+            lblProximosVencer.setText(
+                    "0"
+            );
+
+            System.err.println(
+                    "No fue posible consultar lotes próximos a vencer: "
+                    + e.getMessage()
+            );
         }
     }
 
     private VBox buildSidebar() {
-        VBox sidebar = new VBox(15);
-        sidebar.setPadding(new Insets(20));
-        sidebar.setPrefWidth(200);
-        sidebar.setStyle("-fx-background-color: #A3D9D2;");
 
-        Label logo = new Label("CareStock");
-        logo.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1C313A;");
+        VBox sidebar =
+                new VBox(15);
 
-        Button btnDashboard = new Button("Dashboard");
-        btnDashboard.setMaxWidth(Double.MAX_VALUE);
-        btnDashboard.setStyle("-fx-background-color: #B39DDB; -fx-text-fill: white; -fx-font-weight: bold;");
+        sidebar.setPadding(
+                new Insets(20)
+        );
 
-        sidebar.getChildren().addAll(logo, new Separator(), btnDashboard);
+        sidebar.setPrefWidth(210);
+
+        sidebar.setStyle(
+                "-fx-background-color: #A3D9D2;"
+        );
+
+        Label logo =
+                new Label("CareStock");
+
+        logo.setStyle(
+                "-fx-font-size: 22px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #1C313A;"
+        );
+
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
+        Label lblNombre =
+                new Label(
+                        usuario.getNombre()
+                );
+
+        lblNombre.setStyle(
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #1C313A;"
+        );
+
+        Label lblRol =
+                new Label(
+                        usuario.getRol()
+                );
+
+        lblRol.setStyle(
+                "-fx-font-size: 11px;" +
+                "-fx-text-fill: #546E7A;"
+        );
+
+        Button btnDashboard =
+                new Button("Dashboard");
+
+        btnDashboard.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnDashboard.setStyle(
+                "-fx-background-color: #B39DDB;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;"
+        );
+
+        Button btnIngresoLote =
+                new Button(
+                        "Ingreso de lotes"
+                );
+
+        btnIngresoLote.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnIngresoLote.setOnAction(
+                e -> abrirIngresoLote()
+        );
+
+        Button btnHistorialAccesos =
+                new Button(
+                        "Historial de accesos"
+                );
+
+        btnHistorialAccesos.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnHistorialAccesos.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnHistorialAccesos.setManaged(
+                btnHistorialAccesos.isVisible()
+        );
+
+        btnHistorialAccesos.setOnAction(
+                e -> abrirHistorialAccesos()
+        );
+
+        Button btnCerrarSesion =
+                new Button(
+                        "Cerrar sesión"
+                );
+
+        btnCerrarSesion.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnCerrarSesion.setStyle(
+                "-fx-background-color: #ECEFF1;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnCerrarSesion.setOnAction(
+                e -> cerrarSesion()
+        );
+
+        sidebar
+                .getChildren()
+                .addAll(
+                        logo,
+                        new Separator(),
+                        lblNombre,
+                        lblRol,
+                        new Separator(),
+                        btnDashboard,
+                        btnIngresoLote,
+                        btnHistorialAccesos,
+                        btnCerrarSesion
+                );
+
         return sidebar;
     }
 
     private HBox buildTopbar() {
-        HBox topbar = new HBox();
-        topbar.setAlignment(Pos.CENTER_LEFT);
 
-        Label title = new Label("Dashboard general");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        HBox topbar =
+                new HBox(10);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topbar.setAlignment(
+                Pos.CENTER_LEFT
+        );
 
-        VBox botonesAccion = new VBox(8);
-        botonesAccion.setAlignment(Pos.CENTER_RIGHT);
+        Label title =
+                new Label(
+                        "Dashboard general"
+                );
 
-        Button btnAgregar = new Button("+ Agregar Medicamento");
-        btnAgregar.setStyle("-fx-background-color: #A3D9D2; -fx-font-weight: bold;");
-        btnAgregar.setOnAction(e -> abrirFormularioAgregar());
+        title.setStyle(
+                "-fx-font-size: 24px;" +
+                "-fx-font-weight: bold;"
+        );
 
-        btnFiltrarCriticos = new Button("⚠️ Ver Alertas Críticas");
-        btnFiltrarCriticos.setStyle("-fx-background-color: #FFCDD2; -fx-text-fill: #C62828; -fx-font-weight: bold;");
-        btnFiltrarCriticos.setOnAction(e -> alternarFiltroCriticos());
+        Region spacer =
+                new Region();
 
-        botonesAccion.getChildren().addAll(btnAgregar, btnFiltrarCriticos);
+        HBox.setHgrow(
+                spacer,
+                Priority.ALWAYS
+        );
 
-        topbar.getChildren().addAll(title, spacer, botonesAccion);
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
+        Label lblUsuario =
+                new Label(
+                        "Sesión: "
+                        + usuario.getNombre()
+                        + " | "
+                        + usuario.getRol()
+                );
+
+        lblUsuario.setStyle(
+                "-fx-text-fill: #607D8B;" +
+                "-fx-font-size: 12px;"
+        );
+
+        VBox botonesAccion =
+                new VBox(8);
+
+        botonesAccion.setAlignment(
+                Pos.CENTER_RIGHT
+        );
+
+        HBox filaPrincipal =
+                new HBox(8);
+
+        Button btnAgregar =
+                new Button(
+                        "+ Agregar medicamento"
+                );
+
+        btnAgregar.setStyle(
+                "-fx-background-color: #A3D9D2;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnAgregar.setOnAction(
+                e -> abrirFormularioAgregar()
+        );
+
+        Button btnLote =
+                new Button(
+                        "+ Ingresar lote"
+                );
+
+        btnLote.setStyle(
+                "-fx-background-color: #B39DDB;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnLote.setOnAction(
+                e -> abrirIngresoLote()
+        );
+
+        filaPrincipal
+                .getChildren()
+                .addAll(
+                        btnAgregar,
+                        btnLote
+                );
+
+        btnFiltrarCriticos =
+                new Button(
+                        "Ver alertas críticas"
+                );
+
+        btnFiltrarCriticos.setStyle(
+                "-fx-background-color: #FFCDD2;" +
+                "-fx-text-fill: #C62828;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnFiltrarCriticos.setOnAction(
+                e -> alternarFiltroCriticos()
+        );
+
+        botonesAccion
+                .getChildren()
+                .addAll(
+                        filaPrincipal,
+                        btnFiltrarCriticos
+                );
+
+        topbar
+                .getChildren()
+                .addAll(
+                        title,
+                        spacer,
+                        lblUsuario,
+                        botonesAccion
+                );
+
         return topbar;
     }
 
     private void alternarFiltroCriticos() {
-        filtrandoCriticos = !filtrandoCriticos;
+
+        filtrandoCriticos =
+                !filtrandoCriticos;
 
         if (filtrandoCriticos) {
-            listaFiltrada.setPredicate(m -> 
-                m.getStockTotal() != null && m.getStockMinimo() != null && m.getStockTotal() <= m.getStockMinimo()
+
+            listaFiltrada.setPredicate(
+                    m ->
+                            m.getStockTotal() != null
+                            && m.getStockMinimo() != null
+                            && m.getStockTotal()
+                            <= m.getStockMinimo()
             );
-            btnFiltrarCriticos.setText("📋 Ver Todos los Medicamentos");
-            btnFiltrarCriticos.setStyle("-fx-background-color: #E0E0E0; -fx-text-fill: #333333; -fx-font-weight: bold;");
+
+            btnFiltrarCriticos.setText(
+                    "Ver todos los medicamentos"
+            );
+
+            btnFiltrarCriticos.setStyle(
+                    "-fx-background-color: #E0E0E0;" +
+                    "-fx-text-fill: #333333;" +
+                    "-fx-font-weight: bold;"
+            );
+
         } else {
-            listaFiltrada.setPredicate(p -> true);
-            btnFiltrarCriticos.setText("⚠️ Ver Alertas Críticas");
-            btnFiltrarCriticos.setStyle("-fx-background-color: #FFCDD2; -fx-text-fill: #C62828; -fx-font-weight: bold;");
+
+            listaFiltrada.setPredicate(
+                    p -> true
+            );
+
+            btnFiltrarCriticos.setText(
+                    "Ver alertas críticas"
+            );
+
+            btnFiltrarCriticos.setStyle(
+                    "-fx-background-color: #FFCDD2;" +
+                    "-fx-text-fill: #C62828;" +
+                    "-fx-font-weight: bold;"
+            );
         }
     }
 
     private HBox buildMetricCards() {
-        HBox container = new HBox(15);
-        container.getChildren().addAll(
-            createCard(lblTotalStock, "Unidades en stock"),
-            createCard(lblProximosVencer, "Próximos a vencer"),
-            createCard(lblAlertasCriticas, "Alertas críticas")
-        );
+
+        HBox container =
+                new HBox(15);
+
+        container
+                .getChildren()
+                .addAll(
+
+                        createCard(
+                                lblTotalStock,
+                                "Unidades en stock"
+                        ),
+
+                        createCard(
+                                lblProximosVencer,
+                                "Lotes próximos a vencer (30 días)"
+                        ),
+
+                        createCard(
+                                lblAlertasCriticas,
+                                "Alertas críticas"
+                        )
+                );
+
         return container;
     }
 
-    private VBox createCard(Label numLabel, String label) {
-        VBox card = new VBox(5);
-        card.setPadding(new Insets(15));
-        card.setPrefWidth(200);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
+    private VBox createCard(
+            Label numLabel,
+            String label
+    ) {
 
-        numLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        Label subText = new Label(label);
-        subText.setStyle("-fx-text-fill: #7F8C8D; -fx-font-size: 11px;");
+        VBox card =
+                new VBox(5);
 
-        card.getChildren().addAll(numLabel, subText);
+        card.setPadding(
+                new Insets(15)
+        );
+
+        card.setPrefWidth(230);
+
+        card.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 8;"
+        );
+
+        numLabel.setStyle(
+                "-fx-font-size: 20px;" +
+                "-fx-font-weight: bold;"
+        );
+
+        Label subText =
+                new Label(label);
+
+        subText.setStyle(
+                "-fx-text-fill: #7F8C8D;" +
+                "-fx-font-size: 11px;"
+        );
+
+        card
+                .getChildren()
+                .addAll(
+                        numLabel,
+                        subText
+                );
+
         return card;
     }
 
     private VBox buildTableSection() {
-        VBox section = new VBox(10);
-        section.setPadding(new Insets(15));
-        section.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
 
-        Label lblSection = new Label("Inventario en Neon DB");
-        lblSection.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        VBox section =
+                new VBox(10);
 
-        TableColumn<Medicamento, Long> colId = new TableColumn<>("ID");
-        colId.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
+        section.setPadding(
+                new Insets(15)
+        );
+
+        section.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 8;"
+        );
+
+        Label lblSection =
+                new Label(
+                        "Inventario PostgreSQL"
+                );
+
+        lblSection.setStyle(
+                "-fx-font-size: 16px;" +
+                "-fx-font-weight: bold;"
+        );
+
+        TableColumn<Medicamento, Long> colId =
+                new TableColumn<>("ID");
+
+        colId.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "idMedicamento"
+                )
+        );
+
         colId.setPrefWidth(50);
 
-        TableColumn<Medicamento, String> colInvima = new TableColumn<>("INVIMA");
-        colInvima.setCellValueFactory(new PropertyValueFactory<>("codigoInvima"));
+        TableColumn<Medicamento, String> colInvima =
+                new TableColumn<>("INVIMA");
 
-        TableColumn<Medicamento, String> colNombre = new TableColumn<>("NOMBRE");
-        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombreComercial"));
+        colInvima.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "codigoInvima"
+                )
+        );
 
-        TableColumn<Medicamento, String> colPrincipio = new TableColumn<>("PRINCIPIO");
-        colPrincipio.setCellValueFactory(new PropertyValueFactory<>("principioActivo"));
+        TableColumn<Medicamento, String> colNombre =
+                new TableColumn<>("NOMBRE");
 
-        TableColumn<Medicamento, String> colCategoria = new TableColumn<>("CATEGORIA");
-        colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
+        colNombre.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "nombreComercial"
+                )
+        );
 
-        TableColumn<Medicamento, Integer> colStock = new TableColumn<>("STOCK");
-        colStock.setCellValueFactory(new PropertyValueFactory<>("stockTotal"));
+        TableColumn<Medicamento, String> colPrincipio =
+                new TableColumn<>("PRINCIPIO");
 
-        TableColumn<Medicamento, Integer> colStockMin = new TableColumn<>("STOCK MÍN");
-        colStockMin.setCellValueFactory(new PropertyValueFactory<>("stockMinimo"));
+        colPrincipio.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "principioActivo"
+                )
+        );
 
-        tablaInventario.getColumns().clear();
-        tablaInventario.getColumns().addAll(colId, colInvima, colNombre, colPrincipio, colCategoria, colStock, colStockMin);
-        
-        tablaInventario.setItems(listaFiltrada);
-        tablaInventario.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        TableColumn<Medicamento, String> colCategoria =
+                new TableColumn<>("CATEGORÍA");
 
-        section.getChildren().addAll(lblSection, tablaInventario);
+        colCategoria.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "categoria"
+                )
+        );
+
+        TableColumn<Medicamento, Integer> colStock =
+                new TableColumn<>("STOCK");
+
+        colStock.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "stockTotal"
+                )
+        );
+
+        TableColumn<Medicamento, Integer> colStockMin =
+                new TableColumn<>("STOCK MÍN");
+
+        colStockMin.setCellValueFactory(
+                new PropertyValueFactory<>(
+                        "stockMinimo"
+                )
+        );
+
+        tablaInventario
+                .getColumns()
+                .setAll(
+                        colId,
+                        colInvima,
+                        colNombre,
+                        colPrincipio,
+                        colCategoria,
+                        colStock,
+                        colStockMin
+                );
+
+        tablaInventario.setItems(
+                listaFiltrada
+        );
+
+        tablaInventario.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
+        );
+
+        section
+                .getChildren()
+                .addAll(
+                        lblSection,
+                        tablaInventario
+                );
+
         return section;
     }
 
     private void abrirFormularioAgregar() {
-        FormularioMedicamentoDialog dialog = new FormularioMedicamentoDialog();
-        Optional<Medicamento> result = dialog.showAndWait();
-        result.ifPresent(medicamento -> {
-    boolean exito = medicamentoDAO.guardar(medicamento);
-    if (exito) {
-        cargarDatosDesdeBD();
-        AlertUtil.mostrarExito("El medicamento \"" + medicamento.getNombreComercial() + "\" se registró correctamente.");
-    } else {
-        AlertUtil.mostrarError("No se pudo guardar el medicamento en la base de datos. Verifica los datos e intenta nuevamente.");
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        FormularioMedicamentoDialog dialog =
+                new FormularioMedicamentoDialog();
+
+        Optional<Medicamento> result =
+                dialog.showAndWait();
+
+        result.ifPresent(
+                medicamento -> {
+
+                   
+                    if (!validarSesionActiva()) {
+                        return;
+                    }
+
+                    try {
+
+                        if (
+                                medicamentoDAO.guardar(
+                                        medicamento
+                                )
+                        ) {
+
+                            cargarDatosDesdeBD();
+
+                            AlertUtil.mostrarExito(
+                                    "El medicamento \""
+                                    + medicamento.getNombreComercial()
+                                    + "\" se registró correctamente."
+                            );
+
+                        } else {
+
+                            AlertUtil.mostrarError(
+                                    "No se pudo guardar el medicamento. "
+                                    + "Verifique la categoría, los datos "
+                                    + "y la conexión a PostgreSQL."
+                            );
+                        }
+
+                    } catch (IllegalStateException e) {
+
+                      
+                        manejarSesionExpirada();
+                    }
+                }
+        );
     }
-});
+
+    private void abrirIngresoLote() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        try {
+
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            getClass().getResource(
+                                    "/com/carestock/view/IngresoLote.fxml"
+                            )
+                    );
+
+            Parent root =
+                    loader.load();
+
+            IngresoLoteController controller =
+                    loader.getController();
+
+            controller.setOnSaved(
+                    this::cargarDatosDesdeBD
+            );
+
+            controller.setOnSessionExpired(
+                    this::redirigirAlLogin
+            );
+
+            Stage stage =
+                    new Stage();
+
+            stage.setTitle(
+                    "CareStock - Ingreso de lote"
+            );
+
+            stage.initModality(
+                    Modality.WINDOW_MODAL
+            );
+
+            if (
+                    tablaInventario.getScene()
+                    != null
+            ) {
+
+                stage.initOwner(
+                        tablaInventario
+                                .getScene()
+                                .getWindow()
+                );
+            }
+
+            stage.setScene(
+                    new Scene(root)
+            );
+
+            stage.setResizable(false);
+
+            stage.showAndWait();
+
+        } catch (
+                IOException
+                | RuntimeException e
+        ) {
+
+            AlertUtil.mostrarError(
+                    "No fue posible abrir el formulario "
+                    + "de ingreso de lote. "
+                    + e.getMessage()
+            );
+        }
+    }
+
+    private void abrirHistorialAccesos() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        HistorialAccesosFX historial = new HistorialAccesosFX();
+
+        Window owner =
+                tablaInventario.getScene() != null
+                        ? tablaInventario.getScene().getWindow()
+                        : null;
+
+        historial.mostrar(owner);
+    }
+
+    private boolean validarSesionActiva() {
+
+        if (
+                UserSession
+                        .getInstance()
+                        .isLoggedIn()
+        ) {
+            return true;
+        }
+
+        manejarSesionExpirada();
+
+        return false;
+    }
+
+  
+    private void manejarSesionExpirada() {
+
+        AlertUtil.mostrarSesionExpirada();
+
+        redirigirAlLogin();
+    }
+
+    private void redirigirAlLogin() {
+
+        try {
+
+            LoginFX login =
+                    new LoginFX();
+
+            login.start(
+                    primaryStage
+            );
+
+        } catch (Exception e) {
+
+            AlertUtil.mostrarError(
+                    "No fue posible regresar a la pantalla "
+                    + "de inicio de sesión."
+            );
+
+            System.err.println(
+                    "Error redirigiendo al Login: "
+                    + e.getMessage()
+            );
+        }
+    }
+
+    private void cerrarSesion() {
+
+        UserSession
+                .getInstance()
+                .cleanUserSession();
+
+        redirigirAlLogin();
     }
 
     public static void main(String[] args) {

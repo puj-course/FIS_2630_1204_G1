@@ -1,22 +1,36 @@
-name: Java CD Deployment & Release
+name: CD - CareStock
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  package:
+    name: Generar artefacto CareStock
     runs-on: ubuntu-latest
 
     steps:
-    - name: Descargar código del repositorio
-      uses: actions/checkout@v4
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
 
-    - name: Configurar JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
 
-    - name: Confirmación de despliegue
-      run: echo "Workflow de CD listo para integrarse con el build de Maven."
+      - name: Dar permisos al Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Compilar aplicación
+        run: ./mvnw -B clean package
+
+      - name: Publicar artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: CareStock-build
+          path: target/*.jar
+          if-no-files-found: warn

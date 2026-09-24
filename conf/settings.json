@@ -1,0 +1,10 @@
+{
+  "applicationName": "CareStock",
+  "environment": "development",
+  "features": {
+    "medicationCatalog": true,
+    "lotEntry": true,
+    "criticalStockFilter": true,
+    "fefoDispatch": false
+  }
+}

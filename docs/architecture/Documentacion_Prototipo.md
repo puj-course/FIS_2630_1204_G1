@@ -124,9 +124,9 @@ import java.sql.SQLException;
 
 public class DatabaseConfig {
 
-    private static final String URL = "jdbc:postgresql://ep-rough-field-a46l07i6-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require";
-    private static final String USER = "neondb_owner";
-    private static final String PASS = "npg_6SroEaZInY9v";
+    private static final String URL = System.getenv("DB_URL");
+    private static final String USER = System.getenv("DB_USER");
+    private static final String PASS = System.getenv("DB_PASSWORD");
 
     public static Connection getConnection() throws SQLException {
         try {
