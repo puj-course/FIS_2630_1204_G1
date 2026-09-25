@@ -110,10 +110,7 @@ public class MainDashboardFX extends Application {
         }
 
 
-        /*
-         * Protección adicional:
-         * el Dashboard no puede abrirse sin sesión.
-         */
+  
         if (!UserSession.getInstance().isLoggedIn()) {
 
             AlertUtil.mostrarSesionExpirada();
@@ -172,11 +169,7 @@ public class MainDashboardFX extends Application {
 
         configurarTemporizadorSegunPreferencia();
 
-        /*
-         * La sesión protegida comienza a supervisarse
-         * únicamente después de cargar el Dashboard.
-         */
-
+      
 
         cargarDatosDesdeBD();
     }
@@ -777,12 +770,7 @@ public class MainDashboardFX extends Application {
 
                     } catch (AccesoDenegadoException e) {
 
-                        /*
-                         * El rol de la sesión activa no está
-                         * autorizado para esta operación, aunque
-                         * haya llegado a este punto (por ejemplo,
-                         * si el rol cambió durante la sesión).
-                         */
+                     
                         AlertUtil.mostrarError(
                                 e.getMessage()
                         );
@@ -971,25 +959,15 @@ public class MainDashboardFX extends Application {
 
     private void cerrarSesion() {
 
-        /*
-         * El temporizador deja de existir antes
-         * de destruir la sesión manualmente.
-         */
+     
         idleSessionManager.stopMonitoring();
 
 
         sessionController.cerrarSesion();
 
-        /*
-         * Primero se realiza la navegación inmediata
-         * hacia la pantalla de inicio de sesión.
-         */
         redirigirAlLogin();
 
-        /*
-         * Una vez visible el Login se informa al usuario
-         * que la sesión fue cerrada correctamente.
-         */
+    
         mostrarNotificacionCierreSeguro();
     }
 
@@ -998,13 +976,7 @@ public class MainDashboardFX extends Application {
     }
 
 
-    /**
-     * Informa visualmente al usuario que la sesión
-     * terminó de forma segura.
-     *
-     * El Alert se muestra después de la redirección
-     * al Login y se cierra automáticamente.
-     */
+  
     private void mostrarNotificacionCierreSeguro() {
 
         Alert notificacion =
@@ -1034,10 +1006,7 @@ public class MainDashboardFX extends Application {
                         "-fx-background-color: #E8F5E9;"
                 );
 
-        /*
-         * show() permite que la navegación al Login
-         * ya haya ocurrido antes de mostrar el mensaje.
-         */
+       
         notificacion.show();
 
         PauseTransition cierreAutomatico =
@@ -1052,27 +1021,6 @@ public class MainDashboardFX extends Application {
         cierreAutomatico.play();
     }
 
-
-
-    /**
-     * Rutina automática ejecutada cuando se supera
-     * el tiempo máximo permitido sin interacción.
-     */
-
-
-
-    /**
-     * Informa al usuario por qué fue redirigido
-     * nuevamente a la pantalla de Login.
-     */
-
-
-
-
-    /**
-     * Carga las preferencias persistentes del usuario
-     * y configura el temporizador de la sesión actual.
-     */
     private void configurarTemporizadorSegunPreferencia() {
 
         UserSession.CurrentUser usuario =
@@ -1094,11 +1042,7 @@ public class MainDashboardFX extends Application {
 
         } catch (SQLException e) {
 
-            /*
-             * Si la configuración persistente no puede
-             * consultarse, se aplica una política segura
-             * por defecto para la sesión actual.
-             */
+         
             preferenciaSesionActual =
                     PreferenciaSesion
                             .porDefecto(
@@ -1119,10 +1063,6 @@ public class MainDashboardFX extends Application {
     }
 
 
-    /**
-     * Abre la configuración individual de seguridad
-     * del usuario autenticado.
-     */
     private void abrirConfiguracionSesion() {
 
         if (!validarSesionActiva()) {
@@ -1202,10 +1142,7 @@ public class MainDashboardFX extends Application {
     }
 
 
-    /**
-     * Aplica inmediatamente las preferencias seleccionadas
-     * por el usuario.
-     */
+
     private void aplicarPreferenciaSesion(
             PreferenciaSesion preferencia
     ) {
@@ -1236,17 +1173,7 @@ public class MainDashboardFX extends Application {
     }
 
 
-    /**
-     * Se ejecuta automáticamente cuando el usuario supera
-     * el tiempo máximo configurado sin interacción.
-     */
 
-
-
-    /**
-     * Cierra diálogos o ventanas internas que pudieran
-     * permanecer abiertas al caducar la sesión.
-     */
     private void cerrarVentanasSecundarias() {
 
         for (
@@ -1267,50 +1194,25 @@ public class MainDashboardFX extends Application {
     }
 
 
-    /**
-     * Informa en el Login la causa del cierre automático.
-     */
 
-
-
-
-    /**
-     * Se ejecuta automáticamente cuando el usuario supera
-     * el tiempo máximo configurado sin interacción.
-     */
     private void cerrarSesionPorInactividad() {
 
-        /*
-         * El administrador detiene primero todos sus
-         * listeners para evitar ejecuciones posteriores.
-         */
+        
         idleSessionManager.stopMonitoring();
 
-        /*
-         * Reutiliza el controlador central de sesión.
-         * Esto termina invocando UserSession.clearSession().
-         */
         sessionController.cerrarSesion();
 
-        /*
-         * Se cierran posibles ventanas secundarias que
-         * pertenezcan a la sesión que acaba de caducar.
-         */
+    
         cerrarVentanasSecundarias();
 
-        /*
-         * La redirección al Login ocurre inmediatamente
-         * después de invalidar la sesión.
-         */
+     
         redirigirAlLogin();
 
         mostrarNotificacionSesionCaducada();
     }
 
 
-    /**
-     * Informa al usuario la causa del cierre automático.
-     */
+   
     private void mostrarNotificacionSesionCaducada() {
 
         Alert alerta =
@@ -1334,9 +1236,7 @@ public class MainDashboardFX extends Application {
                 "Tu sesión ha caducado por inactividad"
         );
 
-        /*
-         * show() no bloquea la pantalla de Login.
-         */
+      
         alerta.show();
     }
 
