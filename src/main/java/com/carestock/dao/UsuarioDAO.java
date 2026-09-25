@@ -2,6 +2,7 @@ package com.carestock.dao;
 
 import com.carestock.config.DatabaseConfig;
 import com.carestock.model.Usuario;
+import com.carestock.security.AccessControl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,10 +75,6 @@ public class UsuarioDAO {
         return null;
     }
 
-    /**
-     * Cambia la contraseña de un usuario. HU.58 - Tarea #339.
-     * Verifica que la contraseña actual sea correcta antes de actualizar.
-     */
     public boolean cambiarPassword(int idUsuario, String passwordActual, String passwordNueva) throws SQLException {
         String sqlVerificar = "SELECT password_hash FROM USUARIOS WHERE id_usuario = ?";
         String sqlActualizar = "UPDATE USUARIOS SET password_hash = ? WHERE id_usuario = ?";
@@ -103,6 +100,7 @@ public class UsuarioDAO {
         }
         return false;
     }
+
     public List<Usuario> listarTodos() throws SQLException {
         String sql =
                 "SELECT " +
@@ -139,5 +137,37 @@ public class UsuarioDAO {
         }
 
         return usuarios;
+    }
+
+    public int crear(
+            String nombreCompleto,
+            String email,
+            String password,
+            int idRol
+    ) throws SQLException {
+
+        AccessControl.requireRole("ADMINISTRADOR");
+
+        String sql = "SELECT fn_crear_usuario(?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nombreCompleto.trim());
+            stmt.setString(2, email.trim());
+            stmt.setString(3, password);
+            stmt.setInt(4, idRol);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+
+        throw new SQLException(
+                "No fue posible crear el usuario."
+        );
     }
 }
