@@ -109,7 +109,7 @@ public class UsuarioDAO {
             }
         }
         return false;
-
+    }
 
     public List<Usuario> listarTodos() throws SQLException {
 
