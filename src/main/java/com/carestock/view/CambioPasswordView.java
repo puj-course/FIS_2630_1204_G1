@@ -11,10 +11,7 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 
-/**
- * Pantalla de cambio de contraseña. HU.58 - Tarea #338.
- * Permite al usuario autenticado cambiar su contraseña desde el perfil.
- */
+
 public class CambioPasswordView {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
