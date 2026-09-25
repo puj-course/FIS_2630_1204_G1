@@ -12,6 +12,7 @@ import com.carestock.controller.IngresoLoteController;
 import com.carestock.controller.SessionController;
 import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
+import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
 import com.carestock.session.UserSession;
 
@@ -312,6 +313,16 @@ public class MainDashboardFX extends Application {
 
         btnAgregarMedicamento.setOnAction(
                 e -> abrirFormularioAgregar()
+        );
+
+        btnAgregarMedicamento.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnAgregarMedicamento.setManaged(
+                btnAgregarMedicamento.isVisible()
         );
 
         Button btnIngresoLote =
@@ -763,6 +774,18 @@ public class MainDashboardFX extends Application {
                                     + "y la conexión a PostgreSQL."
                             );
                         }
+
+                    } catch (AccesoDenegadoException e) {
+
+                        /*
+                         * El rol de la sesión activa no está
+                         * autorizado para esta operación, aunque
+                         * haya llegado a este punto (por ejemplo,
+                         * si el rol cambió durante la sesión).
+                         */
+                        AlertUtil.mostrarError(
+                                e.getMessage()
+                        );
 
                     } catch (IllegalStateException e) {
 

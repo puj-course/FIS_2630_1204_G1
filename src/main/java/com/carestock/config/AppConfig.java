@@ -32,6 +32,26 @@ public final class AppConfig {
     }
 
     /**
+     * Devuelve el rol del usuario autenticado (ej. "ADMINISTRADOR",
+     * "FARMACEUTICO").
+     */
+    public static String getCurrentUserRole() {
+
+        UserSession session =
+                UserSession.getInstance();
+
+        if (!session.isLoggedIn()) {
+            throw new IllegalStateException(
+                    "No existe un usuario autenticado."
+            );
+        }
+
+        return session
+                .getCurrentUser()
+                .getRol();
+    }
+
+    /**
      * Indica si hay un usuario autenticado.
      */
     public static boolean hasAuthenticatedUser() {

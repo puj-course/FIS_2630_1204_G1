@@ -189,6 +189,7 @@ que las operaciones se hayan realizado correctamente.
 | Registrar entrada de lotes | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Despachar medicamentos | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Consultar lotes | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Agregar medicamento al catálogo | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Ver panel de alertas | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Configurar stock mínimo | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Aprobar pedidos | ✅ | ✅ | ✅ | ❌ | ❌ |
@@ -204,7 +205,11 @@ que las operaciones se hayan realizado correctamente.
 El sistema CareStock implementa las siguientes restricciones según el rol 
 del usuario:
 
-- **Administrador:** Acceso total a todas las funcionalidades del sistema.
+- **Administrador:** Acceso total a todas las funcionalidades del sistema, 
+incluyendo la única capacidad de agregar nuevos medicamentos al catálogo. 
+Esta restricción se valida tanto en la interfaz (el botón no se muestra a 
+otros roles) como en el Backend (el DAO rechaza la operación si el rol de 
+la sesión activa no es Administrador).
 - **Encargado de Supervisión General:** Acceso a funcionalidades de 
 supervisión global y aprobación final de pedidos.
 - **Jefe de Farmacia:** Acceso a funcionalidades de supervisión, gestión 
