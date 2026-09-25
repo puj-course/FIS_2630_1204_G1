@@ -85,4 +85,33 @@ public class UsuarioDAO {
 
         return null;
     }
+    /**
+     * Cambia la contraseña de un usuario. HU.58 - Tarea #339.
+     * Verifica que la contraseña actual sea correcta antes de actualizar.
+     */
+    public boolean cambiarPassword(int idUsuario, String passwordActual, String passwordNueva) throws SQLException {
+        String sqlVerificar = "SELECT password_hash FROM USUARIOS WHERE id_usuario = ?";
+        String sqlActualizar = "UPDATE USUARIOS SET password_hash = ? WHERE id_usuario = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmtVerificar = conn.prepareStatement(sqlVerificar)) {
+
+            stmtVerificar.setInt(1, idUsuario);
+            try (ResultSet rs = stmtVerificar.executeQuery()) {
+                if (rs.next()) {
+                    String hashActual = rs.getString("password_hash");
+                    if (!hashActual.equals(passwordActual)) {
+                        return false;
+                    }
+
+                    try (PreparedStatement stmtActualizar = conn.prepareStatement(sqlActualizar)) {
+                        stmtActualizar.setString(1, passwordNueva);
+                        stmtActualizar.setInt(2, idUsuario);
+                        return stmtActualizar.executeUpdate() > 0;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
