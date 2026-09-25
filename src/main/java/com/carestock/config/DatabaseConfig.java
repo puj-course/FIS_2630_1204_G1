@@ -4,15 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Configuración central de PostgreSQL.
- *
- * Las credenciales NO se almacenan en el repositorio. Se leen de propiedades
- * de la JVM o de variables de entorno:
- *   - carestock.db.url / DB_URL
- *   - carestock.db.user / DB_USER
- *   - carestock.db.password / DB_PASSWORD
- */
+
 public final class DatabaseConfig {
 
     private DatabaseConfig() {
