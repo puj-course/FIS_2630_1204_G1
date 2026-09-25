@@ -101,13 +101,7 @@ public class MedicamentoDAO {
 
     public void insertar(Medicamento medicamento) throws SQLException {
 
-        /*
-         * Regla de negocio: agregar un medicamento al catálogo es
-         * una operación administrativa. Se valida el rol aquí, en
-         * el DAO, para que la restricción exista sin importar qué
-         * pantalla o flujo termine llamando a este método (no solo
-         * cuando se oculta el botón en la interfaz).
-         */
+
         String rolActual = AppConfig.getCurrentUserRole();
 
         if (!"ADMINISTRADOR".equalsIgnoreCase(rolActual)) {
