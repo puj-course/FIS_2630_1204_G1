@@ -1,6 +1,15 @@
 package com.carestock.view;
 
+import com.carestock.dao.PreferenciaSesionDAO;
+
+import com.carestock.model.PreferenciaSesion;
+
+import com.carestock.session.IdleSessionManager;
+
+import javafx.animation.PauseTransition;
+
 import com.carestock.controller.IngresoLoteController;
+import com.carestock.controller.SessionController;
 import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.model.Medicamento;
@@ -15,7 +24,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
@@ -34,10 +46,17 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import javafx.util.Duration;
 
 public class MainDashboardFX extends Application {
 
     private Stage primaryStage;
+
+    private final IdleSessionManager idleSessionManager =
+            IdleSessionManager.getInstance();
+
+    private final SessionController sessionController =
+            new SessionController();
 
     private final TableView<Medicamento> tablaInventario =
             new TableView<>();
@@ -57,6 +76,13 @@ public class MainDashboardFX extends Application {
     private final LoteDAO loteDAO =
             new LoteDAO();
 
+    private final PreferenciaSesionDAO preferenciaSesionDAO =
+            new PreferenciaSesionDAO();
+
+
+
+    private PreferenciaSesion preferenciaSesionActual;
+
     private final Label lblTotalStock =
             new Label("0");
 
@@ -75,6 +101,13 @@ public class MainDashboardFX extends Application {
 
         this.primaryStage =
                 primaryStage;
+
+        if (!ProtectedNavigationGuard.ensureAuthenticated(
+                primaryStage
+        )) {
+            return;
+        }
+
 
         /*
          * Protección adicional:
@@ -136,10 +169,25 @@ public class MainDashboardFX extends Application {
 
         primaryStage.show();
 
+        configurarTemporizadorSegunPreferencia();
+
+        /*
+         * La sesión protegida comienza a supervisarse
+         * únicamente después de cargar el Dashboard.
+         */
+
+
         cargarDatosDesdeBD();
     }
 
     public void cargarDatosDesdeBD() {
+
+        if (!ProtectedNavigationGuard.ensureAuthenticated(
+                primaryStage
+        )) {
+            return;
+        }
+
 
         List<Medicamento> desdeBD =
                 medicamentoDAO.obtenerTodos();
@@ -247,6 +295,25 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;"
         );
 
+        Button btnAgregarMedicamento =
+                new Button(
+                        "Agregar medicamento"
+                );
+
+        btnAgregarMedicamento.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnAgregarMedicamento.setStyle(
+                "-fx-background-color: #E8F5F2;" +
+                "-fx-text-fill: #1C313A;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnAgregarMedicamento.setOnAction(
+                e -> abrirFormularioAgregar()
+        );
+
         Button btnIngresoLote =
                 new Button(
                         "Ingreso de lotes"
@@ -256,9 +323,54 @@ public class MainDashboardFX extends Application {
                 Double.MAX_VALUE
         );
 
+        btnIngresoLote.setStyle(
+                "-fx-background-color: #D1C4E9;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
+
         btnIngresoLote.setOnAction(
                 e -> abrirIngresoLote()
         );
+
+        btnFiltrarCriticos =
+                new Button(
+                        "Ver alertas críticas"
+                );
+
+        btnFiltrarCriticos.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnFiltrarCriticos.setStyle(
+                "-fx-background-color: #FFCDD2;" +
+                "-fx-text-fill: #C62828;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnFiltrarCriticos.setOnAction(
+                e -> alternarFiltroCriticos()
+        );
+
+        Button btnConfiguracionSesion =
+                new Button(
+                        "Configuración de sesión"
+                );
+
+        btnConfiguracionSesion.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnConfiguracionSesion.setStyle(
+                "-fx-background-color: #ECEFF1;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnConfiguracionSesion.setOnAction(
+                e -> abrirConfiguracionSesion()
+        );
+
 
         Button btnHistorialAccesos =
                 new Button(
@@ -283,25 +395,6 @@ public class MainDashboardFX extends Application {
                 e -> abrirHistorialAccesos()
         );
 
-        Button btnCerrarSesion =
-                new Button(
-                        "Cerrar sesión"
-                );
-
-        btnCerrarSesion.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        btnCerrarSesion.setStyle(
-                "-fx-background-color: #ECEFF1;" +
-                "-fx-text-fill: #37474F;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnCerrarSesion.setOnAction(
-                e -> cerrarSesion()
-        );
-
         sidebar
                 .getChildren()
                 .addAll(
@@ -311,9 +404,11 @@ public class MainDashboardFX extends Application {
                         lblRol,
                         new Separator(),
                         btnDashboard,
+                        btnAgregarMedicamento,
                         btnIngresoLote,
-                        btnHistorialAccesos,
-                        btnCerrarSesion
+                        btnFiltrarCriticos,
+                        btnConfiguracionSesion,
+                        btnHistorialAccesos
                 );
 
         return sidebar;
@@ -364,73 +459,21 @@ public class MainDashboardFX extends Application {
                 "-fx-font-size: 12px;"
         );
 
-        VBox botonesAccion =
-                new VBox(8);
-
-        botonesAccion.setAlignment(
-                Pos.CENTER_RIGHT
-        );
-
-        HBox filaPrincipal =
-                new HBox(8);
-
-        Button btnAgregar =
+        Button btnCerrarSesion =
                 new Button(
-                        "+ Agregar medicamento"
+                        "Cerrar sesión"
                 );
 
-        btnAgregar.setStyle(
-                "-fx-background-color: #A3D9D2;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnAgregar.setOnAction(
-                e -> abrirFormularioAgregar()
-        );
-
-        Button btnLote =
-                new Button(
-                        "+ Ingresar lote"
-                );
-
-        btnLote.setStyle(
-                "-fx-background-color: #B39DDB;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnLote.setOnAction(
-                e -> abrirIngresoLote()
-        );
-
-        filaPrincipal
-                .getChildren()
-                .addAll(
-                        btnAgregar,
-                        btnLote
-                );
-
-        btnFiltrarCriticos =
-                new Button(
-                        "Ver alertas críticas"
-                );
-
-        btnFiltrarCriticos.setStyle(
-                "-fx-background-color: #FFCDD2;" +
+        btnCerrarSesion.setStyle(
+                "-fx-background-color: #ECEFF1;" +
                 "-fx-text-fill: #C62828;" +
-                "-fx-font-weight: bold;"
+                "-fx-font-weight: bold;" +
+                "-fx-background-radius: 8;"
         );
 
-        btnFiltrarCriticos.setOnAction(
-                e -> alternarFiltroCriticos()
+        btnCerrarSesion.setOnAction(
+                e -> solicitarCierreSesion()
         );
-
-        botonesAccion
-                .getChildren()
-                .addAll(
-                        filaPrincipal,
-                        btnFiltrarCriticos
-                );
 
         topbar
                 .getChildren()
@@ -438,7 +481,7 @@ public class MainDashboardFX extends Application {
                         title,
                         spacer,
                         lblUsuario,
-                        botonesAccion
+                        btnCerrarSesion
                 );
 
         return topbar;
@@ -821,17 +864,10 @@ public class MainDashboardFX extends Application {
 
     private boolean validarSesionActiva() {
 
-        if (
-                UserSession
-                        .getInstance()
-                        .isLoggedIn()
-        ) {
-            return true;
-        }
-
-        manejarSesionExpirada();
-
-        return false;
+        return ProtectedNavigationGuard
+                .ensureAuthenticated(
+                        primaryStage
+                );
     }
 
   
@@ -867,16 +903,418 @@ public class MainDashboardFX extends Application {
         }
     }
 
+    private void solicitarCierreSesion() {
+
+        Alert confirmacion =
+                new Alert(
+                        Alert.AlertType.CONFIRMATION
+                );
+
+        confirmacion.initOwner(primaryStage);
+        confirmacion.setTitle("CareStock");
+        confirmacion.setHeaderText("Cerrar sesión");
+        confirmacion.setContentText(
+                "¿Estás seguro que deseas cerrar sesión?"
+        );
+
+        ButtonType btnConfirmar =
+                new ButtonType(
+                        "Cerrar sesión"
+                );
+
+        ButtonType btnCancelar =
+                new ButtonType(
+                        "Cancelar",
+                        ButtonBar.ButtonData.CANCEL_CLOSE
+                );
+
+        confirmacion
+                .getButtonTypes()
+                .setAll(
+                        btnConfirmar,
+                        btnCancelar
+                );
+
+        Optional<ButtonType> respuesta =
+                confirmacion.showAndWait();
+
+        if (
+                respuesta.isPresent()
+                && respuesta.get() == btnConfirmar
+        ) {
+            cerrarSesion();
+        }
+    }
+
     private void cerrarSesion() {
 
-        UserSession
-                .getInstance()
-                .cleanUserSession();
+        /*
+         * El temporizador deja de existir antes
+         * de destruir la sesión manualmente.
+         */
+        idleSessionManager.stopMonitoring();
 
+
+        sessionController.cerrarSesion();
+
+        /*
+         * Primero se realiza la navegación inmediata
+         * hacia la pantalla de inicio de sesión.
+         */
         redirigirAlLogin();
+
+        /*
+         * Una vez visible el Login se informa al usuario
+         * que la sesión fue cerrada correctamente.
+         */
+        mostrarNotificacionCierreSeguro();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
+
+
+    /**
+     * Informa visualmente al usuario que la sesión
+     * terminó de forma segura.
+     *
+     * El Alert se muestra después de la redirección
+     * al Login y se cierra automáticamente.
+     */
+    private void mostrarNotificacionCierreSeguro() {
+
+        Alert notificacion =
+                new Alert(
+                        Alert.AlertType.INFORMATION
+                );
+
+        notificacion.initOwner(
+                primaryStage
+        );
+
+        notificacion.setTitle(
+                "CareStock"
+        );
+
+        notificacion.setHeaderText(
+                "Cierre de sesión exitoso"
+        );
+
+        notificacion.setContentText(
+                "Sesión finalizada de forma segura"
+        );
+
+        notificacion
+                .getDialogPane()
+                .setStyle(
+                        "-fx-background-color: #E8F5E9;"
+                );
+
+        /*
+         * show() permite que la navegación al Login
+         * ya haya ocurrido antes de mostrar el mensaje.
+         */
+        notificacion.show();
+
+        PauseTransition cierreAutomatico =
+                new PauseTransition(
+                        Duration.seconds(3)
+                );
+
+        cierreAutomatico.setOnFinished(
+                event -> notificacion.close()
+        );
+
+        cierreAutomatico.play();
+    }
+
+
+
+    /**
+     * Rutina automática ejecutada cuando se supera
+     * el tiempo máximo permitido sin interacción.
+     */
+
+
+
+    /**
+     * Informa al usuario por qué fue redirigido
+     * nuevamente a la pantalla de Login.
+     */
+
+
+
+
+    /**
+     * Carga las preferencias persistentes del usuario
+     * y configura el temporizador de la sesión actual.
+     */
+    private void configurarTemporizadorSegunPreferencia() {
+
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
+        if (usuario == null) {
+            return;
+        }
+
+        try {
+
+            preferenciaSesionActual =
+                    preferenciaSesionDAO
+                            .obtenerOCrearPorUsuario(
+                                    usuario.getId()
+                            );
+
+        } catch (SQLException e) {
+
+            /*
+             * Si la configuración persistente no puede
+             * consultarse, se aplica una política segura
+             * por defecto para la sesión actual.
+             */
+            preferenciaSesionActual =
+                    PreferenciaSesion
+                            .porDefecto(
+                                    usuario.getId()
+                            );
+
+            System.err.println(
+                    "No fue posible cargar las preferencias "
+                    + "de sesión. Se aplicará el valor "
+                    + "predeterminado: "
+                    + e.getMessage()
+            );
+        }
+
+        aplicarPreferenciaSesion(
+                preferenciaSesionActual
+        );
+    }
+
+
+    /**
+     * Abre la configuración individual de seguridad
+     * del usuario autenticado.
+     */
+    private void abrirConfiguracionSesion() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
+
+        if (usuario == null) {
+            return;
+        }
+
+        try {
+
+            PreferenciaSesion actual =
+                    preferenciaSesionDAO
+                            .obtenerOCrearPorUsuario(
+                                    usuario.getId()
+                            );
+
+            ConfiguracionSesionDialog dialog =
+                    new ConfiguracionSesionDialog(
+                            actual
+                    );
+
+            dialog.initOwner(
+                    primaryStage
+            );
+
+            Optional<PreferenciaSesion> resultado =
+                    dialog.showAndWait();
+
+            if (resultado.isEmpty()) {
+                return;
+            }
+
+            PreferenciaSesion nuevaPreferencia =
+                    resultado.get();
+
+            preferenciaSesionDAO.guardar(
+                    nuevaPreferencia
+            );
+
+            preferenciaSesionActual =
+                    nuevaPreferencia;
+
+            aplicarPreferenciaSesion(
+                    nuevaPreferencia
+            );
+
+            String estado =
+                    nuevaPreferencia.isTimeoutActivo()
+                            ? "activado a "
+                              + nuevaPreferencia
+                                    .getTimeoutMinutos()
+                              + " minuto(s)."
+                            : "desactivado.";
+
+            AlertUtil.mostrarExito(
+                    "La configuración de sesión fue "
+                    + "guardada correctamente. "
+                    + "El cierre por inactividad quedó "
+                    + estado
+            );
+
+        } catch (SQLException e) {
+
+            AlertUtil.mostrarError(
+                    "No fue posible guardar la configuración "
+                    + "de sesión. "
+                    + e.getMessage()
+            );
+        }
+    }
+
+
+    /**
+     * Aplica inmediatamente las preferencias seleccionadas
+     * por el usuario.
+     */
+    private void aplicarPreferenciaSesion(
+            PreferenciaSesion preferencia
+    ) {
+
+        idleSessionManager.stopMonitoring();
+
+        if (!preferencia.isTimeoutActivo()) {
+
+            System.out.println(
+                    "Timeout por inactividad desactivado "
+                    + "para el usuario "
+                    + preferencia.getIdUsuario()
+            );
+
+            return;
+        }
+
+        idleSessionManager.startMonitoring(
+                preferencia.getTimeoutMinutos(),
+                this::cerrarSesionPorInactividad
+        );
+
+        System.out.println(
+                "Timeout por inactividad configurado en "
+                + preferencia.getTimeoutMinutos()
+                + " minuto(s)."
+        );
+    }
+
+
+    /**
+     * Se ejecuta automáticamente cuando el usuario supera
+     * el tiempo máximo configurado sin interacción.
+     */
+
+
+
+    /**
+     * Cierra diálogos o ventanas internas que pudieran
+     * permanecer abiertas al caducar la sesión.
+     */
+    private void cerrarVentanasSecundarias() {
+
+        for (
+                Window window
+                : List.copyOf(
+                        Window.getWindows()
+                )
+        ) {
+
+            if (
+                    window != primaryStage
+                    && window.isShowing()
+            ) {
+
+                window.hide();
+            }
+        }
+    }
+
+
+    /**
+     * Informa en el Login la causa del cierre automático.
+     */
+
+
+
+
+    /**
+     * Se ejecuta automáticamente cuando el usuario supera
+     * el tiempo máximo configurado sin interacción.
+     */
+    private void cerrarSesionPorInactividad() {
+
+        /*
+         * El administrador detiene primero todos sus
+         * listeners para evitar ejecuciones posteriores.
+         */
+        idleSessionManager.stopMonitoring();
+
+        /*
+         * Reutiliza el controlador central de sesión.
+         * Esto termina invocando UserSession.clearSession().
+         */
+        sessionController.cerrarSesion();
+
+        /*
+         * Se cierran posibles ventanas secundarias que
+         * pertenezcan a la sesión que acaba de caducar.
+         */
+        cerrarVentanasSecundarias();
+
+        /*
+         * La redirección al Login ocurre inmediatamente
+         * después de invalidar la sesión.
+         */
+        redirigirAlLogin();
+
+        mostrarNotificacionSesionCaducada();
+    }
+
+
+    /**
+     * Informa al usuario la causa del cierre automático.
+     */
+    private void mostrarNotificacionSesionCaducada() {
+
+        Alert alerta =
+                new Alert(
+                        Alert.AlertType.WARNING
+                );
+
+        alerta.initOwner(
+                primaryStage
+        );
+
+        alerta.setTitle(
+                "CareStock"
+        );
+
+        alerta.setHeaderText(
+                "Sesión caducada"
+        );
+
+        alerta.setContentText(
+                "Tu sesión ha caducado por inactividad"
+        );
+
+        /*
+         * show() no bloquea la pantalla de Login.
+         */
+        alerta.show();
+    }
+
 }
