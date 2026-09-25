@@ -2,7 +2,7 @@
 
 CareStock es un proyecto académico para la gestión y trazabilidad de inventario de medicamentos. La versión actual integra una interfaz de escritorio JavaFX con PostgreSQL/Neon mediante JDBC y contiene el flujo de catálogo de medicamentos e ingreso de lotes.
 
-## Equipo del proyecto — Grupo 1
+## Equipo del proyecto Grupo 1
 
 |Nombre|Rol|GitHub / Perfil|
 |-|-|-|

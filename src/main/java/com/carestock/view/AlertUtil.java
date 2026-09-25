@@ -31,6 +31,20 @@ public final class AlertUtil {
         mostrar(Alert.AlertType.WARNING, "Revise la información", mensaje, ESTILO_ERROR, "#7A2E2E");
     }
 
+    /**
+     * Informa que una operación protegida no puede continuar
+     * porque no existe una sesión autenticada activa.
+     */
+    public static void mostrarSesionExpirada() {
+        mostrar(
+                Alert.AlertType.WARNING,
+                "Sesión no disponible",
+                "La sesión ha expirado o no existe un usuario activo. Inicie sesión nuevamente para continuar.",
+                ESTILO_ERROR,
+                "#7A2E2E"
+        );
+    }
+
     private static void mostrar(Alert.AlertType type, String header, String mensaje,
                                 String estiloFondo, String colorTexto) {
         Alert alert = new Alert(type);

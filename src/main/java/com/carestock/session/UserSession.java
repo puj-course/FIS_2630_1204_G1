@@ -64,9 +64,18 @@ public final class UserSession {
     }
 
     /**
-     * Elimina de memoria los datos del usuario autenticado.
+     * Invalida completamente el contexto de la sesión activa.
+     *
+     * Al eliminar la referencia a CurrentUser dejan de estar
+     * disponibles desde UserSession los datos asociados al
+     * usuario autenticado, incluyendo identificador, nombre,
+     * correo electrónico y rol.
+     *
+     * UserSession no almacena contraseñas, hashes, tokens ni
+     * permisos independientes del usuario.
      */
-    public void cleanUserSession() {
+    public void clearSession() {
+
         currentUser = null;
     }
 

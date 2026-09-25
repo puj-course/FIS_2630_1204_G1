@@ -13,18 +13,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefWidth="520.0" spacing="20.0" xmlns="http://javafx.com/javafx/21"
+<!-- h.u: Se agregó la hoja de estilos ingreso-lote.css -->
+<VBox prefWidth="520.0" spacing="20.0" stylesheets="@ingreso-lote.css" xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.carestock.controller.IngresoLoteController">
     <padding>
         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
     </padding>
     <children>
-        <Label text="Registro de ingreso de nuevo lote" textFill="#1f2937">
+        <!-- h.u: Se vinculó la clase dialog-titulo -->
+        <Label styleClass="dialog-titulo" text="Registro de ingreso de nuevo lote">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
         </Label>
+
+        <!-- El usuario responsable proviene de la sesión; no es editable. -->
+        <Label fx:id="lblUsuarioSesion"
+               text="Responsable: sesión activa"
+               textFill="#607D8B"
+               wrapText="true" />
 
         <GridPane hgap="15.0" vgap="15.0">
             <columnConstraints>
@@ -63,9 +71,11 @@
 
         <HBox alignment="CENTER_RIGHT" spacing="12.0">
             <children>
-                <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#handleCancelar" text="Cancelar" />
-                <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#handleGuardarLote"
-                        style="-fx-background-color: #2563eb; -fx-text-fill: white;" text="Guardar lote" />
+                <!-- h.u: Se agregó clase de estilo btn-cancelar -->
+                <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#handleCancelar" styleClass="btn-cancelar" text="Cancelar" />
+                
+                <!-- h.u: Se cambió el estilo inline por estilo centralizado btn-guardar -->
+                <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#handleGuardarLote" styleClass="btn-guardar" text="Guardar lote" />
             </children>
             <VBox.margin>
                 <Insets top="10.0" />

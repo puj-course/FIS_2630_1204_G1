@@ -22,6 +22,25 @@ public class FormularioMedicamentoDialog extends Dialog<Medicamento> {
     private final TextField txtStockMinimo = new TextField();
 
     public FormularioMedicamentoDialog() {
+
+        /*
+         * Bloquea la visualización del formulario si la
+         * sesión deja de existir antes de mostrarlo.
+         */
+        setOnShowing(
+                event -> {
+
+                    if (
+                            !ProtectedNavigationGuard
+                                    .ensureAuthenticated(
+                                            null
+                                    )
+                    ) {
+
+                        event.consume();
+                    }
+                }
+        );
         setTitle("CareStock - Agregar medicamento");
         setHeaderText("Registre el medicamento. El stock inicia en 0 y se actualiza mediante el ingreso de lotes.");
 
