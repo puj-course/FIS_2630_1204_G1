@@ -2,6 +2,7 @@ package com.carestock.dao;
 
 import com.carestock.config.AppConfig;
 import com.carestock.config.DatabaseConfig;
+import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
 
 import java.sql.Connection;
@@ -99,6 +100,23 @@ public class MedicamentoDAO {
     }
 
     public void insertar(Medicamento medicamento) throws SQLException {
+
+        /*
+         * Regla de negocio: agregar un medicamento al catálogo es
+         * una operación administrativa. Se valida el rol aquí, en
+         * el DAO, para que la restricción exista sin importar qué
+         * pantalla o flujo termine llamando a este método (no solo
+         * cuando se oculta el botón en la interfaz).
+         */
+        String rolActual = AppConfig.getCurrentUserRole();
+
+        if (!"ADMINISTRADOR".equalsIgnoreCase(rolActual)) {
+            throw new AccesoDenegadoException(
+                    "Solo un usuario con rol ADMINISTRADOR puede "
+                    + "agregar medicamentos al catálogo."
+            );
+        }
+
         try (Connection conn = DatabaseConfig.getConnection()) {
             int idCategoria = resolverCategoria(conn, medicamento.getCategoria());
             boolean tienePresentacion = columnaExiste(conn, "medicamentos", "presentacion");
