@@ -80,8 +80,6 @@ public class MainDashboardFX extends Application {
     private final PreferenciaSesionDAO preferenciaSesionDAO =
             new PreferenciaSesionDAO();
 
-
-
     private PreferenciaSesion preferenciaSesionActual;
 
     private final Label lblTotalStock =
@@ -109,8 +107,6 @@ public class MainDashboardFX extends Application {
             return;
         }
 
-
-  
         if (!UserSession.getInstance().isLoggedIn()) {
 
             AlertUtil.mostrarSesionExpirada();
@@ -169,8 +165,6 @@ public class MainDashboardFX extends Application {
 
         configurarTemporizadorSegunPreferencia();
 
-      
-
         cargarDatosDesdeBD();
     }
 
@@ -181,7 +175,6 @@ public class MainDashboardFX extends Application {
         )) {
             return;
         }
-
 
         List<Medicamento> desdeBD =
                 medicamentoDAO.obtenerTodos();
@@ -375,7 +368,6 @@ public class MainDashboardFX extends Application {
                 e -> abrirConfiguracionSesion()
         );
 
-
         Button btnHistorialAccesos =
                 new Button(
                         "Historial de accesos"
@@ -399,6 +391,35 @@ public class MainDashboardFX extends Application {
                 e -> abrirHistorialAccesos()
         );
 
+        Button btnCrearUsuario =
+                new Button(
+                        "Crear usuario"
+                );
+
+        btnCrearUsuario.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnCrearUsuario.setStyle(
+                "-fx-background-color: #C5E1A5;"
+                + "-fx-text-fill: #33691E;"
+                + "-fx-font-weight: bold;"
+        );
+
+        btnCrearUsuario.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnCrearUsuario.setManaged(
+                btnCrearUsuario.isVisible()
+        );
+
+        btnCrearUsuario.setOnAction(
+                e -> abrirCrearUsuario()
+        );
+
         sidebar
                 .getChildren()
                 .addAll(
@@ -412,7 +433,8 @@ public class MainDashboardFX extends Application {
                         btnIngresoLote,
                         btnFiltrarCriticos,
                         btnConfiguracionSesion,
-                        btnHistorialAccesos
+                        btnHistorialAccesos,
+                        btnCrearUsuario
                 );
 
         return sidebar;
@@ -738,7 +760,6 @@ public class MainDashboardFX extends Application {
         result.ifPresent(
                 medicamento -> {
 
-                   
                     if (!validarSesionActiva()) {
                         return;
                     }
@@ -770,14 +791,12 @@ public class MainDashboardFX extends Application {
 
                     } catch (AccesoDenegadoException e) {
 
-                     
                         AlertUtil.mostrarError(
                                 e.getMessage()
                         );
 
                     } catch (IllegalStateException e) {
 
-                      
                         manejarSesionExpirada();
                     }
                 }
@@ -873,6 +892,22 @@ public class MainDashboardFX extends Application {
         historial.mostrar(owner);
     }
 
+    private void abrirCrearUsuario() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        CrearUsuarioFX crearUsuario = new CrearUsuarioFX();
+
+        Window owner =
+                tablaInventario.getScene() != null
+                        ? tablaInventario.getScene().getWindow()
+                        : null;
+
+        crearUsuario.mostrar(owner);
+    }
+
     private boolean validarSesionActiva() {
 
         return ProtectedNavigationGuard
@@ -881,7 +916,6 @@ public class MainDashboardFX extends Application {
                 );
     }
 
-  
     private void manejarSesionExpirada() {
 
         AlertUtil.mostrarSesionExpirada();
@@ -959,15 +993,12 @@ public class MainDashboardFX extends Application {
 
     private void cerrarSesion() {
 
-     
         idleSessionManager.stopMonitoring();
-
 
         sessionController.cerrarSesion();
 
         redirigirAlLogin();
 
-    
         mostrarNotificacionCierreSeguro();
     }
 
@@ -975,8 +1006,6 @@ public class MainDashboardFX extends Application {
         launch(args);
     }
 
-
-  
     private void mostrarNotificacionCierreSeguro() {
 
         Alert notificacion =
@@ -1006,7 +1035,6 @@ public class MainDashboardFX extends Application {
                         "-fx-background-color: #E8F5E9;"
                 );
 
-       
         notificacion.show();
 
         PauseTransition cierreAutomatico =
@@ -1042,7 +1070,6 @@ public class MainDashboardFX extends Application {
 
         } catch (SQLException e) {
 
-         
             preferenciaSesionActual =
                     PreferenciaSesion
                             .porDefecto(
@@ -1061,7 +1088,6 @@ public class MainDashboardFX extends Application {
                 preferenciaSesionActual
         );
     }
-
 
     private void abrirConfiguracionSesion() {
 
@@ -1141,8 +1167,6 @@ public class MainDashboardFX extends Application {
         }
     }
 
-
-
     private void aplicarPreferenciaSesion(
             PreferenciaSesion preferencia
     ) {
@@ -1172,8 +1196,6 @@ public class MainDashboardFX extends Application {
         );
     }
 
-
-
     private void cerrarVentanasSecundarias() {
 
         for (
@@ -1193,26 +1215,19 @@ public class MainDashboardFX extends Application {
         }
     }
 
-
-
     private void cerrarSesionPorInactividad() {
 
-        
         idleSessionManager.stopMonitoring();
 
         sessionController.cerrarSesion();
 
-    
         cerrarVentanasSecundarias();
 
-     
         redirigirAlLogin();
 
         mostrarNotificacionSesionCaducada();
     }
 
-
-   
     private void mostrarNotificacionSesionCaducada() {
 
         Alert alerta =
@@ -1236,8 +1251,8 @@ public class MainDashboardFX extends Application {
                 "Tu sesión ha caducado por inactividad"
         );
 
-      
         alerta.show();
     }
 
 }
+
