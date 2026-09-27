@@ -11,6 +11,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.Separator;
+import javafx.stage.Window;
 
 /**
  * Diálogo utilizado por cada usuario para configurar
@@ -92,6 +95,70 @@ public final class ConfiguracionSesionDialog
                 "-fx-font-size: 11px;"
         );
 
+        Separator separadorCuenta =
+                new Separator();
+
+        Label lblSeguridadCuenta =
+                new Label(
+                        "Seguridad de la cuenta"
+                );
+
+        lblSeguridadCuenta.setStyle(
+                "-fx-font-weight: bold;"
+                + "-fx-font-size: 13px;"
+                + "-fx-text-fill: #263238;"
+        );
+
+        Label lblAyudaPassword =
+                new Label(
+                        "Puedes actualizar tu contraseña "
+                        + "de acceso de forma segura."
+                );
+
+        lblAyudaPassword.setWrapText(
+                true
+        );
+
+        lblAyudaPassword.setStyle(
+                "-fx-text-fill: #607D8B;"
+                + "-fx-font-size: 11px;"
+        );
+
+        Button btnCambiarPassword =
+                new Button(
+                        "Cambiar contraseña"
+                );
+
+        btnCambiarPassword.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnCambiarPassword.setStyle(
+                "-fx-background-color: #B7A6E0;"
+                + "-fx-text-fill: white;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-padding: 9 18;"
+        );
+
+        btnCambiarPassword.setOnAction(
+                event -> {
+
+                    Window owner =
+                            getDialogPane()
+                                    .getScene()
+                                    .getWindow();
+
+                    CambioPasswordView cambioPasswordView =
+                            new CambioPasswordView();
+
+                    cambioPasswordView.mostrar(
+                            owner
+                    );
+                }
+        );
+
+
         GridPane contenido =
                 new GridPane();
 
@@ -141,6 +208,44 @@ public final class ConfiguracionSesionDialog
                 2,
                 3,
                 1
+        );
+
+
+        contenido.add(
+                separadorCuenta,
+                0,
+                3,
+                3,
+                1
+        );
+
+        contenido.add(
+                lblSeguridadCuenta,
+                0,
+                4,
+                3,
+                1
+        );
+
+        contenido.add(
+                lblAyudaPassword,
+                0,
+                5,
+                3,
+                1
+        );
+
+        contenido.add(
+                btnCambiarPassword,
+                0,
+                6,
+                3,
+                1
+        );
+
+        GridPane.setFillWidth(
+                btnCambiarPassword,
+                true
         );
 
         ButtonType btnGuardar =

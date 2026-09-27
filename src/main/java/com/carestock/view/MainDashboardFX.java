@@ -876,6 +876,9 @@ public class MainDashboardFX extends Application {
         }
     }
 
+    
+
+
     private void abrirHistorialAccesos() {
 
         if (!validarSesionActiva()) {
