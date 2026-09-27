@@ -75,30 +75,97 @@ public class UsuarioDAO {
         return null;
     }
 
-    public boolean cambiarPassword(int idUsuario, String passwordActual, String passwordNueva) throws SQLException {
-        String sqlVerificar = "SELECT password_hash FROM USUARIOS WHERE id_usuario = ?";
-        String sqlActualizar = "UPDATE USUARIOS SET password_hash = ? WHERE id_usuario = ?";
+    /**
+     * Obtiene el hash de contraseña del usuario activo.
+     *
+     * La contraseña en texto plano nunca es recuperada
+     * desde la base de datos.
+     */
+    public String obtenerPasswordHashActivoPorId(
+            int idUsuario
+    ) throws SQLException {
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmtVerificar = conn.prepareStatement(sqlVerificar)) {
+        String sql =
+                "SELECT password_hash "
+                + "FROM USUARIOS "
+                + "WHERE id_usuario = ? "
+                + "AND estado = 'ACTIVO'";
 
-            stmtVerificar.setInt(1, idUsuario);
-            try (ResultSet rs = stmtVerificar.executeQuery()) {
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    idUsuario
+            );
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
                 if (rs.next()) {
-                    String hashActual = rs.getString("password_hash");
-                    if (!hashActual.equals(passwordActual)) {
-                        return false;
-                    }
 
-                    try (PreparedStatement stmtActualizar = conn.prepareStatement(sqlActualizar)) {
-                        stmtActualizar.setString(1, passwordNueva);
-                        stmtActualizar.setInt(2, idUsuario);
-                        return stmtActualizar.executeUpdate() > 0;
-                    }
+                    return rs.getString(
+                            "password_hash"
+                    );
                 }
             }
         }
-        return false;
+
+        return null;
+    }
+
+
+    /**
+     * Actualiza exclusivamente el hash de contraseña.
+     *
+     * El hash anterior también participa en el WHERE
+     * para impedir sobrescribir un cambio concurrente.
+     */
+    public boolean actualizarPasswordHash(
+            int idUsuario,
+            String hashActualEsperado,
+            String nuevoHash
+    ) throws SQLException {
+
+        String sql =
+                "UPDATE USUARIOS "
+                + "SET password_hash = ? "
+                + "WHERE id_usuario = ? "
+                + "AND password_hash = ? "
+                + "AND estado = 'ACTIVO'";
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(
+                    1,
+                    nuevoHash
+            );
+
+            stmt.setInt(
+                    2,
+                    idUsuario
+            );
+
+            stmt.setString(
+                    3,
+                    hashActualEsperado
+            );
+
+            return stmt.executeUpdate() == 1;
+        }
     }
 
     public List<Usuario> listarTodos() throws SQLException {
