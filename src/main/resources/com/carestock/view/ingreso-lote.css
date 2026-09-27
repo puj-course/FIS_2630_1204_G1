@@ -38,3 +38,68 @@
     -fx-border-color: #B7A6E0;
     -fx-border-width: 1.5;
 }
+
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #263238;
+}
+
+.helper-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #607D8B;
+}
+
+.btn-secundario {
+    -fx-background-color: #E8F5F2;
+    -fx-text-fill: #146C68;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 14;
+}
+
+.btn-secundario:hover {
+    -fx-background-color: #D5EFEB;
+}
+
+
+/* CARESTOCK-INLINE-MEDICAMENTO */
+
+.inline-form-card {
+    -fx-background-color: #F7FBFA;
+    -fx-border-color: #CFE5E2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 18;
+}
+
+.inline-form-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #146C68;
+}
+
+.btn-secundario {
+    -fx-background-color: #E8F5F2;
+    -fx-text-fill: #146C68;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 14;
+}
+
+.btn-secundario:hover {
+    -fx-background-color: #D5EFEB;
+}
+
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #263238;
+}
+
+.helper-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #607D8B;
+}
