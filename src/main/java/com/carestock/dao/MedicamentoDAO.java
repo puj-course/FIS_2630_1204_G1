@@ -4,6 +4,7 @@ import com.carestock.config.AppConfig;
 import com.carestock.config.DatabaseConfig;
 import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
+import com.carestock.security.MedicamentoAccessPolicy;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -102,14 +103,13 @@ public class MedicamentoDAO {
     public void insertar(Medicamento medicamento) throws SQLException {
 
 
-        String rolActual = AppConfig.getCurrentUserRole();
+        String rolActual =
+                AppConfig.getCurrentUserRole();
 
-        if (!"ADMINISTRADOR".equalsIgnoreCase(rolActual)) {
-            throw new AccesoDenegadoException(
-                    "Solo un usuario con rol ADMINISTRADOR puede "
-                    + "agregar medicamentos al catálogo."
-            );
-        }
+        MedicamentoAccessPolicy
+                .requireRegistrarMedicamento(
+                        rolActual
+                );
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             int idCategoria = resolverCategoria(conn, medicamento.getCategoria());
@@ -160,6 +160,46 @@ public class MedicamentoDAO {
             }
         }
     }
+
+    /**
+     * Obtiene las categorías disponibles para el
+     * registro de medicamentos.
+     */
+    public List<String> obtenerCategorias()
+            throws SQLException {
+
+        List<String> categorias =
+                new ArrayList<>();
+
+        String sql =
+                "SELECT nombre_categoria "
+                + "FROM CATEGORIAS "
+                + "ORDER BY nombre_categoria";
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql);
+
+                ResultSet rs =
+                        stmt.executeQuery()
+        ) {
+
+            while (rs.next()) {
+
+                categorias.add(
+                        rs.getString(
+                                "nombre_categoria"
+                        )
+                );
+            }
+        }
+
+        return categorias;
+    }
+
 
     private int resolverCategoria(Connection conn, String categoria) throws SQLException {
         String sql = "SELECT id_categoria FROM CATEGORIAS WHERE UPPER(nombre_categoria) = UPPER(?)";

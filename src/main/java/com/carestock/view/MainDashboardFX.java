@@ -282,35 +282,6 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;"
         );
 
-        Button btnAgregarMedicamento =
-                new Button(
-                        "Agregar medicamento"
-                );
-
-        btnAgregarMedicamento.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        btnAgregarMedicamento.setStyle(
-                "-fx-background-color: #E8F5F2;" +
-                "-fx-text-fill: #1C313A;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnAgregarMedicamento.setOnAction(
-                e -> abrirFormularioAgregar()
-        );
-
-        btnAgregarMedicamento.setVisible(
-                "ADMINISTRADOR".equalsIgnoreCase(
-                        usuario.getRol()
-                )
-        );
-
-        btnAgregarMedicamento.setManaged(
-                btnAgregarMedicamento.isVisible()
-        );
-
         Button btnIngresoLote =
                 new Button(
                         "Ingreso de lotes"
@@ -429,7 +400,6 @@ public class MainDashboardFX extends Application {
                         lblRol,
                         new Separator(),
                         btnDashboard,
-                        btnAgregarMedicamento,
                         btnIngresoLote,
                         btnFiltrarCriticos,
                         btnConfiguracionSesion,
@@ -745,63 +715,7 @@ public class MainDashboardFX extends Application {
         return section;
     }
 
-    private void abrirFormularioAgregar() {
-
-        if (!validarSesionActiva()) {
-            return;
-        }
-
-        FormularioMedicamentoDialog dialog =
-                new FormularioMedicamentoDialog();
-
-        Optional<Medicamento> result =
-                dialog.showAndWait();
-
-        result.ifPresent(
-                medicamento -> {
-
-                    if (!validarSesionActiva()) {
-                        return;
-                    }
-
-                    try {
-
-                        if (
-                                medicamentoDAO.guardar(
-                                        medicamento
-                                )
-                        ) {
-
-                            cargarDatosDesdeBD();
-
-                            AlertUtil.mostrarExito(
-                                    "El medicamento \""
-                                    + medicamento.getNombreComercial()
-                                    + "\" se registró correctamente."
-                            );
-
-                        } else {
-
-                            AlertUtil.mostrarError(
-                                    "No se pudo guardar el medicamento. "
-                                    + "Verifique la categoría, los datos "
-                                    + "y la conexión a PostgreSQL."
-                            );
-                        }
-
-                    } catch (AccesoDenegadoException e) {
-
-                        AlertUtil.mostrarError(
-                                e.getMessage()
-                        );
-
-                    } catch (IllegalStateException e) {
-
-                        manejarSesionExpirada();
-                    }
-                }
-        );
-    }
+    
 
     private void abrirIngresoLote() {
 
