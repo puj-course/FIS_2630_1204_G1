@@ -30,6 +30,26 @@ public class MedicamentoDAO {
         return consultarMedicamentos(true);
     }
 
+    /**
+     * Recupera únicamente el inventario perteneciente a una farmacia.
+     *
+     * @param idFarmacia identificador de la farmacia cuyo inventario se consulta.
+     * @return medicamentos asociados exclusivamente a la farmacia indicada.
+     * @throws SQLException si ocurre un error al consultar PostgreSQL.
+     */
+    public List<Medicamento> obtenerPorFarmacia(int idFarmacia) throws SQLException {
+        validarIdFarmacia(idFarmacia);
+        return consultarMedicamentosPorFarmacia(idFarmacia, false);
+    }
+
+    /**
+     * Recupera únicamente los medicamentos activos de una farmacia.
+     */
+    public List<Medicamento> obtenerActivosPorFarmacia(int idFarmacia) throws SQLException {
+        validarIdFarmacia(idFarmacia);
+        return consultarMedicamentosPorFarmacia(idFarmacia, true);
+    }
+
     private List<Medicamento> consultarMedicamentos(boolean soloActivos) throws SQLException {
         List<Medicamento> lista = new ArrayList<>();
         String sql = "SELECT m.id_medicamento, m.codigo_invima, m.nombre_comercial, " +
@@ -62,6 +82,69 @@ public class MedicamentoDAO {
         return lista;
     }
 
+    private List<Medicamento> consultarMedicamentosPorFarmacia(
+            int idFarmacia,
+            boolean soloActivos
+    ) throws SQLException {
+
+        List<Medicamento> lista = new ArrayList<>();
+
+        String sql =
+                "SELECT m.id_medicamento, m.codigo_invima, m.nombre_comercial, " +
+                "m.principio_activo, m.concentracion, m.forma_farmaceutica, " +
+                "c.nombre_categoria AS categoria, m.stock_total, m.stock_minimo " +
+                "FROM MEDICAMENTOS m " +
+                "JOIN CATEGORIAS c ON m.id_categoria = c.id_categoria " +
+                "WHERE m.id_farmacia = ? " +
+                (soloActivos ? "AND m.estado = 'ACTIVO' " : "") +
+                "ORDER BY m.nombre_comercial ASC";
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    idFarmacia
+            );
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                while (rs.next()) {
+
+                    Medicamento m =
+                            new Medicamento(
+                                    rs.getLong("id_medicamento"),
+                                    rs.getString("codigo_invima"),
+                                    rs.getString("nombre_comercial"),
+                                    rs.getString("principio_activo"),
+                                    rs.getString("concentracion"),
+                                    rs.getString("categoria"),
+                                    rs.getInt("stock_total"),
+                                    rs.getInt("stock_minimo")
+                            );
+
+                    m.setFormaFarmaceutica(
+                            rs.getString(
+                                    "forma_farmaceutica"
+                            )
+                    );
+
+                    lista.add(m);
+                }
+            }
+        }
+
+        return lista;
+    }
+
     public int obtenerTotalUnidadesStock() {
         String sql = "SELECT COALESCE(SUM(stock_total), 0) FROM MEDICAMENTOS";
         try (Connection conn = DatabaseConfig.getConnection();
@@ -84,6 +167,87 @@ public class MedicamentoDAO {
             System.err.println("Error al obtener alertas críticas: " + e.getMessage());
         }
         return 0;
+    }
+
+    /**
+     * Obtiene el stock total exclusivamente para una farmacia.
+     */
+    public int obtenerTotalUnidadesStockPorFarmacia(
+            int idFarmacia
+    ) throws SQLException {
+
+        validarIdFarmacia(idFarmacia);
+
+        String sql =
+                "SELECT COALESCE(SUM(stock_total), 0) " +
+                "FROM MEDICAMENTOS " +
+                "WHERE id_farmacia = ?";
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    idFarmacia
+            );
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                return rs.next()
+                        ? rs.getInt(1)
+                        : 0;
+            }
+        }
+    }
+
+    /**
+     * Obtiene las alertas críticas exclusivamente
+     * para una farmacia.
+     */
+    public int obtenerAlertasCriticasPorFarmacia(
+            int idFarmacia
+    ) throws SQLException {
+
+        validarIdFarmacia(idFarmacia);
+
+        String sql =
+                "SELECT COUNT(*) " +
+                "FROM MEDICAMENTOS " +
+                "WHERE id_farmacia = ? " +
+                "AND estado = 'ACTIVO' " +
+                "AND stock_total <= stock_minimo";
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    idFarmacia
+            );
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                return rs.next()
+                        ? rs.getInt(1)
+                        : 0;
+            }
+        }
     }
 
     public boolean guardar(Medicamento medicamento) {
@@ -232,6 +396,18 @@ public class MedicamentoDAO {
         }
         try (ResultSet rs = metaData.getColumns(null, null, tabla.toUpperCase(), columna.toUpperCase())) {
             return rs.next();
+        }
+    }
+
+    private void validarIdFarmacia(
+            int idFarmacia
+    ) {
+
+        if (idFarmacia <= 0) {
+
+            throw new IllegalArgumentException(
+                    "idFarmacia debe ser mayor que cero."
+            );
         }
     }
 
