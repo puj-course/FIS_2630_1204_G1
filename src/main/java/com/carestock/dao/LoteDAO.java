@@ -136,4 +136,53 @@ public class LoteDAO {
             }
         }
     }
+
+    public int contarProximosAVencerPorFarmacia(
+            int dias,
+            int idFarmacia
+    ) throws SQLException {
+
+        String sql =
+                "SELECT COUNT(*) "
+                + "FROM LOTES l "
+                + "INNER JOIN MEDICAMENTOS m "
+                + "ON m.id_medicamento = l.id_medicamento "
+                + "WHERE m.id_farmacia = ? "
+                + "AND l.estado_lote = 'DISPONIBLE' "
+                + "AND l.fecha_vencimiento > CURRENT_DATE "
+                + "AND l.fecha_vencimiento <= CURRENT_DATE + "
+                + "(? * INTERVAL '1 day')";
+
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    idFarmacia
+            );
+
+            stmt.setInt(
+                    2,
+                    dias
+            );
+
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                return rs.next()
+                        ? rs.getInt(1)
+                        : 0;
+            }
+        }
+    }
+
 }

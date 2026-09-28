@@ -2,15 +2,10 @@ package com.carestock.session;
 
 import com.carestock.model.Usuario;
 
-/**
- * Contexto global de sesión de CareStock.
- *
- * Implementado como Singleton para mantener en memoria
- * únicamente los datos necesarios del usuario autenticado.
- */
 public final class UserSession {
 
-    private static final UserSession INSTANCE = new UserSession();
+    private static final UserSession INSTANCE =
+            new UserSession();
 
     private CurrentUser currentUser;
 
@@ -21,12 +16,9 @@ public final class UserSession {
         return INSTANCE;
     }
 
-    /**
-     * Inicia la sesión con los datos del usuario autenticado.
-     *
-     * No se almacena el password_hash.
-     */
-    public void setCurrentUser(Usuario usuario) {
+    public void setCurrentUser(
+            Usuario usuario
+    ) {
 
         if (usuario == null) {
             throw new IllegalArgumentException(
@@ -34,13 +26,14 @@ public final class UserSession {
             );
         }
 
-        this.currentUser = new CurrentUser(
-                usuario.getIdUsuario(),
-                usuario.getNombreCompleto(),
-                usuario.getEmail(),
-                usuario.getNombreRol(),
-                usuario.getIdFarmacia()
-        );
+        this.currentUser =
+                new CurrentUser(
+                        usuario.getIdUsuario(),
+                        usuario.getNombreCompleto(),
+                        usuario.getEmail(),
+                        usuario.getNombreRol(),
+                        usuario.getIdFarmacia()
+                );
     }
 
     public CurrentUser getCurrentUser() {
@@ -51,22 +44,10 @@ public final class UserSession {
         return currentUser != null;
     }
 
-    /**
-     * Invalida completamente el contexto de la sesión activa.
-     *
-     * Al eliminar CurrentUser también dejan de estar disponibles
-     * los datos de la farmacia asociada al usuario.
-     */
     public void clearSession() {
-
         currentUser = null;
     }
 
-    /**
-     * Representación segura del usuario almacenado en sesión.
-     *
-     * No contiene contraseña ni password_hash.
-     */
     public static final class CurrentUser {
 
         private final int id;
@@ -110,7 +91,26 @@ public final class UserSession {
         }
 
         public boolean tieneFarmaciaAsignada() {
-            return idFarmacia != null && idFarmacia > 0;
+            return idFarmacia != null
+                    && idFarmacia > 0;
+        }
+
+        public boolean esSuperAdmin() {
+            return "SUPER_ADMIN".equalsIgnoreCase(
+                    rol
+            );
+        }
+
+        public boolean esAdministrador() {
+            return "ADMINISTRADOR".equalsIgnoreCase(
+                    rol
+            );
+        }
+
+        public boolean esFarmaceutico() {
+            return "FARMACEUTICO".equalsIgnoreCase(
+                    rol
+            );
         }
     }
 }

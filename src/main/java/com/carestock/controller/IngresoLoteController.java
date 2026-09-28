@@ -8,6 +8,7 @@ import com.carestock.model.Ubicacion;
 import com.carestock.security.AccessControl;
 import com.carestock.security.MedicamentoAccessPolicy;
 import com.carestock.service.IngresoLoteService;
+import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
 import com.carestock.utils.IngresoLoteValidator;
 import com.carestock.view.AlertUtil;
@@ -318,8 +319,15 @@ public class IngresoLoteController
             Medicamento seleccionar
     ) throws SQLException {
 
+        int idFarmacia =
+                new SessionContext()
+                        .requireAuthenticatedPharmacyId();
+
         var medicamentos =
-                medicamentoDAO.obtenerActivos();
+                medicamentoDAO
+                        .obtenerActivosPorFarmacia(
+                                idFarmacia
+                        );
 
         cmbMedicamento.setItems(
                 FXCollections.observableArrayList(

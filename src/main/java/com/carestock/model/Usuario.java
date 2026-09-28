@@ -11,10 +11,6 @@ public class Usuario {
     private final String estado;
     private final Integer idFarmacia;
 
-    /**
-     * Constructor de compatibilidad para usuarios que todavía no
-     * tienen una farmacia cargada en el modelo.
-     */
     public Usuario(
             int idUsuario,
             String nombreCompleto,
@@ -22,8 +18,8 @@ public class Usuario {
             String passwordHash,
             int idRol,
             String nombreRol,
-            String estado) {
-
+            String estado
+    ) {
         this(
                 idUsuario,
                 nombreCompleto,
@@ -36,9 +32,6 @@ public class Usuario {
         );
     }
 
-    /**
-     * Constructor que incluye el contexto de farmacia.
-     */
     public Usuario(
             int idUsuario,
             String nombreCompleto,
@@ -47,8 +40,8 @@ public class Usuario {
             int idRol,
             String nombreRol,
             String estado,
-            Integer idFarmacia) {
-
+            Integer idFarmacia
+    ) {
         this.idUsuario = idUsuario;
         this.nombreCompleto = nombreCompleto;
         this.email = email;
@@ -92,10 +85,19 @@ public class Usuario {
     }
 
     public boolean tieneFarmaciaAsignada() {
-        return idFarmacia != null && idFarmacia > 0;
+        return idFarmacia != null
+                && idFarmacia > 0;
+    }
+
+    public boolean esSuperAdmin() {
+        return "SUPER_ADMIN".equalsIgnoreCase(
+                nombreRol
+        );
     }
 
     public boolean estaActivo() {
-        return "ACTIVO".equalsIgnoreCase(estado);
+        return "ACTIVO".equalsIgnoreCase(
+                estado
+        );
     }
 }

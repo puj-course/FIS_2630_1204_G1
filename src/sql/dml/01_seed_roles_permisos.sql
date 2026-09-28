@@ -1,9 +1,23 @@
 -- ==============================================================================
--- DML: Roles predeterminados del sistema
--- Ubicación: src/sql/dml/01_seed_roles_permisos.sql
+-- Roles predeterminados CareStock
 -- ==============================================================================
 
-INSERT INTO ROLES (nombre_rol, descripcion) VALUES
-('ADMINISTRADOR', 'Acceso total a la configuración y gestión del sistema CareStock'),
-('AUXILIAR_FARMACIA', 'Gestión de inventario, consulta de lotes e ingresos/salidas')
-ON CONFLICT (nombre_rol) DO NOTHING;
+INSERT INTO ROLES (
+    nombre_rol,
+    descripcion
+)
+VALUES
+(
+    'SUPER_ADMIN',
+    'Administrador global de CareStock'
+),
+(
+    'ADMINISTRADOR',
+    'Administrador responsable de una farmacia'
+),
+(
+    'FARMACEUTICO',
+    'Usuario operativo asociado a una farmacia'
+)
+ON CONFLICT (nombre_rol)
+DO NOTHING;
