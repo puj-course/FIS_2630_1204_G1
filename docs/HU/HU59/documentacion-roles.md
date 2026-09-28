@@ -178,27 +178,6 @@ que las operaciones se hayan realizado correctamente.
 
 ---
 
-## 4. Matriz de Permisos por Rol
-
-| Funcionalidad | Administrador | Encargado Supervisión | Jefe de Farmacia 
-| Auxiliar de Farmacia | Auditor |
-|---------------|:-------------:|:---------------------:|:----------------:|:--------------------:|:-------:|
-| Iniciar sesión | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Ver dashboard | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Buscar medicamentos | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Registrar entrada de lotes | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Despachar medicamentos | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Consultar lotes | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Ver panel de alertas | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Configurar stock mínimo | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Aprobar pedidos | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Generar reportes | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Consultar auditoría | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Gestionar usuarios | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Configurar sistema | ✅ | ❌ | ❌ | ❌ | ❌ |
-
----
-
 ## 5. Restricción de Funcionalidades según Rol
 
 El sistema CareStock implementa las siguientes restricciones según el rol 

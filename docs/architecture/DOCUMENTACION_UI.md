@@ -169,9 +169,8 @@ Al registrar un lote exitosamente, la tarjeta "Unidades en stock" del dashboard 
 ### Regla
 Se activa únicamente después de un registro exitoso de lote, nunca al solo abrir o refrescar el dashboard.
 
-![Boceto stock actualizado](./boceto-stock-actualizado-hu55.png)
-![Mockup stock actualizado](./mockup-stock-actualizado-hu55.png)
-
+![Boceto stock actualizado](/docs/HU55/boceto-stock-actualizado-hu55.png)
+![Mockup stock actualizado](/docs/HU55/mockup-stock-actualizado-hu55.png)
 ## 12. Diferenciación Visual por Rol (HU-56)
 
 ### Login único

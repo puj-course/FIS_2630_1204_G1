@@ -1,14 +1,10 @@
 package com.carestock.security;
 
+import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.session.UserSession;
 
-/**
- * Punto central de validación para el acceso a recursos
- * protegidos de CareStock.
- *
- * Una sesión se considera válida únicamente cuando existe
- * un usuario autenticado con identificador, correo y rol.
- */
+import java.util.Arrays;
+
 public final class AccessControl {
 
     public static final String ERROR_SESION_REQUERIDA =
@@ -17,13 +13,6 @@ public final class AccessControl {
     private AccessControl() {
     }
 
-    /**
-     * Verifica que el contexto de sesión contenga
-     * un usuario válido.
-     *
-     * @return true cuando la sesión puede acceder
-     *         a recursos protegidos.
-     */
     public static boolean hasValidSession() {
 
         UserSession.CurrentUser currentUser =
@@ -42,18 +31,35 @@ public final class AccessControl {
                 && !currentUser.getRol().isBlank();
     }
 
-    /**
-     * Exige una sesión válida para continuar.
-     *
-     * @throws IllegalStateException si no existe
-     *         una sesión autenticada válida.
-     */
     public static void requireAuthenticated() {
 
         if (!hasValidSession()) {
 
             throw new IllegalStateException(
                     ERROR_SESION_REQUERIDA
+            );
+        }
+    }
+
+    public static void requireRole(String... rolesPermitidos) {
+
+        requireAuthenticated();
+
+        String rolActual =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser()
+                        .getRol();
+
+        boolean autorizado =
+                Arrays.stream(rolesPermitidos)
+                        .anyMatch(rolActual::equalsIgnoreCase);
+
+        if (!autorizado) {
+
+            throw new AccesoDenegadoException(
+                    "Su rol (" + rolActual + ") no está "
+                    + "autorizado para esta operación."
             );
         }
     }

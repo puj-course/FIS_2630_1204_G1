@@ -12,6 +12,7 @@ import com.carestock.controller.IngresoLoteController;
 import com.carestock.controller.SessionController;
 import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
+import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
 import com.carestock.session.UserSession;
 
@@ -79,8 +80,6 @@ public class MainDashboardFX extends Application {
     private final PreferenciaSesionDAO preferenciaSesionDAO =
             new PreferenciaSesionDAO();
 
-
-
     private PreferenciaSesion preferenciaSesionActual;
 
     private final Label lblTotalStock =
@@ -108,11 +107,6 @@ public class MainDashboardFX extends Application {
             return;
         }
 
-
-        /*
-         * Protección adicional:
-         * el Dashboard no puede abrirse sin sesión.
-         */
         if (!UserSession.getInstance().isLoggedIn()) {
 
             AlertUtil.mostrarSesionExpirada();
@@ -171,12 +165,6 @@ public class MainDashboardFX extends Application {
 
         configurarTemporizadorSegunPreferencia();
 
-        /*
-         * La sesión protegida comienza a supervisarse
-         * únicamente después de cargar el Dashboard.
-         */
-
-
         cargarDatosDesdeBD();
     }
 
@@ -187,7 +175,6 @@ public class MainDashboardFX extends Application {
         )) {
             return;
         }
-
 
         List<Medicamento> desdeBD =
                 medicamentoDAO.obtenerTodos();
@@ -295,25 +282,6 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;"
         );
 
-        Button btnAgregarMedicamento =
-                new Button(
-                        "Agregar medicamento"
-                );
-
-        btnAgregarMedicamento.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        btnAgregarMedicamento.setStyle(
-                "-fx-background-color: #E8F5F2;" +
-                "-fx-text-fill: #1C313A;" +
-                "-fx-font-weight: bold;"
-        );
-
-        btnAgregarMedicamento.setOnAction(
-                e -> abrirFormularioAgregar()
-        );
-
         Button btnIngresoLote =
                 new Button(
                         "Ingreso de lotes"
@@ -371,7 +339,6 @@ public class MainDashboardFX extends Application {
                 e -> abrirConfiguracionSesion()
         );
 
-
         Button btnHistorialAccesos =
                 new Button(
                         "Historial de accesos"
@@ -395,6 +362,35 @@ public class MainDashboardFX extends Application {
                 e -> abrirHistorialAccesos()
         );
 
+        Button btnCrearUsuario =
+                new Button(
+                        "Crear usuario"
+                );
+
+        btnCrearUsuario.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnCrearUsuario.setStyle(
+                "-fx-background-color: #C5E1A5;"
+                + "-fx-text-fill: #33691E;"
+                + "-fx-font-weight: bold;"
+        );
+
+        btnCrearUsuario.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnCrearUsuario.setManaged(
+                btnCrearUsuario.isVisible()
+        );
+
+        btnCrearUsuario.setOnAction(
+                e -> abrirCrearUsuario()
+        );
+
         sidebar
                 .getChildren()
                 .addAll(
@@ -404,11 +400,11 @@ public class MainDashboardFX extends Application {
                         lblRol,
                         new Separator(),
                         btnDashboard,
-                        btnAgregarMedicamento,
                         btnIngresoLote,
                         btnFiltrarCriticos,
                         btnConfiguracionSesion,
-                        btnHistorialAccesos
+                        btnHistorialAccesos,
+                        btnCrearUsuario
                 );
 
         return sidebar;
@@ -719,59 +715,7 @@ public class MainDashboardFX extends Application {
         return section;
     }
 
-    private void abrirFormularioAgregar() {
-
-        if (!validarSesionActiva()) {
-            return;
-        }
-
-        FormularioMedicamentoDialog dialog =
-                new FormularioMedicamentoDialog();
-
-        Optional<Medicamento> result =
-                dialog.showAndWait();
-
-        result.ifPresent(
-                medicamento -> {
-
-                   
-                    if (!validarSesionActiva()) {
-                        return;
-                    }
-
-                    try {
-
-                        if (
-                                medicamentoDAO.guardar(
-                                        medicamento
-                                )
-                        ) {
-
-                            cargarDatosDesdeBD();
-
-                            AlertUtil.mostrarExito(
-                                    "El medicamento \""
-                                    + medicamento.getNombreComercial()
-                                    + "\" se registró correctamente."
-                            );
-
-                        } else {
-
-                            AlertUtil.mostrarError(
-                                    "No se pudo guardar el medicamento. "
-                                    + "Verifique la categoría, los datos "
-                                    + "y la conexión a PostgreSQL."
-                            );
-                        }
-
-                    } catch (IllegalStateException e) {
-
-                      
-                        manejarSesionExpirada();
-                    }
-                }
-        );
-    }
+    
 
     private void abrirIngresoLote() {
 
@@ -846,6 +790,9 @@ public class MainDashboardFX extends Application {
         }
     }
 
+    
+
+
     private void abrirHistorialAccesos() {
 
         if (!validarSesionActiva()) {
@@ -862,6 +809,22 @@ public class MainDashboardFX extends Application {
         historial.mostrar(owner);
     }
 
+    private void abrirCrearUsuario() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+        CrearUsuarioFX crearUsuario = new CrearUsuarioFX();
+
+        Window owner =
+                tablaInventario.getScene() != null
+                        ? tablaInventario.getScene().getWindow()
+                        : null;
+
+        crearUsuario.mostrar(owner);
+    }
+
     private boolean validarSesionActiva() {
 
         return ProtectedNavigationGuard
@@ -870,7 +833,6 @@ public class MainDashboardFX extends Application {
                 );
     }
 
-  
     private void manejarSesionExpirada() {
 
         AlertUtil.mostrarSesionExpirada();
@@ -948,25 +910,12 @@ public class MainDashboardFX extends Application {
 
     private void cerrarSesion() {
 
-        /*
-         * El temporizador deja de existir antes
-         * de destruir la sesión manualmente.
-         */
         idleSessionManager.stopMonitoring();
-
 
         sessionController.cerrarSesion();
 
-        /*
-         * Primero se realiza la navegación inmediata
-         * hacia la pantalla de inicio de sesión.
-         */
         redirigirAlLogin();
 
-        /*
-         * Una vez visible el Login se informa al usuario
-         * que la sesión fue cerrada correctamente.
-         */
         mostrarNotificacionCierreSeguro();
     }
 
@@ -974,14 +923,6 @@ public class MainDashboardFX extends Application {
         launch(args);
     }
 
-
-    /**
-     * Informa visualmente al usuario que la sesión
-     * terminó de forma segura.
-     *
-     * El Alert se muestra después de la redirección
-     * al Login y se cierra automáticamente.
-     */
     private void mostrarNotificacionCierreSeguro() {
 
         Alert notificacion =
@@ -1011,10 +952,6 @@ public class MainDashboardFX extends Application {
                         "-fx-background-color: #E8F5E9;"
                 );
 
-        /*
-         * show() permite que la navegación al Login
-         * ya haya ocurrido antes de mostrar el mensaje.
-         */
         notificacion.show();
 
         PauseTransition cierreAutomatico =
@@ -1029,27 +966,6 @@ public class MainDashboardFX extends Application {
         cierreAutomatico.play();
     }
 
-
-
-    /**
-     * Rutina automática ejecutada cuando se supera
-     * el tiempo máximo permitido sin interacción.
-     */
-
-
-
-    /**
-     * Informa al usuario por qué fue redirigido
-     * nuevamente a la pantalla de Login.
-     */
-
-
-
-
-    /**
-     * Carga las preferencias persistentes del usuario
-     * y configura el temporizador de la sesión actual.
-     */
     private void configurarTemporizadorSegunPreferencia() {
 
         UserSession.CurrentUser usuario =
@@ -1071,11 +987,6 @@ public class MainDashboardFX extends Application {
 
         } catch (SQLException e) {
 
-            /*
-             * Si la configuración persistente no puede
-             * consultarse, se aplica una política segura
-             * por defecto para la sesión actual.
-             */
             preferenciaSesionActual =
                     PreferenciaSesion
                             .porDefecto(
@@ -1095,11 +1006,6 @@ public class MainDashboardFX extends Application {
         );
     }
 
-
-    /**
-     * Abre la configuración individual de seguridad
-     * del usuario autenticado.
-     */
     private void abrirConfiguracionSesion() {
 
         if (!validarSesionActiva()) {
@@ -1178,11 +1084,6 @@ public class MainDashboardFX extends Application {
         }
     }
 
-
-    /**
-     * Aplica inmediatamente las preferencias seleccionadas
-     * por el usuario.
-     */
     private void aplicarPreferenciaSesion(
             PreferenciaSesion preferencia
     ) {
@@ -1212,18 +1113,6 @@ public class MainDashboardFX extends Application {
         );
     }
 
-
-    /**
-     * Se ejecuta automáticamente cuando el usuario supera
-     * el tiempo máximo configurado sin interacción.
-     */
-
-
-
-    /**
-     * Cierra diálogos o ventanas internas que pudieran
-     * permanecer abiertas al caducar la sesión.
-     */
     private void cerrarVentanasSecundarias() {
 
         for (
@@ -1243,51 +1132,19 @@ public class MainDashboardFX extends Application {
         }
     }
 
-
-    /**
-     * Informa en el Login la causa del cierre automático.
-     */
-
-
-
-
-    /**
-     * Se ejecuta automáticamente cuando el usuario supera
-     * el tiempo máximo configurado sin interacción.
-     */
     private void cerrarSesionPorInactividad() {
 
-        /*
-         * El administrador detiene primero todos sus
-         * listeners para evitar ejecuciones posteriores.
-         */
         idleSessionManager.stopMonitoring();
 
-        /*
-         * Reutiliza el controlador central de sesión.
-         * Esto termina invocando UserSession.clearSession().
-         */
         sessionController.cerrarSesion();
 
-        /*
-         * Se cierran posibles ventanas secundarias que
-         * pertenezcan a la sesión que acaba de caducar.
-         */
         cerrarVentanasSecundarias();
 
-        /*
-         * La redirección al Login ocurre inmediatamente
-         * después de invalidar la sesión.
-         */
         redirigirAlLogin();
 
         mostrarNotificacionSesionCaducada();
     }
 
-
-    /**
-     * Informa al usuario la causa del cierre automático.
-     */
     private void mostrarNotificacionSesionCaducada() {
 
         Alert alerta =
@@ -1311,10 +1168,8 @@ public class MainDashboardFX extends Application {
                 "Tu sesión ha caducado por inactividad"
         );
 
-        /*
-         * show() no bloquea la pantalla de Login.
-         */
         alerta.show();
     }
 
 }
+
