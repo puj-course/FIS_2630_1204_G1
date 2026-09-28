@@ -1,6 +1,7 @@
 package com.carestock.session;
 
 import com.carestock.model.Usuario;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,9 @@ class SessionContextTest {
         userSession.clearSession();
 
         sessionContext =
-                new SessionContext(userSession);
+                new SessionContext(
+                        userSession
+                );
     }
 
     @AfterEach
@@ -45,7 +48,9 @@ class SessionContextTest {
                         7
                 );
 
-        userSession.setCurrentUser(usuario);
+        userSession.setCurrentUser(
+                usuario
+        );
 
         assertEquals(
                 42,
@@ -69,7 +74,9 @@ class SessionContextTest {
                         7
                 );
 
-        userSession.setCurrentUser(usuario);
+        userSession.setCurrentUser(
+                usuario
+        );
 
         assertEquals(
                 7,
@@ -118,21 +125,21 @@ class SessionContextTest {
     }
 
     @Test
-    void bloqueaAccesoAFarmaciaCuandoUsuarioNoTieneFarmacia() {
+    void bloqueaAccesoCuandoUsuarioNoTieneFarmacia() {
 
-        Usuario usuarioSinFarmacia =
+        Usuario usuario =
                 new Usuario(
                         42,
                         "Usuario Sin Farmacia",
                         "sin.farmacia@carestock.com",
                         "hash-no-utilizado",
-                        2,
-                        "FARMACEUTICO",
+                        1,
+                        "ADMINISTRADOR",
                         "ACTIVO"
                 );
 
         userSession.setCurrentUser(
-                usuarioSinFarmacia
+                usuario
         );
 
         IllegalStateException exception =

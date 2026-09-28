@@ -1,6 +1,7 @@
 package com.carestock.security;
 
 import com.carestock.exception.AccesoDenegadoException;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -8,69 +9,79 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
 class MedicamentoAccessPolicyTest {
 
     @Test
-    void administradorPuedeRegistrarMedicamentos() {
+    void superAdminPuedeGestionarInventario() {
 
         assertTrue(
                 MedicamentoAccessPolicy
-                        .puedeRegistrarMedicamento(
+                        .puedeGestionarInventario(
+                                "SUPER_ADMIN"
+                        )
+        );
+
+
+        assertDoesNotThrow(
+                () ->
+                        MedicamentoAccessPolicy
+                                .requireGestionarInventario(
+                                        "SUPER_ADMIN"
+                                )
+        );
+    }
+
+
+    @Test
+    void administradorPuedeGestionarInventario() {
+
+        assertTrue(
+                MedicamentoAccessPolicy
+                        .puedeGestionarInventario(
                                 "ADMINISTRADOR"
                         )
         );
 
+
         assertDoesNotThrow(
-                () -> MedicamentoAccessPolicy
-                        .requireRegistrarMedicamento(
-                                "ADMINISTRADOR"
-                        )
+                () ->
+                        MedicamentoAccessPolicy
+                                .requireGestionarInventario(
+                                        "ADMINISTRADOR"
+                                )
         );
     }
 
-    @Test
-    void farmaceuticoPuedeRegistrarMedicamentos() {
-
-        assertTrue(
-                MedicamentoAccessPolicy
-                        .puedeRegistrarMedicamento(
-                                "FARMACEUTICO"
-                        )
-        );
-
-        assertDoesNotThrow(
-                () -> MedicamentoAccessPolicy
-                        .requireRegistrarMedicamento(
-                                "FARMACEUTICO"
-                        )
-        );
-    }
 
     @Test
-    void rolNoAutorizadoEsRechazado() {
+    void farmaceuticoNoPuedeGestionarInventario() {
 
         assertFalse(
                 MedicamentoAccessPolicy
-                        .puedeRegistrarMedicamento(
-                                "CONSULTA"
+                        .puedeGestionarInventario(
+                                "FARMACEUTICO"
                         )
         );
 
+
         assertThrows(
                 AccesoDenegadoException.class,
-                () -> MedicamentoAccessPolicy
-                        .requireRegistrarMedicamento(
-                                "CONSULTA"
-                        )
+                () ->
+                        MedicamentoAccessPolicy
+                                .requireGestionarInventario(
+                                        "FARMACEUTICO"
+                                )
         );
     }
+
 
     @Test
     void rolNuloEsRechazado() {
 
         assertFalse(
                 MedicamentoAccessPolicy
-                        .puedeRegistrarMedicamento(
+                        .puedeGestionarInventario(
                                 null
                         )
         );

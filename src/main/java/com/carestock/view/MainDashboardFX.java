@@ -14,6 +14,7 @@ import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
+import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
 
 import javafx.application.Application;
@@ -176,49 +177,147 @@ public class MainDashboardFX extends Application {
             return;
         }
 
-        List<Medicamento> desdeBD =
-                medicamentoDAO.obtenerTodos();
 
-        listaMedicamentos.setAll(
-                desdeBD
-        );
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
 
-        lblTotalStock.setText(
-                String.format(
-                        "%,d",
-                        medicamentoDAO
-                                .obtenerTotalUnidadesStock()
-                )
-        );
 
-        lblAlertasCriticas.setText(
-                String.valueOf(
-                        medicamentoDAO
-                                .obtenerAlertasCriticas()
-                )
-        );
+        if (usuario == null) {
+            return;
+        }
+
 
         try {
 
-            lblProximosVencer.setText(
-                    String.valueOf(
-                            loteDAO
-                                    .contarProximosAVencer(30)
+            List<Medicamento> desdeBD;
+
+            int totalStock;
+
+            int alertasCriticas;
+
+            int proximosVencer;
+
+
+            if (usuario.esSuperAdmin()) {
+
+                /*
+                 * SUPER_ADMIN mantiene una vista global.
+                 */
+                desdeBD =
+                        medicamentoDAO
+                                .obtenerTodos();
+
+                totalStock =
+                        medicamentoDAO
+                                .obtenerTotalUnidadesStock();
+
+                alertasCriticas =
+                        medicamentoDAO
+                                .obtenerAlertasCriticas();
+
+                proximosVencer =
+                        loteDAO
+                                .contarProximosAVencer(
+                                        30
+                                );
+
+            } else {
+
+                /*
+                 * ADMINISTRADOR y FARMACEUTICO nunca
+                 * reciben inventario global.
+                 */
+                int idFarmacia =
+                        new SessionContext()
+                                .requireAuthenticatedPharmacyId();
+
+
+                desdeBD =
+                        medicamentoDAO
+                                .obtenerPorFarmacia(
+                                        idFarmacia
+                                );
+
+
+                totalStock =
+                        medicamentoDAO
+                                .obtenerTotalUnidadesStockPorFarmacia(
+                                        idFarmacia
+                                );
+
+
+                alertasCriticas =
+                        medicamentoDAO
+                                .obtenerAlertasCriticasPorFarmacia(
+                                        idFarmacia
+                                );
+
+
+                proximosVencer =
+                        loteDAO
+                                .contarProximosAVencerPorFarmacia(
+                                        30,
+                                        idFarmacia
+                                );
+            }
+
+
+            listaMedicamentos.setAll(
+                    desdeBD
+            );
+
+
+            lblTotalStock.setText(
+                    String.format(
+                            "%,d",
+                            totalStock
                     )
             );
 
-        } catch (SQLException e) {
+
+            lblAlertasCriticas.setText(
+                    String.valueOf(
+                            alertasCriticas
+                    )
+            );
+
+
+            lblProximosVencer.setText(
+                    String.valueOf(
+                            proximosVencer
+                    )
+            );
+
+        } catch (
+                SQLException
+                | IllegalStateException e
+        ) {
+
+            listaMedicamentos.clear();
+
+            lblTotalStock.setText(
+                    "0"
+            );
+
+            lblAlertasCriticas.setText(
+                    "0"
+            );
 
             lblProximosVencer.setText(
                     "0"
             );
 
+
             System.err.println(
-                    "No fue posible consultar lotes próximos a vencer: "
+                    "No fue posible cargar el inventario "
+                    + "según la farmacia de sesión: "
                     + e.getMessage()
             );
         }
     }
+
 
     private VBox buildSidebar() {
 
@@ -297,6 +396,16 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;"
         );
 
+        btnIngresoLote.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnIngresoLote.setManaged(
+                btnIngresoLote.isVisible()
+        );
+
         btnIngresoLote.setOnAction(
                 e -> abrirIngresoLote()
         );
@@ -319,6 +428,39 @@ public class MainDashboardFX extends Application {
         btnFiltrarCriticos.setOnAction(
                 e -> alternarFiltroCriticos()
         );
+
+        Button btnGestionInventario =
+                new Button(
+                        "Gestionar inventario"
+                );
+
+        btnGestionInventario.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnGestionInventario.setStyle(
+                "-fx-background-color: #B2DFDB;"
+                + "-fx-text-fill: #004D40;"
+                + "-fx-font-weight: bold;"
+        );
+
+        btnGestionInventario.setVisible(
+                "SUPER_ADMIN".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+                || "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnGestionInventario.setManaged(
+                btnGestionInventario.isVisible()
+        );
+
+        btnGestionInventario.setOnAction(
+                e -> abrirGestionInventario()
+        );
+
 
         Button btnConfiguracionSesion =
                 new Button(
@@ -349,7 +491,10 @@ public class MainDashboardFX extends Application {
         );
 
         btnHistorialAccesos.setVisible(
-                "ADMINISTRADOR".equalsIgnoreCase(
+                "SUPER_ADMIN".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+                || "ADMINISTRADOR".equalsIgnoreCase(
                         usuario.getRol()
                 )
         );
@@ -378,7 +523,10 @@ public class MainDashboardFX extends Application {
         );
 
         btnCrearUsuario.setVisible(
-                "ADMINISTRADOR".equalsIgnoreCase(
+                "SUPER_ADMIN".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+                || "ADMINISTRADOR".equalsIgnoreCase(
                         usuario.getRol()
                 )
         );
@@ -402,6 +550,7 @@ public class MainDashboardFX extends Application {
                         btnDashboard,
                         btnIngresoLote,
                         btnFiltrarCriticos,
+                        btnGestionInventario,
                         btnConfiguracionSesion,
                         btnHistorialAccesos,
                         btnCrearUsuario
@@ -716,6 +865,23 @@ public class MainDashboardFX extends Application {
     }
 
     
+
+    private void abrirGestionInventario() {
+
+        if (!validarSesionActiva()) {
+            return;
+        }
+
+
+        new GestionInventarioFX()
+                .mostrar(
+                        primaryStage
+                );
+
+
+        cargarDatosDesdeBD();
+    }
+
 
     private void abrirIngresoLote() {
 

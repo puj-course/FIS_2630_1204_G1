@@ -5,6 +5,7 @@ import com.carestock.config.DatabaseConfig;
 import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
 import com.carestock.security.MedicamentoAccessPolicy;
+import com.carestock.session.SessionContext;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -275,6 +276,10 @@ public class MedicamentoDAO {
                         rolActual
                 );
 
+        int idFarmacia =
+                new SessionContext()
+                        .requireAuthenticatedPharmacyId();
+
         try (Connection conn = DatabaseConfig.getConnection()) {
             int idCategoria = resolverCategoria(conn, medicamento.getCategoria());
             boolean tienePresentacion = columnaExiste(conn, "medicamentos", "presentacion");
@@ -287,9 +292,9 @@ public class MedicamentoDAO {
 
             StringBuilder columnas = new StringBuilder(
                 "codigo_invima, nombre_comercial, principio_activo, concentracion, " +
-                "forma_farmaceutica, id_categoria, stock_total, stock_minimo, estado"
+                "forma_farmaceutica, id_categoria, stock_total, stock_minimo, estado, id_farmacia"
             );
-            StringBuilder valores = new StringBuilder("?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO'");
+            StringBuilder valores = new StringBuilder("?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', ?");
 
             if (tienePresentacion) {
                 columnas.append(", presentacion");
@@ -312,6 +317,7 @@ public class MedicamentoDAO {
                 stmt.setInt(i++, idCategoria);
                 stmt.setInt(i++, medicamento.getStockTotal() == null ? 0 : medicamento.getStockTotal());
                 stmt.setInt(i++, medicamento.getStockMinimo() == null ? 0 : medicamento.getStockMinimo());
+                stmt.setInt(i++, idFarmacia);
 
                 if (tienePresentacion) {
                     stmt.setString(i++, valorNoVacio(medicamento.getPresentacion(), "SIN ESPECIFICAR"));
