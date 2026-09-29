@@ -16,6 +16,7 @@ import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
 import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
+import com.carestock.util.UserMessageResolver;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -62,6 +63,11 @@ public class MainDashboardFX extends Application {
 
     private final TableView<Medicamento> tablaInventario =
             new TableView<>();
+
+    private final Label lblEstadoInventario =
+            new Label(
+                    "Inventario vacío para esta sede"
+            );
 
     private final ObservableList<Medicamento> listaMedicamentos =
             FXCollections.observableArrayList();
@@ -174,14 +180,59 @@ public class MainDashboardFX extends Application {
         if (!ProtectedNavigationGuard.ensureAuthenticated(
                 primaryStage
         )) {
+
+            /*
+             * Sin sesión no se ejecuta ninguna consulta.
+             */
             return;
         }
 
+
+        final int idFarmacia;
+
         try {
 
-            int idFarmacia =
+            /*
+             * La farmacia siempre se obtiene desde la sesión.
+             * No existe consulta global de inventario.
+             */
+            idFarmacia =
                     new SessionContext()
                             .requireAuthenticatedPharmacyId();
+
+        } catch (IllegalStateException e) {
+
+            limpiarInventarioVisible();
+
+            lblEstadoInventario.setText(
+                    "No hay una farmacia activa "
+                    + "asociada a esta sesión."
+            );
+
+
+            if (
+                    SessionContext
+                            .ERROR_SESION_REQUERIDA
+                            .equals(
+                                    e.getMessage()
+                            )
+            ) {
+
+                AlertUtil.mostrarSesionExpirada();
+
+            } else {
+
+                AlertUtil.mostrarAdvertencia(
+                        UserMessageResolver
+                                .resolve(e)
+                );
+            }
+
+            return;
+        }
+
+
+        try {
 
             List<Medicamento> desdeBD =
                     medicamentoDAO
@@ -189,17 +240,20 @@ public class MainDashboardFX extends Application {
                                     idFarmacia
                             );
 
+
             int totalStock =
                     medicamentoDAO
                             .obtenerTotalUnidadesStockPorFarmacia(
                                     idFarmacia
                             );
 
+
             int alertasCriticas =
                     medicamentoDAO
                             .obtenerAlertasCriticasPorFarmacia(
                                     idFarmacia
                             );
+
 
             int proximosVencer =
                     loteDAO
@@ -208,9 +262,20 @@ public class MainDashboardFX extends Application {
                                     idFarmacia
                             );
 
+
+            /*
+             * Una lista vacía es un resultado válido.
+             * No se genera ninguna excepción.
+             */
             listaMedicamentos.setAll(
                     desdeBD
             );
+
+
+            lblEstadoInventario.setText(
+                    "Inventario vacío para esta sede"
+            );
+
 
             lblTotalStock.setText(
                     String.format(
@@ -219,11 +284,13 @@ public class MainDashboardFX extends Application {
                     )
             );
 
+
             lblAlertasCriticas.setText(
                     String.valueOf(
                             alertasCriticas
                     )
             );
+
 
             lblProximosVencer.setText(
                     String.valueOf(
@@ -231,31 +298,51 @@ public class MainDashboardFX extends Application {
                     )
             );
 
-        } catch (
-                SQLException
-                | IllegalStateException e
-        ) {
+        } catch (SQLException e) {
 
-            listaMedicamentos.clear();
+            /*
+             * Error de BD != inventario vacío.
+             */
+            limpiarInventarioVisible();
 
-            lblTotalStock.setText(
-                    "0"
+            lblEstadoInventario.setText(
+                    "No fue posible cargar el inventario."
             );
 
-            lblAlertasCriticas.setText(
-                    "0"
+
+            AlertUtil.mostrarError(
+                    UserMessageResolver
+                            .resolve(e)
             );
 
-            lblProximosVencer.setText(
-                    "0"
-            );
 
+            /*
+             * No se imprime SQL, URL, credenciales
+             * ni el mensaje original de JDBC.
+             */
             System.err.println(
-                    "No fue posible cargar el inventario "
-                    + "de la farmacia activa: "
-                    + e.getMessage()
+                    "Error JDBC controlado "
+                    + "al cargar inventario."
             );
         }
+    }
+
+
+    private void limpiarInventarioVisible() {
+
+        listaMedicamentos.clear();
+
+        lblTotalStock.setText(
+                "0"
+        );
+
+        lblAlertasCriticas.setText(
+                "0"
+        );
+
+        lblProximosVencer.setText(
+                "0"
+        );
     }
 
 
@@ -788,6 +875,10 @@ public class MainDashboardFX extends Application {
 
         tablaInventario.setItems(
                 listaFiltrada
+        );
+
+        tablaInventario.setPlaceholder(
+                lblEstadoInventario
         );
 
         tablaInventario.setColumnResizePolicy(
