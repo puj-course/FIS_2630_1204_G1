@@ -8,6 +8,7 @@ import com.carestock.model.Ubicacion;
 import com.carestock.service.InventarioCrudService;
 import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
+import com.carestock.util.UserMessageResolver;
 
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyLongWrapper;
@@ -560,6 +561,13 @@ public class GestionInventarioFX {
                         TableView
                                 .CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
                 );
+
+
+        tablaMedicamentos.setPlaceholder(
+                new Label(
+                        "Inventario vacío para esta sede"
+                )
+        );
     }
 
 
@@ -681,6 +689,13 @@ public class GestionInventarioFX {
                         TableView
                                 .CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
                 );
+
+
+        tablaLotes.setPlaceholder(
+                new Label(
+                        "No hay lotes registrados para esta sede"
+                )
+        );
     }
 
 
@@ -1695,38 +1710,8 @@ public class GestionInventarioFX {
             Exception e
     ) {
 
-        if (
-                e instanceof SQLException sqlException
-        ) {
-
-            if (
-                    "23505".equals(
-                            sqlException
-                                    .getSQLState()
-                    )
-            ) {
-
-                return "Ya existe un registro "
-                        + "con esos datos en esta farmacia.";
-            }
-
-
-            if (
-                    "23503".equals(
-                            sqlException
-                                    .getSQLState()
-                    )
-            ) {
-
-                return "La operación contiene "
-                        + "una referencia inválida.";
-            }
-        }
-
-
-        return e.getMessage() == null
-                ? "Ocurrió un error inesperado."
-                : e.getMessage();
+        return UserMessageResolver
+                .resolve(e);
     }
 
 

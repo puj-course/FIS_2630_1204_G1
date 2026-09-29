@@ -188,6 +188,22 @@ class InventarioCrudServiceScopeTest {
     }
 
 
+    @Test
+    void sinSesionNoPuedeResolverFarmacia() {
+
+        session.clearSession();
+
+        assertThrows(
+                IllegalStateException.class,
+                () ->
+                        service
+                                .resolverFarmacia(
+                                        null
+                                )
+        );
+    }
+
+
     private Usuario usuario(
             int id,
             String rol,
