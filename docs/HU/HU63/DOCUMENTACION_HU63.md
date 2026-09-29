@@ -10,3 +10,9 @@ En cualquier operación crítica de varios pasos (ej. registrar lote + actualiza
 Reutiliza el estilo de error coral (#F0A8A8) ya definido en HU-43.
 
 ![Mockup mensaje operación revertida](./mockup-error-transaccional-hu63.png)
+
+
+
+### Interacción del Usuario
+* **Cierre manual:** El mensaje de error incluirá un ícono de "X" en la esquina superior derecha para que el usuario pueda descartarlo manualmente de forma rápida.
+* **Auto-descarte:** Si no es cerrado por el usuario, el mensaje desaparecerá automáticamente después de 8 segundos para no obstruir permanentemente la vista del formulario.
