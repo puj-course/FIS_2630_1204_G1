@@ -10,3 +10,7 @@ Junto al badge de rol (menta/durazno) del dashboard, se muestra un segundo badge
 
 ![Boceto badge farmacia](./boceto-badge-farmacia-hu62.png)
 ![Mockup badge farmacia](./mockup-badge-farmacia-hu62.png)
+
+
+### Consideraciones de Accesibilidad y Responsividad
+* **Contraste (WCAG):** La relación de color entre el texto (`#5B4E8C`) y el fondo (`#EDE7F6`) ha sido verificada para cumplir con el estándar AA, garantizando una óptima legibilidad para todos los usuarios.
