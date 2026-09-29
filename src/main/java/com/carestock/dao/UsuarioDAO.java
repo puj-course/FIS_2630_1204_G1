@@ -1,72 +1,106 @@
 package com.carestock.dao;
 
 import com.carestock.config.DatabaseConfig;
+import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Usuario;
 import com.carestock.security.AccessControl;
+import com.carestock.session.UserSession;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioDAO {
 
-    public int obtenerIdActivoPorEmail(String email) throws SQLException {
+    public int obtenerIdActivoPorEmail(
+            String email
+    ) throws SQLException {
+
         String sql =
-                "SELECT id_usuario " +
-                        "FROM USUARIOS " +
-                        "WHERE LOWER(email) = LOWER(?) " +
-                        "AND estado = 'ACTIVO'";
+                "SELECT id_usuario "
+                + "FROM USUARIOS "
+                + "WHERE LOWER(email) = LOWER(?) "
+                + "AND estado = 'ACTIVO'";
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
 
-            stmt.setString(1, email);
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            stmt.setString(
+                    1,
+                    email
+            );
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
                 if (rs.next()) {
-                    return rs.getInt("id_usuario");
+
+                    return rs.getInt(
+                            "id_usuario"
+                    );
                 }
             }
         }
 
         throw new SQLException(
-                "No existe un usuario ACTIVO con el correo configurado: " + email
+                "No existe un usuario ACTIVO con el correo configurado: "
+                + email
         );
     }
 
-    public Usuario buscarPorEmail(String email) throws SQLException {
+    public Usuario buscarPorEmail(
+            String email
+    ) throws SQLException {
+
         String sql =
-                "SELECT " +
-                        "u.id_usuario, " +
-                        "u.nombre_completo, " +
-                        "u.email, " +
-                        "u.password_hash, " +
-                        "u.id_rol, " +
-                        "r.nombre_rol, " +
-                        "u.estado " +
-                        "FROM USUARIOS u " +
-                        "INNER JOIN ROLES r ON r.id_rol = u.id_rol " +
-                        "WHERE LOWER(u.email) = LOWER(?) " +
-                        "LIMIT 1";
+                "SELECT "
+                + "u.id_usuario, "
+                + "u.nombre_completo, "
+                + "u.email, "
+                + "u.password_hash, "
+                + "u.id_rol, "
+                + "r.nombre_rol, "
+                + "u.estado, "
+                + "u.id_farmacia "
+                + "FROM USUARIOS u "
+                + "INNER JOIN ROLES r "
+                + "ON r.id_rol = u.id_rol "
+                + "WHERE LOWER(u.email) = LOWER(?) "
+                + "LIMIT 1";
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
 
-            stmt.setString(1, email.trim());
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            stmt.setString(
+                    1,
+                    email.trim()
+            );
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
                 if (rs.next()) {
-                    return new Usuario(
-                            rs.getInt("id_usuario"),
-                            rs.getString("nombre_completo"),
-                            rs.getString("email"),
-                            rs.getString("password_hash"),
-                            rs.getInt("id_rol"),
-                            rs.getString("nombre_rol"),
-                            rs.getString("estado")
+
+                    return mapearUsuario(
+                            rs
                     );
                 }
             }
@@ -75,12 +109,6 @@ public class UsuarioDAO {
         return null;
     }
 
-    /**
-     * Obtiene el hash de contraseña del usuario activo.
-     *
-     * La contraseña en texto plano nunca es recuperada
-     * desde la base de datos.
-     */
     public String obtenerPasswordHashActivoPorId(
             int idUsuario
     ) throws SQLException {
@@ -121,13 +149,6 @@ public class UsuarioDAO {
         return null;
     }
 
-
-    /**
-     * Actualiza exclusivamente el hash de contraseña.
-     *
-     * El hash anterior también participa en el WHERE
-     * para impedir sobrescribir un cambio concurrente.
-     */
     public boolean actualizarPasswordHash(
             int idUsuario,
             String hashActualEsperado,
@@ -168,37 +189,42 @@ public class UsuarioDAO {
         }
     }
 
-    public List<Usuario> listarTodos() throws SQLException {
+    public List<Usuario> listarTodos()
+            throws SQLException {
+
         String sql =
-                "SELECT " +
-                        "u.id_usuario, " +
-                        "u.nombre_completo, " +
-                        "u.email, " +
-                        "u.password_hash, " +
-                        "u.id_rol, " +
-                        "r.nombre_rol, " +
-                        "u.estado " +
-                        "FROM USUARIOS u " +
-                        "INNER JOIN ROLES r ON r.id_rol = u.id_rol " +
-                        "ORDER BY u.nombre_completo ASC";
+                "SELECT "
+                + "u.id_usuario, "
+                + "u.nombre_completo, "
+                + "u.email, "
+                + "u.password_hash, "
+                + "u.id_rol, "
+                + "r.nombre_rol, "
+                + "u.estado, "
+                + "u.id_farmacia "
+                + "FROM USUARIOS u "
+                + "INNER JOIN ROLES r "
+                + "ON r.id_rol = u.id_rol "
+                + "ORDER BY u.nombre_completo ASC";
 
-        List<Usuario> usuarios = new ArrayList<>();
+        List<Usuario> usuarios =
+                new ArrayList<>();
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql);
+
+                ResultSet rs =
+                        stmt.executeQuery()
+        ) {
 
             while (rs.next()) {
+
                 usuarios.add(
-                        new Usuario(
-                                rs.getInt("id_usuario"),
-                                rs.getString("nombre_completo"),
-                                rs.getString("email"),
-                                rs.getString("password_hash"),
-                                rs.getInt("id_rol"),
-                                rs.getString("nombre_rol"),
-                                rs.getString("estado")
-                        )
+                        mapearUsuario(rs)
                 );
             }
         }
@@ -206,28 +232,94 @@ public class UsuarioDAO {
         return usuarios;
     }
 
-    public int crear(
+    /**
+     * Creación jerárquica.
+     *
+     * El rol destino NO se recibe desde la interfaz.
+     * PostgreSQL lo determina usando el rol del actor.
+     */
+    public int crearJerarquico(
+            int idUsuarioActor,
             String nombreCompleto,
             String email,
             String password,
-            int idRol
+            Integer idFarmaciaSeleccionada
     ) throws SQLException {
 
-        AccessControl.requireRole("ADMINISTRADOR");
+        AccessControl.requireRole(
+                "SUPER_ADMIN",
+                "ADMINISTRADOR"
+        );
 
-        String sql = "SELECT fn_crear_usuario(?, ?, ?, ?)";
+        UserSession.CurrentUser actor =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        if (
+                actor == null
+                || actor.getId() != idUsuarioActor
+        ) {
 
-            stmt.setString(1, nombreCompleto.trim());
-            stmt.setString(2, email.trim());
-            stmt.setString(3, password);
-            stmt.setInt(4, idRol);
+            throw new AccesoDenegadoException(
+                    "El usuario creador no coincide con la sesión activa."
+            );
+        }
 
-            try (ResultSet rs = stmt.executeQuery()) {
+        String sql =
+                "SELECT fn_crear_usuario_jerarquico("
+                + "?, ?, ?, ?, ?)";
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(
+                    1,
+                    idUsuarioActor
+            );
+
+            stmt.setString(
+                    2,
+                    nombreCompleto.trim()
+            );
+
+            stmt.setString(
+                    3,
+                    email.trim()
+            );
+
+            stmt.setString(
+                    4,
+                    password
+            );
+
+            if (idFarmaciaSeleccionada == null) {
+
+                stmt.setNull(
+                        5,
+                        Types.INTEGER
+                );
+
+            } else {
+
+                stmt.setInt(
+                        5,
+                        idFarmaciaSeleccionada
+                );
+            }
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
 
                 if (rs.next()) {
+
                     return rs.getInt(1);
                 }
             }
@@ -235,6 +327,27 @@ public class UsuarioDAO {
 
         throw new SQLException(
                 "No fue posible crear el usuario."
+        );
+    }
+
+    private Usuario mapearUsuario(
+            ResultSet rs
+    ) throws SQLException {
+
+        Integer idFarmacia =
+                (Integer) rs.getObject(
+                        "id_farmacia"
+                );
+
+        return new Usuario(
+                rs.getInt("id_usuario"),
+                rs.getString("nombre_completo"),
+                rs.getString("email"),
+                rs.getString("password_hash"),
+                rs.getInt("id_rol"),
+                rs.getString("nombre_rol"),
+                rs.getString("estado"),
+                idFarmacia
         );
     }
 }

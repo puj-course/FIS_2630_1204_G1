@@ -1,0 +1,21 @@
+services:
+
+  carestock:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: carestock:latest
+
+    environment:
+      DB_URL: "${DB_URL}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+
+      DB_POOL_MAX_SIZE: "${DB_POOL_MAX_SIZE:-4}"
+      DB_POOL_MIN_IDLE: "${DB_POOL_MIN_IDLE:-1}"
+
+      DISPLAY: "host.docker.internal:0.0"
+      LIBGL_ALWAYS_INDIRECT: "1"
+      JAVA_TOOL_OPTIONS: "-Dprism.order=sw"

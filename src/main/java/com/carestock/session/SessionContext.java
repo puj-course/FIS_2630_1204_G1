@@ -1,50 +1,69 @@
 package com.carestock.session;
 
-/**
- * Contexto de seguridad para operaciones que requieren un usuario autenticado.
- *
- * Centraliza la extracción del usuario activo desde UserSession y evita que
- * los servicios de dominio reciban el usuario_id desde la interfaz o desde
- * parámetros manipulables por el cliente.
- */
 public final class SessionContext {
 
     public static final String ERROR_SESION_REQUERIDA =
             "No existe un usuario autenticado para realizar la operación.";
 
+    public static final String ERROR_FARMACIA_REQUERIDA =
+            "El usuario autenticado no tiene una farmacia asociada.";
+
     private final UserSession userSession;
 
     public SessionContext() {
-        this(UserSession.getInstance());
+        this(
+                UserSession.getInstance()
+        );
     }
 
-    SessionContext(UserSession userSession) {
+    SessionContext(
+            UserSession userSession
+    ) {
+
         if (userSession == null) {
+
             throw new IllegalArgumentException(
                     "UserSession no puede ser nulo."
             );
         }
 
-        this.userSession = userSession;
+        this.userSession =
+                userSession;
     }
 
-    /**
-     * Obtiene exclusivamente desde la sesión el ID del usuario autenticado.
-     *
-     * @return ID del usuario actualmente autenticado.
-     * @throws IllegalStateException si no existe una sesión activa.
-     */
     public int requireAuthenticatedUserId() {
 
-        UserSession.CurrentUser currentUser =
+        return requireCurrentUser()
+                .getId();
+    }
+
+    public int requireAuthenticatedPharmacyId() {
+
+        UserSession.CurrentUser usuario =
+                requireCurrentUser();
+
+        if (!usuario.tieneFarmaciaAsignada()) {
+
+            throw new IllegalStateException(
+                    ERROR_FARMACIA_REQUERIDA
+            );
+        }
+
+        return usuario.getIdFarmacia();
+    }
+
+    public UserSession.CurrentUser requireCurrentUser() {
+
+        UserSession.CurrentUser usuario =
                 userSession.getCurrentUser();
 
-        if (currentUser == null) {
+        if (usuario == null) {
+
             throw new IllegalStateException(
                     ERROR_SESION_REQUERIDA
             );
         }
 
-        return currentUser.getId();
+        return usuario;
     }
 }

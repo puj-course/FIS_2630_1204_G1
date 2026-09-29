@@ -4,6 +4,7 @@ import com.carestock.dao.LoteDAO;
 import com.carestock.model.Lote;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
+import com.carestock.security.AccessControl;
 import com.carestock.session.SessionContext;
 import com.carestock.utils.IngresoLoteValidator;
 
@@ -50,6 +51,17 @@ public class IngresoLoteService {
             LocalDate fechaVencimiento,
             Ubicacion ubicacion
     ) throws SQLException {
+
+        /*
+         * El formulario histórico de ingreso de lotes
+         * queda restringido al ADMINISTRADOR.
+         *
+         * SUPER_ADMIN utiliza la nueva Gestión de inventario,
+         * donde selecciona explícitamente la farmacia.
+         */
+        AccessControl.requireRole(
+                "ADMINISTRADOR"
+        );
 
         /*
          * El usuario responsable se obtiene exclusivamente

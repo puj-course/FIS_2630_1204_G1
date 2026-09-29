@@ -9,6 +9,7 @@ public class Usuario {
     private final int idRol;
     private final String nombreRol;
     private final String estado;
+    private final Integer idFarmacia;
 
     public Usuario(
             int idUsuario,
@@ -17,8 +18,30 @@ public class Usuario {
             String passwordHash,
             int idRol,
             String nombreRol,
-            String estado) {
+            String estado
+    ) {
+        this(
+                idUsuario,
+                nombreCompleto,
+                email,
+                passwordHash,
+                idRol,
+                nombreRol,
+                estado,
+                null
+        );
+    }
 
+    public Usuario(
+            int idUsuario,
+            String nombreCompleto,
+            String email,
+            String passwordHash,
+            int idRol,
+            String nombreRol,
+            String estado,
+            Integer idFarmacia
+    ) {
         this.idUsuario = idUsuario;
         this.nombreCompleto = nombreCompleto;
         this.email = email;
@@ -26,6 +49,7 @@ public class Usuario {
         this.idRol = idRol;
         this.nombreRol = nombreRol;
         this.estado = estado;
+        this.idFarmacia = idFarmacia;
     }
 
     public int getIdUsuario() {
@@ -56,7 +80,24 @@ public class Usuario {
         return estado;
     }
 
+    public Integer getIdFarmacia() {
+        return idFarmacia;
+    }
+
+    public boolean tieneFarmaciaAsignada() {
+        return idFarmacia != null
+                && idFarmacia > 0;
+    }
+
+    public boolean esSuperAdmin() {
+        return "SUPER_ADMIN".equalsIgnoreCase(
+                nombreRol
+        );
+    }
+
     public boolean estaActivo() {
-        return "ACTIVO".equalsIgnoreCase(estado);
+        return "ACTIVO".equalsIgnoreCase(
+                estado
+        );
     }
 }
