@@ -1,5 +1,7 @@
 package com.carestock.view;
 
+import javafx.scene.control.Tooltip;
+
 import com.carestock.dao.FarmaciaDAO;
 import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Farmacia;
@@ -424,6 +426,10 @@ public class CrearUsuarioFX {
             comboFarmacia.setPromptText(
                     "Seleccione una farmacia"
             );
+
+            Tooltip tooltipFarmacia = new Tooltip("Asigne la sede física principal para este administrador");
+        tooltipFarmacia.setStyle("-fx-font-size: 12px; -fx-background-color: #2D6A4F; -fx-text-fill: white;");
+        comboFarmacia.setTooltip(tooltipFarmacia);
 
         } else {
 
