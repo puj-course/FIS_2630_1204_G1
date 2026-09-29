@@ -177,97 +177,40 @@ public class MainDashboardFX extends Application {
             return;
         }
 
-
-        UserSession.CurrentUser usuario =
-                UserSession
-                        .getInstance()
-                        .getCurrentUser();
-
-
-        if (usuario == null) {
-            return;
-        }
-
-
         try {
 
-            List<Medicamento> desdeBD;
+            int idFarmacia =
+                    new SessionContext()
+                            .requireAuthenticatedPharmacyId();
 
-            int totalStock;
+            List<Medicamento> desdeBD =
+                    medicamentoDAO
+                            .obtenerPorFarmacia(
+                                    idFarmacia
+                            );
 
-            int alertasCriticas;
+            int totalStock =
+                    medicamentoDAO
+                            .obtenerTotalUnidadesStockPorFarmacia(
+                                    idFarmacia
+                            );
 
-            int proximosVencer;
+            int alertasCriticas =
+                    medicamentoDAO
+                            .obtenerAlertasCriticasPorFarmacia(
+                                    idFarmacia
+                            );
 
-
-            if (usuario.esSuperAdmin()) {
-
-                /*
-                 * SUPER_ADMIN mantiene una vista global.
-                 */
-                desdeBD =
-                        medicamentoDAO
-                                .obtenerTodos();
-
-                totalStock =
-                        medicamentoDAO
-                                .obtenerTotalUnidadesStock();
-
-                alertasCriticas =
-                        medicamentoDAO
-                                .obtenerAlertasCriticas();
-
-                proximosVencer =
-                        loteDAO
-                                .contarProximosAVencer(
-                                        30
-                                );
-
-            } else {
-
-                /*
-                 * ADMINISTRADOR y FARMACEUTICO nunca
-                 * reciben inventario global.
-                 */
-                int idFarmacia =
-                        new SessionContext()
-                                .requireAuthenticatedPharmacyId();
-
-
-                desdeBD =
-                        medicamentoDAO
-                                .obtenerPorFarmacia(
-                                        idFarmacia
-                                );
-
-
-                totalStock =
-                        medicamentoDAO
-                                .obtenerTotalUnidadesStockPorFarmacia(
-                                        idFarmacia
-                                );
-
-
-                alertasCriticas =
-                        medicamentoDAO
-                                .obtenerAlertasCriticasPorFarmacia(
-                                        idFarmacia
-                                );
-
-
-                proximosVencer =
-                        loteDAO
-                                .contarProximosAVencerPorFarmacia(
-                                        30,
-                                        idFarmacia
-                                );
-            }
-
+            int proximosVencer =
+                    loteDAO
+                            .contarProximosAVencerPorFarmacia(
+                                    30,
+                                    idFarmacia
+                            );
 
             listaMedicamentos.setAll(
                     desdeBD
             );
-
 
             lblTotalStock.setText(
                     String.format(
@@ -276,13 +219,11 @@ public class MainDashboardFX extends Application {
                     )
             );
 
-
             lblAlertasCriticas.setText(
                     String.valueOf(
                             alertasCriticas
                     )
             );
-
 
             lblProximosVencer.setText(
                     String.valueOf(
@@ -309,10 +250,9 @@ public class MainDashboardFX extends Application {
                     "0"
             );
 
-
             System.err.println(
                     "No fue posible cargar el inventario "
-                    + "según la farmacia de sesión: "
+                    + "de la farmacia activa: "
                     + e.getMessage()
             );
         }
