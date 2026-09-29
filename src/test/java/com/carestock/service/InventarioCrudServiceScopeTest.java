@@ -28,7 +28,45 @@ class InventarioCrudServiceScopeTest {
 
 
     @Test
-    void superAdminDebeSeleccionarFarmacia() {
+    void superAdminUsaFarmaciaDeSesion() {
+
+        session.setCurrentUser(
+                usuario(
+                        1,
+                        "SUPER_ADMIN",
+                        7
+                )
+        );
+
+        assertEquals(
+                7,
+                service
+                        .resolverFarmacia(
+                                null
+                        )
+        );
+
+        assertEquals(
+                7,
+                service
+                        .resolverFarmacia(
+                                7
+                        )
+        );
+
+        assertThrows(
+                AccesoDenegadoException.class,
+                () ->
+                        service
+                                .resolverFarmacia(
+                                        8
+                                )
+        );
+    }
+
+
+    @Test
+    void superAdminSinFarmaciaNoPuedeCargarInventario() {
 
         session.setCurrentUser(
                 usuario(
@@ -38,23 +76,13 @@ class InventarioCrudServiceScopeTest {
                 )
         );
 
-
         assertThrows(
-                IllegalArgumentException.class,
+                IllegalStateException.class,
                 () ->
                         service
                                 .resolverFarmacia(
                                         null
                                 )
-        );
-
-
-        assertEquals(
-                7,
-                service
-                        .resolverFarmacia(
-                                7
-                        )
         );
     }
 
@@ -119,6 +147,43 @@ class InventarioCrudServiceScopeTest {
                                 .resolverFarmacia(
                                         5
                                 )
+        );
+    }
+
+
+    @Test
+    void cambiarUsuarioCambiaFarmaciaActiva() {
+
+        session.setCurrentUser(
+                usuario(
+                        10,
+                        "ADMINISTRADOR",
+                        5
+                )
+        );
+
+        assertEquals(
+                5,
+                service.resolverFarmacia(
+                        null
+                )
+        );
+
+        session.clearSession();
+
+        session.setCurrentUser(
+                usuario(
+                        11,
+                        "ADMINISTRADOR",
+                        8
+                )
+        );
+
+        assertEquals(
+                8,
+                service.resolverFarmacia(
+                        null
+                )
         );
     }
 

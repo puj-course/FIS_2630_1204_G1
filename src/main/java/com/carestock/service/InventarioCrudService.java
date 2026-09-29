@@ -47,36 +47,9 @@ public class InventarioCrudService {
                 "ADMINISTRADOR"
         );
 
-
         UserSession.CurrentUser actor =
                 sessionContext
                         .requireCurrentUser();
-
-
-        if (actor.esSuperAdmin()) {
-
-            if (
-                    idFarmaciaSolicitada == null
-                    || idFarmaciaSolicitada <= 0
-            ) {
-
-                throw new IllegalArgumentException(
-                        "El SUPER_ADMIN debe seleccionar una farmacia."
-                );
-            }
-
-
-            return idFarmaciaSolicitada;
-        }
-
-
-        if (!actor.esAdministrador()) {
-
-            throw new AccesoDenegadoException(
-                    "Su rol no puede gestionar inventario."
-            );
-        }
-
 
         if (!actor.tieneFarmaciaAsignada()) {
 
@@ -85,21 +58,23 @@ public class InventarioCrudService {
             );
         }
 
+        int idFarmaciaSesion =
+                actor.getIdFarmacia();
 
         if (
                 idFarmaciaSolicitada != null
                 && !idFarmaciaSolicitada.equals(
-                        actor.getIdFarmacia()
+                        idFarmaciaSesion
                 )
         ) {
 
             throw new AccesoDenegadoException(
-                    "Un administrador no puede gestionar otra farmacia."
+                    "No se puede gestionar inventario "
+                    + "de una farmacia distinta a la sesión activa."
             );
         }
 
-
-        return actor.getIdFarmacia();
+        return idFarmaciaSesion;
     }
 
 
