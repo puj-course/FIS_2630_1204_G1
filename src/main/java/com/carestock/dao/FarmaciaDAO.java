@@ -12,40 +12,42 @@ import java.util.List;
 
 public class FarmaciaDAO {
 
-    public List<Farmacia> listarActivas()
-            throws SQLException {
+/**
+ * Recupera todas las farmacias activas registradas en la base de datos.
+ *
+ * @return lista de farmacias activas ordenadas alfabéticamente por nombre.
+ *         Si no existen farmacias activas, retorna una lista vacía.
+ * @throws SQLException si ocurre un error al consultar la base de datos.
+ */
+public List<Farmacia> listarActivas() throws SQLException {
 
-        String sql =
-                "SELECT id_farmacia, codigo, nombre, estado "
-                + "FROM FARMACIAS "
-                + "WHERE estado = 'ACTIVA' "
-                + "ORDER BY nombre ASC";
+    String sql =
+            "SELECT id_farmacia, codigo, nombre, estado "
+            + "FROM FARMACIAS "
+            + "WHERE estado = 'ACTIVA' "
+            + "ORDER BY nombre ASC";
 
-        List<Farmacia> farmacias =
-                new ArrayList<>();
+    List<Farmacia> farmacias = new ArrayList<>();
 
-        try (
-                Connection conn =
-                        DatabaseConfig.getConnection();
+    try (
+            Connection conn = DatabaseConfig.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()
+    ) {
 
-                PreparedStatement stmt =
-                        conn.prepareStatement(sql);
-
-                ResultSet rs =
-                        stmt.executeQuery()
-        ) {
-
-            while (rs.next()) {
-
-                farmacias.add(
-                        mapear(rs)
-                );
-            }
+        while (rs.next()) {
+            farmacias.add(mapear(rs));
         }
 
-        return farmacias;
+    } catch (SQLException e) {
+        throw new SQLException(
+                "No fue posible consultar las farmacias activas.",
+                e
+        );
     }
 
+    return farmacias;
+}
     public Farmacia buscarPorId(
             int idFarmacia
     ) throws SQLException {
