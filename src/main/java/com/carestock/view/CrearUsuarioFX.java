@@ -1,7 +1,5 @@
 package com.carestock.view;
 
-import javafx.scene.control.Tooltip;
-
 import com.carestock.dao.FarmaciaDAO;
 import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Farmacia;
@@ -20,11 +18,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
 
 import java.sql.SQLException;
 
@@ -50,6 +50,13 @@ public class CrearUsuarioFX {
     private final PasswordField txtPassword =
             new PasswordField();
 
+    /*
+     * HU-68 / Issue #499
+     *
+     * El ComboBox mantiene objetos Farmacia completos.
+     * Esto permite mostrar el nombre al usuario y conservar
+     * internamente el id_farmacia de la sede seleccionada.
+     */
     private final ComboBox<Farmacia> comboFarmacia =
             new ComboBox<>();
 
@@ -140,6 +147,21 @@ public class CrearUsuarioFX {
                 + " caracteres)"
         );
 
+        /*
+         * HU-68 / Issue #499
+         *
+         * Configura primero la forma en que se mostrarán
+         * los objetos Farmacia dentro del ComboBox.
+         */
+        configurarComboFarmacia();
+
+        /*
+         * Configura el formulario según el rol de quien
+         * está creando el nuevo usuario.
+         *
+         * Para SUPER_ADMIN también ejecutará la carga
+         * dinámica de farmacias desde la base de datos.
+         */
         configurarContexto();
 
         configurarPanelCrearFarmacia();
@@ -190,10 +212,14 @@ public class CrearUsuarioFX {
         );
 
         Label lblRol =
-                new Label("Rol a crear:");
+                new Label(
+                        "Rol a crear:"
+                );
 
         Label lblFarmacia =
-                new Label("Farmacia:");
+                new Label(
+                        "Farmacia:"
+                );
 
         VBox root =
                 new VBox(
@@ -234,7 +260,58 @@ public class CrearUsuarioFX {
         );
 
         stage.setResizable(false);
+
         stage.showAndWait();
+    }
+
+    /**
+     * Configura la visualización del ComboBox de farmacias.
+     *
+     * El ComboBox continúa almacenando objetos Farmacia,
+     * pero el usuario visualiza únicamente el nombre de
+     * la sede.
+     *
+     * Esto permite conservar internamente:
+     *
+     * - id_farmacia
+     * - código
+     * - nombre
+     * - estado
+     *
+     * mientras que en la interfaz únicamente aparece
+     * Farmacia.getNombre().
+     */
+    private void configurarComboFarmacia() {
+
+        comboFarmacia.setConverter(
+                new StringConverter<Farmacia>() {
+
+                    @Override
+                    public String toString(
+                            Farmacia farmacia
+                    ) {
+
+                        if (farmacia == null) {
+                            return "";
+                        }
+
+                        return farmacia.getNombre();
+                    }
+
+                    @Override
+                    public Farmacia fromString(
+                            String nombre
+                    ) {
+
+                        /*
+                         * El ComboBox no es editable.
+                         * Por lo tanto no necesitamos convertir
+                         * texto escrito manualmente en Farmacia.
+                         */
+                        return null;
+                    }
+                }
+        );
     }
 
     private void configurarPanelCrearFarmacia() {
@@ -255,7 +332,6 @@ public class CrearUsuarioFX {
                 actor.esSuperAdmin()
         );
 
-
         txtCodigoFarmacia.setPromptText(
                 "Ej. SEDE-NORTE"
         );
@@ -263,7 +339,6 @@ public class CrearUsuarioFX {
         txtNombreFarmacia.setPromptText(
                 "Ej. Farmacia Norte"
         );
-
 
         Button btnCrearFarmacia =
                 new Button(
@@ -278,7 +353,6 @@ public class CrearUsuarioFX {
         btnCrearFarmacia.setOnAction(
                 e -> crearNuevaFarmacia()
         );
-
 
         VBox formularioFarmacia =
                 new VBox(
@@ -298,17 +372,14 @@ public class CrearUsuarioFX {
                 new Insets(10)
         );
 
-
         panelCrearFarmacia.setContent(
                 formularioFarmacia
         );
     }
 
-
     private void crearNuevaFarmacia() {
 
         ocultarError();
-
 
         try {
 
@@ -317,14 +388,13 @@ public class CrearUsuarioFX {
                             .crearFarmacia(
                                     txtCodigoFarmacia
                                             .getText(),
-
                                     txtNombreFarmacia
                                             .getText()
                             );
 
-
             /*
-             * Recargar el ComboBox inmediatamente.
+             * Recargar el ComboBox inmediatamente con
+             * las farmacias activas provenientes de BD.
              */
             comboFarmacia.setItems(
                     FXCollections
@@ -334,11 +404,12 @@ public class CrearUsuarioFX {
                             )
             );
 
-
             /*
              * Seleccionar automáticamente la farmacia
-             * recién creada para facilitar la creación
-             * del administrador.
+             * recién creada.
+             *
+             * El SelectionModel conserva el objeto
+             * Farmacia completo.
              */
             comboFarmacia
                     .getSelectionModel()
@@ -346,19 +417,16 @@ public class CrearUsuarioFX {
                             nuevaFarmacia
                     );
 
-
             txtCodigoFarmacia.clear();
 
             txtNombreFarmacia.clear();
-
 
             panelCrearFarmacia.setExpanded(
                     false
             );
 
-
             AlertUtil.mostrarExito(
-                    "La farmacia \"" 
+                    "La farmacia \""
                     + nuevaFarmacia.getNombre()
                     + "\" fue creada correctamente."
             );
@@ -378,7 +446,6 @@ public class CrearUsuarioFX {
                     e.getMessage() == null
                             ? ""
                             : e.getMessage();
-
 
             if (
                     mensaje
@@ -402,7 +469,6 @@ public class CrearUsuarioFX {
         }
     }
 
-
     private void configurarContexto() {
 
         if (actor.esSuperAdmin()) {
@@ -415,21 +481,51 @@ public class CrearUsuarioFX {
                     "-fx-font-weight: bold;"
             );
 
-            comboFarmacia.setVisible(true);
-            comboFarmacia.setManaged(true);
+            comboFarmacia.setVisible(
+                    true
+            );
 
-            lblFarmaciaFija.setVisible(false);
-            lblFarmaciaFija.setManaged(false);
+            comboFarmacia.setManaged(
+                    true
+            );
 
+            lblFarmaciaFija.setVisible(
+                    false
+            );
+
+            lblFarmaciaFija.setManaged(
+                    false
+            );
+
+            /*
+             * HU-68 / Issue #499
+             *
+             * La lista ya no se construye con sedes
+             * hardcodeadas.
+             *
+             * Se consulta directamente la base de datos.
+             */
             cargarFarmacias();
 
             comboFarmacia.setPromptText(
                     "Seleccione una farmacia"
             );
 
-            Tooltip tooltipFarmacia = new Tooltip("Asigne la sede física principal para este administrador");
-        tooltipFarmacia.setStyle("-fx-font-size: 12px; -fx-background-color: #2D6A4F; -fx-text-fill: white;");
-        comboFarmacia.setTooltip(tooltipFarmacia);
+            Tooltip tooltipFarmacia =
+                    new Tooltip(
+                            "Asigne la sede física principal "
+                            + "para este administrador"
+                    );
+
+            tooltipFarmacia.setStyle(
+                    "-fx-font-size: 12px;"
+                    + "-fx-background-color: #2D6A4F;"
+                    + "-fx-text-fill: white;"
+            );
+
+            comboFarmacia.setTooltip(
+                    tooltipFarmacia
+            );
 
         } else {
 
@@ -441,16 +537,32 @@ public class CrearUsuarioFX {
                     "-fx-font-weight: bold;"
             );
 
-            comboFarmacia.setVisible(false);
-            comboFarmacia.setManaged(false);
+            comboFarmacia.setVisible(
+                    false
+            );
 
-            lblFarmaciaFija.setVisible(true);
-            lblFarmaciaFija.setManaged(true);
+            comboFarmacia.setManaged(
+                    false
+            );
+
+            lblFarmaciaFija.setVisible(
+                    true
+            );
+
+            lblFarmaciaFija.setManaged(
+                    true
+            );
 
             cargarFarmaciaAdministrador();
         }
     }
 
+    /**
+     * Carga dinámicamente las farmacias activas
+     * registradas en la base de datos.
+     *
+     * No existen valores de sedes hardcodeados.
+     */
     private void cargarFarmacias() {
 
         try {
@@ -531,6 +643,11 @@ public class CrearUsuarioFX {
 
         if (actor.esSuperAdmin()) {
 
+            /*
+             * El SelectionModel devuelve el objeto
+             * Farmacia completo que actualmente
+             * está seleccionado.
+             */
             Farmacia farmacia =
                     comboFarmacia
                             .getSelectionModel()
@@ -546,6 +663,11 @@ public class CrearUsuarioFX {
                 return;
             }
 
+            /*
+             * Aunque visualmente se muestra únicamente
+             * el nombre, internamente se conserva y
+             * recupera el id_farmacia real.
+             */
             idFarmaciaSeleccionada =
                     farmacia.getIdFarmacia();
         }
@@ -593,8 +715,12 @@ public class CrearUsuarioFX {
                                     .toLowerCase();
 
             if (
-                    detalle.contains("unique")
-                    || detalle.contains("duplicate")
+                    detalle.contains(
+                            "unique"
+                    )
+                    || detalle.contains(
+                            "duplicate"
+                    )
             ) {
 
                 mostrarError(
@@ -620,13 +746,23 @@ public class CrearUsuarioFX {
                 mensaje
         );
 
-        lblError.setVisible(true);
-        lblError.setManaged(true);
+        lblError.setVisible(
+                true
+        );
+
+        lblError.setManaged(
+                true
+        );
     }
 
     private void ocultarError() {
 
-        lblError.setVisible(false);
-        lblError.setManaged(false);
+        lblError.setVisible(
+                false
+        );
+
+        lblError.setManaged(
+                false
+        );
     }
 }
