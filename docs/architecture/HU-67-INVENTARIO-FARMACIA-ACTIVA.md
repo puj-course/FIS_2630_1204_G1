@@ -106,3 +106,42 @@ DAO realiza persistencia.
 id_farmacia funciona como clave de aislamiento lógico entre
 inventarios, evitando que una sesión consulte o gestione el
 inventario de otra farmacia.
+
+## 4.5 Movimientos de inventario por farmacia
+
+LOG_MOVIMIENTOS no almacena id_farmacia directamente. La farmacia
+de cada movimiento se deduce mediante:
+
+LOG_MOVIMIENTOS
+    -> LOTES
+        -> MEDICAMENTOS
+            -> id_farmacia
+
+Por esta razón se creó la vista VW_MOVIMIENTOS_FARMACIA, que
+resuelve esta cadena de relaciones una sola vez y expone
+directamente id_farmacia, tipo de movimiento, lote, medicamento,
+cantidad afectada, usuario responsable y fecha y hora.
+
+Componentes involucrados:
+
+- MovimientoInventario
+  Modelo que representa un movimiento ya resuelto con su farmacia.
+
+- MovimientoDAO
+  Consulta VW_MOVIMIENTOS_FARMACIA filtrando por id_farmacia y,
+  opcionalmente, por tipo de movimiento.
+
+- MovimientosFarmaciaFX
+  Pantalla que obtiene el id_farmacia de UserSession y muestra
+  únicamente los movimientos de la farmacia activa.
+
+Relación principal:
+
+MovimientosFarmaciaFX
+    -> UserSession
+        -> id_farmacia
+
+MovimientosFarmaciaFX
+    -> MovimientoDAO
+        -> VW_MOVIMIENTOS_FARMACIA
+            -> PostgreSQL / Neon
