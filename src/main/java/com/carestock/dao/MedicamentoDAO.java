@@ -31,21 +31,13 @@ public class MedicamentoDAO {
         return consultarMedicamentos(true);
     }
 
-    /**
-     * Recupera únicamente el inventario perteneciente a una farmacia.
-     *
-     * @param idFarmacia identificador de la farmacia cuyo inventario se consulta.
-     * @return medicamentos asociados exclusivamente a la farmacia indicada.
-     * @throws SQLException si ocurre un error al consultar PostgreSQL.
-     */
+   
     public List<Medicamento> obtenerPorFarmacia(int idFarmacia) throws SQLException {
         validarIdFarmacia(idFarmacia);
         return consultarMedicamentosPorFarmacia(idFarmacia, false);
     }
 
-    /**
-     * Recupera únicamente los medicamentos activos de una farmacia.
-     */
+    
     public List<Medicamento> obtenerActivosPorFarmacia(int idFarmacia) throws SQLException {
         validarIdFarmacia(idFarmacia);
         return consultarMedicamentosPorFarmacia(idFarmacia, true);
@@ -170,9 +162,7 @@ public class MedicamentoDAO {
         return 0;
     }
 
-    /**
-     * Obtiene el stock total exclusivamente para una farmacia.
-     */
+  
     public int obtenerTotalUnidadesStockPorFarmacia(
             int idFarmacia
     ) throws SQLException {
@@ -209,10 +199,7 @@ public class MedicamentoDAO {
         }
     }
 
-    /**
-     * Obtiene las alertas críticas exclusivamente
-     * para una farmacia.
-     */
+   
     public int obtenerAlertasCriticasPorFarmacia(
             int idFarmacia
     ) throws SQLException {
@@ -331,10 +318,7 @@ public class MedicamentoDAO {
         }
     }
 
-    /**
-     * Obtiene las categorías disponibles para el
-     * registro de medicamentos.
-     */
+ 
     public List<String> obtenerCategorias()
             throws SQLException {
 
