@@ -12,13 +12,7 @@ import java.util.List;
 
 public class FarmaciaDAO {
 
-/**
- * Recupera todas las farmacias activas registradas en la base de datos.
- *
- * @return lista de farmacias activas ordenadas alfabéticamente por nombre.
- *         Si no existen farmacias activas, retorna una lista vacía.
- * @throws SQLException si ocurre un error al consultar la base de datos.
- */
+
 public List<Farmacia> listarActivas() throws SQLException {
 
     String sql =
