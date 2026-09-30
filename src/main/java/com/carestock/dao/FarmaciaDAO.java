@@ -134,6 +134,44 @@ public List<Farmacia> listarActivas() throws SQLException {
     }
 
 
+    public List<Farmacia> buscarPorNombre(
+            String filtro
+    ) throws SQLException {
+
+        String sql =
+                "SELECT id_farmacia, codigo, nombre, estado "
+                + "FROM FARMACIAS "
+                + "WHERE (? IS NULL OR ? = '' OR nombre ILIKE '%' || ? || '%') "
+                + "ORDER BY nombre ASC";
+
+        List<Farmacia> farmacias = new ArrayList<>();
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, filtro);
+            stmt.setString(2, filtro);
+            stmt.setString(3, filtro);
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                while (rs.next()) {
+                    farmacias.add(mapear(rs));
+                }
+            }
+        }
+
+        return farmacias;
+    }
+
     private Farmacia mapear(
             ResultSet rs
     ) throws SQLException {
