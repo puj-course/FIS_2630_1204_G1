@@ -51,13 +51,7 @@ public class CrearUsuarioFX {
     private final PasswordField txtPassword =
             new PasswordField();
 
-    /*
-     * HU-68 / Issue #499
-     *
-     * El ComboBox mantiene objetos Farmacia completos.
-     * Esto permite mostrar el nombre al usuario y conservar
-     * internamente el id_farmacia de la sede seleccionada.
-     */
+
     private final ComboBox<Farmacia> comboFarmacia =
             new ComboBox<>();
 
@@ -151,21 +145,10 @@ public class CrearUsuarioFX {
                 + " caracteres)"
         );
 
-        /*
-         * HU-68 / Issue #499
-         *
-         * Configura primero la forma en que se mostrarán
-         * los objetos Farmacia dentro del ComboBox.
-         */
+      
         configurarComboFarmacia();
 
-        /*
-         * Configura el formulario según el rol de quien
-         * está creando el nuevo usuario.
-         *
-         * Para SUPER_ADMIN también ejecutará la carga
-         * dinámica de farmacias desde la base de datos.
-         */
+       
         configurarContexto();
 
         configurarPanelCrearFarmacia();
@@ -274,23 +257,6 @@ public class CrearUsuarioFX {
         stage.showAndWait();
     }
 
-    /**
-     * Configura la visualización del ComboBox de farmacias.
-     *
-     * El ComboBox continúa almacenando objetos Farmacia,
-     * pero el usuario visualiza únicamente el nombre de
-     * la sede.
-     *
-     * Esto permite conservar internamente:
-     *
-     * - id_farmacia
-     * - código
-     * - nombre
-     * - estado
-     *
-     * mientras que en la interfaz únicamente aparece
-     * Farmacia.getNombre().
-     */
     private void configurarComboFarmacia() {
 
         comboFarmacia.setConverter(
@@ -402,10 +368,7 @@ public class CrearUsuarioFX {
                                             .getText()
                             );
 
-            /*
-             * Recargar el ComboBox inmediatamente con
-             * las farmacias activas provenientes de BD.
-             */
+          
             comboFarmacia.setItems(
                     FXCollections
                             .observableArrayList(
@@ -414,13 +377,6 @@ public class CrearUsuarioFX {
                             )
             );
 
-            /*
-             * Seleccionar automáticamente la farmacia
-             * recién creada.
-             *
-             * El SelectionModel conserva el objeto
-             * Farmacia completo.
-             */
             comboFarmacia
                     .getSelectionModel()
                     .select(
@@ -507,14 +463,7 @@ public class CrearUsuarioFX {
                     false
             );
 
-            /*
-             * HU-68 / Issue #499
-             *
-             * La lista ya no se construye con sedes
-             * hardcodeadas.
-             *
-             * Se consulta directamente la base de datos.
-             */
+            
             cargarFarmacias();
 
             comboFarmacia.setPromptText(
@@ -567,12 +516,7 @@ public class CrearUsuarioFX {
         }
     }
 
-    /**
-     * Carga dinámicamente las farmacias activas
-     * registradas en la base de datos.
-     *
-     * No existen valores de sedes hardcodeados.
-     */
+  
     private void cargarFarmacias() {
 
         try {
@@ -661,11 +605,7 @@ public class CrearUsuarioFX {
 
         if (actor.esSuperAdmin()) {
 
-            /*
-             * El SelectionModel devuelve el objeto
-             * Farmacia completo que actualmente
-             * está seleccionado.
-             */
+            
             Farmacia farmacia =
                     comboFarmacia
                             .getSelectionModel()
@@ -681,11 +621,7 @@ public class CrearUsuarioFX {
                 return;
             }
 
-            /*
-             * Aunque visualmente se muestra únicamente
-             * el nombre, internamente se conserva y
-             * recupera el id_farmacia real.
-             */
+        
             idFarmaciaSeleccionada =
                     farmacia.getIdFarmacia();
         }
