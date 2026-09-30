@@ -81,3 +81,31 @@ fn_crear_farmacia_segura
     |
     v
 FARMACIAS
+```
+
+## Consulta de farmacias
+
+La consulta de farmacias registradas está disponible únicamente
+para `ADMINISTRADOR` y `SUPER_ADMIN`, con búsqueda por nombre y
+visualización de estado (ACTIVA / INACTIVA).
+
+Nota sobre el campo identificador: la tabla `FARMACIAS` utiliza
+`codigo` como identificador legible de cada sede, no un NIT. La
+Historia de Usuario original hacía referencia a "NIT", pero el
+esquema real implementado usa `codigo`, por lo que la pantalla de
+consulta y el modelo `Farmacia` reflejan ese campo.
+
+Flujo:
+
+```text
+ADMINISTRADOR / SUPER_ADMIN
+    |
+    v
+FarmaciaConsultaFX
+    |
+    v
+FarmaciaDAO.buscarPorNombre(filtro)
+    |
+    v
+FARMACIAS
+```
