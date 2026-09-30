@@ -222,274 +222,224 @@ public class MainDashboardFX extends Application {
 
     private VBox buildSidebar() {
 
-    VBox sidebar =
-            new VBox(15);
+        VBox sidebar =
+                new VBox(15);
 
-    sidebar.setPadding(
-            new Insets(20)
-    );
+        sidebar.setPadding(
+                new Insets(20)
+        );
 
-    sidebar.setPrefWidth(210);
+        sidebar.setPrefWidth(210);
 
-    sidebar.setStyle(
-            "-fx-background-color: #A3D9D2;"
-    );
+        sidebar.setStyle(
+                "-fx-background-color: #A3D9D2;"
+        );
 
-    Label logo =
-            new Label("CareStock");
+        Label logo =
+                new Label("CareStock");
 
-    logo.setStyle(
-            "-fx-font-size: 22px;"
-            + "-fx-font-weight: bold;"
-            + "-fx-text-fill: #1C313A;"
-    );
+        logo.setStyle(
+                "-fx-font-size: 22px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #1C313A;"
+        );
 
-    UserSession.CurrentUser usuario =
-            UserSession
-                    .getInstance()
-                    .getCurrentUser();
+        UserSession.CurrentUser usuario =
+                UserSession
+                        .getInstance()
+                        .getCurrentUser();
 
-    Label lblNombre =
-            new Label(
-                    usuario.getNombre()
-            );
+        Label lblNombre =
+                new Label(
+                        usuario.getNombre()
+                );
 
-    lblNombre.setStyle(
-            "-fx-font-weight: bold;"
-            + "-fx-text-fill: #1C313A;"
-    );
+        lblNombre.setStyle(
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: #1C313A;"
+        );
 
-    Label lblRol =
-            new Label(
-                    usuario.getRol()
-            );
+        Label lblRol =
+                new Label(
+                        usuario.getRol()
+                );
 
-    lblRol.setStyle(
-            "-fx-font-size: 11px;"
-            + "-fx-text-fill: #546E7A;"
-    );
+        lblRol.setStyle(
+                "-fx-font-size: 11px;" +
+                "-fx-text-fill: #546E7A;"
+        );
 
-    /* =========================================================
-       DASHBOARD
-       ========================================================= */
+        Button btnDashboard =
+                new Button("Dashboard");
 
-    Button btnDashboard =
-            new Button("Dashboard");
+        btnDashboard.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    btnDashboard.setMaxWidth(
-            Double.MAX_VALUE
-    );
+        btnDashboard.setStyle(
+                "-fx-background-color: #B39DDB;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;"
+        );
 
-    btnDashboard.setStyle(
-            "-fx-background-color: #B39DDB;"
-            + "-fx-text-fill: white;"
-            + "-fx-font-weight: bold;"
-    );
+        Button btnAgregarMedicamento =
+                new Button(
+                        "Agregar medicamento"
+                );
 
-    /* =========================================================
-       AGREGAR MEDICAMENTO
-       ========================================================= */
+        btnAgregarMedicamento.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    Button btnAgregarMedicamento =
-            new Button(
-                    "Agregar medicamento"
-            );
+        btnAgregarMedicamento.setStyle(
+                "-fx-background-color: #E8F5F2;" +
+                "-fx-text-fill: #1C313A;" +
+                "-fx-font-weight: bold;"
+        );
 
-    btnAgregarMedicamento.setMaxWidth(
-            Double.MAX_VALUE
-    );
+        btnAgregarMedicamento.setOnAction(
+                e -> abrirFormularioAgregar()
+        );
 
-    btnAgregarMedicamento.setStyle(
-            "-fx-background-color: #E8F5F2;"
-            + "-fx-text-fill: #1C313A;"
-            + "-fx-font-weight: bold;"
-    );
+        btnAgregarMedicamento.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
 
-    btnAgregarMedicamento.setOnAction(
-            e -> abrirFormularioAgregar()
-    );
+        btnAgregarMedicamento.setManaged(
+                btnAgregarMedicamento.isVisible()
+        );
 
-    /*
-     * Actualmente esta opción permanece disponible
-     * para el rol ADMINISTRADOR.
-     */
-    btnAgregarMedicamento.setVisible(
-            usuario.esAdministrador()
-    );
+        Button btnIngresoLote =
+                new Button(
+                        "Ingreso de lotes"
+                );
 
-    btnAgregarMedicamento.setManaged(
-            btnAgregarMedicamento.isVisible()
-    );
+        btnIngresoLote.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    /* =========================================================
-       INGRESO DE LOTES
-       ========================================================= */
+        btnIngresoLote.setStyle(
+                "-fx-background-color: #D1C4E9;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
 
-    Button btnIngresoLote =
-            new Button(
-                    "Ingreso de lotes"
-            );
+        btnIngresoLote.setOnAction(
+                e -> abrirIngresoLote()
+        );
 
-    btnIngresoLote.setMaxWidth(
-            Double.MAX_VALUE
-    );
+        btnFiltrarCriticos =
+                new Button(
+                        "Ver alertas críticas"
+                );
 
-    btnIngresoLote.setStyle(
-            "-fx-background-color: #D1C4E9;"
-            + "-fx-text-fill: #37474F;"
-            + "-fx-font-weight: bold;"
-    );
+        btnFiltrarCriticos.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    btnIngresoLote.setOnAction(
-            e -> abrirIngresoLote()
-    );
+        btnFiltrarCriticos.setStyle(
+                "-fx-background-color: #FFCDD2;" +
+                "-fx-text-fill: #C62828;" +
+                "-fx-font-weight: bold;"
+        );
 
-    /* =========================================================
-       ALERTAS CRÍTICAS
-       ========================================================= */
+        btnFiltrarCriticos.setOnAction(
+                e -> alternarFiltroCriticos()
+        );
 
-    btnFiltrarCriticos =
-            new Button(
-                    "Ver alertas críticas"
-            );
+        Button btnConfiguracionSesion =
+                new Button(
+                        "Configuración de sesión"
+                );
 
-    btnFiltrarCriticos.setMaxWidth(
-            Double.MAX_VALUE
-    );
+        btnConfiguracionSesion.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    btnFiltrarCriticos.setStyle(
-            "-fx-background-color: #FFCDD2;"
-            + "-fx-text-fill: #C62828;"
-            + "-fx-font-weight: bold;"
-    );
+        btnConfiguracionSesion.setStyle(
+                "-fx-background-color: #ECEFF1;" +
+                "-fx-text-fill: #37474F;" +
+                "-fx-font-weight: bold;"
+        );
 
-    btnFiltrarCriticos.setOnAction(
-            e -> alternarFiltroCriticos()
-    );
+        btnConfiguracionSesion.setOnAction(
+                e -> abrirConfiguracionSesion()
+        );
 
-    /* =========================================================
-       CONFIGURACIÓN DE SESIÓN
-       ========================================================= */
+        Button btnHistorialAccesos =
+                new Button(
+                        "Historial de accesos"
+                );
 
-    Button btnConfiguracionSesion =
-            new Button(
-                    "Configuración de sesión"
-            );
+        btnHistorialAccesos.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    btnConfiguracionSesion.setMaxWidth(
-            Double.MAX_VALUE
-    );
+        btnHistorialAccesos.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
 
-    btnConfiguracionSesion.setStyle(
-            "-fx-background-color: #ECEFF1;"
-            + "-fx-text-fill: #37474F;"
-            + "-fx-font-weight: bold;"
-    );
+        btnHistorialAccesos.setManaged(
+                btnHistorialAccesos.isVisible()
+        );
 
-    btnConfiguracionSesion.setOnAction(
-            e -> abrirConfiguracionSesion()
-    );
+        btnHistorialAccesos.setOnAction(
+                e -> abrirHistorialAccesos()
+        );
 
-    /* =========================================================
-       HISTORIAL DE ACCESOS
-       ========================================================= */
+        Button btnCrearUsuario =
+                new Button(
+                        "Crear usuario"
+                );
 
-    Button btnHistorialAccesos =
-            new Button(
-                    "Historial de accesos"
-            );
+        btnCrearUsuario.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-    btnHistorialAccesos.setMaxWidth(
-            Double.MAX_VALUE
-    );
+        btnCrearUsuario.setStyle(
+                "-fx-background-color: #C5E1A5;"
+                + "-fx-text-fill: #33691E;"
+                + "-fx-font-weight: bold;"
+        );
 
-    /*
-     * Se conserva el comportamiento actual:
-     * únicamente ADMINISTRADOR visualiza esta opción.
-     */
-    btnHistorialAccesos.setVisible(
-            usuario.esAdministrador()
-    );
+        btnCrearUsuario.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
 
-    btnHistorialAccesos.setManaged(
-            btnHistorialAccesos.isVisible()
-    );
+        btnCrearUsuario.setManaged(
+                btnCrearUsuario.isVisible()
+        );
 
-    btnHistorialAccesos.setOnAction(
-            e -> abrirHistorialAccesos()
-    );
+        btnCrearUsuario.setOnAction(
+                e -> abrirCrearUsuario()
+        );
 
-    /* =========================================================
-       CREAR USUARIO
-       HU-68 / ISSUE #499
-       ========================================================= */
+        sidebar
+                .getChildren()
+                .addAll(
+                        logo,
+                        new Separator(),
+                        lblNombre,
+                        lblRol,
+                        new Separator(),
+                        btnDashboard,
+                        btnAgregarMedicamento,
+                        btnIngresoLote,
+                        btnFiltrarCriticos,
+                        btnConfiguracionSesion,
+                        btnHistorialAccesos,
+                        btnCrearUsuario
+                );
 
-    Button btnCrearUsuario =
-            new Button(
-                    "Crear usuario"
-            );
+        return sidebar;
+    }
 
-    btnCrearUsuario.setMaxWidth(
-            Double.MAX_VALUE
-    );
-
-    btnCrearUsuario.setStyle(
-            "-fx-background-color: #C5E1A5;"
-            + "-fx-text-fill: #33691E;"
-            + "-fx-font-weight: bold;"
-    );
-
-    /*
-     * CORRECCIÓN:
-     *
-     * SUPER_ADMIN:
-     * puede crear ADMINISTRADORES.
-     *
-     * ADMINISTRADOR:
-     * puede crear FARMACÉUTICOS.
-     *
-     * FARMACÉUTICO:
-     * no puede crear usuarios.
-     */
-    boolean puedeCrearUsuarios =
-            usuario.esSuperAdmin()
-            || usuario.esAdministrador();
-
-    btnCrearUsuario.setVisible(
-            puedeCrearUsuarios
-    );
-
-    btnCrearUsuario.setManaged(
-            puedeCrearUsuarios
-    );
-
-    btnCrearUsuario.setOnAction(
-            e -> abrirCrearUsuario()
-    );
-
-    /* =========================================================
-       CONSTRUCCIÓN FINAL DEL SIDEBAR
-       ========================================================= */
-
-    sidebar
-            .getChildren()
-            .addAll(
-                    logo,
-                    new Separator(),
-                    lblNombre,
-                    lblRol,
-                    new Separator(),
-                    btnDashboard,
-                    btnAgregarMedicamento,
-                    btnIngresoLote,
-                    btnFiltrarCriticos,
-                    btnConfiguracionSesion,
-                    btnHistorialAccesos,
-                    btnCrearUsuario
-            );
-
-    return sidebar;
-}
     private HBox buildTopbar() {
 
         HBox topbar =
