@@ -27,6 +27,7 @@ import javafx.stage.Window;
 import javafx.util.StringConverter;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class CrearUsuarioFX {
 
@@ -73,6 +74,9 @@ public class CrearUsuarioFX {
             new Label();
 
     private final Label lblFarmaciaFija =
+            new Label();
+
+    private final Label lblContadorFarmacias =
             new Label();
 
     private final Label lblError =
@@ -221,6 +225,11 @@ public class CrearUsuarioFX {
                         "Farmacia:"
                 );
 
+        lblContadorFarmacias.setStyle(
+                "-fx-text-fill: #6B6862;"
+                + "-fx-font-size: 11px;"
+        );
+
         VBox root =
                 new VBox(
                         12,
@@ -241,6 +250,7 @@ public class CrearUsuarioFX {
                         lblRolDestino,
                         lblFarmacia,
                         comboFarmacia,
+                        lblContadorFarmacias,
                         lblFarmaciaFija,
                         panelCrearFarmacia,
                         lblError,
@@ -567,10 +577,18 @@ public class CrearUsuarioFX {
 
         try {
 
+            List<Farmacia> farmaciasActivas =
+                    farmaciaDAO.listarActivas();
+
             comboFarmacia.setItems(
                     FXCollections.observableArrayList(
-                            farmaciaDAO.listarActivas()
+                            farmaciasActivas
                     )
+            );
+
+            lblContadorFarmacias.setText(
+                    farmaciasActivas.size()
+                    + " farmacias activas cargadas"
             );
 
         } catch (SQLException e) {
