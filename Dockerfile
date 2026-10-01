@@ -2,7 +2,7 @@ FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-# Dependencias necesarias para JavaFX en Linux
+# Dependencias necesarias para JavaFX en Linux + display virtual
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libgtk-3-0 \
@@ -11,8 +11,11 @@ RUN apt-get update && \
         libxrender1 \
         libxtst6 \
         libxi6 \
+        libxrandr2 \
         libgl1 \
         libasound2 \
+        xvfb \
+        xauth \
         curl \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
@@ -36,5 +39,8 @@ COPY conf ./conf
 # Compilar CareStock
 RUN ./mvnw -B -DskipTests package
 
-# Ejecutar JavaFX
-CMD ["./mvnw", "-q", "javafx:run"]
+# Forzar renderizado por software
+ENV JAVA_TOOL_OPTIONS="-Dprism.order=sw"
+
+# Ejecutar JavaFX usando un display virtual
+CMD ["xvfb-run", "-a", "./mvnw", "-q", "javafx:run"]
