@@ -1,0 +1,160 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="HU-51 Login - Diagrama de Clases" id="hu51login">
+    <mxGraphModel dx="860" dy="465" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="LoginFX" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="LoginFX" vertex="1">
+          <mxGeometry height="80" width="220" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="LoginFX_m1" parent="LoginFX" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ start(Stage)" vertex="1">
+          <mxGeometry height="25" width="220" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="LoginFX_m2" parent="LoginFX" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- onLoginClick()" vertex="1">
+          <mxGeometry height="25" width="220" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthService" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="AuthenticationService" vertex="1">
+          <mxGeometry height="130" width="280" x="340" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="AS_a1" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- usuarioDAO: UsuarioDAO" vertex="1">
+          <mxGeometry height="25" width="280" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="AS_a2" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- accesoDAO: AccesoDAO" vertex="1">
+          <mxGeometry height="25" width="280" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="AS_div" parent="AuthService" style="line;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="8" width="280" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="AS_m1" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ autenticar(email, password): Usuario" vertex="1">
+          <mxGeometry height="25" width="280" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="UsuarioDAO" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="UsuarioDAO" vertex="1">
+          <mxGeometry height="55" width="260" x="700" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="UD_m1" parent="UsuarioDAO" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ buscarPorEmail(email): Usuario" vertex="1">
+          <mxGeometry height="25" width="260" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="AccesoDAO" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="AccesoDAO" vertex="1">
+          <mxGeometry height="55" width="260" x="700" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_m1" parent="AccesoDAO" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ registrarAcceso(idUsuario, resultado)" vertex="1">
+          <mxGeometry height="25" width="260" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Usuario" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="Usuario" vertex="1">
+          <mxGeometry height="330" width="280" x="340" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a1" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- idUsuario: int" vertex="1">
+          <mxGeometry height="22" width="280" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a2" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- nombreCompleto: String" vertex="1">
+          <mxGeometry height="22" width="280" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a3" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- email: String" vertex="1">
+          <mxGeometry height="22" width="280" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a4" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- passwordHash: String" vertex="1">
+          <mxGeometry height="22" width="280" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a5" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- idRol: int" vertex="1">
+          <mxGeometry height="22" width="280" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a6" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- nombreRol: String" vertex="1">
+          <mxGeometry height="22" width="280" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a7" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- estado: String" vertex="1">
+          <mxGeometry height="22" width="280" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="U_a8" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- idFarmacia: Integer" vertex="1">
+          <mxGeometry height="22" width="280" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="U_div" parent="Usuario" style="line;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="8" width="280" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="U_m1" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ estaActivo(): boolean" vertex="1">
+          <mxGeometry height="22" width="280" y="214" as="geometry" />
+        </mxCell>
+        <mxCell id="U_m2" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ esSuperAdmin(): boolean" vertex="1">
+          <mxGeometry height="22" width="280" y="236" as="geometry" />
+        </mxCell>
+        <mxCell id="U_m3" parent="Usuario" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ tieneFarmaciaAsignada(): boolean" vertex="1">
+          <mxGeometry height="22" width="280" y="258" as="geometry" />
+        </mxCell>
+        <mxCell id="UserSession" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="UserSession" vertex="1">
+          <mxGeometry height="190" width="240" x="40" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="US_a1" parent="UserSession" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- currentUser: CurrentUser" vertex="1">
+          <mxGeometry height="22" width="240" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="US_div" parent="UserSession" style="line;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="8" width="240" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="US_m1" parent="UserSession" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ getInstance(): UserSession" vertex="1">
+          <mxGeometry height="22" width="240" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="US_m2" parent="UserSession" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ setCurrentUser(Usuario)" vertex="1">
+          <mxGeometry height="22" width="240" y="82" as="geometry" />
+        </mxCell>
+        <mxCell id="US_m3" parent="UserSession" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ getCurrentUser(): CurrentUser" vertex="1">
+          <mxGeometry height="22" width="240" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="US_m4" parent="UserSession" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ isLoggedIn(): boolean" vertex="1">
+          <mxGeometry height="22" width="240" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="US_m5" parent="UserSession" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ clearSession()" vertex="1">
+          <mxGeometry height="22" width="240" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="CurrentUser" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="CurrentUser" vertex="1">
+          <mxGeometry height="230" width="240" x="40" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_a1" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- id: int" vertex="1">
+          <mxGeometry height="22" width="240" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_a2" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- nombre: String" vertex="1">
+          <mxGeometry height="22" width="240" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_a3" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- email: String" vertex="1">
+          <mxGeometry height="22" width="240" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_a4" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- rol: String" vertex="1">
+          <mxGeometry height="22" width="240" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_a5" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- idFarmacia: Integer" vertex="1">
+          <mxGeometry height="22" width="240" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_div" parent="CurrentUser" style="line;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="8" width="240" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_m1" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ esSuperAdmin(): boolean" vertex="1">
+          <mxGeometry height="22" width="240" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_m2" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ esAdministrador(): boolean" vertex="1">
+          <mxGeometry height="22" width="240" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="CU_m3" parent="CurrentUser" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ esFarmaceutico(): boolean" vertex="1">
+          <mxGeometry height="22" width="240" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="LoginFX" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="AuthService" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="LoginFX" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="UserSession" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="AuthService" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="UsuarioDAO" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="AuthService" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="AccesoDAO" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="AuthService" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;endArrow=open;endFill=0;html=1;fontSize=11;" target="Usuario" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="UserSession" style="edgeStyle=orthogonalEdgeStyle;rounded=0;startArrow=diamondThin;startFill=1;endArrow=none;html=1;fontSize=11;" target="CurrentUser" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="UserSession" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;endArrow=open;endFill=0;html=1;fontSize=11;" target="Usuario" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
