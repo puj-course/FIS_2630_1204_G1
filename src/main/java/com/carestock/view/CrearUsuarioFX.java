@@ -39,6 +39,7 @@ public class CrearUsuarioFX {
     private static final String COLOR_TEXT_MUTED    = "#6D8683";
     private static final String COLOR_BORDER        = "#D6E6E4";
     private static final String COLOR_ERROR         = "#C0392B";
+    private static final String COLOR_ACCENT        = "#2FBF9F";
     /* ============================================================ */
 
     private static final int LONGITUD_MINIMA_PASSWORD = 8;
@@ -574,7 +575,7 @@ public class CrearUsuarioFX {
                     false
             );
 
-            AlertUtil.mostrarExito(
+            mostrarExito(
                     "La farmacia \""
                     + nuevaFarmacia.getNombre()
                     + "\" fue creada correctamente."
@@ -612,7 +613,7 @@ public class CrearUsuarioFX {
 
                 mostrarError(
                         "No fue posible crear la farmacia. "
-                        + mensaje
+                        + "Verifique su conexión e intente nuevamente."
                 );
             }
         }
@@ -881,21 +882,30 @@ public class CrearUsuarioFX {
         }
     }
 
-    private void mostrarError(
-            String mensaje
-    ) {
-
-        lblError.setText(
-                mensaje
+    /**
+     * Muestra un mensaje de éxito visual (verde).
+     */
+    private void mostrarExito(String mensaje) {
+        lblError.setText(mensaje);
+        lblError.setStyle(
+                "-fx-text-fill: " + COLOR_ACCENT + ";" +
+                "-fx-font-size: 12px;"
         );
+        lblError.setVisible(true);
+        lblError.setManaged(true);
+    }
 
-        lblError.setVisible(
-                true
+    /**
+     * Muestra un mensaje de error visual (rojo).
+     */
+    private void mostrarError(String mensaje) {
+        lblError.setText(mensaje);
+        lblError.setStyle(
+                "-fx-text-fill: " + COLOR_ERROR + ";" +
+                "-fx-font-size: 12px;"
         );
-
-        lblError.setManaged(
-                true
-        );
+        lblError.setVisible(true);
+        lblError.setManaged(true);
     }
 
     private void ocultarError() {
