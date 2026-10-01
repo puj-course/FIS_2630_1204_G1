@@ -6,6 +6,8 @@
 **Quiero** que la tabla principal de inventario muestre únicamente los productos de mi sede  
 **Para** garantizar la segregación de datos y evitar alteraciones accidentales en el stock de otras farmacias.
 
+---
+
 ## Actores
 
 Los actores involucrados directamente en esta historia son:
@@ -13,124 +15,107 @@ Los actores involucrados directamente en esta historia son:
 - Administrador.
 - Farmacéutico.
 
-Ambos representan especializaciones conceptuales de un usuario del sistema que posee una farmacia asignada.
+Ambos representan usuarios autenticados que poseen una farmacia asignada dentro de CareStock.
+
+---
 
 ## Diagrama ECB
 
-```mermaid
-flowchart LR
+<pre>
+┌─────────────────────┐        ┌─────────────────────┐        ┌────────────────────────┐        ┌─────────────────────┐
+│        ACTOR        │        │      BOUNDARY       │        │        CONTROL         │        │       ENTITY        │
+└─────────────────────┘        └─────────────────────┘        └────────────────────────┘        └─────────────────────┘
 
-    U["👤 Usuario con farmacia asignada"]
 
-    A["👤 Administrador"]
-    F["👤 Farmacéutico"]
+       👤
+  Administrador
+       │
+       ├──────────────────────►  │◯
+       │                         InventarioView
+       │                         &lt;&lt;boundary&gt;&gt;
+       │                              │
+       │                              │ cargarInventario()
+       │                              ▼
+       │                                                    ◉
+       │                                            InventarioController
+       │                                                &lt;&lt;control&gt;&gt;
+       │                                                    │
+       │                                                    ├──────────────────────────► ◯
+       │                                                    │                             CurrentUser
+       │                                                    │                             &lt;&lt;entity&gt;&gt;
+       │                                                    │                                 │
+       │                                                    │                                 │ idFarmacia
+       │                                                    │                                 ▼
+       │                                                    ├──────────────────────────► ◯
+       │                                                    │                             Farmacia
+       │                                                    │                             &lt;&lt;entity&gt;&gt;
+       │                                                    │
+       │                                                    ├──────────────────────────► ◯
+       │                                                    │                             Lote
+       │                                                    │                             &lt;&lt;entity&gt;&gt;
+       │                                                    │                                 │
+       │                                                    │                                 ▼
+       │                                                    └──────────────────────────► ◯
+       │                                                                                  Medicamento
+       │                                                                                  &lt;&lt;entity&gt;&gt;
+       │
+       │
+       👤
+  Farmacéutico
+       │
+       └──────────────────────►  │◯
+                                 InventarioView
+                                 &lt;&lt;boundary&gt;&gt;
 
-    A --> U
-    F --> U
 
-    B["<<boundary>>
-    Vista Inventario JavaFX
-    TableView"]
+                                 ◄────────────────────
+                                  inventario filtrado
+                                 ────────────────────►
+                                      Usuario
+</pre>
 
-    C["<<control>>
-    Control de Inventario
-    por Farmacia"]
-
-    S["<<entity>>
-    CurrentUser
-    Sesión activa"]
-
-    FA["<<entity>>
-    Farmacia"]
-
-    M["<<entity>>
-    Medicamento"]
-
-    L["<<entity>>
-    Lote / Stock"]
-
-    P["<<boundary>>
-    DAO / JDBC
-    Persistencia"]
-
-    DB[("PostgreSQL / Neon")]
-
-    U -->|"Consulta inventario"| B
-
-    B -->|"cargarInventario()"| C
-
-    C -->|"obtener usuario activo"| S
-
-    S -->|"id_farmacia"| C
-
-    S -->|"pertenece a"| FA
-
-    C -->|"consultarPorFarmacia(idFarmacia)"| P
-
-    P -->|"SELECT ... WHERE id_farmacia = ?"| DB
-
-    DB -->|"registros filtrados"| P
-
-    P --> M
-    P --> L
-
-    M -->|"datos inventario"| C
-    L -->|"stock / lote / vencimiento"| C
-
-    C -->|"lista filtrada"| B
-
-    C -->|"sin registros"| B
-```
+---
 
 ## Responsabilidades ECB
 
-### Boundary — Vista Inventario JavaFX
+### Boundary — `InventarioView`
 
-Representa la interfaz mediante la cual el usuario visualiza el inventario.
+Representa la interfaz mediante la cual el usuario consulta el inventario.
 
-Debe:
+Sus responsabilidades son:
 
 - cargar automáticamente el inventario al abrir la vista;
-- mostrar únicamente registros pertenecientes a la farmacia activa;
+- solicitar al controlador la información correspondiente;
+- mostrar únicamente los registros pertenecientes a la farmacia asignada al usuario;
 - mostrar el mensaje `Inventario vacío para esta sede` cuando no existan registros.
 
-### Control — Control de Inventario por Farmacia
+La vista no determina manualmente la farmacia ni realiza directamente el filtrado de los datos.
 
-Coordina la ejecución del caso de uso.
+---
 
-Debe:
+### Control — `InventarioController`
 
-1. obtener el usuario de la sesión activa;
-2. recuperar su `id_farmacia`;
-3. validar que exista una farmacia asignada;
-4. enviar el identificador al componente de persistencia;
-5. recibir los registros;
-6. actualizar la vista.
+Representa el componente encargado de coordinar el caso de uso.
 
-### Entity — CurrentUser
+Sus responsabilidades son:
+
+1. recibir la solicitud desde `InventarioView`;
+2. obtener el usuario autenticado;
+3. recuperar su `idFarmacia`;
+4. validar que exista una farmacia asignada;
+5. consultar el inventario correspondiente a esa farmacia;
+6. recuperar los lotes y medicamentos asociados;
+7. retornar únicamente los registros autorizados a la vista.
+
+---
+
+### Entity — `CurrentUser`
 
 Representa el contexto del usuario autenticado.
 
-Proporciona, entre otros:
+Para esta historia de usuario proporciona principalmente:
 
-- identificador del usuario;
-- rol;
-- identificador de farmacia.
-
-### Entity — Farmacia
-
-Representa la sede a la cual pertenece el usuario y delimita el inventario que puede consultar.
-
-### Entity — Medicamento / Lote
-
-Representan los datos de inventario recuperados para la farmacia activa.
-
-### Boundary de Persistencia — DAO / JDBC
-
-Representa el punto de comunicación entre la lógica de CareStock y PostgreSQL.
-
-La consulta debe incluir obligatoriamente:
-
-```sql
-WHERE id_farmacia = ?
-```
+```text
+idUsuario
+rol
+idFarmacia
