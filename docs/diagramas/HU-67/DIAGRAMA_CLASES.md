@@ -2,7 +2,51 @@
 
 ## Objetivo
 
-Representar las clases involucradas en el filtrado automático del inventario según la farmacia asignada al usuario autenticado.
+Representar los actores conceptuales y las clases involucradas en el filtrado automático del inventario según la farmacia asignada al usuario autenticado.
+
+---
+
+## 1. Actores involucrados
+
+En CareStock se identifican los siguientes roles de usuario:
+
+- Super Administrador.
+- Administrador.
+- Farmacéutico.
+
+Para la HU-67 los actores directamente involucrados son **Administrador** y **Farmacéutico**, debido a que ambos operan dentro del contexto de una farmacia asignada.
+
+```mermaid
+classDiagram
+
+    class UsuarioSistema {
+        <<actor>>
+    }
+
+    class SuperAdministrador {
+        <<actor>>
+    }
+
+    class Administrador {
+        <<actor>>
+    }
+
+    class Farmaceutico {
+        <<actor>>
+    }
+
+    UsuarioSistema <|-- SuperAdministrador
+    UsuarioSistema <|-- Administrador
+    UsuarioSistema <|-- Farmaceutico
+```
+
+> Esta generalización representa los roles que interactúan con CareStock.
+> No implica necesariamente la existencia de clases Java independientes para cada rol.
+> En la implementación actual, el rol se mantiene dentro del contexto del usuario autenticado.
+
+---
+
+## 2. Diagrama de Clases de la HU-67
 
 ```mermaid
 classDiagram
@@ -40,6 +84,7 @@ classDiagram
     }
 
     class MainDashboardFX {
+        <<View>>
         -TableView~Medicamento~ tablaInventario
         -MedicamentoDAO medicamentoDAO
         +start(Stage) void
@@ -48,12 +93,14 @@ classDiagram
     }
 
     class MedicamentoDAO {
+        <<Model / DAO>>
         +obtenerPorFarmacia(int idFarmacia) List~Medicamento~
         +obtenerTotalStockPorFarmacia(int idFarmacia) int
         +obtenerAlertasPorFarmacia(int idFarmacia) int
     }
 
     class Medicamento {
+        <<Entity>>
         -int idMedicamento
         -String nombre
         -String principioActivo
@@ -63,6 +110,7 @@ classDiagram
     }
 
     class Lote {
+        <<Entity>>
         -int idLote
         -String numeroLote
         -int cantidad
@@ -73,6 +121,7 @@ classDiagram
     }
 
     class DatabaseConfig {
+        <<Infrastructure>>
         +getConnection() Connection
     }
 
@@ -93,32 +142,80 @@ classDiagram
     Medicamento "1" --> "0..*" Lote : posee
 ```
 
-## Relaciones principales
+---
 
-**UserSession — CurrentUser**
+## 3. Relación entre los actores y las clases
 
-Existe una relación de composición porque la sesión mantiene el contexto del usuario autenticado.
+Los actores no acceden directamente a las clases de persistencia.
 
-**CurrentUser — Farmacia**
+El flujo correspondiente a la HU-67 es:
 
-El usuario puede tener una farmacia asignada. El `idFarmacia` del usuario determina los datos a los cuales puede acceder.
+```text
+Administrador / Farmacéutico
+            ↓
+      MainDashboardFX
+            ↓
+        UserSession
+            ↓
+       CurrentUser
+            ↓
+       idFarmacia
+            ↓
+      MedicamentoDAO
+            ↓
+     DatabaseConfig
+            ↓
+     PostgreSQL / Neon
+```
 
-**MainDashboardFX — UserSession**
+El `idFarmacia` almacenado en el usuario autenticado actúa como contexto para restringir los registros visibles.
 
-La vista obtiene el contexto del usuario activo antes de consultar el inventario.
+La consulta de inventario utiliza este valor para aplicar:
 
-**MainDashboardFX — MedicamentoDAO**
+```sql
+WHERE id_farmacia = ?
+```
 
-La vista/controlador solicita los registros correspondientes a la farmacia activa.
+De esta forma, el usuario únicamente puede visualizar el inventario correspondiente a su farmacia.
 
-**MedicamentoDAO — DatabaseConfig**
+---
 
-El DAO obtiene una conexión JDBC para realizar la consulta en PostgreSQL.
+## 4. Relaciones principales
 
-**Farmacia — Lote**
+### UserSession — CurrentUser
 
-Una farmacia puede almacenar cero o múltiples lotes.
+Relación de composición.
 
-**Medicamento — Lote**
+`UserSession` mantiene el contexto del usuario autenticado durante la sesión.
 
-Un medicamento puede estar asociado a múltiples lotes.
+### CurrentUser — Farmacia
+
+Relación de asociación.
+
+El usuario puede tener una farmacia asignada mediante `idFarmacia`.
+
+### MainDashboardFX — UserSession
+
+Relación de dependencia.
+
+La vista consulta la sesión para determinar el contexto del usuario autenticado.
+
+### MainDashboardFX — MedicamentoDAO
+
+Relación de dependencia.
+
+La vista solicita los datos del inventario utilizando el identificador de la farmacia activa.
+
+### MedicamentoDAO — DatabaseConfig
+
+Relación de dependencia.
+
+El DAO utiliza `DatabaseConfig` para establecer la conexión JDBC con PostgreSQL.
+
+### Farmacia — Lote
+
+Una farmacia puede contener cero o múltiples lotes.
+
+### Medicamento — Lote
+
+Un medicamento puede estar relacionado con cero o múltiples lotes.
