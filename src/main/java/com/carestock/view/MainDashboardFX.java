@@ -406,14 +406,16 @@ public class MainDashboardFX extends Application {
                 + "-fx-font-weight: bold;"
         );
 
+        boolean puedeCrearUsuarios =
+                usuario.esSuperAdmin()
+                || usuario.esAdministrador();
+
         btnCrearUsuario.setVisible(
-                "ADMINISTRADOR".equalsIgnoreCase(
-                        usuario.getRol()
-                )
+                puedeCrearUsuarios
         );
 
         btnCrearUsuario.setManaged(
-                btnCrearUsuario.isVisible()
+                puedeCrearUsuarios
         );
 
         btnCrearUsuario.setOnAction(
