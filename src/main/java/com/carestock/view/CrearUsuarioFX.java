@@ -31,6 +31,16 @@ import java.util.List;
 
 public class CrearUsuarioFX {
 
+    /* ===================== PALETA CLÍNICA ===================== */
+    private static final String COLOR_PRIMARY       = "#0E7C7B";
+    private static final String COLOR_PRIMARY_DARK  = "#0B615F";
+    private static final String COLOR_BG            = "#F4FAF9";
+    private static final String COLOR_TEXT_DARK     = "#20302F";
+    private static final String COLOR_TEXT_MUTED    = "#6D8683";
+    private static final String COLOR_BORDER        = "#D6E6E4";
+    private static final String COLOR_ERROR         = "#C0392B";
+    /* ============================================================ */
+
     private static final int LONGITUD_MINIMA_PASSWORD = 8;
 
     private final UsuarioService usuarioService =
@@ -50,7 +60,6 @@ public class CrearUsuarioFX {
 
     private final PasswordField txtPassword =
             new PasswordField();
-
 
     private final ComboBox<Farmacia> comboFarmacia =
             new ComboBox<>();
@@ -129,14 +138,33 @@ public class CrearUsuarioFX {
         titulo.setStyle(
                 "-fx-font-size: 20px;"
                 + "-fx-font-weight: bold;"
+                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
         );
 
         txtNombre.setPromptText(
                 "Nombre completo"
         );
 
+        txtNombre.setStyle(
+                "-fx-background-radius: 8;"
+                + "-fx-border-radius: 8;"
+                + "-fx-border-color: " + COLOR_BORDER + ";"
+                + "-fx-border-width: 1;"
+                + "-fx-padding: 0 12 0 12;"
+                + "-fx-pref-height: 40;"
+        );
+
         txtEmail.setPromptText(
                 "Correo electrónico"
+        );
+
+        txtEmail.setStyle(
+                "-fx-background-radius: 8;"
+                + "-fx-border-radius: 8;"
+                + "-fx-border-color: " + COLOR_BORDER + ";"
+                + "-fx-border-width: 1;"
+                + "-fx-padding: 0 12 0 12;"
+                + "-fx-pref-height: 40;"
         );
 
         txtPassword.setPromptText(
@@ -145,16 +173,23 @@ public class CrearUsuarioFX {
                 + " caracteres)"
         );
 
-      
+        txtPassword.setStyle(
+                "-fx-background-radius: 8;"
+                + "-fx-border-radius: 8;"
+                + "-fx-border-color: " + COLOR_BORDER + ";"
+                + "-fx-border-width: 1;"
+                + "-fx-padding: 0 12 0 12;"
+                + "-fx-pref-height: 40;"
+        );
+
         configurarComboFarmacia();
 
-       
         configurarContexto();
 
         configurarPanelCrearFarmacia();
 
         lblError.setStyle(
-                "-fx-text-fill: #C62828;"
+                "-fx-text-fill: " + COLOR_ERROR + ";"
                 + "-fx-font-size: 12px;"
         );
 
@@ -168,14 +203,45 @@ public class CrearUsuarioFX {
                 );
 
         btnCrear.setStyle(
-                "-fx-background-color: #A3D9D2;"
+                "-fx-background-color: " + COLOR_PRIMARY + ";"
+                + "-fx-text-fill: white;"
                 + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
         );
+
+        btnCrear.setOnMouseEntered(e -> btnCrear.setStyle(
+                "-fx-background-color: " + COLOR_PRIMARY_DARK + ";"
+                + "-fx-text-fill: white;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
+        ));
+
+        btnCrear.setOnMouseExited(e -> btnCrear.setStyle(
+                "-fx-background-color: " + COLOR_PRIMARY + ";"
+                + "-fx-text-fill: white;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
+        ));
 
         Button btnCancelar =
                 new Button(
                         "Cancelar"
                 );
+
+        btnCancelar.setStyle(
+                "-fx-background-color: #E0E0E0;"
+                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
+        );
 
         btnCancelar.setOnAction(
                 e -> stage.close()
@@ -203,13 +269,25 @@ public class CrearUsuarioFX {
                         "Rol a crear:"
                 );
 
+        lblRol.setStyle(
+                "-fx-font-size: 12px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+        );
+
         Label lblFarmacia =
                 new Label(
                         "Farmacia:"
                 );
 
+        lblFarmacia.setStyle(
+                "-fx-font-size: 12px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+        );
+
         lblContadorFarmacias.setStyle(
-                "-fx-text-fill: #6B6862;"
+                "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
                 + "-fx-font-size: 11px;"
         );
 
@@ -248,6 +326,10 @@ public class CrearUsuarioFX {
                 410
         );
 
+        root.setStyle(
+                "-fx-background-color: " + COLOR_BG + ";"
+        );
+
         stage.setScene(
                 new Scene(root)
         );
@@ -279,11 +361,6 @@ public class CrearUsuarioFX {
                             String nombre
                     ) {
 
-                        /*
-                         * El ComboBox no es editable.
-                         * Por lo tanto no necesitamos convertir
-                         * texto escrito manualmente en Farmacia.
-                         */
                         return null;
                     }
                 }
@@ -308,12 +385,35 @@ public class CrearUsuarioFX {
                 actor.esSuperAdmin()
         );
 
+        panelCrearFarmacia.setStyle(
+                "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+                + "-fx-font-weight: bold;"
+        );
+
         txtCodigoFarmacia.setPromptText(
                 "Ej. SEDE-NORTE"
         );
 
+        txtCodigoFarmacia.setStyle(
+                "-fx-background-radius: 8;"
+                + "-fx-border-radius: 8;"
+                + "-fx-border-color: " + COLOR_BORDER + ";"
+                + "-fx-border-width: 1;"
+                + "-fx-padding: 0 12 0 12;"
+                + "-fx-pref-height: 40;"
+        );
+
         txtNombreFarmacia.setPromptText(
                 "Ej. Farmacia Norte"
+        );
+
+        txtNombreFarmacia.setStyle(
+                "-fx-background-radius: 8;"
+                + "-fx-border-radius: 8;"
+                + "-fx-border-color: " + COLOR_BORDER + ";"
+                + "-fx-border-width: 1;"
+                + "-fx-padding: 0 12 0 12;"
+                + "-fx-pref-height: 40;"
         );
 
         Button btnCrearFarmacia =
@@ -322,30 +422,75 @@ public class CrearUsuarioFX {
                 );
 
         btnCrearFarmacia.setStyle(
-                "-fx-background-color: #B2DFDB;"
+                "-fx-background-color: " + COLOR_PRIMARY + ";"
+                + "-fx-text-fill: white;"
                 + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
         );
+
+        btnCrearFarmacia.setOnMouseEntered(e -> btnCrearFarmacia.setStyle(
+                "-fx-background-color: " + COLOR_PRIMARY_DARK + ";"
+                + "-fx-text-fill: white;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
+        ));
+
+        btnCrearFarmacia.setOnMouseExited(e -> btnCrearFarmacia.setStyle(
+                "-fx-background-color: " + COLOR_PRIMARY + ";"
+                + "-fx-text-fill: white;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 8;"
+                + "-fx-pref-height: 40;"
+                + "-fx-cursor: hand;"
+        ));
 
         btnCrearFarmacia.setOnAction(
                 e -> crearNuevaFarmacia()
         );
 
+        Label lblCodigo =
+                new Label(
+                        "Código:"
+                );
+
+        lblCodigo.setStyle(
+                "-fx-font-size: 12px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+        );
+
+        Label lblNombreFarmacia =
+                new Label(
+                        "Nombre:"
+                );
+
+        lblNombreFarmacia.setStyle(
+                "-fx-font-size: 12px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+        );
+
         VBox formularioFarmacia =
                 new VBox(
                         8,
-                        new Label(
-                                "Código:"
-                        ),
+                        lblCodigo,
                         txtCodigoFarmacia,
-                        new Label(
-                                "Nombre:"
-                        ),
+                        lblNombreFarmacia,
                         txtNombreFarmacia,
                         btnCrearFarmacia
                 );
 
         formularioFarmacia.setPadding(
                 new Insets(10)
+        );
+
+        formularioFarmacia.setStyle(
+                "-fx-background-color: " + COLOR_BG + ";"
+                + "-fx-background-radius: 8;"
         );
 
         panelCrearFarmacia.setContent(
@@ -368,7 +513,6 @@ public class CrearUsuarioFX {
                                             .getText()
                             );
 
-          
             comboFarmacia.setItems(
                     FXCollections
                             .observableArrayList(
@@ -445,6 +589,7 @@ public class CrearUsuarioFX {
 
             lblRolDestino.setStyle(
                     "-fx-font-weight: bold;"
+                    + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
             );
 
             comboFarmacia.setVisible(
@@ -463,11 +608,18 @@ public class CrearUsuarioFX {
                     false
             );
 
-            
             cargarFarmacias();
 
             comboFarmacia.setPromptText(
                     "Seleccione una farmacia"
+            );
+
+            comboFarmacia.setStyle(
+                    "-fx-background-radius: 8;"
+                    + "-fx-border-radius: 8;"
+                    + "-fx-border-color: " + COLOR_BORDER + ";"
+                    + "-fx-border-width: 1;"
+                    + "-fx-pref-height: 40;"
             );
 
             Tooltip tooltipFarmacia =
@@ -478,7 +630,7 @@ public class CrearUsuarioFX {
 
             tooltipFarmacia.setStyle(
                     "-fx-font-size: 12px;"
-                    + "-fx-background-color: #2D6A4F;"
+                    + "-fx-background-color: " + COLOR_PRIMARY_DARK + ";"
                     + "-fx-text-fill: white;"
             );
 
@@ -494,6 +646,7 @@ public class CrearUsuarioFX {
 
             lblRolDestino.setStyle(
                     "-fx-font-weight: bold;"
+                    + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
             );
 
             comboFarmacia.setVisible(
@@ -516,7 +669,6 @@ public class CrearUsuarioFX {
         }
     }
 
-  
     private void cargarFarmacias() {
 
         try {
@@ -552,7 +704,7 @@ public class CrearUsuarioFX {
             );
 
             lblFarmaciaFija.setStyle(
-                    "-fx-text-fill: #C62828;"
+                    "-fx-text-fill: " + COLOR_ERROR + ";"
                     + "-fx-font-weight: bold;"
             );
 
@@ -605,7 +757,6 @@ public class CrearUsuarioFX {
 
         if (actor.esSuperAdmin()) {
 
-            
             Farmacia farmacia =
                     comboFarmacia
                             .getSelectionModel()
@@ -621,7 +772,6 @@ public class CrearUsuarioFX {
                 return;
             }
 
-        
             idFarmaciaSeleccionada =
                     farmacia.getIdFarmacia();
         }
