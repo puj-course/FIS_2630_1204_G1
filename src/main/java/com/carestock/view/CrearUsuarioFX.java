@@ -452,9 +452,21 @@ public class CrearUsuarioFX {
                 e -> crearNuevaFarmacia()
         );
 
+        /* ==================== VALIDACIÓN VISUAL ==================== */
+        btnCrearFarmacia.setDisable(true);
+
+        txtCodigoFarmacia.textProperty().addListener((obs, old, newVal) -> {
+            actualizarEstadoBotonFarmacia(btnCrearFarmacia);
+        });
+
+        txtNombreFarmacia.textProperty().addListener((obs, old, newVal) -> {
+            actualizarEstadoBotonFarmacia(btnCrearFarmacia);
+        });
+        /* ============================================================ */
+
         Label lblCodigo =
                 new Label(
-                        "Código:"
+                        "Código *"
                 );
 
         lblCodigo.setStyle(
@@ -465,13 +477,23 @@ public class CrearUsuarioFX {
 
         Label lblNombreFarmacia =
                 new Label(
-                        "Nombre:"
+                        "Nombre *"
                 );
 
         lblNombreFarmacia.setStyle(
                 "-fx-font-size: 12px;"
                 + "-fx-font-weight: bold;"
                 + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+        );
+
+        Label lblNota =
+                new Label(
+                        "* Campos obligatorios"
+                );
+
+        lblNota.setStyle(
+                "-fx-font-size: 10px;"
+                + "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
         );
 
         VBox formularioFarmacia =
@@ -481,7 +503,8 @@ public class CrearUsuarioFX {
                         txtCodigoFarmacia,
                         lblNombreFarmacia,
                         txtNombreFarmacia,
-                        btnCrearFarmacia
+                        btnCrearFarmacia,
+                        lblNota
                 );
 
         formularioFarmacia.setPadding(
@@ -496,6 +519,22 @@ public class CrearUsuarioFX {
         panelCrearFarmacia.setContent(
                 formularioFarmacia
         );
+    }
+
+    /**
+     * Actualiza el estado del botón "Crear farmacia" según
+     * si los campos obligatorios están completos.
+     */
+    private void actualizarEstadoBotonFarmacia(Button btnCrearFarmacia) {
+
+        String codigo = txtCodigoFarmacia.getText();
+        String nombre = txtNombreFarmacia.getText();
+
+        boolean camposCompletos =
+                codigo != null && !codigo.isBlank()
+                && nombre != null && !nombre.isBlank();
+
+        btnCrearFarmacia.setDisable(!camposCompletos);
     }
 
     private void crearNuevaFarmacia() {
