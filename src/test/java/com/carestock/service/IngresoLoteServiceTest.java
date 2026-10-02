@@ -1,17 +1,20 @@
 package com.carestock.service;
 
-import com.carestock.dao.LoteDAO;
+import com.carestock.dao.LoteDAOContract;
+import com.carestock.model.DespachoLote;
 import com.carestock.model.Lote;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
 import com.carestock.model.Usuario;
 import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
+import com.carestock.testutil.RecordingConnectionProvider;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
@@ -26,6 +29,9 @@ class IngresoLoteServiceTest {
             UserSession.getInstance();
 
     private FakeLoteDAO loteDAO;
+
+    private RecordingConnectionProvider
+            connectionProvider;
 
     private IngresoLoteService service;
 
@@ -57,10 +63,14 @@ class IngresoLoteServiceTest {
         loteDAO =
                 new FakeLoteDAO();
 
+        connectionProvider =
+                new RecordingConnectionProvider();
+
         service =
                 new IngresoLoteService(
                         loteDAO,
-                        new SessionContext()
+                        new SessionContext(),
+                        connectionProvider
                 );
     }
 
@@ -112,6 +122,73 @@ class IngresoLoteServiceTest {
                         .lotePersistido
                         .getNumeroLote()
         );
+
+        assertEquals(
+                1,
+                connectionProvider.getCommitCount()
+        );
+
+        assertEquals(
+                0,
+                connectionProvider.getRollbackCount()
+        );
+
+        assertTrue(
+                connectionProvider.isAutoCommit()
+        );
+
+        assertTrue(
+                connectionProvider.isClosed()
+        );
+    }
+
+    @Test
+    void ejecutaRollbackCuandoFallaRegistroDeLote()
+            throws SQLException {
+
+        userSession.setCurrentUser(
+                new Usuario(
+                        84,
+                        "Usuario Prueba",
+                        "prueba@carestock.com",
+                        "hash-no-utilizado",
+                        1,
+                        "ADMINISTRADOR",
+                        "ACTIVO"
+                )
+        );
+
+        loteDAO.fallarRegistro = true;
+
+        assertThrows(
+                SQLException.class,
+                () -> service.registrar(
+                        medicamento,
+                        "LOT-2026-ERROR",
+                        "25",
+                        LocalDate.now()
+                                .plusMonths(6),
+                        ubicacion
+                )
+        );
+
+        assertEquals(
+                0,
+                connectionProvider.getCommitCount()
+        );
+
+        assertEquals(
+                1,
+                connectionProvider.getRollbackCount()
+        );
+
+        assertTrue(
+                connectionProvider.isAutoCommit()
+        );
+
+        assertTrue(
+                connectionProvider.isClosed()
+        );
     }
 
     @Test
@@ -132,22 +209,58 @@ class IngresoLoteServiceTest {
         assertFalse(
                 loteDAO.fueInvocado
         );
+
+        assertEquals(
+                0,
+                connectionProvider.getConnectionCount()
+        );
+
+        assertEquals(
+                0,
+                connectionProvider.getCommitCount()
+        );
+
+        assertEquals(
+                0,
+                connectionProvider.getRollbackCount()
+        );
     }
 
     private static final class FakeLoteDAO
-            extends LoteDAO {
+            implements LoteDAOContract {
 
         private boolean fueInvocado;
+
+        private boolean fallarRegistro;
 
         private Lote lotePersistido;
 
         @Override
         public void registrarNuevoLote(
+                Connection connection,
                 Lote lote
-        ) {
+        ) throws SQLException {
 
-            this.fueInvocado = true;
-            this.lotePersistido = lote;
+            fueInvocado = true;
+
+            if (fallarRegistro) {
+                throw new SQLException(
+                        "Error simulado durante el registro del lote."
+                );
+            }
+
+            lotePersistido =
+                    lote;
+        }
+
+        @Override
+        public void despacharLote(
+                Connection connection,
+                DespachoLote despacho
+        ) {
+            throw new UnsupportedOperationException(
+                    "Esta prueba solo utiliza operaciones de ingreso."
+            );
         }
     }
 }
