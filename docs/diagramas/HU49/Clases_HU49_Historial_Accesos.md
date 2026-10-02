@@ -22,4 +22,8 @@ El diagrama modela las clases que participan en la consulta del historial de acc
 **Usuario.** Es la entidad que representa al usuario para el filtro del ComboBox.
 
 **Principios SOLID aplicados:**
-- **SRP:** AccesoDAO solo se encarga del acceso a datos de accesos; UsuarioDAO solo de usuarios; HistorialAccesosFX solo de la interfaz.
+- **SRP (Single Responsibility):** AccesoDAO solo se encarga del acceso a datos de accesos; UsuarioDAO solo de usuarios; HistorialAccesosFX solo de la interfaz. Cada clase tiene una única responsabilidad.
+- **OCP (Open/Closed):** Las clases están abiertas a extensión pero cerradas a modificación. Por ejemplo, si se quisiera añadir un nuevo tipo de filtro, se podría hacer sin modificar la lógica existente.
+- **LSP (Liskov Substitution):** No aplica directamente porque no hay jerarquía de herencia, pero las clases podrían implementar interfaces comunes sin romper el sistema.
+- **ISP (Interface Segregation):** Las interfaces están segregadas por responsabilidad. Por ejemplo, `AccesoDAO` solo expone métodos de accesos, no de usuarios.
+- **DIP (Dependency Inversion):** `HistorialAccesosFX` depende de abstracciones (DAOs) en lugar de implementaciones concretas. Se podría mejorar extrayendo interfaces para `AccesoDAO` y `UsuarioDAO`.
