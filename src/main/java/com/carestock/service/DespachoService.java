@@ -4,6 +4,8 @@ import com.carestock.config.ConnectionProvider;
 import com.carestock.config.DatabaseConfig;
 import com.carestock.dao.LoteDAO;
 import com.carestock.dao.LoteDAOContract;
+import com.carestock.dao.MovimientoStockDAO;
+import com.carestock.dao.MovimientoStockDAOContract;
 import com.carestock.model.DespachoLote;
 import com.carestock.session.SessionContext;
 
@@ -13,21 +15,26 @@ import java.sql.SQLException;
 /**
  * Servicio de dominio para movimientos de salida de inventario.
  *
- * Controla la frontera transaccional JDBC:
+ * Garantiza atomicidad entre:
  *
- * - obtiene una conexión;
- * - deshabilita auto-commit;
- * - ejecuta las operaciones DAO;
- * - confirma mediante commit;
- * - revierte mediante rollback ante errores;
- * - restaura el estado original de auto-commit.
+ * 1. Actualización del stock.
+ * 2. Registro del movimiento en kardex.
+ *
+ * Ambas operaciones utilizan la misma Connection JDBC y forman
+ * parte de una única transacción.
  */
 public class DespachoService
         implements DespachoServiceContract {
 
     private final LoteDAOContract loteDAO;
+
+    private final MovimientoStockDAOContract
+            movimientoStockDAO;
+
     private final SessionContext sessionContext;
-    private final ConnectionProvider connectionProvider;
+
+    private final ConnectionProvider
+            connectionProvider;
 
     /**
      * Constructor utilizado por la aplicación.
@@ -35,13 +42,14 @@ public class DespachoService
     public DespachoService() {
         this(
                 new LoteDAO(),
+                new MovimientoStockDAO(),
                 new SessionContext(),
                 DatabaseConfig::getConnection
         );
     }
 
     /**
-     * Constructor de compatibilidad.
+     * Constructor conservado por compatibilidad.
      */
     public DespachoService(
             LoteDAOContract loteDAO,
@@ -49,19 +57,35 @@ public class DespachoService
     ) {
         this(
                 loteDAO,
+                new MovimientoStockDAO(),
                 sessionContext,
                 DatabaseConfig::getConnection
         );
     }
 
     /**
-     * Constructor con inyección completa de dependencias.
-     *
-     * Se utiliza principalmente para pruebas unitarias y permite
-     * sustituir tanto el DAO como el proveedor de conexiones.
+     * Constructor conservado por compatibilidad con la infraestructura
+     * transaccional implementada en la issue #546.
      */
     public DespachoService(
             LoteDAOContract loteDAO,
+            SessionContext sessionContext,
+            ConnectionProvider connectionProvider
+    ) {
+        this(
+                loteDAO,
+                new MovimientoStockDAO(),
+                sessionContext,
+                connectionProvider
+        );
+    }
+
+    /**
+     * Constructor con inyección completa de dependencias.
+     */
+    public DespachoService(
+            LoteDAOContract loteDAO,
+            MovimientoStockDAOContract movimientoStockDAO,
             SessionContext sessionContext,
             ConnectionProvider connectionProvider
     ) {
@@ -69,6 +93,12 @@ public class DespachoService
         if (loteDAO == null) {
             throw new IllegalArgumentException(
                     "LoteDAO no puede ser nulo."
+            );
+        }
+
+        if (movimientoStockDAO == null) {
+            throw new IllegalArgumentException(
+                    "MovimientoStockDAO no puede ser nulo."
             );
         }
 
@@ -84,9 +114,17 @@ public class DespachoService
             );
         }
 
-        this.loteDAO = loteDAO;
-        this.sessionContext = sessionContext;
-        this.connectionProvider = connectionProvider;
+        this.loteDAO =
+                loteDAO;
+
+        this.movimientoStockDAO =
+                movimientoStockDAO;
+
+        this.sessionContext =
+                sessionContext;
+
+        this.connectionProvider =
+                connectionProvider;
     }
 
     @Override
@@ -96,11 +134,12 @@ public class DespachoService
     ) throws SQLException {
 
         /*
-         * Se valida la sesión antes de abrir cualquier conexión
-         * o realizar cualquier operación de persistencia.
+         * La sesión debe validarse antes de abrir
+         * cualquier conexión de base de datos.
          */
         int idUsuario =
-                sessionContext.requireAuthenticatedUserId();
+                sessionContext
+                        .requireAuthenticatedUserId();
 
         DespachoLote despacho =
                 new DespachoLote(
@@ -111,7 +150,8 @@ public class DespachoService
 
         try (
                 Connection connection =
-                        connectionProvider.getConnection()
+                        connectionProvider
+                                .getConnection()
         ) {
 
             boolean autoCommitOriginal =
@@ -120,27 +160,57 @@ public class DespachoService
             try {
 
                 /*
-                 * Inicio explícito de la transacción.
+                 * Inicio de una única transacción.
                  */
                 connection.setAutoCommit(false);
 
+                /*
+                 * PASO 1:
+                 * actualizar el inventario.
+                 *
+                 * fn_despachar_lote realiza la operación
+                 * actualmente utilizada por CareStock.
+                 */
                 loteDAO.despacharLote(
                         connection,
                         despacho
                 );
 
                 /*
-                 * La operación completa fue exitosa.
+                 * PASO 2:
+                 * registrar la salida en el kardex.
+                 *
+                 * Se utiliza EXACTAMENTE la misma Connection.
+                 */
+                movimientoStockDAO.registrarSalida(
+                        connection,
+                        despacho
+                );
+
+                /*
+                 * Solamente cuando AMBAS operaciones fueron
+                 * exitosas se confirma la transacción.
                  */
                 connection.commit();
 
-            } catch (SQLException | RuntimeException e) {
+            } catch (
+                    SQLException
+                    | RuntimeException e
+            ) {
 
+                /*
+                 * Si falla cualquiera de las dos operaciones:
+                 *
+                 * - se revierte el cambio de inventario;
+                 * - se revierte el registro de kardex.
+                 */
                 try {
 
                     connection.rollback();
 
-                } catch (SQLException rollbackException) {
+                } catch (
+                        SQLException rollbackException
+                ) {
 
                     e.addSuppressed(
                             rollbackException
@@ -157,11 +227,14 @@ public class DespachoService
                             autoCommitOriginal
                     );
 
-                } catch (SQLException restoreException) {
+                } catch (
+                        SQLException restoreException
+                ) {
 
                     System.err.println(
                             "No fue posible restaurar autoCommit: "
-                                    + restoreException.getMessage()
+                                    + restoreException
+                                            .getMessage()
                     );
                 }
             }

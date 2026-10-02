@@ -1,6 +1,7 @@
 package com.carestock.service;
 
 import com.carestock.dao.LoteDAOContract;
+import com.carestock.dao.MovimientoStockDAOContract;
 import com.carestock.model.DespachoLote;
 import com.carestock.model.Lote;
 import com.carestock.model.Usuario;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,6 +28,9 @@ class DespachoServiceTest {
             UserSession.getInstance();
 
     private FakeLoteDAO loteDAO;
+
+    private FakeMovimientoStockDAO
+            movimientoStockDAO;
 
     private RecordingConnectionProvider
             connectionProvider;
@@ -40,12 +45,16 @@ class DespachoServiceTest {
         loteDAO =
                 new FakeLoteDAO();
 
+        movimientoStockDAO =
+                new FakeMovimientoStockDAO();
+
         connectionProvider =
                 new RecordingConnectionProvider();
 
         service =
                 new DespachoService(
                         loteDAO,
+                        movimientoStockDAO,
                         new SessionContext(),
                         connectionProvider
                 );
@@ -58,20 +67,10 @@ class DespachoServiceTest {
     }
 
     @Test
-    void inyectaUsuarioDeSesionEnDespacho()
+    void actualizaStockYRegistraKardexEnMismaTransaccion()
             throws Exception {
 
-        userSession.setCurrentUser(
-                new Usuario(
-                        91,
-                        "Usuario Despacho",
-                        "despacho@carestock.com",
-                        "hash-no-utilizado",
-                        2,
-                        "FARMACEUTICO",
-                        "ACTIVO"
-                )
-        );
+        autenticarUsuario();
 
         service.despachar(
                 15,
@@ -80,6 +79,19 @@ class DespachoServiceTest {
 
         assertTrue(
                 loteDAO.fueInvocado
+        );
+
+        assertTrue(
+                movimientoStockDAO.fueInvocado
+        );
+
+        /*
+         * Los dos DAO deben recibir exactamente
+         * la misma Connection JDBC.
+         */
+        assertSame(
+                loteDAO.connectionRecibida,
+                movimientoStockDAO.connectionRecibida
         );
 
         assertEquals(
@@ -91,61 +103,47 @@ class DespachoServiceTest {
 
         assertEquals(
                 4,
-                loteDAO
+                movimientoStockDAO
                         .despachoPersistido
                         .getCantidad()
         );
 
         assertEquals(
                 91,
-                loteDAO
+                movimientoStockDAO
                         .despachoPersistido
                         .getIdUsuario()
         );
 
-        /*
-         * La operación exitosa debe confirmar exactamente
-         * una transacción.
-         */
         assertEquals(
                 1,
-                connectionProvider.getCommitCount()
+                connectionProvider
+                        .getCommitCount()
         );
 
         assertEquals(
                 0,
-                connectionProvider.getRollbackCount()
+                connectionProvider
+                        .getRollbackCount()
         );
 
-        /*
-         * El auto-commit debe quedar restaurado.
-         */
         assertTrue(
                 connectionProvider.isAutoCommit()
-        );
-
-        assertTrue(
-                connectionProvider.isClosed()
         );
     }
 
     @Test
-    void ejecutaRollbackCuandoFallaDespacho()
+    void rollbackCuandoFallaRegistroDeKardex()
             throws Exception {
 
-        userSession.setCurrentUser(
-                new Usuario(
-                        91,
-                        "Usuario Despacho",
-                        "despacho@carestock.com",
-                        "hash-no-utilizado",
-                        2,
-                        "FARMACEUTICO",
-                        "ACTIVO"
-                )
-        );
+        autenticarUsuario();
 
-        loteDAO.fallarDespacho = true;
+        /*
+         * El cambio de stock se ejecutará correctamente,
+         * pero el segundo paso fallará.
+         */
+        movimientoStockDAO.fallarRegistro =
+                true;
 
         assertThrows(
                 SQLException.class,
@@ -155,22 +153,83 @@ class DespachoServiceTest {
                 )
         );
 
-        assertEquals(
-                0,
-                connectionProvider.getCommitCount()
+        /*
+         * El UPDATE/operación de stock sí alcanzó
+         * a ejecutarse.
+         */
+        assertTrue(
+                loteDAO.fueInvocado
         );
 
+        /*
+         * También se intentó insertar el kardex.
+         */
+        assertTrue(
+                movimientoStockDAO.fueInvocado
+        );
+
+        /*
+         * Pero no puede existir COMMIT.
+         */
+        assertEquals(
+                0,
+                connectionProvider
+                        .getCommitCount()
+        );
+
+        /*
+         * Debe revertirse toda la transacción.
+         */
         assertEquals(
                 1,
-                connectionProvider.getRollbackCount()
+                connectionProvider
+                        .getRollbackCount()
         );
 
         assertTrue(
                 connectionProvider.isAutoCommit()
         );
+    }
+
+    @Test
+    void noRegistraKardexCuandoFallaActualizacionDeStock()
+            throws Exception {
+
+        autenticarUsuario();
+
+        loteDAO.fallarDespacho =
+                true;
+
+        assertThrows(
+                SQLException.class,
+                () -> service.despachar(
+                        15,
+                        4
+                )
+        );
 
         assertTrue(
-                connectionProvider.isClosed()
+                loteDAO.fueInvocado
+        );
+
+        /*
+         * Si falla el primer paso, no debe intentarse
+         * registrar un movimiento inconsistente.
+         */
+        assertFalse(
+                movimientoStockDAO.fueInvocado
+        );
+
+        assertEquals(
+                0,
+                connectionProvider
+                        .getCommitCount()
+        );
+
+        assertEquals(
+                1,
+                connectionProvider
+                        .getRollbackCount()
         );
     }
 
@@ -189,23 +248,29 @@ class DespachoServiceTest {
                 loteDAO.fueInvocado
         );
 
-        /*
-         * Sin sesión ni siquiera debe solicitarse
-         * una conexión JDBC.
-         */
-        assertEquals(
-                0,
-                connectionProvider.getConnectionCount()
+        assertFalse(
+                movimientoStockDAO.fueInvocado
         );
 
         assertEquals(
                 0,
-                connectionProvider.getCommitCount()
+                connectionProvider
+                        .getConnectionCount()
         );
+    }
 
-        assertEquals(
-                0,
-                connectionProvider.getRollbackCount()
+    private void autenticarUsuario() {
+
+        userSession.setCurrentUser(
+                new Usuario(
+                        91,
+                        "Usuario Despacho",
+                        "despacho@carestock.com",
+                        "hash-no-utilizado",
+                        2,
+                        "FARMACEUTICO",
+                        "ACTIVO"
+                )
         );
     }
 
@@ -216,6 +281,8 @@ class DespachoServiceTest {
 
         private boolean fallarDespacho;
 
+        private Connection connectionRecibida;
+
         private DespachoLote despachoPersistido;
 
         @Override
@@ -224,11 +291,16 @@ class DespachoServiceTest {
                 DespachoLote despacho
         ) throws SQLException {
 
-            fueInvocado = true;
+            fueInvocado =
+                    true;
+
+            connectionRecibida =
+                    connection;
 
             if (fallarDespacho) {
+
                 throw new SQLException(
-                        "Error simulado durante el despacho."
+                        "Error simulado al actualizar stock."
                 );
             }
 
@@ -241,9 +313,45 @@ class DespachoServiceTest {
                 Connection connection,
                 Lote lote
         ) {
+
             throw new UnsupportedOperationException(
-                    "Esta prueba solo utiliza operaciones de despacho."
+                    "Esta prueba solo utiliza despachos."
             );
+        }
+    }
+
+    private static final class FakeMovimientoStockDAO
+            implements MovimientoStockDAOContract {
+
+        private boolean fueInvocado;
+
+        private boolean fallarRegistro;
+
+        private Connection connectionRecibida;
+
+        private DespachoLote despachoPersistido;
+
+        @Override
+        public void registrarSalida(
+                Connection connection,
+                DespachoLote despacho
+        ) throws SQLException {
+
+            fueInvocado =
+                    true;
+
+            connectionRecibida =
+                    connection;
+
+            if (fallarRegistro) {
+
+                throw new SQLException(
+                        "Error simulado al registrar kardex."
+                );
+            }
+
+            despachoPersistido =
+                    despacho;
         }
     }
 }
