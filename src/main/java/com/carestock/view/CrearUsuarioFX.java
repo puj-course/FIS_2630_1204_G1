@@ -42,13 +42,16 @@ import java.util.List;
 /**
  * Diálogo para crear usuarios (ADMINISTRADOR / FARMACEUTICO).
  *
- * Comparte la identidad visual de LoginFX: tarjeta blanca con
- * sombra teal, logo de cruz médica, campos con borde de foco y
- * mensajes mediante {@link LoginNotification}.
+ * Maneja:
+ * - Asociación de usuarios a farmacias.
+ * - Estado vacío de farmacias.
+ * - Errores de conexión.
+ * - Validación de selección.
  */
 public class CrearUsuarioFX {
 
     /* ===================== PALETA CLÍNICA ===================== */
+
     private static final String COLOR_PRIMARY       = "#0E7C7B";
     private static final String COLOR_PRIMARY_DARK  = "#0B615F";
     private static final String COLOR_PRIMARY_LIGHT = "#E3F3F2";
@@ -57,11 +60,12 @@ public class CrearUsuarioFX {
     private static final String COLOR_TEXT_MUTED    = "#6D8683";
     private static final String COLOR_BORDER        = "#D6E6E4";
     private static final String COLOR_ERROR         = "#C0392B";
-    /* ============================================================ */
+
+    /* ========================================================== */
 
     private static final int LONGITUD_MINIMA_PASSWORD = 8;
     private static final double ANCHO_VENTANA = 470;
-    private static final double ALTO_MAXIMO   = 700;
+    private static final double ALTO_MAXIMO = 700;
 
     private final UsuarioService usuarioService =
             new UsuarioService();
@@ -83,6 +87,14 @@ public class CrearUsuarioFX {
 
     private final ComboBox<Farmacia> comboFarmacia =
             new ComboBox<>();
+
+    /*
+     * Ahora es atributo de clase porque necesitamos
+     * habilitarlo/deshabilitarlo dependiendo del estado
+     * de las farmacias.
+     */
+    private final Button btnCrear =
+            new Button("Crear usuario");
 
     private final TextField txtCodigoFarmacia =
             new TextField();
@@ -150,37 +162,59 @@ public class CrearUsuarioFX {
             stage.initOwner(owner);
         }
 
-        /* ---------- Encabezado / identidad clínica ---------- */
+        /* ===================== ENCABEZADO ===================== */
 
         Label titulo =
                 new Label("Crear nuevo usuario");
 
         titulo.setFont(
-                Font.font("System", FontWeight.BOLD, 22)
+                Font.font(
+                        "System",
+                        FontWeight.BOLD,
+                        22
+                )
         );
 
         titulo.setStyle(
-                "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+                "-fx-text-fill: "
+                + COLOR_TEXT_DARK
+                + ";"
         );
 
         Label subtitulo =
-                new Label("CareStock · Sistema de Gestión Farmacéutica");
+                new Label(
+                        "CareStock · Sistema de Gestión Farmacéutica"
+                );
 
         subtitulo.setStyle(
                 "-fx-font-size: 11px;"
-                + "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
+                + "-fx-text-fill: "
+                + COLOR_TEXT_MUTED
+                + ";"
                 + "-fx-font-weight: bold;"
         );
 
         VBox encabezado =
-                new VBox(2, titulo, subtitulo);
+                new VBox(
+                        2,
+                        titulo,
+                        subtitulo
+                );
 
-        encabezado.setAlignment(Pos.CENTER_LEFT);
+        encabezado.setAlignment(
+                Pos.CENTER_LEFT
+        );
 
         HBox marca =
-                new HBox(14, crearLogoFarmacia(), encabezado);
+                new HBox(
+                        14,
+                        crearLogoFarmacia(),
+                        encabezado
+                );
 
-        marca.setAlignment(Pos.CENTER_LEFT);
+        marca.setAlignment(
+                Pos.CENTER_LEFT
+        );
 
         Label lema =
                 new Label(
@@ -192,10 +226,12 @@ public class CrearUsuarioFX {
 
         lema.setStyle(
                 "-fx-font-size: 12px;"
-                + "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
+                + "-fx-text-fill: "
+                + COLOR_TEXT_MUTED
+                + ";"
         );
 
-        /* ---------- Campos ---------- */
+        /* ===================== CAMPOS ===================== */
 
         configurarCampo(
                 txtNombre,
@@ -220,63 +256,94 @@ public class CrearUsuarioFX {
 
         configurarPanelCrearFarmacia();
 
-        /* ---------- Notificaciones ---------- */
+        notification
+                .getView()
+                .setMaxWidth(
+                        Double.MAX_VALUE
+                );
 
-        notification.getView().setMaxWidth(Double.MAX_VALUE);
-
-        /* ---------- Botones ---------- */
-
-        Button btnCrear =
-                new Button("Crear usuario");
+        /* ===================== BOTONES ===================== */
 
         btnCrear.setPrefHeight(44);
-        btnCrear.setMaxWidth(Double.MAX_VALUE);
+
+        btnCrear.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
         btnCrear.setDefaultButton(true);
-        btnCrear.setStyle(estiloBotonPrimario());
+
+        btnCrear.setStyle(
+                estiloBotonPrimario()
+        );
 
         btnCrear.setOnMouseEntered(
-                e -> btnCrear.setStyle(estiloBotonPrimarioHover())
+                e ->
+                        btnCrear.setStyle(
+                                estiloBotonPrimarioHover()
+                        )
         );
 
         btnCrear.setOnMouseExited(
-                e -> btnCrear.setStyle(estiloBotonPrimario())
+                e ->
+                        btnCrear.setStyle(
+                                estiloBotonPrimario()
+                        )
         );
 
         btnCrear.setOnAction(
-                e -> intentarCrearUsuario(stage)
+                e ->
+                        intentarCrearUsuario(
+                                stage
+                        )
         );
 
         Button btnCancelar =
                 new Button("Cancelar");
 
         btnCancelar.setPrefHeight(44);
-        btnCancelar.setStyle(estiloBotonSecundario());
+
+        btnCancelar.setStyle(
+                estiloBotonSecundario()
+        );
 
         btnCancelar.setOnMouseEntered(
-                e -> btnCancelar.setStyle(estiloBotonSecundarioHover())
+                e ->
+                        btnCancelar.setStyle(
+                                estiloBotonSecundarioHover()
+                        )
         );
 
         btnCancelar.setOnMouseExited(
-                e -> btnCancelar.setStyle(estiloBotonSecundario())
+                e ->
+                        btnCancelar.setStyle(
+                                estiloBotonSecundario()
+                        )
         );
 
         btnCancelar.setCancelButton(true);
 
         btnCancelar.setOnAction(
-                e -> stage.close()
+                e ->
+                        stage.close()
         );
 
         HBox filaBotones =
-                new HBox(10, btnCrear, btnCancelar);
+                new HBox(
+                        10,
+                        btnCrear,
+                        btnCancelar
+                );
 
         HBox.setHgrow(
                 btnCrear,
                 javafx.scene.layout.Priority.ALWAYS
         );
 
-        filaBotones.setAlignment(Pos.CENTER);
+        filaBotones.setAlignment(
+                Pos.CENTER
+        );
 
-        /* ---------- Pie ---------- */
+        /* ===================== PIE ===================== */
 
         Separator separador =
                 new Separator();
@@ -291,20 +358,34 @@ public class CrearUsuarioFX {
 
         pie.setStyle(
                 "-fx-font-size: 10px;"
-                + "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
+                + "-fx-text-fill: "
+                + COLOR_TEXT_MUTED
+                + ";"
         );
 
-        /* ---------- Tarjeta ---------- */
+        /* ===================== TARJETA ===================== */
 
         VBox card =
                 new VBox(
                         14,
                         marca,
                         lema,
-                        grupo("Nombre completo", txtNombre),
-                        grupo("Correo electrónico", txtEmail),
-                        grupo("Contraseña", txtPassword),
-                        grupo("Rol a crear", lblRolDestino),
+                        grupo(
+                                "Nombre completo",
+                                txtNombre
+                        ),
+                        grupo(
+                                "Correo electrónico",
+                                txtEmail
+                        ),
+                        grupo(
+                                "Contraseña",
+                                txtPassword
+                        ),
+                        grupo(
+                                "Rol a crear",
+                                lblRolDestino
+                        ),
                         crearGrupoFarmacia(),
                         panelCrearFarmacia,
                         notification.getView(),
@@ -325,10 +406,13 @@ public class CrearUsuarioFX {
                 "-fx-background-color: #FFFFFF;"
                 + "-fx-background-radius: 18;"
                 + "-fx-border-radius: 18;"
-                + "-fx-border-color: " + COLOR_BORDER + ";"
+                + "-fx-border-color: "
+                + COLOR_BORDER
+                + ";"
                 + "-fx-border-width: 1;"
                 + "-fx-effect: dropshadow("
-                + "gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8);"
+                + "gaussian, rgba(14,124,123,0.12), "
+                + "20, 0, 0, 8);"
         );
 
         VBox root =
@@ -343,7 +427,9 @@ public class CrearUsuarioFX {
         );
 
         root.setStyle(
-                "-fx-background-color: " + COLOR_BG + ";"
+                "-fx-background-color: "
+                + COLOR_BG
+                + ";"
         );
 
         ScrollPane scroll =
@@ -356,8 +442,12 @@ public class CrearUsuarioFX {
         );
 
         scroll.setStyle(
-                "-fx-background: " + COLOR_BG + ";"
-                + "-fx-background-color: " + COLOR_BG + ";"
+                "-fx-background: "
+                + COLOR_BG
+                + ";"
+                + "-fx-background-color: "
+                + COLOR_BG
+                + ";"
         );
 
         stage.setScene(
@@ -375,11 +465,12 @@ public class CrearUsuarioFX {
                 .addListener(
                         (obs, antes, ahora) ->
                                 Platform.runLater(
-                                        () -> ajustarAlto(
-                                                stage,
-                                                scroll,
-                                                root
-                                        )
+                                        () ->
+                                                ajustarAlto(
+                                                        stage,
+                                                        scroll,
+                                                        root
+                                                )
                                 )
                 );
 
@@ -396,25 +487,39 @@ public class CrearUsuarioFX {
                 new Circle(22);
 
         fondo.setFill(
-                Color.web(COLOR_PRIMARY_LIGHT)
+                Color.web(
+                        COLOR_PRIMARY_LIGHT
+                )
         );
 
         Rectangle barraVertical =
-                new Rectangle(6, 22);
+                new Rectangle(
+                        6,
+                        22
+                );
 
         barraVertical.setArcWidth(3);
         barraVertical.setArcHeight(3);
+
         barraVertical.setFill(
-                Color.web(COLOR_PRIMARY)
+                Color.web(
+                        COLOR_PRIMARY
+                )
         );
 
         Rectangle barraHorizontal =
-                new Rectangle(22, 6);
+                new Rectangle(
+                        22,
+                        6
+                );
 
         barraHorizontal.setArcWidth(3);
         barraHorizontal.setArcHeight(3);
+
         barraHorizontal.setFill(
-                Color.web(COLOR_PRIMARY)
+                Color.web(
+                        COLOR_PRIMARY
+                )
         );
 
         StackPane logo =
@@ -454,7 +559,9 @@ public class CrearUsuarioFX {
         label.setStyle(
                 "-fx-font-size: 12px;"
                 + "-fx-font-weight: bold;"
-                + "-fx-text-fill: " + COLOR_TEXT_DARK + ";"
+                + "-fx-text-fill: "
+                + COLOR_TEXT_DARK
+                + ";"
         );
 
         return label;
@@ -465,7 +572,9 @@ public class CrearUsuarioFX {
             String prompt
     ) {
 
-        campo.setPromptText(prompt);
+        campo.setPromptText(
+                prompt
+        );
 
         campo.setPrefHeight(42);
 
@@ -474,13 +583,19 @@ public class CrearUsuarioFX {
                 false
         );
 
-        campo.focusedProperty().addListener(
-                (obs, perdioFoco, tieneFoco) ->
-                        estilizarCampo(
-                                campo,
+        campo
+                .focusedProperty()
+                .addListener(
+                        (
+                                obs,
+                                perdioFoco,
                                 tieneFoco
-                        )
-        );
+                        ) ->
+                                estilizarCampo(
+                                        campo,
+                                        tieneFoco
+                                )
+                );
     }
 
     private void estilizarCampo(
@@ -501,8 +616,12 @@ public class CrearUsuarioFX {
         campo.setStyle(
                 "-fx-background-radius: 8;"
                 + "-fx-border-radius: 8;"
-                + "-fx-border-color: " + colorBorde + ";"
-                + "-fx-border-width: " + grosor + ";"
+                + "-fx-border-color: "
+                + colorBorde
+                + ";"
+                + "-fx-border-width: "
+                + grosor
+                + ";"
                 + "-fx-padding: 0 12 0 12;"
         );
     }
@@ -524,8 +643,12 @@ public class CrearUsuarioFX {
         comboFarmacia.setStyle(
                 "-fx-background-radius: 8;"
                 + "-fx-border-radius: 8;"
-                + "-fx-border-color: " + colorBorde + ";"
-                + "-fx-border-width: " + grosor + ";"
+                + "-fx-border-color: "
+                + colorBorde
+                + ";"
+                + "-fx-border-width: "
+                + grosor
+                + ";"
                 + "-fx-pref-height: 42;"
         );
     }
@@ -542,19 +665,25 @@ public class CrearUsuarioFX {
         label.setWrapText(true);
 
         label.setStyle(
-                "-fx-background-color: " + COLOR_PRIMARY_LIGHT + ";"
+                "-fx-background-color: "
+                + COLOR_PRIMARY_LIGHT
+                + ";"
                 + "-fx-background-radius: 8;"
                 + "-fx-padding: 10 12 10 12;"
                 + "-fx-font-size: 12px;"
                 + "-fx-font-weight: bold;"
-                + "-fx-text-fill: " + colorTexto + ";"
+                + "-fx-text-fill: "
+                + colorTexto
+                + ";"
         );
     }
 
     private VBox crearGrupoFarmacia() {
 
         lblContadorFarmacias.setStyle(
-                "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
+                "-fx-text-fill: "
+                + COLOR_TEXT_MUTED
+                + ";"
                 + "-fx-font-size: 11px;"
         );
 
@@ -568,7 +697,9 @@ public class CrearUsuarioFX {
 
         return new VBox(
                 6,
-                crearEtiqueta("Farmacia"),
+                crearEtiqueta(
+                        "Farmacia"
+                ),
                 comboFarmacia,
                 lblContadorFarmacias,
                 lblFarmaciaFija
@@ -578,7 +709,9 @@ public class CrearUsuarioFX {
     private String estiloBotonPrimario() {
 
         return
-                "-fx-background-color: " + COLOR_PRIMARY + ";"
+                "-fx-background-color: "
+                + COLOR_PRIMARY
+                + ";"
                 + "-fx-text-fill: white;"
                 + "-fx-font-weight: bold;"
                 + "-fx-background-radius: 8;"
@@ -588,7 +721,9 @@ public class CrearUsuarioFX {
     private String estiloBotonPrimarioHover() {
 
         return
-                "-fx-background-color: " + COLOR_PRIMARY_DARK + ";"
+                "-fx-background-color: "
+                + COLOR_PRIMARY_DARK
+                + ";"
                 + "-fx-text-fill: white;"
                 + "-fx-font-weight: bold;"
                 + "-fx-background-radius: 8;"
@@ -598,8 +733,12 @@ public class CrearUsuarioFX {
     private String estiloBotonSecundario() {
 
         return
-                "-fx-background-color: " + COLOR_PRIMARY_LIGHT + ";"
-                + "-fx-text-fill: " + COLOR_PRIMARY_DARK + ";"
+                "-fx-background-color: "
+                + COLOR_PRIMARY_LIGHT
+                + ";"
+                + "-fx-text-fill: "
+                + COLOR_PRIMARY_DARK
+                + ";"
                 + "-fx-font-weight: bold;"
                 + "-fx-background-radius: 8;"
                 + "-fx-cursor: hand;";
@@ -608,8 +747,12 @@ public class CrearUsuarioFX {
     private String estiloBotonSecundarioHover() {
 
         return
-                "-fx-background-color: " + COLOR_BORDER + ";"
-                + "-fx-text-fill: " + COLOR_PRIMARY_DARK + ";"
+                "-fx-background-color: "
+                + COLOR_BORDER
+                + ";"
+                + "-fx-text-fill: "
+                + COLOR_PRIMARY_DARK
+                + ";"
                 + "-fx-font-weight: bold;"
                 + "-fx-background-radius: 8;"
                 + "-fx-cursor: hand;";
@@ -642,12 +785,6 @@ public class CrearUsuarioFX {
 
     /* ===================== FARMACIAS ===================== */
 
-    /**
-     * Devuelve la representación visible de una farmacia.
-     *
-     * Ejemplo:
-     * ID 3 · Farmacia Norte · SEDE-NORTE
-     */
     private String describirFarmacia(
             Farmacia farmacia
     ) {
@@ -660,7 +797,9 @@ public class CrearUsuarioFX {
 
         if (
                 farmacia.getCodigo() != null
-                && !farmacia.getCodigo().isBlank()
+                && !farmacia
+                        .getCodigo()
+                        .isBlank()
         ) {
 
             texto +=
@@ -671,11 +810,6 @@ public class CrearUsuarioFX {
         return texto;
     }
 
-    /**
-     * Configura el ComboBox para mostrar:
-     *
-     * ID · Nombre · Código
-     */
     private void configurarComboFarmacia() {
 
         comboFarmacia.setMaxWidth(
@@ -705,7 +839,10 @@ public class CrearUsuarioFX {
                             Farmacia farmacia
                     ) {
 
-                        if (farmacia == null) {
+                        if (
+                                farmacia == null
+                        ) {
+
                             return "";
                         }
 
@@ -722,6 +859,83 @@ public class CrearUsuarioFX {
                         return null;
                     }
                 }
+        );
+    }
+
+    /**
+     * HU #501
+     *
+     * Maneja el estado cuando:
+     * - existen farmacias;
+     * - la lista está vacía.
+     */
+    private void actualizarDisponibilidadFarmacias(
+            List<Farmacia> farmacias
+    ) {
+
+        boolean hayFarmacias =
+                farmacias != null
+                && !farmacias.isEmpty();
+
+        if (!hayFarmacias) {
+
+            comboFarmacia
+                    .getItems()
+                    .clear();
+
+            comboFarmacia
+                    .getSelectionModel()
+                    .clearSelection();
+
+            comboFarmacia.setDisable(
+                    true
+            );
+
+            comboFarmacia.setPromptText(
+                    "No hay sedes registradas."
+            );
+
+            lblContadorFarmacias.setText(
+                    "No hay sedes registradas."
+            );
+
+            /*
+             * El SUPER_ADMIN no puede crear un
+             * administrador sin sede.
+             */
+            if (
+                    actor != null
+                    && actor.esSuperAdmin()
+            ) {
+
+                btnCrear.setDisable(
+                        true
+                );
+            }
+
+            return;
+        }
+
+        comboFarmacia.setItems(
+                FXCollections.observableArrayList(
+                        farmacias
+                )
+        );
+
+        comboFarmacia.setDisable(
+                false
+        );
+
+        comboFarmacia.setPromptText(
+                "Seleccione una farmacia"
+        );
+
+        actualizarContador(
+                farmacias.size()
+        );
+
+        btnCrear.setDisable(
+                false
         );
     }
 
@@ -744,7 +958,9 @@ public class CrearUsuarioFX {
         );
 
         panelCrearFarmacia.setStyle(
-                "-fx-text-fill: " + COLOR_PRIMARY_DARK + ";"
+                "-fx-text-fill: "
+                + COLOR_PRIMARY_DARK
+                + ";"
                 + "-fx-font-weight: bold;"
         );
 
@@ -763,7 +979,9 @@ public class CrearUsuarioFX {
                         "Crear farmacia"
                 );
 
-        btnCrearFarmacia.setPrefHeight(40);
+        btnCrearFarmacia.setPrefHeight(
+                40
+        );
 
         btnCrearFarmacia.setMaxWidth(
                 Double.MAX_VALUE
@@ -788,10 +1006,13 @@ public class CrearUsuarioFX {
         );
 
         btnCrearFarmacia.setOnAction(
-                e -> crearNuevaFarmacia()
+                e ->
+                        crearNuevaFarmacia()
         );
 
-        btnCrearFarmacia.setDisable(true);
+        btnCrearFarmacia.setDisable(
+                true
+        );
 
         txtCodigoFarmacia
                 .textProperty()
@@ -826,7 +1047,9 @@ public class CrearUsuarioFX {
 
         lblNota.setStyle(
                 "-fx-font-size: 10px;"
-                + "-fx-text-fill: " + COLOR_TEXT_MUTED + ";"
+                + "-fx-text-fill: "
+                + COLOR_TEXT_MUTED
+                + ";"
         );
 
         VBox formularioFarmacia =
@@ -849,7 +1072,9 @@ public class CrearUsuarioFX {
         );
 
         formularioFarmacia.setStyle(
-                "-fx-background-color: " + COLOR_BG + ";"
+                "-fx-background-color: "
+                + COLOR_BG
+                + ";"
                 + "-fx-background-radius: 8;"
         );
 
@@ -896,34 +1121,30 @@ public class CrearUsuarioFX {
                     farmaciaService
                             .listarActivas();
 
-            comboFarmacia.setItems(
-                    FXCollections
-                            .observableArrayList(
-                                    activas
-                            )
-            );
-
-            actualizarContador(
-                    activas.size()
-            );
-
             /*
-             * La nueva lista contiene instancias nuevas.
-             * Se selecciona la farmacia comparando el ID.
+             * #501:
+             * Si antes no había sedes, esto reactiva
+             * ComboBox y botón Crear usuario.
              */
+            actualizarDisponibilidadFarmacias(
+                    activas
+            );
+
             activas.stream()
                     .filter(
-                            f ->
-                                    f.getIdFarmacia()
+                            farmacia ->
+                                    farmacia.getIdFarmacia()
                                             == nuevaFarmacia
                                                     .getIdFarmacia()
                     )
                     .findFirst()
                     .ifPresent(
-                            f ->
+                            farmacia ->
                                     comboFarmacia
                                             .getSelectionModel()
-                                            .select(f)
+                                            .select(
+                                                    farmacia
+                                            )
                     );
 
             txtCodigoFarmacia.clear();
@@ -951,7 +1172,9 @@ public class CrearUsuarioFX {
                     e.getMessage()
             );
 
-        } catch (SQLException e) {
+        } catch (
+                SQLException e
+        ) {
 
             String mensaje =
                     e.getMessage() == null
@@ -975,7 +1198,8 @@ public class CrearUsuarioFX {
 
                 notification.mostrarError(
                         "No fue posible crear la farmacia. "
-                        + "Verifique su conexión e intente nuevamente."
+                        + "Verifique la conexión con la base "
+                        + "de datos e intente nuevamente."
                 );
             }
         }
@@ -983,7 +1207,9 @@ public class CrearUsuarioFX {
 
     private void configurarContexto() {
 
-        if (actor.esSuperAdmin()) {
+        if (
+                actor.esSuperAdmin()
+        ) {
 
             lblRolDestino.setText(
                     "ADMINISTRADOR"
@@ -1010,11 +1236,16 @@ public class CrearUsuarioFX {
                     false
             );
 
-            cargarFarmacias();
-
+            /*
+             * Se establece primero.
+             * cargarFarmacias() podrá cambiarlo
+             * si la lista está vacía.
+             */
             comboFarmacia.setPromptText(
                     "Seleccione una farmacia"
             );
+
+            cargarFarmacias();
 
             Tooltip tooltipFarmacia =
                     new Tooltip(
@@ -1061,6 +1292,10 @@ public class CrearUsuarioFX {
                     true
             );
 
+            /*
+             * El farmacéutico hereda la farmacia
+             * del administrador.
+             */
             cargarFarmaciaAdministrador();
         }
     }
@@ -1078,12 +1313,13 @@ public class CrearUsuarioFX {
     }
 
     /**
-     * Carga las farmacias activas existentes.
+     * HU #501
      *
-     * El StringConverter del ComboBox hará que se vean como:
-     *
-     * ID 1 · Farmacia Central · SEDE-CENTRAL
-     * ID 2 · Farmacia Norte · SEDE-NORTE
+     * Maneja:
+     * - farmacias.isEmpty()
+     * - bloqueo del ComboBox
+     * - bloqueo del guardado
+     * - error de conexión
      */
     private void cargarFarmacias() {
 
@@ -1093,34 +1329,67 @@ public class CrearUsuarioFX {
                     farmaciaDAO
                             .listarActivas();
 
-            comboFarmacia.setItems(
-                    FXCollections
-                            .observableArrayList(
-                                    farmaciasActivas
-                            )
+            actualizarDisponibilidadFarmacias(
+                    farmaciasActivas
             );
 
-            actualizarContador(
-                    farmaciasActivas.size()
+            if (
+                    farmaciasActivas == null
+                    || farmaciasActivas.isEmpty()
+            ) {
+
+                notification.mostrarError(
+                        "No hay sedes registradas. "
+                        + "Cree una farmacia antes de "
+                        + "registrar un administrador."
+                );
+            }
+
+        } catch (
+                SQLException e
+        ) {
+
+            comboFarmacia
+                    .getItems()
+                    .clear();
+
+            comboFarmacia
+                    .getSelectionModel()
+                    .clearSelection();
+
+            comboFarmacia.setDisable(
+                    true
             );
 
-        } catch (SQLException e) {
+            comboFarmacia.setPromptText(
+                    "No fue posible cargar las sedes"
+            );
+
+            lblContadorFarmacias.setText(
+                    "Error al cargar las sedes."
+            );
+
+            /*
+             * Si no sabemos qué farmacias existen,
+             * no se permite crear un administrador.
+             */
+            btnCrear.setDisable(
+                    true
+            );
 
             notification.mostrarError(
-                    "No fue posible cargar "
-                    + "las farmacias activas."
+                    "No fue posible cargar las farmacias. "
+                    + "Verifique la conexión con la base "
+                    + "de datos e intente nuevamente."
             );
         }
     }
 
-    /**
-     * Muestra la farmacia del administrador,
-     * incluyendo su ID.
-     */
     private void cargarFarmaciaAdministrador() {
 
         if (
-                !actor.tieneFarmaciaAsignada()
+                !actor
+                        .tieneFarmaciaAsignada()
         ) {
 
             lblFarmaciaFija.setText(
@@ -1130,6 +1399,19 @@ public class CrearUsuarioFX {
             estilizarChip(
                     lblFarmaciaFija,
                     COLOR_ERROR
+            );
+
+            /*
+             * Un administrador sin farmacia
+             * tampoco debería crear farmacéuticos.
+             */
+            btnCrear.setDisable(
+                    true
+            );
+
+            notification.mostrarError(
+                    "No es posible crear usuarios porque "
+                    + "el administrador no tiene una farmacia asignada."
             );
 
             return;
@@ -1143,9 +1425,10 @@ public class CrearUsuarioFX {
         try {
 
             Farmacia farmacia =
-                    farmaciaDAO.buscarPorId(
-                            actor.getIdFarmacia()
-                    );
+                    farmaciaDAO
+                            .buscarPorId(
+                                    actor.getIdFarmacia()
+                            );
 
             lblFarmaciaFija.setText(
                     (
@@ -1159,12 +1442,27 @@ public class CrearUsuarioFX {
                     + " · asignación automática"
             );
 
-        } catch (SQLException e) {
+            btnCrear.setDisable(
+                    false
+            );
+
+        } catch (
+                SQLException e
+        ) {
 
             lblFarmaciaFija.setText(
                     "ID "
                     + actor.getIdFarmacia()
-                    + " · asignación automática"
+                    + " · no fue posible consultar los datos"
+            );
+
+            btnCrear.setDisable(
+                    true
+            );
+
+            notification.mostrarError(
+                    "No fue posible consultar la farmacia asignada. "
+                    + "Verifique la conexión con la base de datos."
             );
         }
     }
@@ -1190,17 +1488,45 @@ public class CrearUsuarioFX {
                 null;
 
         /*
-         * SUPER_ADMIN debe seleccionar
-         * explícitamente la farmacia del administrador.
+         * SUPER_ADMIN:
+         * debe seleccionar una sede explícitamente.
          */
-        if (actor.esSuperAdmin()) {
+        if (
+                actor.esSuperAdmin()
+        ) {
+
+            /*
+             * #501:
+             * Protección adicional aunque el botón
+             * esté deshabilitado visualmente.
+             */
+            if (
+                    comboFarmacia.isDisabled()
+                    || comboFarmacia
+                            .getItems()
+                            .isEmpty()
+            ) {
+
+                notification.mostrarError(
+                        "No hay sedes registradas. "
+                        + "Debe crear una farmacia antes "
+                        + "de registrar un administrador."
+                );
+
+                return;
+            }
 
             Farmacia farmacia =
                     comboFarmacia
                             .getSelectionModel()
                             .getSelectedItem();
 
-            if (farmacia == null) {
+            /*
+             * Evita NullPointerException.
+             */
+            if (
+                    farmacia == null
+            ) {
 
                 notification.mostrarError(
                         "Debe seleccionar la farmacia "
@@ -1212,10 +1538,6 @@ public class CrearUsuarioFX {
                 return;
             }
 
-            /*
-             * Se recupera el id_farmacia real
-             * del objeto seleccionado.
-             */
             idFarmaciaSeleccionada =
                     farmacia.getIdFarmacia();
 
@@ -1230,21 +1552,29 @@ public class CrearUsuarioFX {
 
                 return;
             }
+
+        } else {
+
+            /*
+             * ADMINISTRADOR:
+             * la farmacia se hereda de la sesión.
+             */
+            if (
+                    !actor
+                            .tieneFarmaciaAsignada()
+            ) {
+
+                notification.mostrarError(
+                        "No es posible crear el usuario porque "
+                        + "su sesión no tiene una farmacia asignada."
+                );
+
+                return;
+            }
         }
 
         try {
 
-            /*
-             * El ID seleccionado continúa hacia:
-             *
-             * UsuarioService
-             *      ↓
-             * UsuarioDAO
-             *      ↓
-             * fn_crear_usuario_jerarquico
-             *      ↓
-             * USUARIOS.id_farmacia
-             */
             usuarioService.crearUsuario(
                     nombre,
                     email,
@@ -1291,7 +1621,9 @@ public class CrearUsuarioFX {
                     e.getMessage()
             );
 
-        } catch (SQLException e) {
+        } catch (
+                SQLException e
+        ) {
 
             String detalle =
                     e.getMessage() == null
@@ -1317,7 +1649,8 @@ public class CrearUsuarioFX {
 
                 notification.mostrarError(
                         "No fue posible crear el usuario. "
-                        + "Verifique los datos ingresados."
+                        + "Verifique la conexión con la base "
+                        + "de datos e intente nuevamente."
                 );
             }
         }
