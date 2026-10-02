@@ -1,31 +1,64 @@
 package com.carestock.service;
 
+import com.carestock.config.ConnectionProvider;
+import com.carestock.config.DatabaseConfig;
 import com.carestock.dao.LoteDAO;
+import com.carestock.dao.LoteDAOContract;
 import com.carestock.model.Lote;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
-import com.carestock.security.AccessControl;
 import com.carestock.session.SessionContext;
 import com.carestock.utils.IngresoLoteValidator;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-public class IngresoLoteService {
+/**
+ * Servicio de dominio para movimientos de entrada de inventario.
+ *
+ * Controla la frontera transaccional JDBC para el registro
+ * de lotes y movimientos de entrada.
+ */
+public class IngresoLoteService
+        implements IngresoLoteServiceContract {
 
-    private final LoteDAO loteDAO;
+    private final LoteDAOContract loteDAO;
     private final SessionContext sessionContext;
+    private final ConnectionProvider connectionProvider;
 
+    /**
+     * Constructor utilizado por la aplicación.
+     */
     public IngresoLoteService() {
         this(
                 new LoteDAO(),
-                new SessionContext()
+                new SessionContext(),
+                DatabaseConfig::getConnection
         );
     }
 
+    /**
+     * Constructor de compatibilidad.
+     */
     public IngresoLoteService(
-            LoteDAO loteDAO,
+            LoteDAOContract loteDAO,
             SessionContext sessionContext
+    ) {
+        this(
+                loteDAO,
+                sessionContext,
+                DatabaseConfig::getConnection
+        );
+    }
+
+    /**
+     * Constructor con inyección completa de dependencias.
+     */
+    public IngresoLoteService(
+            LoteDAOContract loteDAO,
+            SessionContext sessionContext,
+            ConnectionProvider connectionProvider
     ) {
 
         if (loteDAO == null) {
@@ -40,10 +73,18 @@ public class IngresoLoteService {
             );
         }
 
+        if (connectionProvider == null) {
+            throw new IllegalArgumentException(
+                    "ConnectionProvider no puede ser nulo."
+            );
+        }
+
         this.loteDAO = loteDAO;
         this.sessionContext = sessionContext;
+        this.connectionProvider = connectionProvider;
     }
 
+    @Override
     public void registrar(
             Medicamento medicamento,
             String numeroLote,
@@ -53,55 +94,99 @@ public class IngresoLoteService {
     ) throws SQLException {
 
         /*
-         * El formulario histórico de ingreso de lotes
-         * queda restringido al ADMINISTRADOR.
-         *
-         * SUPER_ADMIN utiliza la nueva Gestión de inventario,
-         * donde selecciona explícitamente la farmacia.
-         */
-        AccessControl.requireRole(
-                "ADMINISTRADOR"
-        );
-
-        /*
-         * El usuario responsable se obtiene exclusivamente
-         * desde la sesión autenticada.
-         *
-         * Ningún ID de usuario puede venir desde la UI.
+         * La sesión se valida antes de abrir la conexión.
          */
         int idUsuario =
                 sessionContext.requireAuthenticatedUserId();
 
-        String error = IngresoLoteValidator.validar(
-                medicamento,
-                numeroLote,
-                cantidadStr,
-                fechaVencimiento,
-                ubicacion
-        );
+        String error =
+                IngresoLoteValidator.validar(
+                        medicamento,
+                        numeroLote,
+                        cantidadStr,
+                        fechaVencimiento,
+                        ubicacion
+                );
 
         if (error != null) {
-            throw new IllegalArgumentException(error);
+            throw new IllegalArgumentException(
+                    error
+            );
         }
 
         int cantidad =
-                Integer.parseInt(cantidadStr.trim());
+                Integer.parseInt(
+                        cantidadStr.trim()
+                );
 
-        /*
-         * El usuario queda fijado en el objeto que
-         * será enviado a persistencia.
-         */
-        Lote lote = new Lote(
-                numeroLote.trim(),
-                Math.toIntExact(
-                        medicamento.getIdMedicamento()
-                ),
-                cantidad,
-                fechaVencimiento,
-                ubicacion.getIdUbicacion(),
-                idUsuario
-        );
+        Lote lote =
+                new Lote(
+                        numeroLote.trim(),
+                        Math.toIntExact(
+                                medicamento.getIdMedicamento()
+                        ),
+                        cantidad,
+                        fechaVencimiento,
+                        ubicacion.getIdUbicacion(),
+                        idUsuario
+                );
 
-        loteDAO.registrarNuevoLote(lote);
+        try (
+                Connection connection =
+                        connectionProvider.getConnection()
+        ) {
+
+            boolean autoCommitOriginal =
+                    connection.getAutoCommit();
+
+            try {
+
+                /*
+                 * Inicio explícito de la transacción.
+                 */
+                connection.setAutoCommit(false);
+
+                loteDAO.registrarNuevoLote(
+                        connection,
+                        lote
+                );
+
+                /*
+                 * Persistencia completada correctamente.
+                 */
+                connection.commit();
+
+            } catch (SQLException | RuntimeException e) {
+
+                try {
+
+                    connection.rollback();
+
+                } catch (SQLException rollbackException) {
+
+                    e.addSuppressed(
+                            rollbackException
+                    );
+                }
+
+                throw e;
+
+            } finally {
+
+                try {
+
+                    connection.setAutoCommit(
+                            autoCommitOriginal
+                    );
+
+                } catch (SQLException restoreException) {
+
+                    System.err.println(
+                            "No fue posible restaurar autoCommit: "
+                                    + restoreException.getMessage()
+                    );
+                }
+            }
+        }
     }
 }
