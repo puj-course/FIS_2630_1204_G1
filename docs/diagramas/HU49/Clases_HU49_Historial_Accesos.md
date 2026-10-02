@@ -5,7 +5,7 @@
 
 ## Diagrama
 
-![Diagrama de Clases](https://github.com/puj-course/FIS_2630_1204_G1/blob/Rama_Lau/docs/diagramas/Clases_HU49.drawio.png?raw=true)
+![Diagrama de Clases](https://github.com/puj-course/FIS_2630_1204_G1/blob/Rama_Lau/docs/diagramas/HU49/Clases_HU49.drawio.png?raw=true)
 
 ## Explicación
 
