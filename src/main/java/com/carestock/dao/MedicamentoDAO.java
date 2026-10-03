@@ -3,6 +3,7 @@ package com.carestock.dao;
 import com.carestock.config.AppConfig;
 import com.carestock.config.DatabaseConfig;
 import com.carestock.exception.AccesoDenegadoException;
+import com.carestock.exception.MedicamentoDuplicadoException;
 import com.carestock.model.Medicamento;
 import com.carestock.security.MedicamentoAccessPolicy;
 import com.carestock.session.SessionContext;
@@ -31,13 +32,11 @@ public class MedicamentoDAO {
         return consultarMedicamentos(true);
     }
 
-   
     public List<Medicamento> obtenerPorFarmacia(int idFarmacia) throws SQLException {
         validarIdFarmacia(idFarmacia);
         return consultarMedicamentosPorFarmacia(idFarmacia, false);
     }
 
-    
     public List<Medicamento> obtenerActivosPorFarmacia(int idFarmacia) throws SQLException {
         validarIdFarmacia(idFarmacia);
         return consultarMedicamentosPorFarmacia(idFarmacia, true);
@@ -162,7 +161,6 @@ public class MedicamentoDAO {
         return 0;
     }
 
-  
     public int obtenerTotalUnidadesStockPorFarmacia(
             int idFarmacia
     ) throws SQLException {
@@ -199,7 +197,6 @@ public class MedicamentoDAO {
         }
     }
 
-   
     public int obtenerAlertasCriticasPorFarmacia(
             int idFarmacia
     ) throws SQLException {
@@ -252,8 +249,21 @@ public class MedicamentoDAO {
         return guardar(medicamento);
     }
 
-    public void insertar(Medicamento medicamento) throws SQLException {
+    public boolean existeCodigoInvimaEnFarmacia(int idFarmacia, String codigoInvima) throws SQLException {
+        validarIdFarmacia(idFarmacia);
 
+        String sql = "SELECT 1 FROM MEDICAMENTOS WHERE id_farmacia = ? AND UPPER(codigo_invima) = UPPER(?)";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idFarmacia);
+            stmt.setString(2, codigoInvima == null ? "" : codigoInvima.trim());
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public void insertar(Medicamento medicamento) throws SQLException {
 
         String rolActual =
                 AppConfig.getCurrentUserRole();
@@ -266,6 +276,10 @@ public class MedicamentoDAO {
         int idFarmacia =
                 new SessionContext()
                         .requireAuthenticatedPharmacyId();
+
+        if (existeCodigoInvimaEnFarmacia(idFarmacia, medicamento.getCodigoInvima())) {
+            throw new MedicamentoDuplicadoException(medicamento.getCodigoInvima());
+        }
 
         try (Connection conn = DatabaseConfig.getConnection()) {
             int idCategoria = resolverCategoria(conn, medicamento.getCategoria());
@@ -318,7 +332,6 @@ public class MedicamentoDAO {
         }
     }
 
- 
     public List<String> obtenerCategorias()
             throws SQLException {
 
