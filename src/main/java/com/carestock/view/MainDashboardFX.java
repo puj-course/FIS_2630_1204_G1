@@ -474,18 +474,27 @@ public class MainDashboardFX extends Application {
                         .getInstance()
                         .getCurrentUser();
 
+        String farmaciaTexto;
+        String estiloFarmacia;
+
+        if (usuario.tieneFarmaciaAsignada()) {
+            farmaciaTexto = " | Farmacia: " + usuario.getIdFarmacia();
+            estiloFarmacia = "-fx-text-fill: #2FBF9F; -fx-font-size: 12px; -fx-font-weight: bold;";
+        } else {
+            farmaciaTexto = " | Sin farmacia";
+            estiloFarmacia = "-fx-text-fill: #C0392B; -fx-font-size: 12px; -fx-font-weight: bold;";
+        }
+
         Label lblUsuario =
                 new Label(
                         "Sesión: "
                         + usuario.getNombre()
                         + " | "
                         + usuario.getRol()
+                        + farmaciaTexto
                 );
 
-        lblUsuario.setStyle(
-                "-fx-text-fill: #607D8B;" +
-                "-fx-font-size: 12px;"
-        );
+        lblUsuario.setStyle(estiloFarmacia);
 
         Button btnCerrarSesion =
                 new Button(
@@ -1257,4 +1266,3 @@ public class MainDashboardFX extends Application {
     }
 
 }
-
