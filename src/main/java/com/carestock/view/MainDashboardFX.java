@@ -285,23 +285,6 @@ public class MainDashboardFX extends Application {
             );
         }
 
-        Label lblFarmacia = new Label();
-
-        if (usuario.tieneFarmaciaAsignada()) {
-            lblFarmacia.setText("Farmacia: " + usuario.getIdFarmacia());
-            lblFarmacia.setStyle(
-                    "-fx-font-size: 11px;" +
-                    "-fx-text-fill: #2FBF9F;" +
-                    "-fx-font-weight: bold;"
-            );
-        } else {
-            lblFarmacia.setText("Sin farmacia asignada");
-            lblFarmacia.setStyle(
-                    "-fx-font-size: 11px;" +
-                    "-fx-text-fill: #C0392B;" +
-                    "-fx-font-weight: bold;"
-            );
-        }
         Button btnDashboard =
                 new Button("Dashboard");
 
