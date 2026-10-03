@@ -2,11 +2,13 @@ package com.carestock.dao;
 
 import com.carestock.config.DatabaseConfig;
 import com.carestock.model.Farmacia;
+import com.carestock.model.ResumenFarmacia;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,6 +166,32 @@ public List<Farmacia> listarActivas() throws SQLException {
         }
 
         return farmacias;
+    }
+
+    public List<ResumenFarmacia> obtenerResumenGlobal() throws SQLException {
+        String sql = "SELECT * FROM vw_resumen_farmacias";
+        List<ResumenFarmacia> resumen = new ArrayList<>();
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                resumen.add(mapearResumen(rs));
+            }
+        }
+        return resumen;
+    }
+
+    private ResumenFarmacia mapearResumen(ResultSet rs) throws SQLException {
+        return new ResumenFarmacia(
+                rs.getInt("id_farmacia"),
+                rs.getString("codigo"),
+                rs.getString("nombre"),
+                rs.getString("estado"),
+                rs.getLong("stock_total"),
+                rs.getLong("medicamentos_activos"),
+                rs.getLong("alertas_criticas")
+        );
     }
 
     private Farmacia mapear(
