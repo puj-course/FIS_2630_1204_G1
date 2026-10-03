@@ -258,16 +258,32 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #1C313A;"
         );
-
-                Label lblRol =
-                new Label(
-                        usuario.getRol()
-                );
+        Label lblRol = new Label(
+            usuario.getRol()
+        );
 
         lblRol.setStyle(
                 "-fx-font-size: 11px;" +
                 "-fx-text-fill: #546E7A;"
         );
+
+        Label lblFarmacia = new Label();
+
+        if (usuario.tieneFarmaciaAsignada()) {
+            lblFarmacia.setText("Farmacia: " + usuario.getIdFarmacia());
+            lblFarmacia.setStyle(
+                    "-fx-font-size: 11px;" +
+                    "-fx-text-fill: #2FBF9F;" +
+                    "-fx-font-weight: bold;"
+            );
+        } else {
+            lblFarmacia.setText("Sin farmacia asignada");
+            lblFarmacia.setStyle(
+                    "-fx-font-size: 11px;" +
+                    "-fx-text-fill: #C0392B;" +
+                    "-fx-font-weight: bold;"
+            );
+        }
 
         Label lblFarmacia = new Label();
 
