@@ -3,6 +3,7 @@ package com.carestock.controller;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.dao.UbicacionDAO;
 import com.carestock.exception.AccesoDenegadoException;
+import com.carestock.exception.MedicamentoDuplicadoException;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
 import com.carestock.security.AccessControl;
@@ -36,21 +37,11 @@ import java.util.ResourceBundle;
 public class IngresoLoteController
         implements Initializable {
 
-
-    // =====================================================
-    // MEDICAMENTO EXISTENTE
-    // =====================================================
-
     @FXML
     private ComboBox<Medicamento> cmbMedicamento;
 
     @FXML
     private Button btnNuevoMedicamento;
-
-
-    // =====================================================
-    // FORMULARIO INLINE DE NUEVO MEDICAMENTO
-    // =====================================================
 
     @FXML
     private VBox pnlNuevoMedicamento;
@@ -82,11 +73,6 @@ public class IngresoLoteController
     @FXML
     private Button btnGuardarNuevoMedicamento;
 
-
-    // =====================================================
-    // LOTE
-    // =====================================================
-
     @FXML
     private TextField txtNumeroLote;
 
@@ -108,11 +94,6 @@ public class IngresoLoteController
     @FXML
     private Button btnCancelar;
 
-
-    // =====================================================
-    // DEPENDENCIAS
-    // =====================================================
-
     private final MedicamentoDAO medicamentoDAO =
             new MedicamentoDAO();
 
@@ -125,7 +106,6 @@ public class IngresoLoteController
     private Runnable onSaved;
 
     private Runnable onSessionExpired;
-
 
     @Override
     public void initialize(
@@ -159,20 +139,11 @@ public class IngresoLoteController
             return;
         }
 
-
-        /*
-         * Nuevo medicamento inicia contraído.
-         */
-        mostrarFormularioMedicamento(
+                mostrarFormularioMedicamento(
                 false
         );
 
-
-        /*
-         * El botón solo se habilita para roles
-         * autorizados.
-         */
-        UserSession.CurrentUser usuario =
+                UserSession.CurrentUser usuario =
                 UserSession
                         .getInstance()
                         .getCurrentUser();
@@ -192,11 +163,7 @@ public class IngresoLoteController
                 puedeRegistrarMedicamento
         );
 
-
-        /*
-         * Solo se permiten fechas futuras.
-         */
-        dpFechaVencimiento.setDayCellFactory(
+                dpFechaVencimiento.setDayCellFactory(
                 picker ->
                         new javafx.scene.control.DateCell() {
 
@@ -221,7 +188,6 @@ public class IngresoLoteController
                         }
         );
 
-
         if (!actualizarUsuarioSesion()) {
 
             btnGuardar.setDisable(
@@ -233,14 +199,8 @@ public class IngresoLoteController
             return;
         }
 
-
         cargarDatos();
     }
-
-
-    // =====================================================
-    // SESIÓN
-    // =====================================================
 
     private boolean actualizarUsuarioSesion() {
 
@@ -263,7 +223,6 @@ public class IngresoLoteController
             return false;
         }
 
-
         lblUsuarioSesion.setText(
                 "Responsable: "
                 + usuario.getNombre()
@@ -274,11 +233,6 @@ public class IngresoLoteController
 
         return true;
     }
-
-
-    // =====================================================
-    // CARGA DE DATOS
-    // =====================================================
 
     private void cargarDatos() {
 
@@ -314,7 +268,6 @@ public class IngresoLoteController
         }
     }
 
-
     private void cargarMedicamentos(
             Medicamento seleccionar
     ) throws SQLException {
@@ -335,11 +288,9 @@ public class IngresoLoteController
                 )
         );
 
-
         if (seleccionar == null) {
             return;
         }
-
 
         medicamentos
                 .stream()
@@ -363,11 +314,6 @@ public class IngresoLoteController
                 );
     }
 
-
-    // =====================================================
-    // MOSTRAR / OCULTAR NUEVO MEDICAMENTO
-    // =====================================================
-
     @FXML
     private void handleNuevoMedicamento(
             ActionEvent event
@@ -380,7 +326,6 @@ public class IngresoLoteController
             return;
         }
 
-
         boolean mostrar =
                 !pnlNuevoMedicamento
                         .isVisible();
@@ -388,7 +333,6 @@ public class IngresoLoteController
         mostrarFormularioMedicamento(
                 mostrar
         );
-
 
         if (mostrar) {
 
@@ -398,7 +342,6 @@ public class IngresoLoteController
             );
         }
     }
-
 
     private void mostrarFormularioMedicamento(
             boolean mostrar
@@ -412,19 +355,13 @@ public class IngresoLoteController
                 mostrar
         );
 
-
         btnNuevoMedicamento.setText(
                 mostrar
                         ? "− Ocultar formulario"
                         : "+ Registrar nuevo medicamento"
         );
 
-
-        /*
-         * Recalcular la ventana después del cambio
-         * de contenido.
-         */
-        Platform.runLater(
+                Platform.runLater(
                 () -> {
 
                     if (
@@ -447,7 +384,6 @@ public class IngresoLoteController
         );
     }
 
-
     @FXML
     private void handleCancelarNuevoMedicamento(
             ActionEvent event
@@ -459,11 +395,6 @@ public class IngresoLoteController
                 false
         );
     }
-
-
-    // =====================================================
-    // GUARDAR NUEVO MEDICAMENTO
-    // =====================================================
 
     @FXML
     private void handleGuardarNuevoMedicamento(
@@ -477,7 +408,6 @@ public class IngresoLoteController
             return;
         }
 
-
         UserSession.CurrentUser usuario =
                 UserSession
                         .getInstance()
@@ -489,7 +419,6 @@ public class IngresoLoteController
 
             return;
         }
-
 
         try {
 
@@ -507,7 +436,6 @@ public class IngresoLoteController
             return;
         }
 
-
         String error =
                 validarNuevoMedicamento();
 
@@ -520,14 +448,12 @@ public class IngresoLoteController
             return;
         }
 
-
         int stockMinimo =
                 Integer.parseInt(
                         txtNuevoStockMinimo
                                 .getText()
                                 .trim()
                 );
-
 
         Medicamento nuevo =
                 new Medicamento(
@@ -556,22 +482,15 @@ public class IngresoLoteController
                                 .trim()
                 );
 
-
         try {
 
-            /*
-             * insertar() permite conservar el detalle
-             * de errores SQL en este flujo.
-             */
-            medicamentoDAO.insertar(
+                        medicamentoDAO.insertar(
                     nuevo
             );
-
 
             cargarMedicamentos(
                     nuevo
             );
-
 
             limpiarFormularioMedicamento();
 
@@ -579,14 +498,9 @@ public class IngresoLoteController
                     false
             );
 
-
-            /*
-             * Actualiza también los datos del Dashboard.
-             */
-            if (onSaved != null) {
+                        if (onSaved != null) {
                 onSaved.run();
             }
-
 
             AlertUtil.mostrarExito(
                     "El medicamento \""
@@ -599,6 +513,12 @@ public class IngresoLoteController
         } catch (AccesoDenegadoException e) {
 
             AlertUtil.mostrarError(
+                    e.getMessage()
+            );
+
+        } catch (MedicamentoDuplicadoException e) {
+
+            AlertUtil.mostrarAdvertencia(
                     e.getMessage()
             );
 
@@ -623,7 +543,6 @@ public class IngresoLoteController
             }
         }
     }
-
 
     private String validarNuevoMedicamento() {
 
@@ -667,7 +586,6 @@ public class IngresoLoteController
             return "Ingrese el stock mínimo.";
         }
 
-
         try {
 
             int minimo =
@@ -689,10 +607,8 @@ public class IngresoLoteController
                     + "un número entero válido.";
         }
 
-
         return null;
     }
-
 
     private boolean vacio(
             TextField campo
@@ -701,7 +617,6 @@ public class IngresoLoteController
         return campo.getText() == null
                 || campo.getText().isBlank();
     }
-
 
     private void limpiarFormularioMedicamento() {
 
@@ -724,11 +639,6 @@ public class IngresoLoteController
                 .clearSelection();
     }
 
-
-    // =====================================================
-    // GUARDAR LOTE
-    // =====================================================
-
     @FXML
     private void handleGuardarLote(
             ActionEvent event
@@ -740,7 +650,6 @@ public class IngresoLoteController
 
             return;
         }
-
 
         Medicamento medicamento =
                 cmbMedicamento.getValue();
@@ -758,7 +667,6 @@ public class IngresoLoteController
                 dpFechaVencimiento
                         .getValue();
 
-
         String error =
                 IngresoLoteValidator
                         .validar(
@@ -769,7 +677,6 @@ public class IngresoLoteController
                                 ubicacion
                         );
 
-
         if (error != null) {
 
             AlertUtil.mostrarAdvertencia(
@@ -778,7 +685,6 @@ public class IngresoLoteController
 
             return;
         }
-
 
         try {
 
@@ -790,7 +696,6 @@ public class IngresoLoteController
                     ubicacion
             );
 
-
             AlertUtil.mostrarExito(
                     "El lote \""
                     + numeroLote.trim()
@@ -798,11 +703,9 @@ public class IngresoLoteController
                     + "y el stock fue actualizado."
             );
 
-
             if (onSaved != null) {
                 onSaved.run();
             }
-
 
             cerrarVentana();
 
@@ -826,11 +729,6 @@ public class IngresoLoteController
         }
     }
 
-
-    // =====================================================
-    // CANCELAR
-    // =====================================================
-
     @FXML
     private void handleCancelar(
             ActionEvent event
@@ -838,7 +736,6 @@ public class IngresoLoteController
 
         cerrarVentana();
     }
-
 
     public void setOnSaved(
             Runnable onSaved
@@ -848,7 +745,6 @@ public class IngresoLoteController
                 onSaved;
     }
 
-
     public void setOnSessionExpired(
             Runnable onSessionExpired
     ) {
@@ -856,7 +752,6 @@ public class IngresoLoteController
         this.onSessionExpired =
                 onSessionExpired;
     }
-
 
     private void manejarSesionExpirada() {
 
@@ -868,22 +763,17 @@ public class IngresoLoteController
                 true
         );
 
-
         actualizarUsuarioSesion();
-
 
         AlertUtil.mostrarSesionExpirada();
 
-
         cerrarVentana();
-
 
         if (onSessionExpired != null) {
 
             onSessionExpired.run();
         }
     }
-
 
     private void cerrarVentana() {
 
@@ -898,7 +788,6 @@ public class IngresoLoteController
         }
     }
 
-
     private String mensajeSqlAmigable(
             SQLException e
     ) {
@@ -908,7 +797,6 @@ public class IngresoLoteController
                         ? "Error de base de datos."
                         : e.getMessage();
 
-
         if ("23505".equals(
                 e.getSQLState()
         )) {
@@ -916,7 +804,6 @@ public class IngresoLoteController
             return "Ya existe un registro "
                     + "con esos datos.";
         }
-
 
         if ("23503".equals(
                 e.getSQLState()
@@ -926,7 +813,6 @@ public class IngresoLoteController
                     + "de medicamento, categoría, "
                     + "ubicación o usuario.";
         }
-
 
         return mensaje;
     }
