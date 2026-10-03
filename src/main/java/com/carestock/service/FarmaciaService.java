@@ -2,6 +2,7 @@ package com.carestock.service;
 
 import com.carestock.dao.FarmaciaDAO;
 import com.carestock.model.Farmacia;
+import com.carestock.model.ResumenFarmacia;
 import com.carestock.security.AccessControl;
 import com.carestock.session.SessionContext;
 
@@ -96,6 +97,11 @@ public class FarmaciaService {
 
         return farmaciaDAO
                 .listarActivas();
+    }
+
+    public List<ResumenFarmacia> obtenerResumenGlobal() throws SQLException {
+        AccessControl.requireRole("SUPER_ADMIN");
+        return farmaciaDAO.obtenerResumenGlobal();
     }
 
 
