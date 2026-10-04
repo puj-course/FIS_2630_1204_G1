@@ -1,6 +1,6 @@
 package com.carestock.service;
 
-import com.carestock.dao.LoteDAOContract;
+import com.carestock.dao.ILoteDAO;
 import com.carestock.model.DespachoLote;
 import com.carestock.model.Lote;
 import com.carestock.model.Medicamento;
@@ -227,7 +227,7 @@ class IngresoLoteServiceTest {
     }
 
     private static final class FakeLoteDAO
-            implements LoteDAOContract {
+            implements ILoteDAO {
 
         private boolean fueInvocado;
 

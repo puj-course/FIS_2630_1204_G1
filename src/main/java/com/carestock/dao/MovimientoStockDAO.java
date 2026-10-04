@@ -13,7 +13,7 @@ import java.sql.SQLException;
  * La frontera transaccional pertenece a la capa Service.
  */
 public class MovimientoStockDAO
-        implements MovimientoStockDAOContract {
+        implements IMovimientoStockDAO {
 
     @Override
     public void registrarSalida(

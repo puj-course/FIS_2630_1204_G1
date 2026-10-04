@@ -22,7 +22,7 @@ import java.sql.SQLException;
  *
  * El DAO no realiza commit ni rollback cuando recibe una Connection externa.
  */
-public class LoteDAO implements LoteDAOContract {
+public class LoteDAO implements ILoteDAO {
 
     /**
      * Método de compatibilidad para registrar un lote utilizando

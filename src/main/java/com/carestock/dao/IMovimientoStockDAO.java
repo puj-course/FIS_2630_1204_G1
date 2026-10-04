@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * que el cambio de inventario y el registro de kardex formen parte
  * de la misma transacción JDBC.
  */
-public interface MovimientoStockDAOContract {
+public interface IMovimientoStockDAO {
 
     void registrarSalida(
             Connection connection,
