@@ -9,7 +9,7 @@ import java.time.LocalDate;
 /**
  * Contrato de negocio para movimientos de entrada de inventario.
  */
-public interface IngresoLoteServiceContract {
+public interface IIngresoLoteService {
 
     void registrar(
             Medicamento medicamento,

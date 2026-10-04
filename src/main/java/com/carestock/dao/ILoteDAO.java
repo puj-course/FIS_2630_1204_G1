@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * Las operaciones transaccionales reciben una Connection externa para
  * permitir que la capa Service controle commit y rollback.
  */
-public interface LoteDAOContract {
+public interface ILoteDAO {
 
     void registrarNuevoLote(
             Connection connection,
