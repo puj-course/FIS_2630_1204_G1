@@ -34,7 +34,10 @@ public class LoteDAO implements ILoteDAO {
     public void registrarNuevoLote(
             Lote lote
     ) throws SQLException {
-
+        /**
+         * Aca estamos implementando la coneccion al JDBC que es lo que nos dice que tenemos que hacer
+         * La clase iLoteDao
+         */
         try (
                 Connection connection =
                         DatabaseConfig.getConnection()
