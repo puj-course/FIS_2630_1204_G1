@@ -1,12 +1,9 @@
 package com.carestock.model;
-
 /**
  * Interfaz Producto en CARESTOCK.
  * Contrato base para los productos gestionados por CareStock.
- *
- * Define las operaciones comunes que debe proporcionar cualquier
- * tipo de producto del sistema, sin imponer una implementación (Por que eso debe hacer una interfaz)
- * concreta ni almacenar estado.
+ * Esto nos dice que operaciones si o si debe tener un producto dentro del sistema
+ * si no pues perdimos y no sabemos es pero nada de POO
  */
 public interface Producto {
 
