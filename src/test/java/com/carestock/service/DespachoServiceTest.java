@@ -1,7 +1,7 @@
 package com.carestock.service;
 
-import com.carestock.dao.ILoteDAO;
-import com.carestock.dao.IMovimientoStockDAO;
+import com.carestock.dao.LoteDAO;
+import com.carestock.dao.MovimientoStockDAO;
 import com.carestock.model.DespachoLote;
 import com.carestock.model.Lote;
 import com.carestock.model.Usuario;
@@ -275,7 +275,7 @@ class DespachoServiceTest {
     }
 
     private static final class FakeLoteDAO
-            implements ILoteDAO {
+            extends LoteDAO {
 
         private boolean fueInvocado;
 
@@ -321,7 +321,7 @@ class DespachoServiceTest {
     }
 
     private static final class FakeMovimientoStockDAO
-            implements IMovimientoStockDAO {
+            extends MovimientoStockDAO {
 
         private boolean fueInvocado;
 

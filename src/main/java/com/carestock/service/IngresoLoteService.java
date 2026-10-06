@@ -3,7 +3,6 @@ package com.carestock.service;
 import com.carestock.config.ConnectionProvider;
 import com.carestock.config.DatabaseConfig;
 import com.carestock.dao.LoteDAO;
-import com.carestock.dao.ILoteDAO;
 import com.carestock.model.Lote;
 import com.carestock.model.Medicamento;
 import com.carestock.model.Ubicacion;
@@ -23,7 +22,7 @@ import java.time.LocalDate;
 public class IngresoLoteService
         implements IIngresoLoteService {
 
-    private final ILoteDAO loteDAO;
+    private final LoteDAO loteDAO;
     private final SessionContext sessionContext;
     private final ConnectionProvider connectionProvider;
 
@@ -42,7 +41,7 @@ public class IngresoLoteService
      * Constructor de compatibilidad.
      */
     public IngresoLoteService(
-            ILoteDAO loteDAO,
+            LoteDAO loteDAO,
             SessionContext sessionContext
     ) {
         this(
@@ -56,7 +55,7 @@ public class IngresoLoteService
      * Constructor con inyección completa de dependencias.
      */
     public IngresoLoteService(
-            ILoteDAO loteDAO,
+            LoteDAO loteDAO,
             SessionContext sessionContext,
             ConnectionProvider connectionProvider
     ) {

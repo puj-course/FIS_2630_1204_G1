@@ -22,7 +22,7 @@ import java.sql.SQLException;
  *
  * El DAO no realiza commit ni rollback cuando recibe una Connection externa.
  */
-public class LoteDAO implements ILoteDAO {
+public class LoteDAO {
 
     /**
      * Método de compatibilidad para registrar un lote utilizando
@@ -57,7 +57,6 @@ public class LoteDAO implements ILoteDAO {
      * La conexión NO se cierra dentro de este método porque pertenece
      * al contexto transaccional controlado por el servicio.
      */
-    @Override
     public void registrarNuevoLote(
             Connection connection,
             Lote lote
@@ -152,7 +151,6 @@ public class LoteDAO implements ILoteDAO {
      *
      * Este método no ejecuta commit, rollback ni cierra la conexión.
      */
-    @Override
     public void despacharLote(
             Connection connection,
             DespachoLote despacho
