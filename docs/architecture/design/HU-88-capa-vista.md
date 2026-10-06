@@ -28,3 +28,8 @@ flowchart TB
     A --> IC[IngresoLoteController]
     IC --> SV[IngresoLoteService]
 ```
+
+
+
+## Componente transversal: AlertUtil
+`AlertUtil.java` centraliza los mensajes de éxito y error con la paleta oficial de CareStock, evitando que cada vista defina su propio estilo de alerta. Es usado por `MainDashboardFX` y por el flujo de ingreso de lote, cumpliendo el principio de **no repetición (DRY)** dentro de la capa de presentación.
