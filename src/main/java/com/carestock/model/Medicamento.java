@@ -8,7 +8,7 @@ package com.carestock.model;
  */
 public class Medicamento implements Producto {
 
-    /*
+    /***
      * Atributos correspondientes al contrato Producto.
      */
     private Long idMedicamento;
@@ -21,7 +21,7 @@ public class Medicamento implements Producto {
     private Integer stockTotal;
     private String estado;
 
-    /*
+    /***
      * Atributos específicos de Medicamento.
      */
     private String formaFarmaceutica;
@@ -66,7 +66,7 @@ public class Medicamento implements Producto {
              0, 10, formaFarmaceutica, "SIN ESPECIFICAR");
     }
 
-    /*
+    /***
      * Implementación del contrato Producto.
      */
 
@@ -160,7 +160,7 @@ public class Medicamento implements Producto {
         this.estado = estado;
     }
 
-    /*
+    /**
      * Propiedades específicas de Medicamento.
      */
 

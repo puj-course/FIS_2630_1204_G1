@@ -1,7 +1,7 @@
 package com.carestock.model;
 /**
- * Interfaz Producto en CARESTOCK.
- * Contrato base para los productos gestionados por CareStock.
+ * Interfaz Producto.
+ * base para los productos gestionados por CareStock.
  * Esto nos dice que operaciones si o si debe tener un producto dentro del sistema
  * si no pues perdimos y no sabemos es pero nada de POO
  */
