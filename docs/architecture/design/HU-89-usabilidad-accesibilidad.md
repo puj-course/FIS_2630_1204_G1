@@ -20,3 +20,8 @@
 | #FFF9EE (durazno claro) | #854F0B (durazno oscuro) | Advertencias de vencimiento |
 
 Regla general: nunca se usa texto blanco sobre un color pastel claro; siempre se usa una variante oscura del mismo color para garantizar legibilidad.
+
+
+
+## Conclusión
+CareStock aplica consistentemente contraste adecuado y feedback visual inmediato en sus flujos críticos. Queda pendiente para futuros sprints evaluar soporte para usuarios con daltonismo (doble codificación color+ícono ya aplicada parcialmente en badges) y compatibilidad con lectores de pantalla, no cubierta aún en JavaFX.
