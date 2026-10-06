@@ -3,9 +3,7 @@ package com.carestock.service;
 import com.carestock.config.ConnectionProvider;
 import com.carestock.config.DatabaseConfig;
 import com.carestock.dao.LoteDAO;
-import com.carestock.dao.ILoteDAO;
 import com.carestock.dao.MovimientoStockDAO;
-import com.carestock.dao.IMovimientoStockDAO;
 import com.carestock.model.DespachoLote;
 import com.carestock.session.SessionContext;
 
@@ -26,9 +24,9 @@ import java.sql.SQLException;
 public class DespachoService
         implements IDespachoService {
 
-    private final ILoteDAO loteDAO;
+    private final LoteDAO loteDAO;
 
-    private final IMovimientoStockDAO
+    private final MovimientoStockDAO
             movimientoStockDAO;
 
     private final SessionContext sessionContext;
@@ -52,7 +50,7 @@ public class DespachoService
      * Constructor conservado por compatibilidad.
      */
     public DespachoService(
-            ILoteDAO loteDAO,
+            LoteDAO loteDAO,
             SessionContext sessionContext
     ) {
         this(
@@ -68,7 +66,7 @@ public class DespachoService
      * transaccional implementada en la issue #546.
      */
     public DespachoService(
-            ILoteDAO loteDAO,
+            LoteDAO loteDAO,
             SessionContext sessionContext,
             ConnectionProvider connectionProvider
     ) {
@@ -84,8 +82,8 @@ public class DespachoService
      * Constructor con inyección completa de dependencias.
      */
     public DespachoService(
-            ILoteDAO loteDAO,
-            IMovimientoStockDAO movimientoStockDAO,
+            LoteDAO loteDAO,
+            MovimientoStockDAO movimientoStockDAO,
             SessionContext sessionContext,
             ConnectionProvider connectionProvider
     ) {
