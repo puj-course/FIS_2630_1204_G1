@@ -6,7 +6,9 @@ import com.carestock.model.LoteGestion;
 import com.carestock.model.MedicamentoGestion;
 import com.carestock.model.Ubicacion;
 import com.carestock.service.InventarioCrudService;
+import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
+import com.carestock.util.UserMessageResolver;
 
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyLongWrapper;
@@ -20,10 +22,10 @@ import javafx.geometry.Pos;
 
 import javafx.scene.Scene;
 
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -68,10 +70,6 @@ public class GestionInventarioFX {
             tablaLotes =
             new TableView<>();
 
-
-    private final ComboBox<Farmacia>
-            cmbFarmacia =
-            new ComboBox<>();
 
     private final Label lblFarmacia =
             new Label();
@@ -191,57 +189,14 @@ public class GestionInventarioFX {
                 Pos.CENTER_LEFT
         );
 
-
         Label etiqueta =
                 new Label(
-                        "Farmacia:"
+                        "Farmacia activa:"
                 );
 
         etiqueta.setStyle(
                 "-fx-font-weight: bold;"
         );
-
-
-        cmbFarmacia.setPrefWidth(
-                280
-        );
-
-        cmbFarmacia.setVisible(
-                actor.esSuperAdmin()
-        );
-
-        cmbFarmacia.setManaged(
-                actor.esSuperAdmin()
-        );
-
-
-        lblFarmacia.setVisible(
-                actor.esAdministrador()
-        );
-
-        lblFarmacia.setManaged(
-                actor.esAdministrador()
-        );
-
-
-        cmbFarmacia.setOnAction(
-                e -> {
-
-                    Farmacia seleccionada =
-                            cmbFarmacia.getValue();
-
-
-                    if (seleccionada != null) {
-
-                        idFarmaciaActual =
-                                seleccionada
-                                        .getIdFarmacia();
-
-                        recargarTodo();
-                    }
-                }
-        );
-
 
         Region spacer =
                 new Region();
@@ -250,7 +205,6 @@ public class GestionInventarioFX {
                 spacer,
                 Priority.ALWAYS
         );
-
 
         Label contexto =
                 new Label(
@@ -264,16 +218,13 @@ public class GestionInventarioFX {
                 "-fx-text-fill: #607D8B;"
         );
 
-
         fila.getChildren()
                 .addAll(
                         etiqueta,
-                        cmbFarmacia,
                         lblFarmacia,
                         spacer,
                         contexto
                 );
-
 
         return fila;
     }
@@ -610,6 +561,13 @@ public class GestionInventarioFX {
                         TableView
                                 .CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
                 );
+
+
+        tablaMedicamentos.setPlaceholder(
+                new Label(
+                        "Inventario vacío para esta sede"
+                )
+        );
     }
 
 
@@ -731,6 +689,13 @@ public class GestionInventarioFX {
                         TableView
                                 .CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
                 );
+
+
+        tablaLotes.setPlaceholder(
+                new Label(
+                        "No hay lotes registrados para esta sede"
+                )
+        );
     }
 
 
@@ -738,64 +703,30 @@ public class GestionInventarioFX {
 
         try {
 
-            if (actor.esSuperAdmin()) {
+            idFarmaciaActual =
+                    new SessionContext()
+                            .requireAuthenticatedPharmacyId();
 
-                List<Farmacia> farmacias =
-                        farmaciaDAO
-                                .listarActivas();
+            Farmacia farmacia =
+                    farmaciaDAO
+                            .buscarPorId(
+                                    idFarmaciaActual
+                            );
 
+            lblFarmacia.setText(
+                    farmacia == null
+                            ? "Farmacia ID "
+                              + idFarmaciaActual
+                            : farmacia.getNombre()
+            );
 
-                cmbFarmacia.setItems(
-                        FXCollections
-                                .observableArrayList(
-                                        farmacias
-                                )
-                );
-
-
-                if (!farmacias.isEmpty()) {
-
-                    cmbFarmacia
-                            .getSelectionModel()
-                            .selectFirst();
-
-                    idFarmaciaActual =
-                            farmacias
-                                    .get(0)
-                                    .getIdFarmacia();
-
-                    recargarTodo();
-                }
-
-            } else {
-
-                idFarmaciaActual =
-                        actor.getIdFarmacia();
-
-
-                Farmacia farmacia =
-                        farmaciaDAO
-                                .buscarPorId(
-                                        idFarmaciaActual
-                                );
-
-
-                lblFarmacia.setText(
-                        farmacia == null
-                                ? "Farmacia ID "
-                                  + idFarmaciaActual
-                                : farmacia.getNombre()
-                );
-
-
-                recargarTodo();
-            }
+            recargarTodo();
 
         } catch (Exception e) {
 
             AlertUtil.mostrarError(
-                    "No fue posible cargar el contexto "
-                    + "de farmacia. "
+                    "No fue posible cargar la farmacia activa "
+                    + "de la sesión. "
                     + mensaje(e)
             );
         }
@@ -1779,38 +1710,8 @@ public class GestionInventarioFX {
             Exception e
     ) {
 
-        if (
-                e instanceof SQLException sqlException
-        ) {
-
-            if (
-                    "23505".equals(
-                            sqlException
-                                    .getSQLState()
-                    )
-            ) {
-
-                return "Ya existe un registro "
-                        + "con esos datos en esta farmacia.";
-            }
-
-
-            if (
-                    "23503".equals(
-                            sqlException
-                                    .getSQLState()
-                    )
-            ) {
-
-                return "La operación contiene "
-                        + "una referencia inválida.";
-            }
-        }
-
-
-        return e.getMessage() == null
-                ? "Ocurrió un error inesperado."
-                : e.getMessage();
+        return UserMessageResolver
+                .resolve(e);
     }
 
 

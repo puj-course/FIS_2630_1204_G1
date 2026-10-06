@@ -2,50 +2,48 @@ package com.carestock.dao;
 
 import com.carestock.config.DatabaseConfig;
 import com.carestock.model.Farmacia;
+import com.carestock.model.ResumenFarmacia;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FarmaciaDAO {
 
-    public List<Farmacia> listarActivas()
-            throws SQLException {
 
-        String sql =
-                "SELECT id_farmacia, codigo, nombre, estado "
-                + "FROM FARMACIAS "
-                + "WHERE estado = 'ACTIVA' "
-                + "ORDER BY nombre ASC";
+public List<Farmacia> listarActivas() throws SQLException {
 
-        List<Farmacia> farmacias =
-                new ArrayList<>();
+    String sql =
+            "SELECT id_farmacia, codigo, nombre, estado "
+            + "FROM FARMACIAS "
+            + "WHERE estado = 'ACTIVA' "
+            + "ORDER BY nombre ASC";
 
-        try (
-                Connection conn =
-                        DatabaseConfig.getConnection();
+    List<Farmacia> farmacias = new ArrayList<>();
 
-                PreparedStatement stmt =
-                        conn.prepareStatement(sql);
+    try (
+            Connection conn = DatabaseConfig.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()
+    ) {
 
-                ResultSet rs =
-                        stmt.executeQuery()
-        ) {
-
-            while (rs.next()) {
-
-                farmacias.add(
-                        mapear(rs)
-                );
-            }
+        while (rs.next()) {
+            farmacias.add(mapear(rs));
         }
 
-        return farmacias;
+    } catch (SQLException e) {
+        throw new SQLException(
+                "No fue posible consultar las farmacias activas.",
+                e
+        );
     }
 
+    return farmacias;
+}
     public Farmacia buscarPorId(
             int idFarmacia
     ) throws SQLException {
@@ -131,6 +129,70 @@ public class FarmaciaDAO {
         );
     }
 
+
+    public List<Farmacia> buscarPorNombre(
+            String filtro
+    ) throws SQLException {
+
+        String sql =
+                "SELECT id_farmacia, codigo, nombre, estado "
+                + "FROM FARMACIAS "
+                + "WHERE (? IS NULL OR ? = '' OR nombre ILIKE '%' || ? || '%') "
+                + "ORDER BY nombre ASC";
+
+        List<Farmacia> farmacias = new ArrayList<>();
+
+        try (
+                Connection conn =
+                        DatabaseConfig.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, filtro);
+            stmt.setString(2, filtro);
+            stmt.setString(3, filtro);
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                while (rs.next()) {
+                    farmacias.add(mapear(rs));
+                }
+            }
+        }
+
+        return farmacias;
+    }
+
+    public List<ResumenFarmacia> obtenerResumenGlobal() throws SQLException {
+        String sql = "SELECT * FROM vw_resumen_farmacias";
+        List<ResumenFarmacia> resumen = new ArrayList<>();
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                resumen.add(mapearResumen(rs));
+            }
+        }
+        return resumen;
+    }
+
+    private ResumenFarmacia mapearResumen(ResultSet rs) throws SQLException {
+        return new ResumenFarmacia(
+                rs.getInt("id_farmacia"),
+                rs.getString("codigo"),
+                rs.getString("nombre"),
+                rs.getString("estado"),
+                rs.getLong("stock_total"),
+                rs.getLong("medicamentos_activos"),
+                rs.getLong("alertas_criticas")
+        );
+    }
 
     private Farmacia mapear(
             ResultSet rs

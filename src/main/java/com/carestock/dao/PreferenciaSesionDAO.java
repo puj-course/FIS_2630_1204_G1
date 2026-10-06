@@ -8,18 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Persistencia de las preferencias individuales
- * de seguridad de sesión.
- */
+
 public class PreferenciaSesionDAO {
 
-    /**
-     * Obtiene la configuración del usuario.
-     *
-     * Si todavía no existe, crea automáticamente
-     * una configuración predeterminada segura.
-     */
+
     public PreferenciaSesion obtenerOCrearPorUsuario(
             int idUsuario
     ) throws SQLException {
@@ -62,9 +54,7 @@ public class PreferenciaSesionDAO {
         }
     }
 
-    /**
-     * Crea o actualiza la configuración del usuario.
-     */
+
     public void guardar(
             PreferenciaSesion preferencia
     ) throws SQLException {

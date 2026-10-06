@@ -327,3 +327,13 @@ mediante la documentación de:
 
 La documentación deberá actualizarse si durante la implementación se modifica
 la arquitectura o se incorporan nuevas capas como servicios de aplicación.
+---
+
+## Racionalidad de la decisión
+
+La justificación detallada de la decisión de realizar la segregación
+directamente en PostgreSQL mediante `WHERE id_farmacia = ?`, incluyendo
+seguridad, eficiencia de red con Neon DB, escalabilidad y concesiones de diseño,
+se encuentra documentada en:
+
+`docs/architecture/design/HU-67-racionalidad-diseno.md`

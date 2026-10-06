@@ -14,7 +14,6 @@ import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MedicamentoDAO;
 import com.carestock.exception.AccesoDenegadoException;
 import com.carestock.model.Medicamento;
-import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
 
 import javafx.application.Application;
@@ -177,147 +176,49 @@ public class MainDashboardFX extends Application {
             return;
         }
 
+        List<Medicamento> desdeBD =
+                medicamentoDAO.obtenerTodos();
 
-        UserSession.CurrentUser usuario =
-                UserSession
-                        .getInstance()
-                        .getCurrentUser();
+        listaMedicamentos.setAll(
+                desdeBD
+        );
 
+        lblTotalStock.setText(
+                String.format(
+                        "%,d",
+                        medicamentoDAO
+                                .obtenerTotalUnidadesStock()
+                )
+        );
 
-        if (usuario == null) {
-            return;
-        }
-
+        lblAlertasCriticas.setText(
+                String.valueOf(
+                        medicamentoDAO
+                                .obtenerAlertasCriticas()
+                )
+        );
 
         try {
 
-            List<Medicamento> desdeBD;
-
-            int totalStock;
-
-            int alertasCriticas;
-
-            int proximosVencer;
-
-
-            if (usuario.esSuperAdmin()) {
-
-                /*
-                 * SUPER_ADMIN mantiene una vista global.
-                 */
-                desdeBD =
-                        medicamentoDAO
-                                .obtenerTodos();
-
-                totalStock =
-                        medicamentoDAO
-                                .obtenerTotalUnidadesStock();
-
-                alertasCriticas =
-                        medicamentoDAO
-                                .obtenerAlertasCriticas();
-
-                proximosVencer =
-                        loteDAO
-                                .contarProximosAVencer(
-                                        30
-                                );
-
-            } else {
-
-                /*
-                 * ADMINISTRADOR y FARMACEUTICO nunca
-                 * reciben inventario global.
-                 */
-                int idFarmacia =
-                        new SessionContext()
-                                .requireAuthenticatedPharmacyId();
-
-
-                desdeBD =
-                        medicamentoDAO
-                                .obtenerPorFarmacia(
-                                        idFarmacia
-                                );
-
-
-                totalStock =
-                        medicamentoDAO
-                                .obtenerTotalUnidadesStockPorFarmacia(
-                                        idFarmacia
-                                );
-
-
-                alertasCriticas =
-                        medicamentoDAO
-                                .obtenerAlertasCriticasPorFarmacia(
-                                        idFarmacia
-                                );
-
-
-                proximosVencer =
-                        loteDAO
-                                .contarProximosAVencerPorFarmacia(
-                                        30,
-                                        idFarmacia
-                                );
-            }
-
-
-            listaMedicamentos.setAll(
-                    desdeBD
-            );
-
-
-            lblTotalStock.setText(
-                    String.format(
-                            "%,d",
-                            totalStock
-                    )
-            );
-
-
-            lblAlertasCriticas.setText(
-                    String.valueOf(
-                            alertasCriticas
-                    )
-            );
-
-
             lblProximosVencer.setText(
                     String.valueOf(
-                            proximosVencer
+                            loteDAO
+                                    .contarProximosAVencer(30)
                     )
             );
 
-        } catch (
-                SQLException
-                | IllegalStateException e
-        ) {
-
-            listaMedicamentos.clear();
-
-            lblTotalStock.setText(
-                    "0"
-            );
-
-            lblAlertasCriticas.setText(
-                    "0"
-            );
+        } catch (SQLException e) {
 
             lblProximosVencer.setText(
                     "0"
             );
-
 
             System.err.println(
-                    "No fue posible cargar el inventario "
-                    + "según la farmacia de sesión: "
+                    "No fue posible consultar lotes próximos a vencer: "
                     + e.getMessage()
             );
         }
     }
-
 
     private VBox buildSidebar() {
 
@@ -357,16 +258,32 @@ public class MainDashboardFX extends Application {
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #1C313A;"
         );
-
-        Label lblRol =
-                new Label(
-                        usuario.getRol()
-                );
+        Label lblRol = new Label(
+            usuario.getRol()
+        );
 
         lblRol.setStyle(
                 "-fx-font-size: 11px;" +
                 "-fx-text-fill: #546E7A;"
         );
+
+        Label lblFarmacia = new Label();
+
+        if (usuario.tieneFarmaciaAsignada()) {
+            lblFarmacia.setText("Farmacia: " + usuario.getIdFarmacia());
+            lblFarmacia.setStyle(
+                    "-fx-font-size: 11px;" +
+                    "-fx-text-fill: #2FBF9F;" +
+                    "-fx-font-weight: bold;"
+            );
+        } else {
+            lblFarmacia.setText("Sin farmacia asignada");
+            lblFarmacia.setStyle(
+                    "-fx-font-size: 11px;" +
+                    "-fx-text-fill: #C0392B;" +
+                    "-fx-font-weight: bold;"
+            );
+        }
 
         Button btnDashboard =
                 new Button("Dashboard");
@@ -379,6 +296,35 @@ public class MainDashboardFX extends Application {
                 "-fx-background-color: #B39DDB;" +
                 "-fx-text-fill: white;" +
                 "-fx-font-weight: bold;"
+        );
+
+        Button btnAgregarMedicamento =
+                new Button(
+                        "Agregar medicamento"
+                );
+
+        btnAgregarMedicamento.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        btnAgregarMedicamento.setStyle(
+                "-fx-background-color: #E8F5F2;" +
+                "-fx-text-fill: #1C313A;" +
+                "-fx-font-weight: bold;"
+        );
+
+        btnAgregarMedicamento.setOnAction(
+                e -> abrirFormularioAgregar()
+        );
+
+        btnAgregarMedicamento.setVisible(
+                "ADMINISTRADOR".equalsIgnoreCase(
+                        usuario.getRol()
+                )
+        );
+
+        btnAgregarMedicamento.setManaged(
+                btnAgregarMedicamento.isVisible()
         );
 
         Button btnIngresoLote =
@@ -394,16 +340,6 @@ public class MainDashboardFX extends Application {
                 "-fx-background-color: #D1C4E9;" +
                 "-fx-text-fill: #37474F;" +
                 "-fx-font-weight: bold;"
-        );
-
-        btnIngresoLote.setVisible(
-                "ADMINISTRADOR".equalsIgnoreCase(
-                        usuario.getRol()
-                )
-        );
-
-        btnIngresoLote.setManaged(
-                btnIngresoLote.isVisible()
         );
 
         btnIngresoLote.setOnAction(
@@ -428,39 +364,6 @@ public class MainDashboardFX extends Application {
         btnFiltrarCriticos.setOnAction(
                 e -> alternarFiltroCriticos()
         );
-
-        Button btnGestionInventario =
-                new Button(
-                        "Gestionar inventario"
-                );
-
-        btnGestionInventario.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        btnGestionInventario.setStyle(
-                "-fx-background-color: #B2DFDB;"
-                + "-fx-text-fill: #004D40;"
-                + "-fx-font-weight: bold;"
-        );
-
-        btnGestionInventario.setVisible(
-                "SUPER_ADMIN".equalsIgnoreCase(
-                        usuario.getRol()
-                )
-                || "ADMINISTRADOR".equalsIgnoreCase(
-                        usuario.getRol()
-                )
-        );
-
-        btnGestionInventario.setManaged(
-                btnGestionInventario.isVisible()
-        );
-
-        btnGestionInventario.setOnAction(
-                e -> abrirGestionInventario()
-        );
-
 
         Button btnConfiguracionSesion =
                 new Button(
@@ -491,10 +394,7 @@ public class MainDashboardFX extends Application {
         );
 
         btnHistorialAccesos.setVisible(
-                "SUPER_ADMIN".equalsIgnoreCase(
-                        usuario.getRol()
-                )
-                || "ADMINISTRADOR".equalsIgnoreCase(
+                "ADMINISTRADOR".equalsIgnoreCase(
                         usuario.getRol()
                 )
         );
@@ -522,17 +422,16 @@ public class MainDashboardFX extends Application {
                 + "-fx-font-weight: bold;"
         );
 
+        boolean puedeCrearUsuarios =
+                usuario.esSuperAdmin()
+                || usuario.esAdministrador();
+
         btnCrearUsuario.setVisible(
-                "SUPER_ADMIN".equalsIgnoreCase(
-                        usuario.getRol()
-                )
-                || "ADMINISTRADOR".equalsIgnoreCase(
-                        usuario.getRol()
-                )
+                puedeCrearUsuarios
         );
 
         btnCrearUsuario.setManaged(
-                btnCrearUsuario.isVisible()
+                puedeCrearUsuarios
         );
 
         btnCrearUsuario.setOnAction(
@@ -546,11 +445,12 @@ public class MainDashboardFX extends Application {
                         new Separator(),
                         lblNombre,
                         lblRol,
+                        lblFarmacia,
                         new Separator(),
                         btnDashboard,
+                        btnAgregarMedicamento,
                         btnIngresoLote,
                         btnFiltrarCriticos,
-                        btnGestionInventario,
                         btnConfiguracionSesion,
                         btnHistorialAccesos,
                         btnCrearUsuario
@@ -591,18 +491,27 @@ public class MainDashboardFX extends Application {
                         .getInstance()
                         .getCurrentUser();
 
+        String farmaciaTexto;
+        String estiloFarmacia;
+
+        if (usuario.tieneFarmaciaAsignada()) {
+            farmaciaTexto = " | Farmacia: " + usuario.getIdFarmacia();
+            estiloFarmacia = "-fx-text-fill: #2FBF9F; -fx-font-size: 12px; -fx-font-weight: bold;";
+        } else {
+            farmaciaTexto = " | Sin farmacia";
+            estiloFarmacia = "-fx-text-fill: #C0392B; -fx-font-size: 12px; -fx-font-weight: bold;";
+        }
+
         Label lblUsuario =
                 new Label(
                         "Sesión: "
                         + usuario.getNombre()
                         + " | "
                         + usuario.getRol()
+                        + farmaciaTexto
                 );
 
-        lblUsuario.setStyle(
-                "-fx-text-fill: #607D8B;" +
-                "-fx-font-size: 12px;"
-        );
+        lblUsuario.setStyle(estiloFarmacia);
 
         Button btnCerrarSesion =
                 new Button(
@@ -864,24 +773,63 @@ public class MainDashboardFX extends Application {
         return section;
     }
 
-    
-
-    private void abrirGestionInventario() {
+    private void abrirFormularioAgregar() {
 
         if (!validarSesionActiva()) {
             return;
         }
 
+        FormularioMedicamentoDialog dialog =
+                new FormularioMedicamentoDialog();
 
-        new GestionInventarioFX()
-                .mostrar(
-                        primaryStage
-                );
+        Optional<Medicamento> result =
+                dialog.showAndWait();
 
+        result.ifPresent(
+                medicamento -> {
 
-        cargarDatosDesdeBD();
+                    if (!validarSesionActiva()) {
+                        return;
+                    }
+
+                    try {
+
+                        if (
+                                medicamentoDAO.guardar(
+                                        medicamento
+                                )
+                        ) {
+
+                            cargarDatosDesdeBD();
+
+                            AlertUtil.mostrarExito(
+                                    "El medicamento \""
+                                    + medicamento.getNombreComercial()
+                                    + "\" se registró correctamente."
+                            );
+
+                        } else {
+
+                            AlertUtil.mostrarError(
+                                    "No se pudo guardar el medicamento. "
+                                    + "Verifique la categoría, los datos "
+                                    + "y la conexión a PostgreSQL."
+                            );
+                        }
+
+                    } catch (AccesoDenegadoException e) {
+
+                        AlertUtil.mostrarError(
+                                e.getMessage()
+                        );
+
+                    } catch (IllegalStateException e) {
+
+                        manejarSesionExpirada();
+                    }
+                }
+        );
     }
-
 
     private void abrirIngresoLote() {
 
@@ -955,9 +903,6 @@ public class MainDashboardFX extends Application {
             );
         }
     }
-
-    
-
 
     private void abrirHistorialAccesos() {
 
@@ -1338,4 +1283,3 @@ public class MainDashboardFX extends Application {
     }
 
 }
-

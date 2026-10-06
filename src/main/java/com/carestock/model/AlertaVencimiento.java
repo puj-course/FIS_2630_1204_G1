@@ -6,18 +6,20 @@ public class AlertaVencimiento {
 
     private final int idLote;
     private final int idMedicamento;
+    private final int idFarmacia;
     private final String nombreComercial;
     private final String numeroLote;
     private final int cantidadActual;
     private final LocalDate fechaVencimiento;
     private final long diasParaVencer;
-    private final String nivelAlerta; // ROJO, AMARILLO, VERDE, VENCIDO
+    private final String nivelAlerta;
 
-    public AlertaVencimiento(int idLote, int idMedicamento, String nombreComercial, String numeroLote,
-                              int cantidadActual, LocalDate fechaVencimiento, long diasParaVencer,
-                              String nivelAlerta) {
+    public AlertaVencimiento(int idLote, int idMedicamento, int idFarmacia, String nombreComercial,
+                              String numeroLote, int cantidadActual, LocalDate fechaVencimiento,
+                              long diasParaVencer, String nivelAlerta) {
         this.idLote = idLote;
         this.idMedicamento = idMedicamento;
+        this.idFarmacia = idFarmacia;
         this.nombreComercial = nombreComercial;
         this.numeroLote = numeroLote;
         this.cantidadActual = cantidadActual;
@@ -32,6 +34,10 @@ public class AlertaVencimiento {
 
     public int getIdMedicamento() {
         return idMedicamento;
+    }
+
+    public int getIdFarmacia() {
+        return idFarmacia;
     }
 
     public String getNombreComercial() {
