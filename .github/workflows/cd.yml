@@ -19,18 +19,18 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
           cache: maven
 
       - name: Dar permisos al Maven Wrapper
         run: chmod +x mvnw
 
       - name: Compilar aplicación
-        run: ./mvnw -B clean package
+        run: ./mvnw -B -f src/CareStock/pom.xml clean package
 
       - name: Publicar artefacto
         uses: actions/upload-artifact@v4
         with:
           name: CareStock-build
-          path: target/*.jar
+          path: src/CareStock/target/*.jar
           if-no-files-found: warn

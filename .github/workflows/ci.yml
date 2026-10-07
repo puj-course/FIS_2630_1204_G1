@@ -22,11 +22,11 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
           cache: maven
 
       - name: Dar permisos al Maven Wrapper
         run: chmod +x mvnw
 
       - name: Compilar y ejecutar verificaciones
-        run: ./mvnw -B clean verify
+        run: ./mvnw -B -f src/CareStock/pom.xml clean verify
