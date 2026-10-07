@@ -4,6 +4,9 @@ import com.carestock.dao.LoteDAO;
 import com.carestock.dao.MovimientoStockDAO;
 import com.carestock.model.DespachoLote;
 import com.carestock.model.Lote;
+import com.carestock.model.Medicamento;
+import com.carestock.model.ContextoDispensacion;
+import java.time.LocalDate;
 import com.carestock.model.Usuario;
 import com.carestock.session.SessionContext;
 import com.carestock.session.UserSession;
@@ -259,6 +262,71 @@ class DespachoServiceTest {
         );
     }
 
+    @Test
+    void consultaUsaFarmaciaActivaYMismaConexion() throws Exception {
+        autenticarUsuario();
+        service.despachar(15, 4);
+        assertEquals(7, loteDAO.farmaciaConsultada);
+        assertSame(loteDAO.consultaConnection, loteDAO.connectionRecibida);
+        assertSame(loteDAO.consultaConnection, movimientoStockDAO.connectionRecibida);
+    }
+
+    @Test
+    void bloqueaSinFarmaciaAntesDeAbrirConexion() {
+        userSession.setCurrentUser(new Usuario(91, "Prueba", "prueba@example.com",
+                "hash", 2, "FARMACEUTICO", "ACTIVO"));
+        assertThrows(IllegalStateException.class, () -> service.despachar(15, 4));
+        assertEquals(0, connectionProvider.getConnectionCount());
+    }
+
+    @Test
+    void noEscribeCuandoLoteNoPerteneceALaFarmacia() {
+        autenticarUsuario();
+        loteDAO.denegarLote = true;
+        assertThrows(IllegalArgumentException.class, () -> service.despachar(15, 4));
+        verificarRechazoSinEscrituras();
+    }
+
+    @Test
+    void noEscribeCuandoLoteEstaVencido() {
+        autenticarUsuario();
+        loteDAO.vencido = true;
+        assertThrows(IllegalArgumentException.class, () -> service.despachar(15, 4));
+        verificarRechazoSinEscrituras();
+    }
+
+    @Test
+    void noEscribeCuandoMedicamentoEstaBloqueado() {
+        autenticarUsuario();
+        loteDAO.bloqueado = true;
+        assertThrows(IllegalArgumentException.class, () -> service.despachar(15, 4));
+        verificarRechazoSinEscrituras();
+    }
+
+    @Test
+    void noEscribeCuandoCantidadSuperaStock() {
+        autenticarUsuario();
+        assertThrows(IllegalArgumentException.class, () -> service.despachar(15, 11));
+        verificarRechazoSinEscrituras();
+    }
+
+    private void verificarRechazoSinEscrituras() {
+        assertFalse(loteDAO.fueInvocado);
+        assertFalse(movimientoStockDAO.fueInvocado);
+        assertEquals(0, connectionProvider.getCommitCount());
+        assertEquals(1, connectionProvider.getRollbackCount());
+        assertTrue(connectionProvider.isAutoCommit());
+    }
+
+    @Test
+    void bloqueaRolNoOperativoAntesDeAbrirConexion() {
+        userSession.setCurrentUser(new Usuario(91, "Prueba", "prueba@example.com",
+                "hash", 3, "CONSULTA", "ACTIVO", 7));
+        assertThrows(com.carestock.exception.AccesoDenegadoException.class,
+                () -> service.despachar(15, 1));
+        assertEquals(0, connectionProvider.getConnectionCount());
+    }
+
     private void autenticarUsuario() {
 
         userSession.setCurrentUser(
@@ -269,13 +337,41 @@ class DespachoServiceTest {
                         "hash-no-utilizado",
                         2,
                         "FARMACEUTICO",
-                        "ACTIVO"
+                        "ACTIVO",
+                        7
                 )
         );
     }
 
     private static final class FakeLoteDAO
             extends LoteDAO {
+
+        private Connection consultaConnection;
+        private int farmaciaConsultada;
+        private boolean denegarLote;
+        private boolean vencido;
+        private boolean bloqueado;
+
+        @Override
+        public ContextoDispensacion consultarParaDespacho(
+                Connection connection, int idLote, int idFarmacia) {
+            consultaConnection = connection;
+            farmaciaConsultada = idFarmacia;
+            if (denegarLote) {
+                throw new IllegalArgumentException("Lote fuera de la farmacia activa.");
+            }
+            Medicamento medicamento = new Medicamento();
+            medicamento.setIdMedicamento(1L);
+            medicamento.setNombreComercial("Prueba");
+            medicamento.setCodigoInvima("PRUEBA");
+            medicamento.setStockMinimo(1);
+            medicamento.setStockTotal(20);
+            medicamento.setEstado(bloqueado ? "BLOQUEADO" : "ACTIVO");
+            Lote lote = new Lote("LOTE", 1, 10,
+                    LocalDate.now().plusDays(vencido ? -1 : 30), 1, 91);
+            lote.setIdLote(idLote);
+            return new ContextoDispensacion(medicamento, lote);
+        }
 
         private boolean fueInvocado;
 

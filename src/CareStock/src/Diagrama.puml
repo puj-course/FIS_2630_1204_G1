@@ -1,0 +1,167 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "org.example.carestock" {
+    class CareStockApp {
+        - {static} instance: CareStockApp
+        - primaryStage: Stage
+        + start(Stage): void
+        + mostrarLogin(): void
+        + mostrarDashboard(): void
+        + mostrarInventario(): void
+        + {static} main(String[]): void
+    }
+}
+
+package "org.example.carestock.config" {
+    class ConexionBD {
+        - {static} URL: String
+        - {static} USUARIO: String
+        - {static} CLAVE: String
+        + {static} getConexion(): Connection
+    }
+}
+
+package "org.example.carestock.controller" {
+    class LoginController {
+        - txtEmail: TextField
+        - txtPassword: PasswordField
+        - btnIngresar: Button
+        - lblNotificacion: Label
+        - authService: AuthenticationService
+        + initialize(): void
+        - ejecutarLogin(): void
+    }
+
+    class InventarioController {
+        - tblInventario: TableView
+        - txtBuscar: TextField
+        - btnRegistrar: Button
+        + initialize(): void
+        + cargarDatosInventario(): void
+    }
+}
+
+package "org.example.carestock.dao" {
+    interface LoteDAO {
+        + listar(): List<Lote>
+        + guardar(Lote): boolean
+    }
+    class LoteDAOImpl {
+        + listar(): List<Lote>
+        + guardar(Lote): boolean
+    }
+
+    interface MedicamentoDAO {
+        + listar(): List<Medicamento>
+        + buscarPorCodigo(String): Medicamento
+        + actualizarStock(int, int): boolean
+    }
+    class MedicamentoDAOImpl {
+        + listar(): List<Medicamento>
+        + buscarPorCodigo(String): Medicamento
+        + actualizarStock(int, int): boolean
+    }
+
+    interface UsuarioDAO {
+        + buscarPorEmail(String): Usuario
+        + listar(): List<Usuario>
+    }
+    class UsuarioDAOImpl {
+        + buscarPorEmail(String): Usuario
+        + listar(): List<Usuario>
+    }
+}
+
+package "org.example.carestock.exception" {
+    class ReglaNegocioException {
+        + ReglaNegocioException(String)
+    }
+}
+
+package "org.example.carestock.model" {
+    interface Validable {
+        {abstract} + validar() throws ReglaNegocioException
+        {abstract} + esAptoParaDispensar(): boolean
+    }
+
+    class AlertaInvima {
+        - idAlerta: int
+        - descripcion: String
+        - fechaAlerta: Timestamp
+        + getters y setters()
+    }
+
+    class Cosmetico {
+        - idCosmetico: int
+        - nombre: String
+        - registroSanitario: String
+        + validar() throws ReglaNegocioException
+        + esAptoParaDispensar(): boolean
+    }
+
+    class DispositivoMedico {
+        - idDispositivo: int
+        - nombre: String
+        - claseRiesgo: String
+        + validar() throws ReglaNegocioException
+        + esAptoParaDispensar(): boolean
+    }
+
+    class Lote {
+        - idLote: int
+        - numeroLote: String
+        - idMedicamento: int
+        - fechaVencimiento: LocalDate
+        - cantidadDisponible: int
+        + getters y setters()
+    }
+
+    class Medicamento {
+        - idMedicamento: int
+        - codigoInvima: String
+        - nombreComercial: String
+        - principioActivo: String
+        - concentracion: String
+        - stockActual: int
+        + validar() throws ReglaNegocioException
+        + esAptoParaDispensar(): boolean
+        + getters y setters()
+    }
+
+    class Usuario {
+        - idUsuario: int
+        - nombre: String
+        - email: String
+        - password: String
+        - rol: String
+        - estado: String
+        + getters y setters()
+    }
+}
+
+' Relaciones y dependencias del sistema
+LoteDAO <|.. LoteDAOImpl
+MedicamentoDAO <|.. MedicamentoDAOImpl
+UsuarioDAO <|.. UsuarioDAOImpl
+
+LoteDAOImpl --> ConexionBD : JDBC
+MedicamentoDAOImpl --> ConexionBD : JDBC
+UsuarioDAOImpl --> ConexionBD : JDBC
+
+LoginController --> UsuarioDAO : usa
+InventarioController --> MedicamentoDAO : usa
+InventarioController --> LoteDAO : usa
+
+CareStockApp --> LoginController : carga FXML
+CareStockApp --> InventarioController : carga FXML
+
+Validable <|.. Medicamento
+Validable <|.. Cosmetico
+Validable <|.. DispositivoMedico
+
+UsuarioDAOImpl ..> Usuario : mapea
+MedicamentoDAOImpl ..> Medicamento : mapea
+LoteDAOImpl ..> Lote : mapea
+@enduml
