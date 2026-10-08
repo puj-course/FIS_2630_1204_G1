@@ -2,10 +2,7 @@ package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
-/**
- * Modela productos cosméticos y de cuidado personal (dermocosmética, bloqueadores, etc.)
- * regulados mediante Notificación Sanitaria Obligatoria (NSO).
- */
+
 public class Cosmetico implements Validable {
 
     private String id;
