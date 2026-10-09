@@ -52,10 +52,12 @@
                 <TextField fx:id="txtBuscar"
                            promptText="Buscar por lote, ID de medicamento o estado" />
 
-                <HBox spacing="10.0">
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <Button text="Todos" onAction="#onFiltrarTodos" />
                     <Button text="Vencidos" onAction="#onFiltrarVencidos" />
                     <Button text="Aptos para dispensar" onAction="#onFiltrarDisponibles" />
+                    <Label text="Categoría:" />
+                    <ComboBox fx:id="cmbCategoria" prefWidth="180.0" />
                 </HBox>
 
                 <TableView fx:id="tablaLotes" VBox.vgrow="ALWAYS">
