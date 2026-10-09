@@ -3,41 +3,35 @@ package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
-/**
- * Constructor concreto del patrón Builder
- * para dispositivos médicos.
- *
- * Implementa los pasos definidos por Producto
- * y permite construir objetos DispositivoMedico.
- */
+
 public class DispositivoMedicoBuilder implements Producto {
 
-    // ==========================================
+   
     // PRODUCTO EN CONSTRUCCIÓN
-    // ==========================================
+  
 
     private DispositivoMedico dispositivo;
 
-    // ==========================================
+   
     // CONSTRUCTOR
-    // ==========================================
+    
 
     public DispositivoMedicoBuilder() {
         reset();
     }
 
-    // ==========================================
+  
     // REINICIAR CONSTRUCCIÓN
-    // ==========================================
+   
 
     @Override
     public void reset() {
         this.dispositivo = new DispositivoMedico();
     }
 
-    // ==========================================
+   
     // MÉTODOS DEL CONTRATO PRODUCTO
-    // ==========================================
+  
 
     @Override
     public DispositivoMedicoBuilder setCodigo(String codigo) {
@@ -74,9 +68,9 @@ public class DispositivoMedicoBuilder implements Producto {
         return this;
     }
 
-    // ==========================================
+   
     // ATRIBUTOS ESPECÍFICOS DEL DISPOSITIVO
-    // ==========================================
+   
 
     public DispositivoMedicoBuilder setClaseRiesgo(String claseRiesgo) {
 
@@ -92,9 +86,9 @@ public class DispositivoMedicoBuilder implements Producto {
         return this;
     }
 
-    // ==========================================
+   
     // CONSTRUIR PRODUCTO FINAL
-    // ==========================================
+   
 
     public DispositivoMedico build()
             throws ReglaNegocioException {
