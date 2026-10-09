@@ -28,10 +28,7 @@ class FirmaInmutableIT {
     private final UserSession userSession =
             UserSession.getInstance();
 
-    /*
-     * Cada prueba utiliza datos únicos para evitar colisiones
-     * con datos reales o con otras ejecuciones del test.
-     */
+    
     private String sufijo;
 
     private String nombreCategoria;
@@ -62,10 +59,7 @@ class FirmaInmutableIT {
 
         userSession.clearSession();
 
-        /*
-         * Se genera un identificador único para que la prueba
-         * pueda ejecutarse varias veces sin generar conflictos.
-         */
+       
         sufijo =
                 UUID.randomUUID()
                         .toString()
@@ -145,19 +139,7 @@ class FirmaInmutableIT {
         limpiarDatosPrueba();
     }
 
-    /**
-     * Escenario E2E:
-     *
-     * UserSession
-     *     -> SessionContext
-     *     -> IngresoLoteService
-     *     -> LoteDAO
-     *     -> sp_registrar_nuevo_lote
-     *     -> PostgreSQL
-     *
-     * Comprueba que el usuario que tenía la sesión al momento
-     * de ejecutar la operación queda almacenado en la BD.
-     */
+
     @Test
     void registroLoteQuedaFirmadoPorUsuarioActivo()
             throws Exception {
@@ -196,12 +178,6 @@ class FirmaInmutableIT {
                 "El movimiento ENTRADA debe quedar firmado por Usuario_A."
         );
 
-        /*
-         * Se cambia la sesión DESPUÉS de persistir.
-         *
-         * Esto demuestra que la firma registrada previamente
-         * no cambia cuando cambia el usuario en memoria.
-         */
         userSession.setCurrentUser(
                 usuarioB
         );
@@ -222,17 +198,12 @@ class FirmaInmutableIT {
         );
     }
 
-    /**
-     * Comprueba que la firma corresponde a la sesión existente
-     * exactamente en el momento en que ocurre el despacho.
-     */
+    
     @Test
     void despachoQuedaFirmadoPorUsuarioActivo()
             throws Exception {
 
-        /*
-         * Primero registramos el lote como Usuario_A.
-         */
+       
         userSession.setCurrentUser(
                 usuarioA
         );
@@ -252,12 +223,6 @@ class FirmaInmutableIT {
         int idLote =
                 obtenerIdLote();
 
-        /*
-         * Ahora la sesión cambia a Usuario_B.
-         *
-         * El despacho debe quedar firmado por B,
-         * pero el ingreso original debe continuar firmado por A.
-         */
         userSession.setCurrentUser(
                 usuarioB
         );
@@ -301,12 +266,7 @@ class FirmaInmutableIT {
         );
     }
 
-    /**
-     * Comprueba simultáneamente:
-     *
-     * 1. La operación sin sesión genera excepción.
-     * 2. No ocurre ninguna escritura parcial en la BD.
-     */
+
     @Test
     void operacionSinSesionEsBloqueadaYNoPersiste()
             throws Exception {
@@ -358,11 +318,7 @@ class FirmaInmutableIT {
 
             try {
 
-                /*
-                 * Se utilizan los roles reales definidos por el dominio.
-                 * fn_despachar_lote solo autoriza ADMINISTRADOR
-                 * y FARMACEUTICO.
-                 */
+               
                 idRolAdministrador =
                         obtenerIdRol(
                                 conn,
@@ -439,12 +395,7 @@ class FirmaInmutableIT {
         }
     }
 
-    /**
-     * Recupera un rol real definido en la base de datos.
-     *
-     * Las pruebas de integración no deben inventar roles que
-     * violen las reglas de autorización del dominio.
-     */
+
     private int obtenerIdRol(
             Connection conn,
             String nombreRol
