@@ -3,18 +3,7 @@ package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
-/**
- * Representa dispositivos médicos e insumos utilizados
- * en droguerías e instituciones prestadoras de salud.
- *
- * Ejemplos: jeringas, guantes, gasas y equipos médicos.
- *
- * Referencia normativa:
- * Decreto 4725 de 2005.
- *
- * Esta clase representa el producto final construido
- * mediante el patrón de diseño Builder.
- */
+
 public class DispositivoMedico implements Validable {
 
     // ==========================================
