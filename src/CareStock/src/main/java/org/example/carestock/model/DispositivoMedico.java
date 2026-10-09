@@ -1,81 +1,163 @@
+
 package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
 /**
- * Modela los dispositivos médicos e insumos de la droguería/IPS (jeringas, gasas, guantes, etc.)
- * según la regulación INVIMA (Decreto 4725 de 2005).
+ * Representa dispositivos médicos e insumos utilizados
+ * en droguerías e instituciones prestadoras de salud.
+ *
+ * Ejemplos: jeringas, guantes, gasas y equipos médicos.
+ *
+ * Referencia normativa:
+ * Decreto 4725 de 2005.
+ *
+ * Esta clase representa el producto final construido
+ * mediante el patrón de diseño Builder.
  */
 public class DispositivoMedico implements Validable {
 
-    public enum ClasificacionRiesgo {
-        CLASE_I,   // Bajo riesgo (ej. gasas, baja lenguas)
-        CLASE_IIA, // Riesgo moderado (ej. jeringas, agujas, cánulas)
-        CLASE_IIB, // Riesgo alto (ej. catéteres, preservativos)
-        CLASE_III  // Muy alto riesgo (ej. implantes, marcapasos)
-    }
+    // ==========================================
+    // ATRIBUTOS
+    // ==========================================
 
-    private String id;
+    private int idDispositivo;
+    private String codigo;
     private String nombre;
-    private String registroSanitario; // Registro INVIMA tipo DM-XXXXX
-    private ClasificacionRiesgo riesgo;
-    private boolean esEsteril;
-    private boolean esReutilizable;
-    private boolean tieneAlertaActiva;
+    private String descripcion;
+    private double precio;
+    private int stock;
+    private String claseRiesgo;
+    private String registroSanitario;
 
-    public DispositivoMedico() {}
+    // ==========================================
+    // CONSTRUCTOR
+    // ==========================================
 
-    public DispositivoMedico(String id, String nombre, String registroSanitario,
-                             ClasificacionRiesgo riesgo, boolean esEsteril, boolean esReutilizable) {
-        this.id = id;
-        this.nombre = nombre;
-        this.registroSanitario = registroSanitario;
-        this.riesgo = riesgo;
-        this.esEsteril = esEsteril;
-        this.esReutilizable = esReutilizable;
-        this.tieneAlertaActiva = false;
+    public DispositivoMedico() {
     }
+
+    // ==========================================
+    // VALIDACIÓN DE REGLAS DE NEGOCIO
+    // ==========================================
 
     @Override
     public void validar() throws ReglaNegocioException {
+
         if (nombre == null || nombre.trim().isEmpty()) {
-            throw new ReglaNegocioException("El nombre del dispositivo médico es obligatorio.");
+            throw new ReglaNegocioException(
+                    "El nombre del dispositivo médico es obligatorio."
+            );
         }
-        if (registroSanitario == null || registroSanitario.trim().isEmpty()) {
-            throw new ReglaNegocioException("El dispositivo médico debe contar con Registro Sanitario INVIMA o Permiso de Comercialización.");
+
+        if (claseRiesgo == null || claseRiesgo.trim().isEmpty()) {
+            throw new ReglaNegocioException(
+                    "La clase de riesgo del dispositivo médico es obligatoria."
+            );
         }
-        if (riesgo == null) {
-            throw new ReglaNegocioException("Debe especificar la clasificación de riesgo del dispositivo según normativa INVIMA.");
+
+        if (!Double.isFinite(precio) || precio < 0) {
+            throw new ReglaNegocioException(
+                    "El precio debe ser un número válido y no negativo."
+            );
         }
-        if (tieneAlertaActiva) {
-            throw new ReglaNegocioException("BLOQUEO SANITARIO: El dispositivo médico " + nombre + " presenta una alerta o retiro del mercado.");
+
+        if (stock < 0) {
+            throw new ReglaNegocioException(
+                    "El stock no puede ser negativo."
+            );
         }
     }
+
+    // ==========================================
+    // DISPONIBILIDAD PARA DISPENSACIÓN
+    // ==========================================
 
     @Override
     public boolean esAptoParaDispensar() {
-        return !tieneAlertaActiva && registroSanitario != null && !registroSanitario.trim().isEmpty();
+
+        return stock > 0
+                && nombre != null
+                && !nombre.trim().isEmpty()
+                && claseRiesgo != null
+                && !claseRiesgo.trim().isEmpty()
+                && Double.isFinite(precio)
+                && precio >= 0;
     }
 
-    // Getters y Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    // ==========================================
+    // FACTORY METHOD DEL BUILDER
+    // ==========================================
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public static DispositivoMedicoBuilder builder() {
+        return new DispositivoMedicoBuilder();
+    }
 
-    public String getRegistroSanitario() { return registroSanitario; }
-    public void setRegistroSanitario(String registroSanitario) { this.registroSanitario = registroSanitario; }
+    // ==========================================
+    // GETTERS Y SETTERS
+    // ==========================================
 
-    public ClasificacionRiesgo getRiesgo() { return riesgo; }
-    public void setRiesgo(ClasificacionRiesgo riesgo) { this.riesgo = riesgo; }
+    public int getIdDispositivo() {
+        return idDispositivo;
+    }
 
-    public boolean isEsEsteril() { return esEsteril; }
-    public void setEsEsteril(boolean esEsteril) { this.esEsteril = esEsteril; }
+    public void setIdDispositivo(int idDispositivo) {
+        this.idDispositivo = idDispositivo;
+    }
 
-    public boolean isEsReutilizable() { return esReutilizable; }
-    public void setEsReutilizable(boolean esReutilizable) { this.esReutilizable = esReutilizable; }
+    public String getCodigo() {
+        return codigo;
+    }
 
-    public boolean isTieneAlertaActiva() { return tieneAlertaActiva; }
-    public void setTieneAlertaActiva(boolean tieneAlertaActiva) { this.tieneAlertaActiva = tieneAlertaActiva; }
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public String getClaseRiesgo() {
+        return claseRiesgo;
+    }
+
+    public void setClaseRiesgo(String claseRiesgo) {
+        this.claseRiesgo = claseRiesgo;
+    }
+
+    public String getRegistroSanitario() {
+        return registroSanitario;
+    }
+
+    public void setRegistroSanitario(String registroSanitario) {
+        this.registroSanitario = registroSanitario;
+    }
 }

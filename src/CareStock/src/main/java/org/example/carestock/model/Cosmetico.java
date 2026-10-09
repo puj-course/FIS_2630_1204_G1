@@ -2,56 +2,90 @@ package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
-
 public class Cosmetico implements Validable {
+    private int idCosmetico;
+    private String codigo;
+    private String nombre;
+    private double precio;
+    private int stock;
+    private String registroSanitario;
+    private String tipoPiel;
 
-    private String id;
-    private String nombreComercial;
-    private String nso; // Notificación Sanitaria Obligatoria (ej. NSOX-12345-20CO)
-    private String marca;
-    private boolean tieneAlertaActiva;
-
-    public Cosmetico() {}
-
-    public Cosmetico(String id, String nombreComercial, String nso, String marca) {
-        this.id = id;
-        this.nombreComercial = nombreComercial;
-        this.nso = nso;
-        this.marca = marca;
-        this.tieneAlertaActiva = false;
+    public Cosmetico() {
     }
 
     @Override
     public void validar() throws ReglaNegocioException {
-        if (nombreComercial == null || nombreComercial.trim().isEmpty()) {
-            throw new ReglaNegocioException("El nombre del producto cosmético no puede estar vacío.");
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new ReglaNegocioException("El nombre del cosmético es obligatorio.");
         }
-        if (nso == null || nso.trim().isEmpty()) {
-            throw new ReglaNegocioException("El producto cosmético debe poseer un código NSO (Notificación Sanitaria Obligatoria) vigente.");
+        if (registroSanitario == null || registroSanitario.trim().isEmpty()) {
+            throw new ReglaNegocioException("El registro sanitario del cosmético es obligatorio.");
         }
-        if (tieneAlertaActiva) {
-            throw new ReglaNegocioException("BLOQUEO SANITARIO: El cosmético " + nombreComercial + " fue reportado con alerta de seguridad.");
+        if (precio < 0 || stock < 0) {
+            throw new ReglaNegocioException("El precio y el stock no pueden ser negativos.");
         }
     }
 
     @Override
     public boolean esAptoParaDispensar() {
-        return !tieneAlertaActiva && nso != null && !nso.trim().isEmpty();
+        return stock > 0 && registroSanitario != null && !registroSanitario.trim().isEmpty();
     }
 
     // Getters y Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public int getIdCosmetico() {
+        return idCosmetico;
+    }
 
-    public String getNombreComercial() { return nombreComercial; }
-    public void setNombreComercial(String nombreComercial) { this.nombreComercial = nombreComercial; }
+    public void setIdCosmetico(int idCosmetico) {
+        this.idCosmetico = idCosmetico;
+    }
 
-    public String getNso() { return nso; }
-    public void setNso(String nso) { this.nso = nso; }
+    public String getCodigo() {
+        return codigo;
+    }
 
-    public String getMarca() { return marca; }
-    public void setMarca(String marca) { this.marca = marca; }
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
 
-    public boolean isTieneAlertaActiva() { return tieneAlertaActiva; }
-    public void setTieneAlertaActiva(boolean tieneAlertaActiva) { this.tieneAlertaActiva = tieneAlertaActiva; }
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public String getRegistroSanitario() {
+        return registroSanitario;
+    }
+
+    public void setRegistroSanitario(String registroSanitario) {
+        this.registroSanitario = registroSanitario;
+    }
+
+    public String getTipoPiel() {
+        return tipoPiel;
+    }
+
+    public void setTipoPiel(String tipoPiel) {
+        this.tipoPiel = tipoPiel;
+    }
 }
