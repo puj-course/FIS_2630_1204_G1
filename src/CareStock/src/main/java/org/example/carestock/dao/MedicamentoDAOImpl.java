@@ -5,7 +5,10 @@ import org.example.carestock.model.Medicamento;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MedicamentoDAOImpl implements MedicamentoDAO {
 
@@ -98,6 +101,33 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
             }
         }
         return lista;
+    }
+
+    @Override
+    public Map<Integer, String> listarCategorias() throws Exception {
+        Map<Integer, String> categorias = new LinkedHashMap<>();
+        String sql = "SELECT id_categoria, nombre_categoria FROM categorias ORDER BY nombre_categoria ASC";
+
+        try (Connection con = ConexionBD.getConexion();
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                categorias.put(rs.getInt("id_categoria"), rs.getString("nombre_categoria"));
+            }
+        }
+        return categorias;
+    }
+
+    @Override
+    public Map<Integer, String> categoriaPorMedicamento() throws Exception {
+        Map<Integer, String> categorias = listarCategorias();
+        Map<Integer, String> resultado = new HashMap<>();
+
+        for (Medicamento m : listarTodos()) {
+            resultado.put(m.getIdMedicamento(), categorias.get(m.getIdCategoria()));
+        }
+        return resultado;
     }
 
     @Override
