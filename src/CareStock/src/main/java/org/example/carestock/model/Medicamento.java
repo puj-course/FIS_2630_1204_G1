@@ -14,7 +14,7 @@ public class Medicamento implements Validable {
     private Integer idCategoria;
     private int stockMinimo;
     private int stockTotal;
-    private String estado; // e.g., "ACTIVO", "BLOQUEADO", "INACTIVO"
+    private String estado;
     private Integer idFarmacia;
     private String presentacion;
     private Integer idUsuarioCreacion;
@@ -65,7 +65,93 @@ public class Medicamento implements Validable {
                 && !codigoInvima.trim().isEmpty();
     }
 
-    // Getters y Setters
+
+    /**
+     * Punto de entrada para inicializar el Builder desde el cliente.
+     */
+    public static MedicamentoBuilder builder() {
+        return new MedicamentoBuilder();
+    }
+
+    public static class MedicamentoBuilder {
+        private final Medicamento medicamento;
+
+        public MedicamentoBuilder() {
+            this.medicamento = new Medicamento();
+        }
+
+        public MedicamentoBuilder idMedicamento(int idMedicamento) {
+            medicamento.setIdMedicamento(idMedicamento);
+            return this;
+        }
+
+        public MedicamentoBuilder codigoInvima(String codigoInvima) {
+            medicamento.setCodigoInvima(codigoInvima);
+            return this;
+        }
+
+        public MedicamentoBuilder nombreComercial(String nombreComercial) {
+            medicamento.setNombreComercial(nombreComercial);
+            return this;
+        }
+
+        public MedicamentoBuilder principioActivo(String principioActivo) {
+            medicamento.setPrincipioActivo(principioActivo);
+            return this;
+        }
+
+        public MedicamentoBuilder concentracion(String concentracion) {
+            medicamento.setConcentracion(concentracion);
+            return this;
+        }
+
+        public MedicamentoBuilder formaFarmaceutica(String formaFarmaceutica) {
+            medicamento.setFormaFarmaceutica(formaFarmaceutica);
+            return this;
+        }
+
+        public MedicamentoBuilder idCategoria(Integer idCategoria) {
+            medicamento.setIdCategoria(idCategoria);
+            return this;
+        }
+
+        public MedicamentoBuilder stockMinimo(int stockMinimo) {
+            medicamento.setStockMinimo(stockMinimo);
+            return this;
+        }
+
+        public MedicamentoBuilder stockTotal(int stockTotal) {
+            medicamento.setStockTotal(stockTotal);
+            return this;
+        }
+
+        public MedicamentoBuilder estado(String estado) {
+            medicamento.setEstado(estado);
+            return this;
+        }
+
+        public MedicamentoBuilder idFarmacia(Integer idFarmacia) {
+            medicamento.setIdFarmacia(idFarmacia);
+            return this;
+        }
+
+        public MedicamentoBuilder presentacion(String presentacion) {
+            medicamento.setPresentacion(presentacion);
+            return this;
+        }
+
+        public MedicamentoBuilder idUsuarioCreacion(Integer idUsuarioCreacion) {
+            medicamento.setIdUsuarioCreacion(idUsuarioCreacion);
+            return this;
+        }
+
+        /**
+         * Método final que construye y retorna la instancia de Medicamento validada.
+         */
+        public Medicamento build() {
+            return this.medicamento;
+        }
+    }
     public int getIdMedicamento() { return idMedicamento; }
     public void setIdMedicamento(int idMedicamento) { this.idMedicamento = idMedicamento; }
 

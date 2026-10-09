@@ -1,11 +1,23 @@
 @startuml
+
+title CareStock - Diagrama de Clases UML
+
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+' ==========================================
+' APLICACIÓN PRINCIPAL
+' ==========================================
 
 package "org.example.carestock" {
+
     class CareStockApp {
-        - {static} instance: CareStockApp
-        - primaryStage: Stage
+- {static} instance: CareStockApp
+
+- primaryStage: Stage
+
         + start(Stage): void
         + mostrarLogin(): void
         + mostrarDashboard(): void
@@ -14,134 +26,329 @@ package "org.example.carestock" {
     }
 }
 
+' ==========================================
+' CONFIGURACIÓN Y BASE DE DATOS
+' ==========================================
+
 package "org.example.carestock.config" {
+
     class ConexionBD {
-        - {static} URL: String
-        - {static} USUARIO: String
-        - {static} CLAVE: String
+- {static} URL: String
+
+- {static} USUARIO: String
+
+- {static} CLAVE: String
+
         + {static} getConexion(): Connection
     }
 }
 
+' ==========================================
+' CONTROLADORES
+' ==========================================
+
 package "org.example.carestock.controller" {
+
     class LoginController {
-        - txtEmail: TextField
-        - txtPassword: PasswordField
-        - btnIngresar: Button
-        - lblNotificacion: Label
-        - authService: AuthenticationService
+- txtEmail: TextField
+
+- txtPassword: PasswordField
+
+- btnIngresar: Button
+
+- lblNotificacion: Label
+
+- authService: AuthenticationService
+
         + initialize(): void
-        - ejecutarLogin(): void
+- ejecutarLogin(): void
+
     }
 
     class InventarioController {
-        - tblInventario: TableView
-        - txtBuscar: TextField
-        - btnRegistrar: Button
+- tblInventario: TableView
+
+- txtBuscar: TextField
+
+- btnRegistrar: Button
+
         + initialize(): void
         + cargarDatosInventario(): void
     }
 }
 
+' ==========================================
+' SERVICIOS
+' ==========================================
+
+package "org.example.carestock.service" {
+
+    class AuthenticationService {
+        + autenticar(email: String, password: String): boolean
+    }
+}
+
+' ==========================================
+' CAPA DE PERSISTENCIA - DAO
+' ==========================================
+
 package "org.example.carestock.dao" {
+
     interface LoteDAO {
         + listar(): List<Lote>
-        + guardar(Lote): boolean
+        + guardar(lote: Lote): boolean
     }
+
     class LoteDAOImpl {
         + listar(): List<Lote>
-        + guardar(Lote): boolean
+        + guardar(lote: Lote): boolean
     }
 
     interface MedicamentoDAO {
         + listar(): List<Medicamento>
-        + buscarPorCodigo(String): Medicamento
-        + actualizarStock(int, int): boolean
+        + buscarPorCodigo(codigo: String): Medicamento
+        + actualizarStock(id: int, cantidad: int): boolean
     }
+
     class MedicamentoDAOImpl {
         + listar(): List<Medicamento>
-        + buscarPorCodigo(String): Medicamento
-        + actualizarStock(int, int): boolean
+        + buscarPorCodigo(codigo: String): Medicamento
+        + actualizarStock(id: int, cantidad: int): boolean
     }
 
     interface UsuarioDAO {
-        + buscarPorEmail(String): Usuario
+        + buscarPorEmail(email: String): Usuario
         + listar(): List<Usuario>
     }
+
     class UsuarioDAOImpl {
-        + buscarPorEmail(String): Usuario
+        + buscarPorEmail(email: String): Usuario
         + listar(): List<Usuario>
     }
 }
+
+' ==========================================
+' EXCEPCIONES
+' ==========================================
 
 package "org.example.carestock.exception" {
+
     class ReglaNegocioException {
-        + ReglaNegocioException(String)
+        + ReglaNegocioException(mensaje: String)
     }
 }
+
+' ==========================================
+' MODELO DE NEGOCIO
+' ==========================================
 
 package "org.example.carestock.model" {
+
+    ' --------------------------------------
+    ' INTERFAZ DE VALIDACIÓN
+    ' --------------------------------------
+
     interface Validable {
-        {abstract} + validar() throws ReglaNegocioException
-        {abstract} + esAptoParaDispensar(): boolean
+        + validar(): void
+        + esAptoParaDispensar(): boolean
     }
+
+    ' --------------------------------------
+    ' INTERFAZ BUILDER - PRODUCTO
+    ' --------------------------------------
+
+    interface Producto <<Builder>> {
+        + reset(): void
+        + setCodigo(codigo: String): Producto
+        + setNombre(nombre: String): Producto
+        + setDescripcion(descripcion: String): Producto
+        + setPrecio(precio: double): Producto
+        + setStock(stock: int): Producto
+    }
+
+    ' --------------------------------------
+    ' DIRECTOR DEL BUILDER
+    ' --------------------------------------
+
+    class ProductoDirector <<Director>> {
+- builder: Producto
+
+        + ProductoDirector(builder: Producto)
+        + changeBuilder(builder: Producto): void
+        + make(type: String): void
+    }
+
+    ' --------------------------------------
+    ' ALERTAS SANITARIAS
+    ' --------------------------------------
 
     class AlertaInvima {
-        - idAlerta: int
-        - descripcion: String
-        - fechaAlerta: Timestamp
+- idAlerta: int
+
+- descripcion: String
+
+- fechaAlerta: Timestamp
+
         + getters y setters()
     }
+
+    ' --------------------------------------
+    ' COSMÉTICO
+    ' --------------------------------------
 
     class Cosmetico {
-        - idCosmetico: int
-        - nombre: String
-        - registroSanitario: String
-        + validar() throws ReglaNegocioException
+- idCosmetico: int
+
+- nombre: String
+
+- registroSanitario: String
+
+        + validar(): void
         + esAptoParaDispensar(): boolean
+        + {static} builder(): CosmeticoBuilder
+        + getters y setters()
     }
+
+    ' --------------------------------------
+    ' BUILDER DE COSMÉTICO
+    ' --------------------------------------
+
+    class CosmeticoBuilder <<ConcreteBuilder>> {
+- cosmetico: Cosmetico
+
+        + reset(): void
+        + setCodigo(codigo: String): CosmeticoBuilder
+        + setNombre(nombre: String): CosmeticoBuilder
+        + setDescripcion(descripcion: String): CosmeticoBuilder
+        + setPrecio(precio: double): CosmeticoBuilder
+        + setStock(stock: int): CosmeticoBuilder
+        + setRegistroSanitario(valor: String): CosmeticoBuilder
+        + setTipoPiel(valor: String): CosmeticoBuilder
+        + build(): Cosmetico
+    }
+
+    ' --------------------------------------
+    ' DISPOSITIVO MÉDICO
+    ' --------------------------------------
 
     class DispositivoMedico {
-        - idDispositivo: int
-        - nombre: String
-        - claseRiesgo: String
-        + validar() throws ReglaNegocioException
+- idDispositivo: int
+- codigo: String
+- nombre: String
+- descripcion: String
+- precio: double
+- stock: int
+- claseRiesgo: String
+- registroSanitario: String
+
+        + validar(): void
         + esAptoParaDispensar(): boolean
+        + {static} builder(): DispositivoMedicoBuilder
+        + getters y setters()
     }
+
+    ' --------------------------------------
+    ' BUILDER DE DISPOSITIVO MÉDICO
+    ' --------------------------------------
+
+    class DispositivoMedicoBuilder <<ConcreteBuilder>> {
+- dispositivo: DispositivoMedico
+
+        + reset(): void
+        + setCodigo(codigo: String): DispositivoMedicoBuilder
+        + setNombre(nombre: String): DispositivoMedicoBuilder
+        + setDescripcion(descripcion: String): DispositivoMedicoBuilder
+        + setPrecio(precio: double): DispositivoMedicoBuilder
+        + setStock(stock: int): DispositivoMedicoBuilder
+        + setClaseRiesgo(claseRiesgo: String): DispositivoMedicoBuilder
+        + setRegistroSanitario(registroSanitario: String): DispositivoMedicoBuilder
+        + build(): DispositivoMedico
+    }
+
+    ' --------------------------------------
+    ' LOTE
+    ' --------------------------------------
 
     class Lote {
-        - idLote: int
-        - numeroLote: String
-        - idMedicamento: int
-        - fechaVencimiento: LocalDate
-        - cantidadDisponible: int
+- idLote: int
+
+- numeroLote: String
+
+- idMedicamento: int
+
+- fechaVencimiento: LocalDate
+
+- cantidadDisponible: int
+
         + getters y setters()
     }
+
+    ' --------------------------------------
+    ' MEDICAMENTO
+    ' --------------------------------------
 
     class Medicamento {
-        - idMedicamento: int
-        - codigoInvima: String
-        - nombreComercial: String
-        - principioActivo: String
-        - concentracion: String
-        - stockActual: int
-        + validar() throws ReglaNegocioException
+- idMedicamento: int
+
+- codigoInvima: String
+
+- nombreComercial: String
+
+- principioActivo: String
+
+- concentracion: String
+
+- stockActual: int
+
+        + validar(): void
         + esAptoParaDispensar(): boolean
+        + {static} builder(): MedicamentoBuilder
         + getters y setters()
     }
 
+    ' --------------------------------------
+    ' BUILDER DE MEDICAMENTO
+    ' --------------------------------------
+
+    class MedicamentoBuilder <<ConcreteBuilder>> {
+- medicamento: Medicamento
+
+        + reset(): void
+        + setCodigo(codigo: String): MedicamentoBuilder
+        + setNombre(nombre: String): MedicamentoBuilder
+        + setDescripcion(descripcion: String): MedicamentoBuilder
+        + setPrecio(precio: double): MedicamentoBuilder
+        + setStock(stock: int): MedicamentoBuilder
+        + principioActivo(valor: String): MedicamentoBuilder
+        + concentracion(valor: String): MedicamentoBuilder
+        + build(): Medicamento
+    }
+
+    ' --------------------------------------
+    ' USUARIO
+    ' --------------------------------------
+
     class Usuario {
-        - idUsuario: int
-        - nombre: String
-        - email: String
-        - password: String
-        - rol: String
-        - estado: String
+- idUsuario: int
+
+- nombre: String
+
+- email: String
+
+- password: String
+
+- rol: String
+
+- estado: String
+
         + getters y setters()
     }
 }
 
-' Relaciones y dependencias del sistema
+' ==========================================
+' RELACIONES DE PERSISTENCIA
+' ==========================================
+
 LoteDAO <|.. LoteDAOImpl
 MedicamentoDAO <|.. MedicamentoDAOImpl
 UsuarioDAO <|.. UsuarioDAOImpl
@@ -150,18 +357,140 @@ LoteDAOImpl --> ConexionBD : JDBC
 MedicamentoDAOImpl --> ConexionBD : JDBC
 UsuarioDAOImpl --> ConexionBD : JDBC
 
-LoginController --> UsuarioDAO : usa
-InventarioController --> MedicamentoDAO : usa
-InventarioController --> LoteDAO : usa
+UsuarioDAOImpl ..> Usuario : mapea
+MedicamentoDAOImpl ..> Medicamento : mapea
+LoteDAOImpl ..> Lote : mapea
+
+' ==========================================
+' RELACIONES DE CONTROLADORES
+' ==========================================
+
+LoginController --> AuthenticationService : utiliza
+AuthenticationService --> UsuarioDAO : consulta
+
+InventarioController --> MedicamentoDAO : utiliza
+InventarioController --> LoteDAO : utiliza
+
+' ==========================================
+' RELACIONES DE LA APLICACIÓN
+' ==========================================
 
 CareStockApp --> LoginController : carga FXML
 CareStockApp --> InventarioController : carga FXML
+
+' ==========================================
+' VALIDACIÓN DE REGLAS DE NEGOCIO
+' ==========================================
 
 Validable <|.. Medicamento
 Validable <|.. Cosmetico
 Validable <|.. DispositivoMedico
 
-UsuarioDAOImpl ..> Usuario : mapea
-MedicamentoDAOImpl ..> Medicamento : mapea
-LoteDAOImpl ..> Lote : mapea
+Validable ..> ReglaNegocioException : puede lanzar
+
+' ==========================================
+' PATRÓN BUILDER
+' ==========================================
+
+' Constructores concretos implementan
+' el contrato definido por Producto
+
+Producto <|.. MedicamentoBuilder : implementa
+Producto <|.. CosmeticoBuilder : implementa
+Producto <|.. DispositivoMedicoBuilder : implementa
+
+' El director utiliza la interfaz
+' para construir cualquier producto
+
+ProductoDirector o--> Producto : utiliza
+
+' Los builders construyen
+' sus respectivos objetos
+
+MedicamentoBuilder --> Medicamento : construye
+CosmeticoBuilder --> Cosmetico : construye
+DispositivoMedicoBuilder --> DispositivoMedico : construye
+
+' ==========================================
+' RELACIONES DEL MODELO
+' ==========================================
+
+Medicamento "1" -- "0..*" Lote : posee
+
+' ==========================================
+' DOCUMENTACIÓN DEL PATRÓN BUILDER
+' ==========================================
+
+note right of ProductoDirector
+    Patrón Builder - Director
+
+    Mantiene una referencia
+    a la interfaz Producto.
+
+    make(String type):
+
+1. Ejecuta builder.reset()
+
+2. Si type = "estandar":
+       codigo = PROD-001
+       nombre = Producto Comercial Estándar
+       precio = 25000.0
+       stock = 50
+
+    3. Si type = "premium":
+       codigo = PROD-999
+       nombre = Producto de Alta Gama
+       precio = 120000.0
+       stock = 10
+
+    Permite cambiar el constructor
+    mediante changeBuilder().
+end note
+
+note bottom of Producto
+    Interfaz Builder
+
+    Define los pasos comunes
+    para construir productos.
+
+    Los métodos set permiten
+    encadenar operaciones.
+
+    No contiene atributos de instancia
+    ni implementa la persistencia.
+end note
+
+note bottom of MedicamentoBuilder
+    Concrete Builder
+
+    Implementa Producto.
+
+    Configura propiedades comunes
+    y específicas de medicamentos.
+
+    build() retorna Medicamento.
+end note
+
+note bottom of CosmeticoBuilder
+    Concrete Builder
+
+    Implementa Producto.
+
+    Configura propiedades comunes
+    y específicas de cosméticos.
+
+    build() retorna Cosmetico.
+end note
+
+note bottom of DispositivoMedicoBuilder
+    Concrete Builder
+
+    Implementa Producto.
+
+    Configura propiedades comunes
+    y específicas de dispositivos médicos.
+
+    build() retorna DispositivoMedico.
+end note
+
 @enduml
