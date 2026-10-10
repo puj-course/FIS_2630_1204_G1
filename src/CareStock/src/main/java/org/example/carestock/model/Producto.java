@@ -1,8 +1,9 @@
 package org.example.carestock.model;
-
 /**
- * Interfaz Builder que declara los pasos comunes para la construcción de productos.
- * Referencia: Patrón Builder
+ * Contrato Builder para la construccion de productos.
+ * Define los pasos comunes necesarios para configurar
+ * productos de Aseo y Maternidad.
+ * Patron de diseño: Builder (GoF).
  */
 public interface Producto {
     void reset();

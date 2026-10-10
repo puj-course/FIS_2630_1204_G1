@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.example.carestock.session.SesionUsuario;
 
 import java.net.URL;
 
@@ -32,11 +33,23 @@ public class CareStockApp extends Application {
     }
 
     public void mostrarLogin() {
+        SesionUsuario.cerrar();
         transicionarEscena("/org/example/carestock/login-view.fxml", 1100, 650);
     }
 
     public void mostrarDashboard() {
-        transicionarEscena("/org/example/carestock/inventario-view.fxml", 950, 650);
+        if (!SesionUsuario.estaActiva()) { mostrarLogin(); return; }
+        transicionarEscena("/org/example/carestock/inventario-view.fxml", 1100, 650);
+    }
+
+    public void mostrarCatalogo() {
+        if (!SesionUsuario.estaActiva()) { mostrarLogin(); return; }
+        transicionarEscena("/org/example/carestock/catalogo-view.fxml", 1100, 650);
+    }
+
+    public void cerrarSesion() {
+        SesionUsuario.cerrar();
+        mostrarLogin();
     }
 
     /**

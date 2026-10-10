@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.carestock.controller.CatalogoController"
+            prefWidth="1150" prefHeight="760">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: #1A365D;">
+            <Label text="CareStock | Catálogo de productos" style="-fx-font-size: 19; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Volver al inventario" onAction="#onVolver" />
+            <Button text="Cerrar sesión" onAction="#onCerrarSesion" />
+        </HBox>
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.60">
+            <items>
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Categoría:" />
+                        <ComboBox fx:id="cmbCategoria" prefWidth="180" />
+                        <Button text="Actualizar lista" onAction="#onRefrescar" />
+                    </HBox>
+                    <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="55" />
+                            <TableColumn fx:id="colCodigo" text="Código" prefWidth="100" />
+                            <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150" />
+                            <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="180" />
+                            <TableColumn fx:id="colPrecio" text="Precio" prefWidth="90" />
+                            <TableColumn fx:id="colStock" text="Stock" prefWidth="60" />
+                            <TableColumn fx:id="colEstado" text="Estado" prefWidth="75" />
+                        </columns>
+                    </TableView>
+                    <Label fx:id="lblEstado" text="Listo" wrapText="true" />
+                </VBox>
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10" style="-fx-padding: 18;">
+                        <Label fx:id="lblSeleccion" text="Nuevo producto" style="-fx-font-weight: bold; -fx-font-size: 17;"/>
+                        <Label text="Código" /><TextField fx:id="txtCodigo" promptText="Código único por farmacia" />
+                        <Label text="Nombre" /><TextField fx:id="txtNombre" promptText="Nombre del producto" />
+                        <Label text="Descripción obligatoria" /><TextField fx:id="txtDescripcion" promptText="Descripción del producto" />
+                        <HBox spacing="8">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Precio" /><TextField fx:id="txtPrecio" promptText="Ej: 15000.00" />
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Stock" /><TextField fx:id="txtStock" promptText="Ej: 10" />
+                            </VBox>
+                        </HBox>
+                        <VBox fx:id="panelAseo" spacing="7">
+                            <Separator/><Label text="Campos de Aseo" style="-fx-font-weight: bold;" />
+                            <Label text="Tipo de aseo" /><TextField fx:id="txtTipoAseo" />
+                            <Label text="Componentes activos" /><TextField fx:id="txtComponentesActivos" />
+                            <CheckBox fx:id="chkBiodegradable" text="Biodegradable" />
+                        </VBox>
+                        <VBox fx:id="panelMaternidad" spacing="7" visible="false" managed="false">
+                            <Separator/><Label text="Campos de Maternidad" style="-fx-font-weight: bold;" />
+                            <Label text="Etapa recomendada" /><TextField fx:id="txtEtapa" />
+                            <Label text="Edad gestacional sugerida (semanas)" />
+                            <TextField fx:id="txtEdadGestacional" promptText="Opcional" />
+                            <CheckBox fx:id="chkHipoalergenico" text="Hipoalergénico" />
+                        </VBox>
+                        <Separator/>
+                        <HBox spacing="7" alignment="CENTER_LEFT">
+                            <Button text="Nuevo" onAction="#onNuevo" />
+                            <Button fx:id="btnGuardar" text="Registrar" onAction="#onGuardar" />
+                            <Button fx:id="btnActualizar" text="Actualizar" onAction="#onActualizar" />
+                            <Button fx:id="btnDesactivar" text="Desactivar" onAction="#onDesactivar" />
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>
