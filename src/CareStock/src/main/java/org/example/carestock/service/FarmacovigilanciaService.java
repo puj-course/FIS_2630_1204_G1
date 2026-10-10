@@ -13,9 +13,7 @@ public class FarmacovigilanciaService {
         this.loteDAO = new LoteDAOImpl();
     }
 
-    /**
-     * Procesa la dispensación de unidades de un lote especifico verificando las normas sanitarias.
-     */
+  
     public void dispensarMedicamento(int idLote, int cantidadADispensar) throws Exception {
         Lote lote = loteDAO.buscarPorId(idLote);
 
