@@ -51,3 +51,44 @@ La línea punteada indica que `InventarioController` accede a los DAO sin pasar 
 | Sesión y seguridad | `service` y paquete raíz | `service.AuthenticationService`, `CareStockApp` | Autenticación: verifica las credenciales del usuario. Navegación: `CareStockApp` arranca la aplicación y cambia entre las pantallas de login e inventario. | Dejar entrar a un usuario sin comprobar su contraseña ni su estado, ni exponer credenciales. |
 | Base de datos PostgreSQL | Neon, scripts en `src/sql` | `config.ConexionBD` | Almacena usuarios, lotes, medicamentos y categorías. `ConexionBD` abre las conexiones JDBC. | Recibir consultas desde capas distintas del DAO. |
 | Modelo y excepciones (transversal) | `model` y `exception` | `model.Lote`, `model.Medicamento`, `model.Usuario`, `model.Validable`, `exception.ReglaNegocioException` | Representa las entidades y valida sus propias reglas (`validar()`, `esAptoParaDispensar()`). `ReglaNegocioException` comunica una regla incumplida. | Depender de las capas superiores. |
+
+---
+
+## 4. Flujo general: dispensar un lote
+
+Ejemplo de una petición que atraviesa todas las capas.
+
+1. El farmacéutico selecciona un lote en la tabla de `inventario-view.fxml`, escribe la cantidad y pulsa el botón de dispensar.
+2. La vista invoca `InventarioController.onDispensar()`, que comprueba que haya un lote seleccionado y que la cantidad sea un número entero.
+3. El controlador llama a `FarmacovigilanciaService.dispensarMedicamento(idLote, cantidad)`.
+4. El servicio pide el lote a `LoteDAOImpl.buscarPorId`, que ejecuta un `SELECT` en PostgreSQL a través de `ConexionBD`.
+5. El servicio aplica las reglas de negocio: `Lote.validar()` rechaza lotes vencidos o bloqueados y luego se verifica que haya stock suficiente. Si una regla falla, lanza `ReglaNegocioException`.
+6. Si todo es válido, el servicio llama a `LoteDAOImpl.actualizarCantidad` y, si el stock queda en cero, a `LoteDAOImpl.actualizarEstado` con el valor `AGOTADO`.
+7. El controlador muestra el resultado (éxito o la regla incumplida) y recarga la tabla con `cargarDatosTabla()`.
+
+```mermaid
+sequenceDiagram
+    actor U as Farmaceutico
+    participant V as inventario-view.fxml
+    participant C as InventarioController
+    participant S as FarmacovigilanciaService
+    participant D as LoteDAOImpl
+    participant DB as PostgreSQL
+    U->>V: Selecciona un lote, escribe la cantidad y pulsa dispensar
+    V->>C: onDispensar()
+    C->>S: dispensarMedicamento(idLote, cantidad)
+    S->>D: buscarPorId(idLote)
+    D->>DB: SELECT * FROM lotes WHERE id_lote = ?
+    DB-->>D: fila del lote
+    D-->>S: Lote
+    S->>S: validar el lote y verificar el stock
+    S->>D: actualizarCantidad(idLote, nuevaCantidad)
+    D->>DB: UPDATE lotes SET cantidad_actual = ?
+    alt nuevaCantidad es cero
+        S->>D: actualizarEstado(idLote, AGOTADO)
+        D->>DB: UPDATE lotes SET estado_lote = ?
+    end
+    S-->>C: operacion exitosa
+    C->>C: cargarDatosTabla()
+    C-->>U: Muestra el mensaje de exito y refresca la tabla
+```
