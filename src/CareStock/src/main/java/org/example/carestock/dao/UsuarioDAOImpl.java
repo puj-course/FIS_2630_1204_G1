@@ -12,7 +12,7 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     @Override
     public Usuario buscarPorEmail(String email) throws Exception {
         // Consulta adaptada exactamente a las columnas de tu tabla usuarios en Neon
-        String sql = "SELECT id_usuario, nombre_completo, email, password_hash, id_rol, estado FROM usuarios WHERE LOWER(email) = LOWER(?)";
+        String sql = "SELECT id_usuario, nombre_completo, email, password_hash, id_rol, estado FROM usuarios WHERE LOWER(email) = LOWER(?) AND UPPER(estado) = 'ACTIVO'";
 
         try (Connection conn = ConexionBD.getConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -29,17 +29,14 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                     usuario.setRol(rs.getString("id_rol"));
 
                     // Opcional: imprimir en consola para depurar qué trajo de Neon
-                    System.out.println("[DAO] Usuario encontrado en BD: " + usuario.getEmail() + " | Estado: " + rs.getString("estado"));
 
                     return usuario;
                 }
             }
         } catch (Exception e) {
-            System.err.println("[DAO ERROR] Falló la consulta SQL: " + e.getMessage());
             throw e;
         }
 
-        System.out.println("[DAO] No se encontró ningún registro para el correo: " + email);
         return null;
     }
 }

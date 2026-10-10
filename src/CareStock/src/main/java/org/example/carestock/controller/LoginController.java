@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import org.example.carestock.CareStockApp;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Usuario;
+import org.example.carestock.session.SesionUsuario;
 import org.example.carestock.service.AuthenticationService;
 
 public class LoginController {
@@ -70,6 +71,8 @@ public class LoginController {
             Usuario usuarioValido = authService.autenticar(email, password);
 
             mostrarMensaje("Acceso concedido. Bienvenido/a " + usuarioValido.getNombre() + "...", false);
+
+            SesionUsuario.iniciar(usuarioValido);
 
             // Transición suave al Dashboard
             CareStockApp.getInstance().mostrarDashboard();

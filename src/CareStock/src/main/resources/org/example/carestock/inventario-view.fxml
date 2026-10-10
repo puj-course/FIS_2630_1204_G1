@@ -5,98 +5,429 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.carestock.controller.InventarioController">
+<BorderPane
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.example.carestock.controller.InventarioController"
+        prefWidth="1100.0"
+        prefHeight="750.0">
+
+    <!-- ======================================= -->
+    <!-- CABECERA PRINCIPAL                      -->
+    <!-- ======================================= -->
+
     <top>
-        <VBox spacing="5.0" style="-fx-background-color: #1A365D; -fx-padding: 15;">
-            <children>
-                <Label text="CareStock - Control de Inventario y Farmacovigilancia" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="20.0" />
-                    </font>
-                </Label>
-                <Label text="Validación automatizada de normatividad INVIMA y dispensación segura" textFill="#CBD5E0">
-                    <font>
-                        <Font size="13.0" />
-                    </font>
-                </Label>
-            </children>
+
+        <VBox spacing="12"
+              style="-fx-background-color: #1A365D;
+                     -fx-padding: 18;">
+
+            <!-- TITULO Y NAVEGACION -->
+
+            <HBox spacing="15"
+                  alignment="CENTER_LEFT">
+
+                <Label
+                        text="CareStock - Control de Inventario"
+                        textFill="WHITE"
+                        style="-fx-font-size: 22;
+                           -fx-font-weight: bold;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button
+                        text="Catálogo"
+                        onAction="#onAbrirCatalogo"
+                        style="-fx-background-color: #3182CE;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 6;
+                           -fx-padding: 9 18;"/>
+
+                <Button
+                        text="Cerrar sesión"
+                        onAction="#onCerrarSesion"
+                        style="-fx-background-color: #E53E3E;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 6;
+                           -fx-padding: 9 18;"/>
+
+            </HBox>
+
+            <!-- SEPARADOR -->
+
+            <Separator opacity="0.4"/>
+
+            <!-- INFORMACION DE SESION -->
+
+            <HBox spacing="18"
+                  alignment="CENTER_LEFT">
+
+                <!-- USUARIO -->
+
+                <VBox spacing="5"
+                      HBox.hgrow="ALWAYS">
+
+                    <Label
+                            text="USUARIO AUTENTICADO"
+                            textFill="#CBD5E0"
+                            style="-fx-font-size: 11;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            fx:id="lblUsuarioSesion"
+                            text="Cargando usuario..."
+                            textFill="WHITE"
+                            style="-fx-font-size: 17;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            fx:id="lblEmailSesion"
+                            text="correo@ejemplo.com"
+                            textFill="#BEE3F8"
+                            style="-fx-font-size: 12;"/>
+
+                </VBox>
+
+                <!-- ROL -->
+
+                <VBox spacing="5"
+                      alignment="CENTER_LEFT"
+                      style="-fx-background-color: #2A4365;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;">
+
+                    <Label
+                            text="ROL DEL USUARIO"
+                            textFill="#CBD5E0"
+                            style="-fx-font-size: 11;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            fx:id="lblRolSesion"
+                            text="Cargando..."
+                            textFill="WHITE"
+                            style="-fx-font-size: 15;
+                               -fx-font-weight: bold;"/>
+
+                </VBox>
+
+                <!-- FARMACIA -->
+
+                <VBox spacing="5"
+                      alignment="CENTER_LEFT"
+                      style="-fx-background-color: #2A4365;
+                             -fx-background-radius: 8;
+                             -fx-padding: 12;">
+
+                    <Label
+                            text="FARMACIA ASIGNADA"
+                            textFill="#CBD5E0"
+                            style="-fx-font-size: 11;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            fx:id="lblFarmaciaSesion"
+                            text="Cargando..."
+                            textFill="WHITE"
+                            style="-fx-font-size: 15;
+                               -fx-font-weight: bold;"/>
+
+                </VBox>
+
+            </HBox>
+
+            <Label
+                    text="Gestión de inventario, trazabilidad y dispensación segura"
+                    textFill="#CBD5E0"
+                    style="-fx-font-size: 12;"/>
+
         </VBox>
+
     </top>
 
+    <!-- ======================================= -->
+    <!-- CONTENIDO PRINCIPAL                     -->
+    <!-- ======================================= -->
+
     <center>
-        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+
+        <VBox spacing="14"
+              style="-fx-background-color: #F7FAFC;">
+
             <padding>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                <Insets
+                        top="18"
+                        right="20"
+                        bottom="18"
+                        left="20"/>
             </padding>
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <Label text="Lotes Registrados en Neon DB">
-                            <font>
-                                <Font name="System Bold" size="14.0" />
-                            </font>
-                        </Label>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnRefrescar" onAction="#onRefrescar" style="-fx-background-color: #2B6CB0;" text="🔄 Actualizar Tabla" textFill="WHITE" />
-                    </children>
-                </HBox>
 
-                
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <Label text="Total de lotes:" />
-                    <Label fx:id="lblTotalLotes" text="0" />
-                    <Label text="Vencidos:" />
-                    <Label fx:id="lblLotesVencidos" text="0" />
-                </HBox>
+            <!-- TITULO DE INVENTARIO -->
 
-                <TextField fx:id="txtBuscar"
-                           promptText="Buscar por lote, ID de medicamento o estado" />
+            <HBox alignment="CENTER_LEFT"
+                  spacing="12">
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <Button text="Todos" onAction="#onFiltrarTodos" />
-                    <Button text="Vencidos" onAction="#onFiltrarVencidos" />
-                    <Button text="Aptos para dispensar" onAction="#onFiltrarDisponibles" />
-                    <Label text="Categoría:" />
-                    <ComboBox fx:id="cmbCategoria" prefWidth="180.0" />
-                </HBox>
+                <Label
+                        text="Inventario de Lotes"
+                        style="-fx-font-size: 18;
+                           -fx-font-weight: bold;
+                           -fx-text-fill: #1A365D;"/>
 
-                <TableView fx:id="tablaLotes" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colIdLote" prefWidth="75.0" text="ID Lote" />
-                        <TableColumn fx:id="colNumeroLote" prefWidth="150.0" text="N° Lote" />
-                        <TableColumn fx:id="colIdMedicamento" prefWidth="120.0" text="ID Medicamento" />
-                        <TableColumn fx:id="colCantidad" prefWidth="110.0" text="Cantidad" />
-                        <TableColumn fx:id="colFechaVencimiento" prefWidth="140.0" text="F. Vencimiento" />
-                        <TableColumn fx:id="colEstado" prefWidth="130.0" text="Estado Sanitario" />
-                    </columns>
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                    </columnResizePolicy>
-                </TableView>
-            </children>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button
+                        text="Actualizar tabla"
+                        onAction="#onRefrescar"
+                        style="-fx-background-color: #2B6CB0;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 6;
+                           -fx-padding: 9 16;"/>
+
+            </HBox>
+
+            <!-- ================================= -->
+            <!-- INDICADORES                       -->
+            <!-- ================================= -->
+
+            <HBox spacing="15"
+                  alignment="CENTER_LEFT">
+
+                <!-- TOTAL DE LOTES -->
+
+                <VBox spacing="6"
+                      prefWidth="220"
+                      style="-fx-background-color: white;
+                             -fx-border-color: #E2E8F0;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;
+                             -fx-padding: 15;">
+
+                    <Label
+                            text="TOTAL DE LOTES"
+                            style="-fx-text-fill: #718096;
+                               -fx-font-size: 12;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            fx:id="lblTotalLotes"
+                            text="0"
+                            style="-fx-text-fill: #2B6CB0;
+                               -fx-font-size: 25;
+                               -fx-font-weight: bold;"/>
+
+                    <Button
+                            text="Ver todos"
+                            onAction="#onFiltrarTodos"/>
+
+                </VBox>
+
+                <!-- LOTES VENCIDOS -->
+
+                <VBox spacing="6"
+                      prefWidth="220"
+                      style="-fx-background-color: white;
+                             -fx-border-color: #E2E8F0;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;
+                             -fx-padding: 15;">
+
+                    <Label
+                            text="LOTES VENCIDOS"
+                            style="-fx-text-fill: #718096;
+                               -fx-font-size: 12;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            fx:id="lblLotesVencidos"
+                            text="0"
+                            style="-fx-text-fill: #C53030;
+                               -fx-font-size: 25;
+                               -fx-font-weight: bold;"/>
+
+                    <Button
+                            text="Ver vencidos"
+                            onAction="#onFiltrarVencidos"/>
+
+                </VBox>
+
+                <!-- DISPONIBLES -->
+
+                <VBox spacing="6"
+                      prefWidth="220"
+                      style="-fx-background-color: white;
+                             -fx-border-color: #E2E8F0;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;
+                             -fx-padding: 15;">
+
+                    <Label
+                            text="DISPENSACION"
+                            style="-fx-text-fill: #718096;
+                               -fx-font-size: 12;
+                               -fx-font-weight: bold;"/>
+
+                    <Label
+                            text="Disponibles"
+                            style="-fx-text-fill: #276749;
+                               -fx-font-size: 18;
+                               -fx-font-weight: bold;"/>
+
+                    <Button
+                            text="Ver aptos"
+                            onAction="#onFiltrarDisponibles"/>
+
+                </VBox>
+
+            </HBox>
+
+            <!-- ================================= -->
+            <!-- BARRA DE BUSQUEDA                 -->
+            <!-- ================================= -->
+
+            <HBox spacing="12"
+                  alignment="CENTER_LEFT">
+
+                <TextField
+                        fx:id="txtBuscar"
+                        prefWidth="360"
+                        promptText="Buscar por lote, medicamento o estado"
+                        HBox.hgrow="ALWAYS"/>
+
+                <Label
+                        text="Categoría:"
+                        style="-fx-font-weight: bold;
+                           -fx-text-fill: #4A5568;"/>
+
+                <ComboBox
+                        fx:id="cmbCategoria"
+                        prefWidth="200"
+                        promptText="Seleccionar categoría"/>
+
+            </HBox>
+
+            <!-- ================================= -->
+            <!-- TABLA PRINCIPAL                   -->
+            <!-- ================================= -->
+
+            <TableView
+                    fx:id="tablaLotes"
+                    VBox.vgrow="ALWAYS"
+                    prefHeight="300">
+
+                <columns>
+
+                    <TableColumn
+                            fx:id="colIdLote"
+                            text="ID Lote"
+                            prefWidth="80"/>
+
+                    <TableColumn
+                            fx:id="colNumeroLote"
+                            text="Número de Lote"
+                            prefWidth="160"/>
+
+                    <TableColumn
+                            fx:id="colIdMedicamento"
+                            text="ID Medicamento"
+                            prefWidth="140"/>
+
+                    <TableColumn
+                            fx:id="colCantidad"
+                            text="Cantidad"
+                            prefWidth="120"/>
+
+                    <TableColumn
+                            fx:id="colFechaVencimiento"
+                            text="Fecha Vencimiento"
+                            prefWidth="170"/>
+
+                    <TableColumn
+                            fx:id="colEstado"
+                            text="Estado Sanitario"
+                            prefWidth="170"/>
+
+                </columns>
+
+            </TableView>
+
         </VBox>
+
     </center>
 
+    <!-- ======================================= -->
+    <!-- MODULO DE DISPENSACION                  -->
+    <!-- ======================================= -->
+
     <bottom>
-        <VBox spacing="10.0" style="-fx-background-color: #EDF2F7; -fx-padding: 15; -fx-border-color: #CBD5E0; -fx-border-width: 1 0 0 0;" BorderPane.alignment="CENTER">
-            <children>
-                <Label text="Módulo de Dispensación Sanitariamente Validada">
-                    <font>
-                        <Font name="System Bold" size="13.0" />
-                    </font>
-                </Label>
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
-                    <children>
-                        <Label text="Lote seleccionado:" />
-                        <Label fx:id="lblLoteSeleccionadoInfo" text="Ninguno (seleccione una fila)" wrapText="true" maxWidth="280.0" />
 
-                        <Label text="Cantidad a Dispensar:" />
-                        <TextField fx:id="txtCantidad" prefWidth="100.0" promptText="Ej: 2" />
+        <VBox spacing="12"
+              style="-fx-background-color: #EDF2F7;
+                     -fx-border-color: #CBD5E0;
+                     -fx-border-width: 1 0 0 0;
+                     -fx-padding: 18;">
 
-                        <Button fx:id="btnDispensar" onAction="#onDispensar" style="-fx-background-color: #2F855A; -fx-font-weight: bold;" text="💊 Dispensar Medicamento" textFill="WHITE" />
-                    </children>
-                </HBox>
-            </children>
+            <Label
+                    text="Módulo de Dispensación"
+                    style="-fx-font-size: 16;
+                       -fx-font-weight: bold;
+                       -fx-text-fill: #1A365D;"/>
+
+            <HBox spacing="15"
+                  alignment="CENTER_LEFT">
+
+                <!-- INFORMACION DEL LOTE -->
+
+                <VBox spacing="5"
+                      HBox.hgrow="ALWAYS">
+
+                    <Label
+                            text="Lote seleccionado"
+                            style="-fx-text-fill: #718096;
+                               -fx-font-size: 12;"/>
+
+                    <Label
+                            fx:id="lblLoteSeleccionadoInfo"
+                            text="Ninguno (seleccione una fila)"
+                            wrapText="true"
+                            style="-fx-text-fill: #2D3748;
+                               -fx-font-weight: bold;"/>
+
+                </VBox>
+
+                <!-- CANTIDAD -->
+
+                <VBox spacing="5">
+
+                    <Label
+                            text="Cantidad a dispensar"
+                            style="-fx-text-fill: #718096;
+                               -fx-font-size: 12;"/>
+
+                    <TextField
+                            fx:id="txtCantidad"
+                            prefWidth="120"
+                            promptText="Ej: 2"/>
+
+                </VBox>
+
+                <!-- BOTON DE DISPENSACION -->
+
+                <Button
+                        text="Dispensar medicamento"
+                        onAction="#onDispensar"
+                        style="-fx-background-color: #2F855A;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 6;
+                           -fx-padding: 12 20;"/>
+
+            </HBox>
+
         </VBox>
+
     </bottom>
+
 </BorderPane>

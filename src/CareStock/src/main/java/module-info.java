@@ -4,6 +4,7 @@ module org.example.carestock {
     requires javafx.swing;
     requires javafx.media;
     requires java.sql;
+    requires jbcrypt;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -13,7 +14,7 @@ module org.example.carestock {
 
     opens org.example.carestock to javafx.fxml;
     opens org.example.carestock.model to javafx.fxml, javafx.base;
-    opens org.example.carestock.controller to javafx.fxml; // Permite a JavaFX inyectar @FXML
+    opens org.example.carestock.controller to javafx.fxml;
 
     exports org.example.carestock;
     exports org.example.carestock.model;
@@ -22,4 +23,7 @@ module org.example.carestock {
     exports org.example.carestock.dao;
     exports org.example.carestock.service;
     exports org.example.carestock.controller;
+    exports org.example.carestock.facade;
+    exports org.example.carestock.DataTransferObject;
+    exports org.example.carestock.session;
 }
