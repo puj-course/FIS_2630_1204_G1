@@ -50,6 +50,8 @@ flowchart TB
     IUSU(["IUsuarioDAO"])
     IVAL(["Validable"])
     IPROD(["Producto"])
+    ICAT(["Operaciones de catálogo"])
+    IREG(["ReglaNegocioException"])
     ICON(["IConexion"])
 
     NAV --- INAV
@@ -63,6 +65,8 @@ flowchart TB
     DUSU --- IUSU
     DOM --- IVAL
     CRE --- IPROD
+    DCAT --- ICAT
+    DOM --- IREG
     CON --- ICON
 
     NAV -.-> ISES
@@ -80,10 +84,15 @@ flowchart TB
     CUI -.-> INAV
 
     SAUT -.-> IUSU
+    SAUT -.-> IREG
+    SDIS -.-> IREG
+    SREG -.-> IREG
+    FAC -.-> IREG
+    AUI -.-> IREG
     FAC -.-> IMED
     FAC -.-> IREGL
     FAC -.-> IDISP
-    FAC -.-> DCAT
+    FAC -.-> ICAT
     SES -.-> ICON
     FAC -.-> ICON
     SDIS -.-> ICON
@@ -116,6 +125,8 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 | `IUsuarioDAO` | `buscarPorEmail` | `UsuarioDAOImpl` | `AuthenticationService` |
 | `Validable` | `validar`, `esAptoParaDispensar` | Las entidades del dominio | `MedicamentoDAOImpl`, `AseoDAO`, `MaternidadDAO`, `RegistroLoteService`, `Inventario`, `InventarioController` |
 | `Producto` | `reset`, `setCodigo`, `setNombre`, `setDescripcion`, `setPrecio`, `setStock` | Los cinco constructores | `CatalogoController`, `ProductoDirector` |
+| `Operaciones de catálogo` | `guardar`, `buscarPorId`, `listarPorFarmacia`, `actualizar`, `desactivar` | `AseoDAO`, `MaternidadDAO` | `Inventario` |
+| `ReglaNegocioException` | Excepción comprobada que se lanza cuando se incumple una regla | Dominio y reglas | `LoginController`, `AuthenticationService`, `FarmacovigilanciaService`, `RegistroLoteService`, `Inventario` |
 | `IConexion` | `getConexion` | `ConexionBD` | Los cinco DAO, `SesionUsuario`, `Inventario`, `RegistroLoteService`, `FarmacovigilanciaService` |
 
 ## 3. Dependencias que se saltan una capa
