@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.time.temporal.ChronoUnit;
 
 public class InventarioController {
 
@@ -76,6 +77,28 @@ public class InventarioController {
         colIdMedicamento.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
         colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
+        colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
+    @Override
+    protected void updateItem(LocalDate fecha, boolean empty) {
+        super.updateItem(fecha, empty);
+        if (empty || fecha == null) {
+            setText(null);
+            setTooltip(null);
+        } else {
+            setText(fecha.toString());
+            long dias = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fecha);
+            String mensaje;
+            if (dias > 0) {
+                mensaje = "Vence en " + dias + " días";
+            } else if (dias == 0) {
+                mensaje = "Vence hoy";
+            } else {
+                mensaje = "Vencido hace " + Math.abs(dias) + " días";
+            }
+            setTooltip(new Tooltip(mensaje));
+        }
+    }
+});
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estadoLote"));
 
         cmbCategoria.getItems().add(CATEGORIA_TODAS);
