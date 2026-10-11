@@ -2,6 +2,7 @@ package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 public class Medicamento implements Validable {
 
@@ -20,6 +21,8 @@ public class Medicamento implements Validable {
     private Integer idUsuarioCreacion;
     private Integer idUsuarioModificacion;
     private LocalDateTime fechaModificacion;
+    // Precio opcional en registros historicos; en nuevos registros se captura desde JavaFX.
+    private BigDecimal precio;
 
     public Medicamento() {}
 
@@ -48,6 +51,11 @@ public class Medicamento implements Validable {
         }
         if (codigoInvima == null || codigoInvima.trim().isEmpty()) {
             throw new ReglaNegocioException("El código/registro INVIMA es obligatorio.");
+        }
+        if (precio != null && (precio.signum() < 0 || precio.scale() > 2 ||
+                precio.precision() - precio.scale() > 10)) {
+            throw new ReglaNegocioException(
+                    "El precio debe ser positivo o cero, con maximo dos decimales y 10 digitos enteros.");
         }
         if (stockMinimo < 0 || stockTotal < 0) {
             throw new ReglaNegocioException("Los valores de inventario (stock) no pueden ser negativos.");
@@ -140,6 +148,11 @@ public class Medicamento implements Validable {
             return this;
         }
 
+        public MedicamentoBuilder precio(BigDecimal precio) {
+            medicamento.setPrecio(precio);
+            return this;
+        }
+
         public MedicamentoBuilder idUsuarioCreacion(Integer idUsuarioCreacion) {
             medicamento.setIdUsuarioCreacion(idUsuarioCreacion);
             return this;
@@ -152,6 +165,9 @@ public class Medicamento implements Validable {
             return this.medicamento;
         }
     }
+    public BigDecimal getPrecio() { return precio; }
+    public void setPrecio(BigDecimal precio) { this.precio = precio; }
+
     public int getIdMedicamento() { return idMedicamento; }
     public void setIdMedicamento(int idMedicamento) { this.idMedicamento = idMedicamento; }
 
