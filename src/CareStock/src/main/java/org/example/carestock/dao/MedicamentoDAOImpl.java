@@ -145,6 +145,24 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
             ps.executeUpdate();
         }
     }
+    public Map<String, Integer> contarPorCategoria() throws Exception {
+    Map<String, Integer> conteo = new HashMap<>();
+    String sql = "SELECT c.nombre_categoria, COUNT(m.id_medicamento) AS total " +
+                 "FROM categorias c " +
+                 "LEFT JOIN medicamentos m ON m.id_categoria = c.id_categoria " +
+                 "GROUP BY c.nombre_categoria " +
+                 "ORDER BY c.nombre_categoria";
+
+    try (Connection con = ConexionBD.getConexion();
+         Statement st = con.createStatement();
+         ResultSet rs = st.executeQuery(sql)) {
+
+        while (rs.next()) {
+            conteo.put(rs.getString("nombre_categoria"), rs.getInt("total"));
+        }
+    }
+    return conteo;
+}
 
     private Medicamento mapearResultSet(ResultSet rs) throws SQLException {
         Medicamento m = new Medicamento();
