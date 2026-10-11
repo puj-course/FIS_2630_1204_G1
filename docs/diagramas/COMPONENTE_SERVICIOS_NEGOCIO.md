@@ -18,7 +18,7 @@ flowchart LR
 
     IUSU(["IUsuarioDAO<br/>buscarPorEmail"])
     IMED(["IMedicamentoDAO<br/>guardar"])
-    ICAT(["DAO de catálogo<br/>AseoDAO, MaternidadDAO"])
+    ICAT(["Operaciones de catálogo<br/>AseoDAO, MaternidadDAO"])
     ICON(["IConexion<br/>getConexion"])
     IVAL(["Validable<br/>validar"])
     IREG(["ReglaNegocioException"])
