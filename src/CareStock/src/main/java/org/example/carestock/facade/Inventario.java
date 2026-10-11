@@ -310,6 +310,17 @@ public class Inventario {
         );
     }
 
+    //Contar por categoría
+    public Map<String, Integer> contarPorCategoria() throws Exception {
+    Map<String, Integer> conteo = new HashMap<>();
+
+    conteo.put("Medicamento", listarMedicamentos().size());
+    conteo.put("Aseo", listarAseo().size());
+    conteo.put("Maternidad", listarMaternidad().size());
+
+    return conteo;
+}
+    
     /**
      * Listar productos de maternidad.
      */
