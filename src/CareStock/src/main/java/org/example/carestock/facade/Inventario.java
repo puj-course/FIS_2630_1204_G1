@@ -430,6 +430,12 @@ public class Inventario {
         return producto;
     }
 
+    //Método contarPorCategoria
+    
+    public Map<String, Integer> contarPorCategoria() throws Exception {
+    return medicamentoDAO.contarPorCategoria();
+    }
+
     /**
      * Listar medicamentos de la farmacia
      * asignada al usuario.
