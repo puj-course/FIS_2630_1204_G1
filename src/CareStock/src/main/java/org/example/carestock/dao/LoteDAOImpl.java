@@ -77,19 +77,38 @@ public class LoteDAOImpl implements LoteDAO {
     }
 
     @Override
-    public List<Lote> listarTodos() throws Exception {
+    public List<Lote> listarPorFarmacia(int idFarmacia) throws Exception {
+        if (idFarmacia <= 0) {
+            throw new IllegalArgumentException("La farmacia debe ser valida");
+        }
+
+        String sql = """
+                SELECT l.*
+                FROM lotes l
+                INNER JOIN medicamentos m
+                    ON m.id_medicamento = l.id_medicamento
+                WHERE m.id_farmacia = ?
+                ORDER BY l.fecha_vencimiento ASC, l.id_lote ASC
+                """;
+
         List<Lote> lista = new ArrayList<>();
-        String sql = "SELECT * FROM lotes ORDER BY fecha_vencimiento ASC";
-
         try (Connection con = ConexionBD.getConexion();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-
-            while (rs.next()) {
-                lista.add(mapearResultSet(rs));
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idFarmacia);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearResultSet(rs));
+                }
             }
         }
         return lista;
+    }
+
+    @Deprecated
+    @Override
+    public List<Lote> listarTodos() throws Exception {
+        throw new UnsupportedOperationException(
+                "Consulta global deshabilitada: utilice listarPorFarmacia(idFarmacia)");
     }
 
     @Override

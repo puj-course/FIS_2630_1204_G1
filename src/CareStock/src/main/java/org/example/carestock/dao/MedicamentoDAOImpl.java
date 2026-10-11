@@ -18,8 +18,8 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
         String sql = "INSERT INTO medicamentos (codigo_invima, nombre_comercial, principio_activo, " +
                 "concentracion, forma_farmaceutica, id_categoria, stock_minimo, stock_total, " +
-                "estado, id_farmacia, presentacion, id_usuario_creacion) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "estado, id_farmacia, presentacion, id_usuario_creacion, precio) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -44,6 +44,9 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
             if (medicamento.getIdUsuarioCreacion() != null) ps.setInt(12, medicamento.getIdUsuarioCreacion());
             else ps.setNull(12, Types.INTEGER);
+
+            if (medicamento.getPrecio() == null) ps.setNull(13, Types.NUMERIC);
+            else ps.setBigDecimal(13, medicamento.getPrecio());
 
             ps.executeUpdate();
 
@@ -163,6 +166,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
         m.setIdFarmacia(rs.wasNull() ? null : idFarm);
 
         m.setPresentacion(rs.getString("presentacion"));
+        m.setPrecio(rs.getBigDecimal("precio"));
 
         int idUserC = rs.getInt("id_usuario_creacion");
         m.setIdUsuarioCreacion(rs.wasNull() ? null : idUserC);
