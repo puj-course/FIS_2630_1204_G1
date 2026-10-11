@@ -39,6 +39,10 @@ public class InventarioController {
     @FXML private Label lblLotesVencidos;
     @FXML private Label lblLoteSeleccionadoInfo;
 
+    @FXML private Label lblTotalMedicamentos;
+    @FXML private Label lblTotalAseo;
+    @FXML private Label lblTotalMaternidad;
+
     @FXML private TextField txtBuscar;
     @FXML private TextField txtCantidad;
     @FXML private ComboBox<String> cmbCategoria;
@@ -122,6 +126,7 @@ public class InventarioController {
         });
 
         cargarDatosTabla();
+        cargarContadoresPorCategoria();
     }
 
     private void configurarFiltroBusqueda() {
@@ -243,6 +248,17 @@ public class InventarioController {
             mostrarAlerta(Alert.AlertType.ERROR, "Error del Sistema", "Ocurrió un error inesperado: " + e.getMessage());
         }
     }
+
+    private void cargarContadoresPorCategoria() {
+    try {
+        Map<String, Integer> conteo = inventario.contarPorCategoria();
+        lblTotalMedicamentos.setText(String.valueOf(conteo.getOrDefault("Medicamento", 0)));
+        lblTotalAseo.setText(String.valueOf(conteo.getOrDefault("Aseo", 0)));
+        lblTotalMaternidad.setText(String.valueOf(conteo.getOrDefault("Maternidad", 0)));
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
     private void cargarDatosTabla() {
         try {
