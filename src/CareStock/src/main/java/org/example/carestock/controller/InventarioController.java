@@ -40,6 +40,10 @@ public class InventarioController {
     @FXML private Label lblLotesVencidos;
     @FXML private Label lblLoteSeleccionadoInfo;
 
+    @FXML private Label lblTotalMedicamentos;
+    @FXML private Label lblTotalAseo;
+    @FXML private Label lblTotalMaternidad;
+
     @FXML private TextField txtBuscar;
     @FXML private TextField txtCantidad;
     @FXML private ComboBox<String> cmbCategoria;
@@ -78,6 +82,28 @@ public class InventarioController {
         colIdMedicamento.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
         colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
+        colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
+    @Override
+    protected void updateItem(LocalDate fecha, boolean empty) {
+        super.updateItem(fecha, empty);
+        if (empty || fecha == null) {
+            setText(null);
+            setTooltip(null);
+        } else {
+            setText(fecha.toString());
+            long dias = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fecha);
+            String mensaje;
+            if (dias > 0) {
+                mensaje = "Vence en " + dias + " días";
+            } else if (dias == 0) {
+                mensaje = "Vence hoy";
+            } else {
+                mensaje = "Vencido hace " + Math.abs(dias) + " días";
+            }
+            setTooltip(new Tooltip(mensaje));
+        }
+    }
+});
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estadoLote"));
 
         cmbCategoria.getItems().add(CATEGORIA_TODAS);
@@ -101,6 +127,7 @@ public class InventarioController {
         });
 
         cargarDatosTabla();
+        cargarContadoresPorCategoria();
     }
 
     private void configurarFiltroBusqueda() {
@@ -222,6 +249,17 @@ public class InventarioController {
             mostrarAlerta(Alert.AlertType.ERROR, "Error del Sistema", "Ocurrió un error inesperado: " + e.getMessage());
         }
     }
+
+    private void cargarContadoresPorCategoria() {
+    try {
+        Map<String, Integer> conteo = inventario.contarPorCategoria();
+        lblTotalMedicamentos.setText(String.valueOf(conteo.getOrDefault("Medicamento", 0)));
+        lblTotalAseo.setText(String.valueOf(conteo.getOrDefault("Aseo", 0)));
+        lblTotalMaternidad.setText(String.valueOf(conteo.getOrDefault("Maternidad", 0)));
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
     private void cargarDatosTabla() {
         try {

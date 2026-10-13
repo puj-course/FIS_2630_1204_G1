@@ -1,0 +1,38 @@
+**Como** Administrador del sistema
+
+**Quiero** que exista un documento que describa los roles del sistema 
+CareStock y sus permisos
+
+**Para** poder entender qué puede hacer cada tipo de usuario dentro de la 
+plataforma.
+
+### Criterios de Aceptación:
+
+- Existe un documento con la descripción de los roles del sistema.
+- La documentación describe las responsabilidades de cada rol.
+- La documentación incluye una matriz de permisos por rol.
+- La documentación describe las restricciones de funcionalidades según el 
+rol.
+- La documentación está enlazada desde el Issue correspondiente.
+
+### Validación INVEST
+
+- **I - Independent:** Puede realizarse sin depender del desarrollo de 
+otras HU.
+- **N - Negotiable:** El formato y nivel de detalle de la documentación 
+pueden ajustarse.
+- **V - Valuable:** Permite entender los roles del sistema sin depender 
+del equipo técnico.
+- **E - Estimable:** Alcance acotado a documentación en el repositorio.
+- **S - Small:** Se limita a un documento de roles.
+- **T - Testable:** Se verifica revisando que el documento exista y 
+contenga los puntos definidos.
+
+### Definition of Done:
+
+- [ ] Se cumplieron todos los criterios de aceptación.
+- [ ] La documentación fue creada en el repositorio.
+- [ ] El código fue subido mediante una rama y Pull Request.
+- [ ] La funcionalidad quedó integrada correctamente en la rama principal.
+- [ ] La documentación fue actualizada cuando aplic
+- [ ] La Historia de Usuario puede cerrarse y moverse a Done.
