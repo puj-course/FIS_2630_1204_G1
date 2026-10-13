@@ -116,11 +116,6 @@ public class CareStockApp extends Application {
                 720
         );
     }
-
-    // ========================================
-    // CERRAR SESION
-    // ========================================
-
     public void cerrarSesion() {
 
         SesionUsuario.cerrar();

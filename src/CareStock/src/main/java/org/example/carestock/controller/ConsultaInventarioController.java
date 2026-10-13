@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -18,122 +19,361 @@ import org.example.carestock.CareStockApp;
 import org.example.carestock.DataTransferObject.FiltroProductoInventario;
 import org.example.carestock.DataTransferObject.ProductoInventario;
 import org.example.carestock.facade.Inventario;
+import org.example.carestock.proxy.InventarioConsultas;
 import org.example.carestock.session.SesionUsuario;
 
 import java.util.List;
 
-/** Consulta unificada (solo lectura) y filtros de inventario. */
+/**
+ * Consulta unificada del inventario.
+ *
+ * La fachada utiliza el Proxy para reutilizar consultas vigentes.
+ * La carga se ejecuta fuera del hilo grafico de JavaFX.
+ */
 public class ConsultaInventarioController {
 
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private TextField txtBuscar;
     @FXML private Button btnActualizar;
+
     @FXML private TableView<ProductoInventario> tablaInventario;
+
     @FXML private TableColumn<ProductoInventario, String> colCodigo;
     @FXML private TableColumn<ProductoInventario, String> colNombre;
     @FXML private TableColumn<ProductoInventario, String> colCategoria;
     @FXML private TableColumn<ProductoInventario, String> colPresentacion;
     @FXML private TableColumn<ProductoInventario, String> colExistencia;
     @FXML private TableColumn<ProductoInventario, String> colEstado;
+
     @FXML private Label lblFarmacia;
     @FXML private Label lblEstado;
     @FXML private Label lblTotal;
 
-    private final ObservableList<ProductoInventario> productos = FXCollections.observableArrayList();
+    private final ObservableList<ProductoInventario> productos =
+            FXCollections.observableArrayList();
+
     private FilteredList<ProductoInventario> filtrados;
     private Inventario inventario;
-    private boolean consultaExitosa = false;
+
+    private SesionUsuario.DatosUsuario sesionVista;
+
+    private boolean consultaExitosa;
+    private boolean cargando;
+    private boolean vistaActiva = true;
 
     @FXML
     public void initialize() {
-        var sesion = SesionUsuario.actual();
-        if (sesion.idFarmacia() == null) {
-            throw new IllegalStateException("El usuario no tiene farmacia asignada");
+        sesionVista = SesionUsuario.actual();
+
+        if (sesionVista.idFarmacia() == null
+                || sesionVista.idFarmacia() <= 0) {
+
+            throw new IllegalStateException(
+                    "El usuario no tiene farmacia asignada"
+            );
         }
-        lblFarmacia.setText("Farmacia: " + (sesion.farmacia() == null
-                ? "#" + sesion.idFarmacia() : sesion.farmacia() + " (#" + sesion.idFarmacia() + ")"));
-        inventario = new Inventario(SesionUsuario.usuarioParaFachada());
 
-        colCodigo.setCellValueFactory(c -> celda(c.getValue().codigo()));
-        colNombre.setCellValueFactory(c -> celda(c.getValue().nombre()));
-        colCategoria.setCellValueFactory(c -> celda(c.getValue().categoria()));
-        colPresentacion.setCellValueFactory(c -> celda(c.getValue().presentacion()));
-        colExistencia.setCellValueFactory(c -> celda(c.getValue().existencia()));
-        colEstado.setCellValueFactory(c -> celda(c.getValue().estado()));
+        lblFarmacia.setText(
+                "Farmacia: "
+                        + (sesionVista.farmacia() == null
+                        ? "#" + sesionVista.idFarmacia()
+                        : sesionVista.farmacia()
+                        + " (#" + sesionVista.idFarmacia() + ")")
+        );
 
+        inventario = new Inventario(
+                SesionUsuario.usuarioParaFachada()
+        );
+
+        configurarColumnas();
+        configurarTabla();
+        configurarFiltros();
+
+        cargarDatos(false);
+    }
+
+    private void configurarColumnas() {
+        colCodigo.setCellValueFactory(
+                c -> celda(c.getValue().codigo())
+        );
+
+        colNombre.setCellValueFactory(
+                c -> celda(c.getValue().nombre())
+        );
+
+        colCategoria.setCellValueFactory(
+                c -> celda(c.getValue().categoria())
+        );
+
+        colPresentacion.setCellValueFactory(
+                c -> celda(c.getValue().presentacion())
+        );
+
+        colExistencia.setCellValueFactory(
+                c -> celda(c.getValue().existencia())
+        );
+
+        colEstado.setCellValueFactory(
+                c -> celda(c.getValue().estado())
+        );
+    }
+
+    private void configurarTabla() {
         filtrados = new FilteredList<>(productos, p -> true);
-        SortedList<ProductoInventario> ordenados = new SortedList<>(filtrados);
-        ordenados.comparatorProperty().bind(tablaInventario.comparatorProperty());
+
+        SortedList<ProductoInventario> ordenados =
+                new SortedList<>(filtrados);
+
+        ordenados.comparatorProperty().bind(
+                tablaInventario.comparatorProperty()
+        );
+
         tablaInventario.setItems(ordenados);
+
         tablaInventario.setRowFactory(t -> new TableRow<>() {
-            @Override protected void updateItem(ProductoInventario producto, boolean vacio) {
+            @Override
+            protected void updateItem(
+                    ProductoInventario producto,
+                    boolean vacio
+            ) {
                 super.updateItem(producto, vacio);
-                setStyle(vacio || producto == null ? ""
-                        : producto.existencia() == 0 ? "-fx-text-fill: #8B4513;" : "");
+
+                if (vacio || producto == null) {
+                    setStyle("");
+                } else if (producto.existencia() == 0) {
+                    setStyle("-fx-background-color: #FFF3E0;");
+                } else {
+                    setStyle("");
+                }
             }
         });
 
-        cmbCategoria.setItems(FXCollections.observableArrayList(
-                FiltroProductoInventario.TODAS, "Medicamento", "Aseo", "Maternidad"));
-        cmbCategoria.getSelectionModel().select(FiltroProductoInventario.TODAS);
-        cmbCategoria.valueProperty().addListener((o, antes, ahora) -> aplicarFiltros());
-        txtBuscar.textProperty().addListener((o, antes, ahora) -> aplicarFiltros());
-        tablaInventario.setPlaceholder(new Label("Cargando productos..."));
-        cargarDatos();
+        tablaInventario.setPlaceholder(
+                new Label("Cargando productos...")
+        );
+    }
+
+    private void configurarFiltros() {
+        cmbCategoria.setItems(
+                FXCollections.observableArrayList(
+                        FiltroProductoInventario.TODAS,
+                        "Medicamento",
+                        "Aseo",
+                        "Maternidad"
+                )
+        );
+
+        cmbCategoria.getSelectionModel().select(
+                FiltroProductoInventario.TODAS
+        );
+
+        cmbCategoria.valueProperty().addListener(
+                (observable, anterior, actual) -> aplicarFiltros()
+        );
+
+        txtBuscar.textProperty().addListener(
+                (observable, anterior, actual) -> aplicarFiltros()
+        );
     }
 
     private ReadOnlyStringWrapper celda(Object valor) {
-        return new ReadOnlyStringWrapper(String.valueOf(valor));
+        return new ReadOnlyStringWrapper(
+                valor == null ? "" : String.valueOf(valor)
+        );
     }
 
     private void aplicarFiltros() {
-        if (!consultaExitosa) return; // Un error JDBC no equivale a inventario vacio.
-        filtrados.setPredicate(p -> FiltroProductoInventario.coincide(
-                p, cmbCategoria.getValue(), txtBuscar.getText()));
+        if (!consultaExitosa) {
+            return;
+        }
+
+        filtrados.setPredicate(
+                producto -> FiltroProductoInventario.coincide(
+                        producto,
+                        cmbCategoria.getValue(),
+                        txtBuscar.getText()
+                )
+        );
+
         actualizarEstadoExitoso();
     }
 
     private void actualizarEstadoExitoso() {
         if (productos.isEmpty()) {
-            lblEstado.setText("No hay productos registrados en esta farmacia.");
+            lblEstado.setText(
+                    "No hay productos registrados en esta farmacia."
+            );
+
             tablaInventario.setPlaceholder(new Label(
-                    "No hay productos registrados en esta farmacia."));
+                    "No hay productos registrados en esta farmacia."
+            ));
+
         } else if (filtrados.isEmpty()) {
-            lblEstado.setText("No hay coincidencias para los filtros seleccionados.");
+            lblEstado.setText(
+                    "No hay coincidencias para los filtros seleccionados."
+            );
+
             tablaInventario.setPlaceholder(new Label(
-                    "Sin coincidencias. Cambia la categoria o la busqueda."));
+                    "Sin coincidencias. Cambia la categoria o la busqueda."
+            ));
+
         } else {
-            lblEstado.setText("Mostrando " + filtrados.size() + " de "
-                    + productos.size() + " productos de la farmacia.");
-            tablaInventario.setPlaceholder(new Label("Sin coincidencias."));
+            lblEstado.setText(
+                    "Mostrando " + filtrados.size()
+                            + " de " + productos.size()
+                            + " productos de la farmacia."
+            );
+
+            tablaInventario.setPlaceholder(
+                    new Label("Sin coincidencias.")
+            );
         }
-        lblTotal.setText("Productos encontrados: " + filtrados.size());
+
+        lblTotal.setText(
+                "Productos encontrados: " + filtrados.size()
+        );
     }
 
-    private void cargarDatos() {
+    /**
+     * false: permite utilizar la cache vigente.
+     * true: invalida la cache y solicita informacion nueva.
+     */
+    private void cargarDatos(boolean forzarActualizacion) {
+        if (cargando || !mismaSesionYVista()) {
+            return;
+        }
+
+        cargando = true;
+        consultaExitosa = false;
+
         btnActualizar.setDisable(true);
-        lblEstado.setText("Consultando inventario...");
-        try {
-            List<ProductoInventario> datos = inventario.listarInventarioUnificado();
-            productos.setAll(datos);
+        productos.clear();
+
+        lblTotal.setText("Productos encontrados: --");
+
+        lblEstado.setText(
+                forzarActualizacion
+                        ? "Actualizando inventario desde la base de datos..."
+                        : "Consultando inventario..."
+        );
+
+        tablaInventario.setPlaceholder(
+                new Label("Cargando productos...")
+        );
+
+        Task<List<ProductoInventario>> tarea = new Task<>() {
+            @Override
+            protected List<ProductoInventario> call() throws Exception {
+                // Verifica que esta tarea pertenezca a la sesion original.
+                if (SesionUsuario.actual() != sesionVista) {
+                    throw new IllegalStateException(
+                            "La sesion ha cambiado"
+                    );
+                }
+
+                if (forzarActualizacion) {
+                    return inventario.actualizarInventarioUnificado();
+                }
+
+                return inventario.listarInventarioUnificado();
+            }
+        };
+
+        tarea.setOnSucceeded(evento -> {
+            cargando = false;
+
+            if (!mismaSesionYVista()) {
+                return;
+            }
+
+            productos.setAll(tarea.getValue());
             consultaExitosa = true;
+
             aplicarFiltros();
-        } catch (Exception e) {
-            consultaExitosa = false;
-            productos.clear();
-            filtrados.setPredicate(p -> false);
-            lblTotal.setText("Productos encontrados: --");
-            lblEstado.setText("No se pudo cargar el inventario. Reintenta con Actualizar.");
-            tablaInventario.setPlaceholder(new Label(
-                    "Error de consulta. No se han cargado existencias. Pulsa Actualizar para reintentar."));
-            System.err.println("Error consultando inventario unificado: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
             btnActualizar.setDisable(false);
+
+            mostrarEstadisticasProxy();
+        });
+
+        tarea.setOnFailed(evento -> {
+            cargando = false;
+
+            if (!mismaSesionYVista()) {
+                return;
+            }
+
+            mostrarErrorConsulta();
+            btnActualizar.setDisable(false);
+
+            Throwable error = tarea.getException();
+
+            System.err.println(
+                    "Fallo de consulta de inventario: "
+                            + (error == null
+                            ? "Error desconocido"
+                            : error.getClass().getSimpleName())
+            );
+        });
+
+        Thread hilo = new Thread(tarea, "consulta-inventario");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
+    private boolean mismaSesionYVista() {
+        if (!vistaActiva) {
+            return false;
+        }
+
+        try {
+            // Compara la instancia de sesion, no solamente el usuario.
+            return SesionUsuario.actual() == sesionVista;
+        } catch (IllegalStateException e) {
+            return false;
         }
     }
 
-    @FXML private void onActualizar() { cargarDatos(); }
-    @FXML private void onVolver() { CareStockApp.getInstance().mostrarCatalogo(); }
-    @FXML private void onCerrarSesion() { CareStockApp.getInstance().cerrarSesion(); }
+    private void mostrarErrorConsulta() {
+        consultaExitosa = false;
+
+        productos.clear();
+        filtrados.setPredicate(p -> false);
+
+        lblTotal.setText("Productos encontrados: --");
+
+        lblEstado.setText(
+                "No se pudo cargar el inventario. Reintenta con Actualizar."
+        );
+
+        tablaInventario.setPlaceholder(new Label(
+                "Error de consulta. No se han cargado existencias."
+        ));
+    }
+
+    private void mostrarEstadisticasProxy() {
+        var proxy = InventarioConsultas.compartida();
+
+        System.out.printf(
+                "Proxy inventario: aciertos=%d, consultas reales=%d%n",
+                proxy.aciertos(),
+                proxy.consultasReales()
+        );
+    }
+
+    @FXML
+    private void onActualizar() {
+        cargarDatos(true);
+    }
+
+    @FXML
+    private void onVolver() {
+        vistaActiva = false;
+        CareStockApp.getInstance().mostrarCatalogo();
+    }
+
+    @FXML
+    private void onCerrarSesion() {
+        vistaActiva = false;
+        CareStockApp.getInstance().cerrarSesion();
+    }
 }

@@ -2,7 +2,7 @@ package org.example.carestock.model;
 /**
  * Contrato Builder para la construccion de productos.
  * Define los pasos comunes necesarios para configurar
- * productos de Aseo y Maternidad.
+ * productos de Aseo/Maternidad/Me.
  * Patron de diseño: Builder (GoF).
  */
 public interface Producto {
