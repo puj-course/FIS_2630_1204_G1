@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import javafx.concurrent.Task;
+import org.example.carestock.proxy.InventarioConsultas;
 
 public class InventarioController {
 

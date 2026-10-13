@@ -2,6 +2,7 @@ package org.example.carestock.dao;
 
 import org.example.carestock.DataTransferObject.ProductoInventario;
 import org.example.carestock.config.ConexionBD;
+import org.example.carestock.proxy.ConsultaInventario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,14 +11,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** DAO concreto, de solo lectura, para las tres categorias de una misma farmacia. */
-public class ConsultaInventarioDAO {
+/**
+ * RealSubject del patron Proxy.
+ * Consulta las tres categorias de productos de una misma farmacia.
+ */
+public class ConsultaInventarioDAO implements ConsultaInventario {
 
-    /**
-     * Une el catalogo, sin cruzar farmacias ni confundir un stock de cero con
-     * una tabla sin resultados. Los codigos INVIMA se presentan como el
-     * identificador disponible para medicamentos en el esquema actual.
-     */
     private static final String SQL = """
         SELECT 'Medicamento' AS categoria,
                m.id_medicamento AS id,
@@ -58,14 +57,23 @@ public class ConsultaInventarioDAO {
         ORDER BY categoria, nombre, codigo
         """;
 
-    public List<ProductoInventario> listarPorFarmacia(int idFarmacia) throws SQLException {
-        if (idFarmacia <= 0) throw new IllegalArgumentException("Farmacia invalida");
+    @Override
+    public List<ProductoInventario> listarPorFarmacia(int idFarmacia)
+            throws SQLException {
+
+        if (idFarmacia <= 0) {
+            throw new IllegalArgumentException("Farmacia invalida");
+        }
+
         List<ProductoInventario> productos = new ArrayList<>();
+
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(SQL)) {
+
             ps.setInt(1, idFarmacia);
             ps.setInt(2, idFarmacia);
             ps.setInt(3, idFarmacia);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     productos.add(new ProductoInventario(
@@ -80,6 +88,7 @@ public class ConsultaInventarioDAO {
                 }
             }
         }
+
         return productos;
     }
 }
