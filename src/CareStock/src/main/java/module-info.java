@@ -5,6 +5,7 @@ module org.example.carestock {
     requires javafx.media;
     requires java.sql;
     requires jbcrypt;
+    requires com.zaxxer.hikari;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -26,4 +27,5 @@ module org.example.carestock {
     exports org.example.carestock.facade;
     exports org.example.carestock.DataTransferObject;
     exports org.example.carestock.session;
+    requires org.slf4j.simple;
 }
