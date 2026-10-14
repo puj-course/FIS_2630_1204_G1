@@ -38,4 +38,4 @@ También figuran tipos como `Cosmetico`, `DispositivoMedico` y `AlertaInvima`. S
 
 **[🔍 Abrir el SVG completo para ampliar y examinar las relaciones](./Carestock.svg)**
 
-**Figura 1.** Vista estructural global del sistema, organizada por paquetes. La versión vectorial se incluye en esta misma carpeta como [`Carestock.svg`](./Carestock.svg); puedes abrirla directamente para inspeccionar las clases y sus relaciones a tamaño completo.
+**Figura 1.** Vista estructural global del sistema, organizada por paquetes.
