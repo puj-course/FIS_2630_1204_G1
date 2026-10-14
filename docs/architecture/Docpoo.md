@@ -12,16 +12,7 @@ Este documento describe y justifica la arquitectura orientada a objetos de **Car
 
 Este documento y el archivo `Carestock.svg` deben mantenerse en la misma carpeta para que la imagen se visualice correctamente en GitHub. El documento complementa, pero no reemplaza, el código fuente, las pruebas automatizadas, la documentación de base de datos ni los diagramas de comportamiento. En especial, la existencia de una operación o relación en el diagrama **no demuestra por sí sola que esté implementada y probada**.
 ## 📊 Diagrama UML
-
-<p align="center">
-  <a href="./Carestock.svg">
-    <img src="./Carestock.svg" alt="Diagrama de Clases CareStock" width="100%">
-  </a>
-</p>
-
-<p align="center">
-  🔎 <a href="./Carestock.svg">Abrir el SVG completo en el navegador</a>
-</p>
+<img width="19699" height="7699" alt="Carestock_1" src="https://github.com/user-attachments/assets/d66fe9fd-fe00-4623-9f5a-815e143b39c4" />
 
 > Figura 1. Vista estructural global del sistema, organizada por paquetes.
 
