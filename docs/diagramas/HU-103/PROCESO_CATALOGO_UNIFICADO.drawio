@@ -1,1 +1,123 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Proceso - Gestion Unificada del Catalogo" id="procesoCatalogo">
+    <mxGraphModel dx="1200" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
 
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1;" value="Proceso de Gestion Unificada del Catalogo de Productos - CareStock" vertex="1">
+          <mxGeometry x="400" y="-50" width="560" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" value="Inicio" vertex="1">
+          <mxGeometry x="540" y="20" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_d1" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="Que accion realiza el usuario?" vertex="1">
+          <mxGeometry x="500" y="110" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Columna A: Registrar / Editar -->
+        <mxCell id="a1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Selecciona categoria en cmbCategoria&#10;(Medicamentos / Aseo / Maternidad)" vertex="1">
+          <mxGeometry x="60" y="270" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Completa formulario dinamico segun tipo&#10;(panelAseo / panelMaternidad / panelMedicamentos)" vertex="1">
+          <mxGeometry x="60" y="390" width="300" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Clic en Registrar o Actualizar&#10;(onGuardar / onActualizar)" vertex="1">
+          <mxGeometry x="60" y="520" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="construirX(): lee los campos y arma el objeto&#10;con el Builder segun tipo (AseoBuilder /&#10;MaternidadBuilder / MedicamentoBuilder) - patron Builder" vertex="1">
+          <mxGeometry x="60" y="630" width="300" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Inventario.registrarX() / actualizarX(producto)&#10;- Fachada (patron Facade): valida farmaciaActual()&#10;(segregacion por farmacia) y persiste via DAO" vertex="1">
+          <mxGeometry x="60" y="770" width="300" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d2" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="Operacion exitosa?&#10;(un unico try/catch cubre&#10;validacion, Builder, farmacia y BD)" vertex="1">
+          <mxGeometry x="40" y="910" width="340" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="errA" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="Muestra error real (mostrarError / Alert):&#10;dato invalido, sesion/farmacia inactiva o&#10;fallo de base de datos" vertex="1">
+          <mxGeometry x="470" y="930" width="300" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="limpiar() y cargarTabla()&#10;(formulario y tabla se refrescan)" vertex="1">
+          <mxGeometry x="60" y="1080" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="Muestra Alert de confirmacion&#10;(&quot;Producto registrado con ID ...&quot;)" vertex="1">
+          <mxGeometry x="60" y="1190" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Columna B: Consulta unificada -->
+        <mxCell id="b1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="Clic en Consulta unificada&#10;(onConsultaUnificada)" vertex="1">
+          <mxGeometry x="780" y="270" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="b2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="ConsultaInventarioProxy.listarPorFarmacia(idFarmacia)&#10;- patron Proxy (Caching Proxy)" vertex="1">
+          <mxGeometry x="780" y="390" width="300" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d4" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="Dato vigente en cache (TTL)?" vertex="1">
+          <mxGeometry x="760" y="520" width="340" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bHit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="Retorna datos cacheados&#10;(cache hit)" vertex="1">
+          <mxGeometry x="1150" y="540" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bMiss" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="Consulta ConsultaInventarioDAO&#10;(PostgreSQL)" vertex="1">
+          <mxGeometry x="780" y="670" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bStore" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="Almacena resultado en cache&#10;(LRU, maximo 16 farmacias)" vertex="1">
+          <mxGeometry x="780" y="780" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="b4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="Muestra inventario unificado en tabla&#10;(segregado por farmacia activa)" vertex="1">
+          <mxGeometry x="780" y="900" width="300" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_end" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;" value="Fin" vertex="1">
+          <mxGeometry x="500" y="1320" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="n_start" target="n_d1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e2" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="n_d1" target="a1" value="Registrar o editar producto"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e3" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="n_d1" target="b1" value="Consultar inventario unificado"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e4" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a1" target="a2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a2" target="a3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a3" target="a4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6b" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a4" target="a5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a5" target="d2"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e8" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="d2" target="errA" value="No"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.2;entryX=1;entryY=0.5;" edge="1" source="errA" target="a2" value="Corrige y reintenta"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e10" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="d2" target="a9" value="Si"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a9" target="a11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="a11" target="n_end"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e19" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="b1" target="b2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="b2" target="d4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e21" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="d4" target="bHit" value="Si"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e22" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="d4" target="bMiss" value="No"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e23" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="bMiss" target="bStore"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e24" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="bStore" target="b4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e25" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="bHit" target="b4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e26" parent="1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" source="b4" target="n_end"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
