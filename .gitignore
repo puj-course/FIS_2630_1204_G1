@@ -21,3 +21,6 @@ out/
 
 # Prototipos locales / temporales
 Proto/
+
+# Conexion local a Neon
+src/CareStock/config/conexion-local.properties

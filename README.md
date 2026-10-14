@@ -233,3 +233,33 @@ El workflow `cd.yml` empaqueta el proyecto con Maven y publica el `.jar` generad
 * Pontificia Universidad Javeriana
 * Grupo: FIS\_2630\_1204\_G1
 
+
+## Estructura Maven y ejecución
+
+El proyecto Java/JavaFX de CareStock se encuentra en
+`src/CareStock`. Su `pom.xml` y Maven Wrapper son los únicos
+utilizados para compilar y ejecutar la aplicación.
+
+Desde la raíz del repositorio:
+
+```bash
+cd src/CareStock
+./mvnw clean verify
+./mvnw javafx:run
+```
+
+En Windows también puede utilizarse `mvnw.cmd`.
+
+La configuración local de PostgreSQL/Neon se almacena en
+`src/CareStock/config/conexion-local.properties` y no debe
+subirse al repositorio. Puede crearse a partir de
+`conexion-local.properties.example`.
+
+Docker Compose se ejecuta desde la raíz mediante
+`docker compose up --build`. El archivo de conexión local
+debe existir antes de iniciar el contenedor; se monta
+en modo solo lectura y no forma parte de la imagen.
+
+El contenedor utiliza un display virtual para JavaFX:
+esto valida la ejecución gráfica en un entorno Linux,
+pero no muestra una ventana en el escritorio del host.
