@@ -1,0 +1,16 @@
+target/
+.idea/
+.vscode/
+bin/
+out/
+*.class
+*.log
+
+# No incorporar credenciales a la imagen
+config/conexion-local.properties
+.env
+.env.*
+
+# Archivos locales de desarrollo
+*.bak
+recopilar-carestock.sh

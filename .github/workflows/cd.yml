@@ -15,22 +15,25 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Configurar Java
+      - name: Configurar Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
           cache: maven
+          cache-dependency-path: src/CareStock/pom.xml
 
       - name: Dar permisos al Maven Wrapper
+        working-directory: src/CareStock
         run: chmod +x mvnw
 
-      - name: Compilar aplicación
+      - name: Compilar aplicacion
+        working-directory: src/CareStock
         run: ./mvnw -B clean package
 
       - name: Publicar artefacto
         uses: actions/upload-artifact@v4
         with:
           name: CareStock-build
-          path: target/*.jar
-          if-no-files-found: warn
+          path: src/CareStock/target/*.jar
+          if-no-files-found: error
