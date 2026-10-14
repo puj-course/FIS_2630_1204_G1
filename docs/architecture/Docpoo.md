@@ -1,155 +1,41 @@
-# 📐 Diagrama de Clases del Sistema CareStock
+# 📐 Documentación técnica del diagrama de clases — CareStock
 
-**Issue:** [#41 - Elaboración del Diagrama de Clases del Sistema CareStock](https://github.com/puj-course/FIS_2630_1204_G1/issues/41)  
-**Autor:** Mateo Salazar Bogotá (Product Owner)  
-**Dominio:** Sistema SaaS de Gestión de Inventarios Médico-Farmacéuticos  
+> **Referencia:** [Issue #41 — Elaboración del Diagrama de Clases del Sistema CareStock](https://github.com/puj-course/FIS_2630_1204_G1/issues/41)  
+> **Autor de la documentación original:** Mateo Salazar Bogotá — Product Owner  
+> **Fecha de revisión documental:** 14 de octubre de 2026  
+> **Tipo de artefacto:** Diseño estructural orientado a objetos (UML)  
+> **Estado:** Documentación ampliada a partir del diagrama aportado; **pendiente de contraste final con el código fuente de la rama vigente**.
+
+## 1. Propósito
+
+Este documento describe y justifica la arquitectura orientada a objetos de **CareStock**, un sistema de gestión de inventarios médico-farmacéuticos con interfaz JavaFX y persistencia relacional mediante JDBC sobre PostgreSQL/Neon. Su propósito es explicar **qué responsabilidad tiene cada paquete**, **cómo colaboran sus clases**, **qué decisiones de diseño sustentan la solución** y **cómo comprobar que los patrones y las reglas de negocio funcionan**.
+
+Este documento y el archivo `Carestock.svg` deben mantenerse en la misma carpeta para que la imagen se visualice correctamente en GitHub. El documento complementa, pero no reemplaza, el código fuente, las pruebas automatizadas, la documentación de base de datos ni los diagramas de comportamiento. En especial, la existencia de una operación o relación en el diagrama **no demuestra por sí sola que esté implementada y probada**.
+
+### 1.1 Alcance funcional representado
+
+- Autenticación, contexto de sesión y asociación del usuario con una farmacia.
+- Consulta y administración del catálogo de **medicamentos, productos de aseo y maternidad**.
+- Registro de lotes, gestión de existencias y operaciones de dispensación.
+- Consulta unificada del inventario por farmacia y filtrado para la interfaz.
+- Persistencia mediante DAO y gestión centralizada de conexiones JDBC.
+- Optimización de lecturas mediante **Proxy con caché** y cachés auxiliares para vistas.
+- Construcción de modelos mediante **Builder** y orquestación de casos de uso mediante **Facade**.
+
+También figuran tipos como `Cosmetico`, `DispositivoMedico` y `AlertaInvima`. Su presencia en UML **no debe interpretarse automáticamente como evidencia de que tienen formularios o flujos productivos habilitados**. El propio diagrama marca `AlertaInvima` como modelo histórico/de pruebas.
+
+### 1.2 Criterios y límites
+
+**Fuente primaria:** SVG UML suministrado junto con la documentación inicial. La arquitectura y las firmas aquí descritas reflejan ese archivo, no una inspección independiente del repositorio. Cuando se especifica una garantía que el diagrama no puede demostrar (seguridad, transacciones, concurrencia, FEFO), se indica como **criterio de validación** y no como hecho comprobado.
+
+**Precisión terminológica:** la evidencia disponible permite describir a CareStock como aplicación de escritorio JavaFX con base de datos remota. La denominación «SaaS» del documento original requiere demostrar un modelo de prestación del servicio que no se puede inferir solo del diagrama.
 
 ---
 
-## 🎯 Objetivo y Alcance
+## 2. Diagrama de clases UML completo
 
-Este documento define la arquitectura orientada a objetos para el sistema **CareStock**, derivándose directamente del modelo de base de datos relacional (PostgreSQL / NeonDB) y satisfaciendo los requerimientos de las historias de usuario clave (gestión de stock, despacho FEFO y alertas de vencimiento).
+[![Diagrama UML de clases de CareStock](./Carestock.svg)](./Carestock.svg)
 
----
+**[🔍 Abrir el SVG completo para ampliar y examinar las relaciones](./Carestock.svg)**
 
-## 📊 Diagrama de Clases UML (Mermaid)
-
-```mermaid
-classDiagram
-    direction TB
-
-    %% --- CLASES DE DOMINIO Y USUARIOS ---
-
-    class Rol {
-        - Integer idRol
-        - String nombreRol
-        - String descripcion
-        + Rol(idRol: Integer, nombreRol: String)
-        + getIdRol(): Integer
-        + getNombreRol(): String
-    }
-
-    class Usuario {
-        - Integer idUsuario
-        - String nombreCompleto
-        - String email
-        - String passwordHash
-        - Rol rol
-        + Usuario(nombreCompleto: String, email: String, passwordHash: String, rol: Rol)
-        + autenticar(password: String): Boolean
-        + cambiarPassword(nuevaPassword: String): Void
-        + getRol(): Rol
-    }
-
-    class Proveedor {
-        - Integer idProveedor
-        - String nit
-        - String razonSocial
-        - String telefono
-        - String email
-        + Proveedor(nit: String, razonSocial: String)
-        + actualizarContacto(telefono: String, email: String): Void
-        + getDatosProveedor(): String
-    }
-
-    class Categoria {
-        - Integer idCategoria
-        - String nombreCategoria
-        - String descripcion
-        + Categoria(nombreCategoria: String, descripcion: String)
-        + getNombreCategoria(): String
-    }
-
-    class Ubicacion {
-        - Integer idUbicacion
-        - String estante
-        - String nivel
-        - String descripcion
-        + Ubicacion(estante: String, nivel: String)
-        + getUbicacionFormateada(): String
-    }
-
-    %% --- CLASES DE INVENTARIO Y LOTES ---
-
-    class Producto {
-        <<Abstract>>
-        - Integer idProducto
-        - String codigoInvima
-        - String nombreComercial
-        - String principioActivo
-        - String concentracion
-        - Integer stockMinimo
-        - Integer stockTotal
-        - String estado
-        - Categoria categoria
-        - List~Lote~ lotes
-        + Producto(codigoInvima: String, nombreComercial: String, stockMinimo: Integer)
-        + actualizarStockTotal(): Void
-        + calcularStockCritico(): Boolean
-        + agregarLote(lote: Lote): Void
-        + getLotes(): List~Lote~
-    }
-
-    class Medicamento {
-        - String formaFarmaceutica
-        - Boolean requiereReceta
-        + Medicamento(codigoInvima: String, nombreComercial: String, formaFarmaceutica: String)
-        + validarFormaFarmaceutica(): Boolean
-    }
-
-    class Lote {
-        - Integer idLote
-        - String numeroLote
-        - Integer cantidadActual
-        - Date fechaVencimiento
-        - Ubicacion ubicacion
-        - Proveedor proveedor
-        + Lote(numeroLote: String, cantidadInicial: Integer, fechaVencimiento: Date, ubicacion: Ubicacion)
-        + crearLote(numeroLote: String, cantidad: Integer, fechaVenc: Date): Lote
-        + descontarStock(cantidad: Integer): Boolean
-        + esProximoAVencer(diasLimite: Integer): Boolean
-        + estaVencido(): Boolean
-    }
-
-    class Alerta {
-        - Integer idAlerta
-        - String tipoAlerta
-        - String mensaje
-        - Date fechaGeneracion
-        - String estado
-        - Producto producto
-        - Lote lote
-        + Alerta(tipoAlerta: String, mensaje: String)
-        + evaluarVencimientos(lote: Lote): Alerta
-        + evaluarStockMinimo(producto: Producto): Alerta
-        + marcarComoResuelta(): Void
-    }
-
-    class Movimiento {
-        - Integer idMovimiento
-        - String tipoMovimiento
-        - Integer cantidad
-        - Date fechaMovimiento
-        - String observacion
-        - Usuario usuario
-        - Lote lote
-        + Movimiento(tipoMovimiento: String, cantidad: Integer, usuario: Usuario, lote: Lote)
-        + despacharFEFO(producto: Producto, cantidadRequerida: Integer): List~Movimiento~
-        + registrarEntrada(lote: Lote, cantidad: Integer): Void
-    }
-
-    %% --- RELACIONES DE HERENCIA Y ASOCIACIÓN ---
-
-    Producto <|-- Medicamento : Herencia
-    Usuario "1" *-- "1" Rol : Tiene
-    Producto "1" *-- "1" Categoria : Pertenece a
-    
-    Producto "1" *-- "0..*" Lote : Contiene
-    Lote "0..*" -- "1" Ubicacion : Almacenado en
-    Lote "0..*" -- "0..1" Proveedor : Suministrado por
-
-    Movimiento "0..*" -- "1" Usuario : Realizado por
-    Movimiento "0..*" -- "1" Lote : Aplica a
-
-    Alerta "0..*" -- "0..1" Producto : Refiere a
-    Alerta "0..*" -- "0..1" Lote : Refiere a
+**Figura 1.** Vista estructural global del sistema, organizada por paquetes. La versión vectorial se incluye en esta misma carpeta como [`Carestock.svg`](./Carestock.svg); puedes abrirla directamente para inspeccionar las clases y sus relaciones a tamaño completo.
