@@ -52,55 +52,112 @@ El objetivo es desacoplar la presentación de los servicios de negocio, habilita
 flowchart TB
     USER["Usuarios: farmacéutico, administrador y auxiliar"]
 
-    subgraph CLIENTES["1. Capa de presentación"]
-        direction LR
-        WEB["Cliente Web"]
-        MOVIL["Mensaje de Texto"]
-        DESKTOP["Cliente JavaFX<br/>Existente; integración API propuesta"]
-    end
+```mermaid
 
-    subgraph ENTRADA["2. Capa de acceso e integración — Propuesta"]
-        GATEWAY["API Gateway<br/>HTTPS · Enrutamiento · Rate limiting<br/>Validación técnica de tokens"]
-    end
+flowchart TB
 
-    subgraph NEGOCIO["3. Servicios de negocio — Propuestos"]
-        direction LR
-        AUTH["Identidad y acceso<br/>OAuth2 / OIDC · JWT · Roles"]
-        INVENTARIO["Inventario y catálogo<br/>Productos · Farmacias · Lotes<br/>Stock · FEFO · Kardex"]
-        ALERTAS["Notificaciones y alertas<br/>Stock mínimo · Vencimientos"]
-        AUDITORIA["Auditoría y trazabilidad<br/>Historial de eventos y movimientos"]
-    end
+USER["Usuarios: farmacéutico, administrador y auxiliar"]
 
-    subgraph PLATAFORMA["4. Persistencia, caché y mensajería"]
-        direction LR
-        DB_AUTH[("PostgreSQL<br/>Datos de identidad · Propuesto")]
-        DB_INV[("PostgreSQL / Neon<br/>Inventario · Evolución del actual")]
-        DB_AUDIT[("PostgreSQL<br/>Registros de auditoría · Propuesto")]
-        REDIS[("Redis<br/>Caché distribuida · Propuesto")]
-        OUTBOX["Outbox transaccional<br/>Publicación confiable · Propuesto"]
-        EVENTOS[["RabbitMQ<br/>Bus de eventos · Propuesto"]]
-    end
 
-    USER --> WEB
-    USER --> MOVIL
-    USER --> DESKTOP
 
-    WEB -->|"HTTPS / API"| GATEWAY
-    MOVIL -->|"HTTPS / API"| GATEWAY
-    DESKTOP -->|"HTTPS / API"| GATEWAY
+subgraph CLIENTES["1. Capa de presentación"]
 
-    GATEWAY -->|"Login y gestión de identidad"| AUTH
-    GATEWAY -->|"Consultas y movimientos"| INVENTARIO
-    GATEWAY -->|"Consulta de alertas"| ALERTAS
+direction LR
 
-    AUTH --> DB_AUTH
-    INVENTARIO -->|"Transacciones de inventario"| DB_INV
-    INVENTARIO <-->|"Lectura e invalidación"| REDIS
-    INVENTARIO -->|"Eventos confirmados"| OUTBOX
-    OUTBOX -->|"Publica"| EVENTOS
-    EVENTOS -->|"Consume eventos"| ALERTAS
-    EVENTOS -->|"Consume eventos"| AUDITORIA
-    AUDITORIA -->|"Registra trazas"| DB_AUDIT
+
+MOVIL[Mensaje de Texto]
+
+DESKTOP["Cliente JavaFX<br/>Existente; integración API propuesta"]
+
+end
+
+
+
+subgraph ENTRADA["2. Capa de acceso e integración — Propuesta"]
+
+GATEWAY["API Gateway<br/>HTTPS · Enrutamiento · Rate limiting<br/>Validación técnica de tokens"]
+
+end
+
+
+
+subgraph NEGOCIO["3. Servicios de negocio — Propuestos"]
+
+direction LR
+
+AUTH["Identidad y acceso<br/>OAuth2 / OIDC · JWT · Roles"]
+
+INVENTARIO["Inventario y catálogo<br/>Productos · Farmacias · Lotes<br/>Stock · FEFO · Kardex"]
+
+ALERTAS["Notificaciones y alertas<br/>Stock mínimo · Vencimientos"]
+
+AUDITORIA["Auditoría y trazabilidad<br/>Historial de eventos y movimientos"]
+
+end
+
+
+
+subgraph PLATAFORMA["4. Persistencia, caché y mensajería"]
+
+direction LR
+
+DB_AUTH[("PostgreSQL<br/>Datos de identidad · Propuesto")]
+
+DB_INV[("PostgreSQL / Neon<br/>Inventario · Evolución del actual")]
+
+DB_AUDIT[("PostgreSQL<br/>Registros de auditoría · Propuesto")]
+
+REDIS[("Redis<br/>Caché distribuida · Propuesto")]
+
+OUTBOX["Outbox transaccional<br/>Publicación confiable · Propuesto"]
+
+EVENTOS[["RabbitMQ<br/>Bus de eventos · Propuesto"]]
+
+end
+
+
+
+USER --> WEB
+
+USER --> MOVIL
+
+USER --> DESKTOP
+
+
+
+WEB -->|"HTTPS / API"| GATEWAY
+
+MOVIL -->|"HTTPS / API"| GATEWAY
+
+DESKTOP -->|"HTTPS / API"| GATEWAY
+
+
+
+GATEWAY -->|"Login y gestión de identidad"| AUTH
+
+GATEWAY -->|"Consultas y movimientos"| INVENTARIO
+
+GATEWAY -->|"Consulta de alertas"| ALERTAS
+
+
+
+AUTH --> DB_AUTH
+
+INVENTARIO -->|"Transacciones de inventario"| DB_INV
+
+INVENTARIO <-->|"Lectura e invalidación"| REDIS
+
+INVENTARIO -->|"Eventos confirmados"| OUTBOX
+
+OUTBOX -->|"Publica"| EVENTOS
+
+EVENTOS -->|"Consume eventos"| ALERTAS
+
+EVENTOS -->|"Consume eventos"| AUDITORIA
+
+AUDITORIA -->|"Registra trazas"| DB_AUDIT
+
+```
 **Figura 1.** Propuesta de evolución de CareStock hacia servicios independientes. Las tecnologías indicadas son **candidatas de arquitectura**, no decisiones de implementación cerradas.
 
 ### 2.1 Responsabilidades de cada componente
