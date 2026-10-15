@@ -49,15 +49,13 @@ flowchart TB
 ## 2. Diagrama de componentes — Arquitectura objetivo (visión futura)
 
 El objetivo es desacoplar la presentación de los servicios de negocio, habilitar varios tipos de cliente y sustituir el acceso directo de los clientes a la base de datos por una API. Se propone preservar las reglas existentes de **segregación por farmacia**, trazabilidad de operaciones, control de lotes y consultas de inventario.
-
-```mermaid
 flowchart TB
     USER["Usuarios: farmacéutico, administrador y auxiliar"]
 
     subgraph CLIENTES["1. Capa de presentación"]
         direction LR
-       
-        MOVIL[Mensaje de Texto
+        WEB["Cliente Web"]
+        MOVIL["Mensaje de Texto"]
         DESKTOP["Cliente JavaFX<br/>Existente; integración API propuesta"]
     end
 
@@ -103,8 +101,6 @@ flowchart TB
     EVENTOS -->|"Consume eventos"| ALERTAS
     EVENTOS -->|"Consume eventos"| AUDITORIA
     AUDITORIA -->|"Registra trazas"| DB_AUDIT
-```
-
 **Figura 1.** Propuesta de evolución de CareStock hacia servicios independientes. Las tecnologías indicadas son **candidatas de arquitectura**, no decisiones de implementación cerradas.
 
 ### 2.1 Responsabilidades de cada componente
