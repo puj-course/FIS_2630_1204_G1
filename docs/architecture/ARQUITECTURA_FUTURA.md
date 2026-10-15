@@ -56,8 +56,8 @@ flowchart TB
 
     subgraph CLIENTES["1. Capa de presentación"]
         direction LR
-        WEB["Portal web de administración<br/>React / Next.js · Propuesto"]
-        MOVIL["App móvil / POS<br/>Flutter · Propuesto"]
+       
+        MOVIL[Mensaje de Texto
         DESKTOP["Cliente JavaFX<br/>Existente; integración API propuesta"]
     end
 
