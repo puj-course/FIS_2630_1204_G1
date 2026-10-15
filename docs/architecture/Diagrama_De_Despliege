@@ -1,0 +1,89 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Despliegue - CareStock" id="despliegue">
+    <mxGraphModel dx="1178" dy="1519" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="DEV" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;i&gt;«device»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Equipo de desarrollo&lt;/b&gt;" vertex="1">
+          <mxGeometry height="330" width="300" x="23" y="-20" as="geometry" />
+        </mxCell>
+        <mxCell id="SRC" parent="DEV" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«artifact»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Código fuente&lt;/b&gt;&lt;br&gt;src/CareStock" vertex="1">
+          <mxGeometry height="70" width="260" x="20" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="BLD" parent="DEV" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«artifact»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Archivos de construcción&lt;/b&gt;&lt;br&gt;pom.xml · Dockerfile" vertex="1">
+          <mxGeometry height="70" width="260" x="20" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="TLS" parent="DEV" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«execution environment»&lt;/i&gt;&lt;br&gt;&lt;b&gt;JDK 21 + Maven Wrapper&lt;/b&gt;&lt;br&gt;mvnw" vertex="1">
+          <mxGeometry height="70" width="260" x="20" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="GH" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;i&gt;«cloud»&lt;/i&gt;&lt;br&gt;&lt;b&gt;GitHub&lt;/b&gt;" vertex="1">
+          <mxGeometry height="520" width="480" x="480" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ACT" parent="GH" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;strokeWidth=2;" value="&lt;i&gt;«execution environment»&lt;/i&gt;&lt;br&gt;&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;ubuntu-latest · Temurin 21" vertex="1">
+          <mxGeometry height="200" width="420" x="30" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="CI" parent="ACT" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«workflow»&lt;/i&gt;&lt;br&gt;&lt;b&gt;CI&lt;/b&gt;&lt;br&gt;./mvnw clean verify&lt;br&gt;push y pull request" vertex="1">
+          <mxGeometry height="100" width="185" x="20" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CD" parent="ACT" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«workflow»&lt;/i&gt;&lt;br&gt;&lt;b&gt;CD&lt;/b&gt;&lt;br&gt;./mvnw clean package&lt;br&gt;push a main" vertex="1">
+          <mxGeometry height="100" width="185" x="225" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="REPO" parent="GH" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«artifact»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Repositorio&lt;/b&gt;&lt;br&gt;rama main" vertex="1">
+          <mxGeometry height="70" width="420" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="JAR" parent="GH" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«artifact»&lt;/i&gt;&lt;br&gt;&lt;b&gt;CareStock-build&lt;/b&gt;&lt;br&gt;archivo .jar" vertex="1">
+          <mxGeometry height="70" width="420" x="30" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="USR" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;i&gt;«device»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Equipo del usuario&lt;/b&gt;" vertex="1">
+          <mxGeometry height="530" width="500" x="1153" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="DKR" parent="USR" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;strokeWidth=2;" value="&lt;i&gt;«execution environment»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Docker Engine&lt;/b&gt;" vertex="1">
+          <mxGeometry height="320" width="440" x="30" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="CNT" parent="DKR" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;strokeWidth=2;" value="&lt;i&gt;«container»&lt;/i&gt;&lt;br&gt;&lt;b&gt;carestock&lt;/b&gt;" vertex="1">
+          <mxGeometry height="240" width="400" x="20" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="APP" parent="CNT" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«artifact»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Aplicación CareStock&lt;/b&gt;&lt;br&gt;JavaFX 21 · CareStockApp&lt;br&gt;ENTRYPOINT: ./mvnw javafx:run" vertex="1">
+          <mxGeometry height="86" width="360" x="20" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="IMG" parent="CNT" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«artifact»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Imagen base&lt;/b&gt;&lt;br&gt;eclipse-temurin:21-jdk-jammy + GTK y X11" vertex="1">
+          <mxGeometry height="70" width="360" x="20" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="XS" parent="USR" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;dashed=1;" value="&lt;i&gt;«execution environment»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Servidor X (supuesto)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="440" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="NEON" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=center;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="&lt;i&gt;«cloud»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Neon&lt;/b&gt;" vertex="1">
+          <mxGeometry height="170" width="500" x="1150" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="PG" parent="NEON" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=12;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=2;" value="&lt;i&gt;«execution environment»&lt;/i&gt;&lt;br&gt;&lt;b&gt;PostgreSQL administrado&lt;/b&gt;&lt;br&gt;Base de datos de CareStock" vertex="1">
+          <mxGeometry height="90" width="440" x="30" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="DEV" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;endSize=10;strokeWidth=2;fontSize=11;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="REPO" value="Git · HTTPS (443)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="REPO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;endSize=10;strokeWidth=2;fontSize=11;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="ACT" value="dispara los flujos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="CD" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;endSize=10;strokeWidth=2;fontSize=11;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="JAR" value="publica el .jar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="REPO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;endSize=10;strokeWidth=2;fontSize=11;fontStyle=2;labelBackgroundColor=#FFFFFF;dashed=1;" target="DKR" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="990" y="145" />
+              <mxPoint x="990" y="375" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="CNT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;endSize=10;strokeWidth=2;fontSize=11;fontStyle=2;labelBackgroundColor=#FFFFFF;dashed=1;" target="XS" value="">
+          <mxGeometry relative="1" x="0.8349" y="-464" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="CNT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;endSize=10;strokeWidth=2;fontSize=11;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="PG" value="JDBC · TLS (sslmode=require)&lt;br&gt;puerto 5432 por defecto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
