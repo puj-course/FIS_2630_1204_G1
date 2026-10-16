@@ -113,6 +113,7 @@ public class CatalogoController {
     // ========================================
     // INICIALIZACION
     // ========================================
+    @FXML private Button btnLimpiar;
 
     @FXML
     public void initialize() {

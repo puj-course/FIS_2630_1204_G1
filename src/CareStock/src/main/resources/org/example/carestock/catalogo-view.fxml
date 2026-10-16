@@ -317,7 +317,9 @@
                                         <!-- OPERACIONES CRUD -->
                                         <HBox spacing="8.0" alignment="CENTER_LEFT">
                                             <children>
-                                                <Button text="Nuevo"
+
+                                                <Button fx:id="btnLimpiar"
+                                                        text="Nuevo"
                                                         onAction="#onNuevo"
                                                         style="-fx-background-color: #E3F3F2; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
