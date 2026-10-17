@@ -1053,3 +1053,4 @@ public class CatalogoController {
 
         alertaError.showAndWait();
     }
+}
