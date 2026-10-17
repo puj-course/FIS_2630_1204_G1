@@ -156,6 +156,53 @@ public class CatalogoController {
     }
 
     // ========================================
+    public void abrirDesdeConsulta(
+            String categoria,
+            Integer idProducto
+    ) {
+        if (!SesionUsuario.esAdministrador()) {
+            lblEstado.setText(
+                    "Sin permisos para modificar productos."
+            );
+            return;
+        }
+
+        String categoriaFormulario = switch (categoria) {
+            case "Medicamento", "Medicamentos" -> "Medicamentos";
+            case "Aseo" -> "Aseo";
+            case "Maternidad" -> "Maternidad";
+            default -> throw new IllegalArgumentException(
+                    "Categoria no reconocida"
+            );
+        };
+
+        cmbCategoria.getSelectionModel()
+                .select(categoriaFormulario);
+
+        if (idProducto == null) {
+            limpiar();
+            lblEstado.setText(
+                    "Formulario listo para registrar."
+            );
+            txtCodigo.requestFocus();
+            return;
+        }
+
+        for (RegistroCatalogo<?> fila :
+                tablaProductos.getItems()) {
+
+            if (fila.id() == idProducto.intValue()) {
+                tablaProductos.getSelectionModel().select(fila);
+                tablaProductos.scrollTo(fila);
+                return;
+            }
+        }
+
+        lblEstado.setText(
+                "Producto no disponible en la farmacia activa."
+        );
+    }
+
     // CONFIGURACION DE TABLA
     // ========================================
 

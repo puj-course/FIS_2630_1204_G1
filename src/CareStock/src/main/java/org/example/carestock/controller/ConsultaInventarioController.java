@@ -35,6 +35,8 @@ public class ConsultaInventarioController {
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private TextField txtBuscar;
     @FXML private Button btnActualizar;
+    @FXML private Button btnRegistrar;
+    @FXML private Button btnEditar;
 
     @FXML private TableView<ProductoInventario> tablaInventario;
 
@@ -88,6 +90,7 @@ public class ConsultaInventarioController {
         configurarColumnas();
         configurarTabla();
         configurarFiltros();
+        configurarAcciones();
 
         cargarDatos(false);
     }
@@ -113,9 +116,25 @@ public class ConsultaInventarioController {
                 c -> celda(c.getValue().existencia())
         );
 
-        colEstado.setCellValueFactory(
-                c -> celda(c.getValue().estado())
-        );
+        colEstado.setCellValueFactory(c -> {
+            ProductoInventario producto = c.getValue();
+
+            boolean esMedicamento =
+                    "Medicamento".equalsIgnoreCase(
+                            producto.categoria());
+
+            boolean sinStock = producto.existencia() == 0;
+
+            boolean estaActivo =
+                    "ACTIVO".equalsIgnoreCase(producto.estado());
+
+            String estadoVisual =
+                    esMedicamento && sinStock && estaActivo
+                            ? "DESHABILITADO"
+                            : producto.estado();
+
+            return celda(estadoVisual);
+        });
     }
 
     private void configurarTabla() {
@@ -173,6 +192,37 @@ public class ConsultaInventarioController {
 
         txtBuscar.textProperty().addListener(
                 (observable, anterior, actual) -> aplicarFiltros()
+        );
+    }
+
+    private void configurarAcciones() {
+        boolean autorizado = sesionVista.esAdministrador();
+
+        btnRegistrar.setVisible(autorizado);
+        btnRegistrar.setManaged(autorizado);
+
+        btnEditar.setVisible(autorizado);
+        btnEditar.setManaged(autorizado);
+
+        tablaInventario.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, anterior, actual) ->
+                        actualizarAcciones());
+
+        actualizarAcciones();
+    }
+
+    private void actualizarAcciones() {
+        boolean autorizado =
+                sesionVista.esAdministrador()
+                && mismaSesionYVista();
+
+        btnRegistrar.setDisable(!autorizado || cargando);
+
+        btnEditar.setDisable(
+                !autorizado || cargando
+                || tablaInventario.getSelectionModel()
+                        .getSelectedItem() == null
         );
     }
 
@@ -248,6 +298,7 @@ public class ConsultaInventarioController {
 
         btnActualizar.setDisable(true);
         productos.clear();
+        actualizarAcciones();
 
         lblTotal.setText("Productos encontrados: --");
 
@@ -291,6 +342,7 @@ public class ConsultaInventarioController {
 
             aplicarFiltros();
             btnActualizar.setDisable(false);
+            actualizarAcciones();
 
             mostrarEstadisticasProxy();
         });
@@ -304,6 +356,7 @@ public class ConsultaInventarioController {
 
             mostrarErrorConsulta();
             btnActualizar.setDisable(false);
+            actualizarAcciones();
 
             Throwable error = tarea.getException();
 
@@ -363,6 +416,59 @@ public class ConsultaInventarioController {
     @FXML
     private void onActualizar() {
         cargarDatos(true);
+    }
+
+    @FXML
+    private void onRegistrar() {
+        if (!mismaSesionYVista()
+                || !sesionVista.esAdministrador()
+                || cargando) {
+            return;
+        }
+
+        ProductoInventario seleccionado =
+                tablaInventario.getSelectionModel()
+                        .getSelectedItem();
+
+        String categoria = seleccionado == null
+                ? cmbCategoria.getValue()
+                : seleccionado.categoria();
+
+        if (categoria == null
+                || FiltroProductoInventario.TODAS
+                        .equalsIgnoreCase(categoria)) {
+            categoria = "Medicamento";
+        }
+
+        vistaActiva = false;
+
+        CareStockApp.getInstance()
+                .mostrarCatalogoParaRegistro(categoria);
+    }
+
+    @FXML
+    private void onEditar() {
+        if (!mismaSesionYVista()
+                || !sesionVista.esAdministrador()
+                || cargando) {
+            return;
+        }
+
+        ProductoInventario seleccionado =
+                tablaInventario.getSelectionModel()
+                        .getSelectedItem();
+
+        if (seleccionado == null) {
+            return;
+        }
+
+        vistaActiva = false;
+
+        CareStockApp.getInstance()
+                .mostrarCatalogoParaEditar(
+                        seleccionado.categoria(),
+                        seleccionado.id()
+                );
     }
 
     @FXML

@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
+import org.example.carestock.controller.CatalogoController;
 
 import java.net.URL;
 
@@ -19,6 +20,13 @@ public class CareStockApp extends Application {
     private static CareStockApp instance;
 
     private Stage primaryStage;
+
+    private record DestinoCatalogo(
+            String categoria,
+            Integer id
+    ) { }
+
+    private DestinoCatalogo destinoCatalogo;
 
     public static CareStockApp getInstance() {
         return instance;
@@ -112,6 +120,44 @@ public class CareStockApp extends Application {
         );
     }
 
+    public void mostrarCatalogoParaRegistro(String categoria) {
+        abrirFormularioCatalogo(categoria, null);
+    }
+
+    public void mostrarCatalogoParaEditar(
+            String categoria,
+            int id
+    ) {
+        if (id <= 0) {
+            throw new IllegalArgumentException(
+                    "ID de producto invalido");
+        }
+
+        abrirFormularioCatalogo(categoria, id);
+    }
+
+    private void abrirFormularioCatalogo(
+            String categoria,
+            Integer id
+    ) {
+        if (!SesionUsuario.estaActiva()
+                || !SesionUsuario.esAdministrador()
+                || SesionUsuario.actual().idFarmacia() == null) {
+
+            Alert aviso = new Alert(
+                    Alert.AlertType.WARNING,
+                    "No tienes permisos para modificar productos."
+            );
+
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
+            return;
+        }
+
+        destinoCatalogo = new DestinoCatalogo(categoria, id);
+        mostrarCatalogo();
+    }
+
     // ========================================
     // NAVEGACION: CONSULTA UNIFICADA
     // ========================================
@@ -165,6 +211,21 @@ public class CareStockApp extends Application {
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
+
+            if (fxmlRuta.endsWith("/catalogo-view.fxml")
+                    && destinoCatalogo != null) {
+
+                DestinoCatalogo destino = destinoCatalogo;
+                destinoCatalogo = null;
+
+                CatalogoController controlador =
+                        loader.getController();
+
+                controlador.abrirDesdeConsulta(
+                        destino.categoria(),
+                        destino.id()
+                );
+            }
 
             root.setOpacity(0);
 
