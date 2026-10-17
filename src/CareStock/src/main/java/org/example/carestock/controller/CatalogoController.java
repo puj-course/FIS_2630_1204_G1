@@ -965,12 +965,21 @@ public class CatalogoController {
                 return;
             }
 
+            String nombreProducto = txtNombre.getText().trim();
+
             limpiar();
             cargarTabla();
+            
+            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+            alerta.setTitle("Actualización Exitosa");
+            alerta.setHeaderText(null);
+            alerta.setContentText("El producto '" + nombreProducto + "' fue actualizado correctamente.");
 
-            lblEstado.setText(
-                    "Producto actualizado correctamente."
-            );
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
+            delay.setOnFinished(e -> alerta.close());
+            delay.play();
+
+            alerta.showAndWait();
 
         } catch (Exception e) {
 
