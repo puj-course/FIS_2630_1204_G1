@@ -24,7 +24,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 /**
  * Controlador del catalogo de productos.
  *
