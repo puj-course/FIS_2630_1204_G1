@@ -13,6 +13,8 @@ import java.sql.ResultSet;
  */
 public final class SesionUsuario {
 
+    private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
+
     private static volatile DatosUsuario actual;
 
     private SesionUsuario() {}
@@ -24,7 +26,12 @@ public final class SesionUsuario {
             String rol,
             Integer idFarmacia,
             String farmacia
-    ) {}
+    ) {
+        public boolean esAdministrador() {
+            return rol != null
+                    && ROL_ADMINISTRADOR.equalsIgnoreCase(rol.trim());
+        }
+    }
 
     public static void iniciar(Usuario usuarioAutenticado) throws Exception {
         if (usuarioAutenticado == null
@@ -87,6 +94,11 @@ public final class SesionUsuario {
 
     public static boolean estaActiva() {
         return actual != null;
+    }
+
+    public static boolean esAdministrador() {
+        DatosUsuario sesion = actual;
+        return sesion != null && sesion.esAdministrador();
     }
 
     public static DatosUsuario actual() {

@@ -35,6 +35,7 @@ public class InventarioController {
     @FXML private Label lblEmailSesion;
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
+    @FXML private Button btnCatalogo;
 
     @FXML private Label lblTotalLotes;
     @FXML private Label lblLotesVencidos;
@@ -76,6 +77,9 @@ public class InventarioController {
         lblFarmaciaSesion.setText(sesion.farmacia() == null
                 ? "Sin farmacia asignada"
                 : sesion.farmacia() + " (#" + sesion.idFarmacia() + ")");
+        boolean puedeConsultarCatalogo = sesion.idFarmacia() != null;
+        btnCatalogo.setVisible(puedeConsultarCatalogo);
+        btnCatalogo.setManaged(puedeConsultarCatalogo);
 
         colIdLote.setCellValueFactory(new PropertyValueFactory<>("idLote"));
         colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
@@ -104,7 +108,9 @@ public class InventarioController {
         }
     }
 });
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estadoLote"));
+        colEstado.setCellValueFactory(datos ->
+                new javafx.beans.property.ReadOnlyStringWrapper(
+                        estadoMostrado(datos.getValue())));
 
         cmbCategoria.getItems().add(CATEGORIA_TODAS);
         cmbCategoria.getSelectionModel().selectFirst();
@@ -151,7 +157,8 @@ public class InventarioController {
         filtroTexto = lote -> filtro.isEmpty()
                 || (lote.getNumeroLote() != null && lote.getNumeroLote().toLowerCase().contains(filtro))
                 || String.valueOf(lote.getIdMedicamento()).contains(filtro)
-                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro));
+                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro))
+                || estadoMostrado(lote).toLowerCase().contains(filtro);
         aplicarFiltros();
     }
 
@@ -174,7 +181,7 @@ public class InventarioController {
 
     @FXML
     private void onFiltrarVencidos() {
-        filtroEstado = lote -> lote.getFechaVencimiento() != null && lote.getFechaVencimiento().isBefore(LocalDate.now());
+        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(LocalDate.now());
         aplicarFiltros();
     }
 
@@ -184,6 +191,16 @@ public class InventarioController {
         aplicarFiltros();
     }
 
+    private String estadoMostrado(Lote lote) {
+        if (lote.getFechaVencimiento() != null
+                && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+            return "DESHABILITADO";
+        }
+        return lote.getEstadoLote() == null
+                ? "SIN ESTADO"
+                : lote.getEstadoLote();
+    }
+
     private void configurarEstiloFilas() {
         tablaLotes.setRowFactory(tv -> new TableRow<Lote>() {
             @Override
@@ -191,7 +208,7 @@ public class InventarioController {
                 super.updateItem(item, empty);
                 if (item == null || empty) {
                     setStyle("");
-                } else if (item.getFechaVencimiento() != null && item.getFechaVencimiento().isBefore(LocalDate.now())) {
+                } else if (item.getFechaVencimiento() != null && !item.getFechaVencimiento().isAfter(LocalDate.now())) {
                     setStyle("-fx-background-color: #FED7D7; -fx-text-fill: #742A2A; -fx-font-weight: bold;");
                 } else if (!"DISPONIBLE".equalsIgnoreCase(item.getEstadoLote())) {
                     setStyle("-fx-background-color: #FEEBC8; -fx-text-fill: #7B341E;");
@@ -215,12 +232,19 @@ public class InventarioController {
     @FXML
     private void onRefrescar() {
         cargarDatosTabla();
+        cargarContadoresPorCategoria();
     }
 
     @FXML
     private void onDispensar() {
         if (loteSeleccionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Por favor seleccione un lote directamente de la tabla.");
+            return;
+        }
+
+        if (!loteSeleccionado.esAptoParaDispensar()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Lote deshabilitado",
+                    "No se puede dispensar un lote vencido, retenido o agotado.");
             return;
         }
 
@@ -267,12 +291,18 @@ public class InventarioController {
             tablaLotes.getSelectionModel().clearSelection();
             loteSeleccionado = null;
             listaLotes.setAll(lotes);
-            categoriaPorMedicamento = inventario.categoriaPorMedicamento();
+            try {
+                categoriaPorMedicamento = inventario.categoriaPorMedicamento();
+            } catch (Exception ex) {
+                categoriaPorMedicamento = Map.of();
+                System.err.println("No fue posible consultar las categorias: " + ex.getMessage());
+            }
+            aplicarFiltros();
 
             // Actualizar contadores KPI
             lblTotalLotes.setText(String.valueOf(lotes.size()));
             long vencidos = lotes.stream()
-                    .filter(l -> l.getFechaVencimiento() != null && l.getFechaVencimiento().isBefore(LocalDate.now()))
+                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(LocalDate.now()))
                     .count();
             lblLotesVencidos.setText(String.valueOf(vencidos));
 

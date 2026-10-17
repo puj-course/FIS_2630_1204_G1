@@ -122,7 +122,7 @@
                     <content>
                         <VBox style="-fx-background-color: #F4FAF9; -fx-padding: 22 28 22 12;">
                             <children>
-                                <VBox spacing="10.0"
+                                <VBox fx:id="panelFormulario" spacing="10.0"
                                       style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #D6E6E4; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8); -fx-padding: 26;">
                                     <children>
 
@@ -317,7 +317,9 @@
                                         <!-- OPERACIONES CRUD -->
                                         <HBox spacing="8.0" alignment="CENTER_LEFT">
                                             <children>
-                                                <Button text="Nuevo"
+
+                                                <Button fx:id="btnLimpiar"
+                                                        text="Nuevo"
                                                         onAction="#onNuevo"
                                                         style="-fx-background-color: #E3F3F2; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 

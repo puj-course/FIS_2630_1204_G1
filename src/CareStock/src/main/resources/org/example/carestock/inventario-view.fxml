@@ -73,7 +73,8 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Button text="Catálogo"
+                        <Button fx:id="btnCatalogo"
+                                text="Catálogo"
                                 onAction="#onAbrirCatalogo"
                                 style="-fx-background-color: #FFFFFF; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
 
@@ -168,8 +169,11 @@
     <!-- ======================================= -->
 
     <center>
-        <VBox spacing="16.0"
-              style="-fx-background-color: #F4FAF9;">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background: #F4FAF9; -fx-background-color: #F4FAF9; -fx-border-color: transparent;">
+            <content>
+                <VBox spacing="16.0"
+                      style="-fx-background-color: #F4FAF9;">
 
             <padding>
                 <Insets top="22.0"
@@ -352,8 +356,8 @@
                 <!-- ================================== -->
 
                 <TableView fx:id="tablaLotes"
-                           VBox.vgrow="ALWAYS"
-                           prefHeight="300.0"
+                           minHeight="310.0"
+                           prefHeight="360.0"
                            style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #D6E6E4; -fx-border-width: 1;">
 
                     <columns>
@@ -385,16 +389,8 @@
                     </columns>
                 </TableView>
 
-            </children>
-        </VBox>
-    </center>
-
-    <!-- ======================================= -->
-    <!-- MODULO DE DISPENSACION                  -->
-    <!-- ======================================= -->
-
-    <bottom>
-        <VBox style="-fx-background-color: #F4FAF9; -fx-padding: 0 28 22 28;">
+                <!-- MODULO DE DISPENSACION -->
+                <VBox style="-fx-background-color: #F4FAF9; -fx-padding: 0 0 6 0;">
 
             <children>
 
@@ -463,7 +459,11 @@
                 </VBox>
 
             </children>
+                </VBox>
+            </children>
         </VBox>
-    </bottom>
+            </content>
+        </ScrollPane>
+    </center>
 
 </BorderPane>

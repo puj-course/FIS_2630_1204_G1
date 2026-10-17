@@ -11,6 +11,7 @@ import org.example.carestock.proxy.ConsultaInventario;
 import org.example.carestock.proxy.InventarioConsultas;
 import org.example.carestock.service.RegistroLoteService;
 import org.example.carestock.service.FarmacovigilanciaService;
+import org.example.carestock.service.ControlVencimientosService;
 import org.example.carestock.session.SesionUsuario;
 
 import java.sql.Connection;
@@ -41,6 +42,9 @@ public class Inventario {
 
     private final FarmacovigilanciaService farmacovigilanciaService =
             new FarmacovigilanciaService();
+
+    private final ControlVencimientosService controlVencimientosService =
+            new ControlVencimientosService();
 
     public Inventario(Usuario usuario) {
         if (usuario == null || usuario.getIdUsuario() <= 0) {
@@ -340,9 +344,16 @@ public class Inventario {
     // ==================================================
 
     public List<Lote> listarLotes() throws Exception {
-        return loteDAO.listarPorFarmacia(
-                farmaciaActual()
-        );
+        int idFarmacia = farmaciaActual();
+
+        int actualizados = controlVencimientosService
+                .sincronizar(idFarmacia, idUsuario);
+
+        if (actualizados > 0) {
+            InventarioConsultas.invalidarFarmacia(idFarmacia);
+        }
+
+        return loteDAO.listarPorFarmacia(idFarmacia);
     }
 
     public Lote registrarLote(Lote lote) throws Exception {
