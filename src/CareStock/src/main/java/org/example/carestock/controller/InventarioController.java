@@ -35,6 +35,7 @@ public class InventarioController {
     @FXML private Label lblEmailSesion;
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
+    @FXML private Button btnCatalogo;
 
     @FXML private Label lblTotalLotes;
     @FXML private Label lblLotesVencidos;
@@ -76,6 +77,9 @@ public class InventarioController {
         lblFarmaciaSesion.setText(sesion.farmacia() == null
                 ? "Sin farmacia asignada"
                 : sesion.farmacia() + " (#" + sesion.idFarmacia() + ")");
+        boolean puedeAdministrarCatalogo = sesion.esAdministrador();
+        btnCatalogo.setVisible(puedeAdministrarCatalogo);
+        btnCatalogo.setManaged(puedeAdministrarCatalogo);
 
         colIdLote.setCellValueFactory(new PropertyValueFactory<>("idLote"));
         colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));

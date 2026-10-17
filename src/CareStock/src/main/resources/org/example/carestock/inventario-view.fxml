@@ -73,7 +73,8 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Button text="Catálogo"
+                        <Button fx:id="btnCatalogo"
+                                text="Catálogo"
                                 onAction="#onAbrirCatalogo"
                                 style="-fx-background-color: #FFFFFF; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
 
