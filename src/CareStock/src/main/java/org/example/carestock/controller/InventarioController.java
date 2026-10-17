@@ -77,9 +77,9 @@ public class InventarioController {
         lblFarmaciaSesion.setText(sesion.farmacia() == null
                 ? "Sin farmacia asignada"
                 : sesion.farmacia() + " (#" + sesion.idFarmacia() + ")");
-        boolean puedeAdministrarCatalogo = sesion.esAdministrador();
-        btnCatalogo.setVisible(puedeAdministrarCatalogo);
-        btnCatalogo.setManaged(puedeAdministrarCatalogo);
+        boolean puedeConsultarCatalogo = sesion.idFarmacia() != null;
+        btnCatalogo.setVisible(puedeConsultarCatalogo);
+        btnCatalogo.setManaged(puedeConsultarCatalogo);
 
         colIdLote.setCellValueFactory(new PropertyValueFactory<>("idLote"));
         colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
@@ -219,6 +219,7 @@ public class InventarioController {
     @FXML
     private void onRefrescar() {
         cargarDatosTabla();
+        cargarContadoresPorCategoria();
     }
 
     @FXML
@@ -271,7 +272,13 @@ public class InventarioController {
             tablaLotes.getSelectionModel().clearSelection();
             loteSeleccionado = null;
             listaLotes.setAll(lotes);
-            categoriaPorMedicamento = inventario.categoriaPorMedicamento();
+            try {
+                categoriaPorMedicamento = inventario.categoriaPorMedicamento();
+            } catch (Exception ex) {
+                categoriaPorMedicamento = Map.of();
+                System.err.println("No fue posible consultar las categorias: " + ex.getMessage());
+            }
+            aplicarFiltros();
 
             // Actualizar contadores KPI
             lblTotalLotes.setText(String.valueOf(lotes.size()));
