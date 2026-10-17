@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -81,6 +82,16 @@ public class CareStockApp extends Application {
 
         if (!SesionUsuario.estaActiva()) {
             mostrarLogin();
+            return;
+        }
+
+        if (!SesionUsuario.esAdministrador()) {
+            Alert alerta = new Alert(
+                    Alert.AlertType.WARNING,
+                    "Solo el rol ADMINISTRADOR puede acceder al catalogo."
+            );
+            alerta.setHeaderText(null);
+            alerta.showAndWait();
             return;
         }
 

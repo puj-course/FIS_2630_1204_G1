@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import org.example.carestock.CareStockApp;
+import org.example.carestock.DataTransferObject.LecturaCampos;
 import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.facade.Inventario;
 
@@ -664,19 +665,7 @@ public class CatalogoController {
     // ========================================
 
     private double leerPrecio() {
-
-        double valor = Double.parseDouble(
-                txtPrecio.getText().trim()
-        );
-
-        if (!Double.isFinite(valor) || valor < 0) {
-
-            throw new IllegalArgumentException(
-                    "El precio debe ser no negativo"
-            );
-        }
-
-        return valor;
+        return LecturaCampos.precio(txtPrecio.getText());
     }
 
     private BigDecimal leerPrecioMedicamento() {
@@ -716,18 +705,7 @@ public class CatalogoController {
     }
 
     private int leerStock() {
-
-        int valor = Integer.parseInt(
-                txtStock.getText().trim()
-        );
-
-        if (valor < 0) {
-            throw new IllegalArgumentException(
-                    "El stock no puede ser negativo"
-            );
-        }
-
-        return valor;
+        return LecturaCampos.entero(txtStock.getText(), "El stock");
     }
 
     // ========================================
@@ -758,12 +736,10 @@ public class CatalogoController {
 
     private Maternidad construirMaternidad() {
 
-        int edad =
-                txtEdadGestacional.getText().isBlank()
-                        ? 0
-                        : Integer.parseInt(
-                        txtEdadGestacional.getText().trim()
-                );
+        int edad = LecturaCampos.enteroOpcional(
+                txtEdadGestacional.getText(),
+                "La edad gestacional"
+        );
 
         return new MaternidadBuilder()
                 .setCodigo(txtCodigo.getText())
@@ -794,8 +770,9 @@ public class CatalogoController {
             );
         }
 
-        int minimo = Integer.parseInt(
-                txtStockMinimo.getText().trim()
+        int minimo = LecturaCampos.entero(
+                txtStockMinimo.getText(),
+                "El stock minimo"
         );
 
         return Medicamento.builder()
