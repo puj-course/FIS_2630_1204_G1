@@ -511,6 +511,7 @@ public class CatalogoController {
     @FXML
     private void onNuevo() {
         limpiar();
+        txtCodigo.requestFocus();
     }
 
     // ========================================
