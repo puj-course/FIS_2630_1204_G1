@@ -24,7 +24,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 /**
  * Controlador del catalogo de productos.
  *
@@ -1082,17 +1083,21 @@ public class CatalogoController {
         ).showAndWait();
     }
 
-    private void mostrarError(
+        private void mostrarError(
             String titulo,
             Exception e
     ) {
 
         lblEstado.setText(titulo);
 
-        new Alert(
-                Alert.AlertType.ERROR,
-                titulo + ": " + e.getMessage(),
-                ButtonType.OK
-        ).showAndWait();
+        Alert alertaError = new Alert(Alert.AlertType.ERROR);
+        alertaError.setTitle("Error en el Sistema");
+        alertaError.setHeaderText(titulo);
+        alertaError.setContentText(e.getMessage() != null ? e.getMessage() : "Ocurrió un error inesperado.");
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+        delay.setOnFinished(event -> alertaError.close());
+        delay.play();
+
+        alertaError.showAndWait();
     }
 }
