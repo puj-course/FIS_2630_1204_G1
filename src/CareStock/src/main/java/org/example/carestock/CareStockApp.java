@@ -26,19 +26,29 @@ public class CareStockApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-
         instance = this;
         this.primaryStage = stage;
 
-        stage.setTitle(
-                "CareStock - Control de Inventario y Farmacovigilancia"
-        );
-
+        stage.setTitle("CareStock - Control de Inventario y Farmacovigilancia");
         stage.setResizable(true);
 
         mostrarLogin();
-
         stage.show();
+
+        // Iniciar maximizado, respetando la resolucion del monitor.
+        stage.setMaximized(true);
+
+        // F11 activa o desactiva el modo Full-Screen real.
+        // ESC permite salir de Full-Screen.
+        stage.getScene().addEventFilter(
+                javafx.scene.input.KeyEvent.KEY_PRESSED,
+                evento -> {
+                    if (evento.getCode() == javafx.scene.input.KeyCode.F11) {
+                        stage.setFullScreen(!stage.isFullScreen());
+                        evento.consume();
+                    }
+                }
+        );
     }
 
     // ========================================
@@ -85,10 +95,10 @@ public class CareStockApp extends Application {
             return;
         }
 
-        if (!SesionUsuario.esAdministrador()) {
+        if (SesionUsuario.actual().idFarmacia() == null) {
             Alert alerta = new Alert(
                     Alert.AlertType.WARNING,
-                    "Solo el rol ADMINISTRADOR puede acceder al catalogo."
+                    "Se requiere una farmacia asignada para consultar el catalogo."
             );
             alerta.setHeaderText(null);
             alerta.showAndWait();
@@ -143,53 +153,47 @@ public class CareStockApp extends Application {
             double ancho,
             double alto
     ) {
-
         try {
-
             URL fxmlUrl = getClass().getResource(fxmlRuta);
 
             if (fxmlUrl == null) {
-
                 System.err.println(
-                        "No se encontro el archivo FXML: "
-                                + fxmlRuta
+                        "No se encontro el archivo FXML: " + fxmlRuta
                 );
-
                 return;
             }
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
-
             Parent root = loader.load();
-
-            Scene scene = new Scene(
-                    root,
-                    ancho,
-                    alto
-            );
 
             root.setOpacity(0);
 
-            primaryStage.setScene(scene);
+            // Reutilizar la Scene para conservar el estado de ventana.
+            Scene scene = primaryStage.getScene();
 
-            primaryStage.centerOnScreen();
+            if (scene == null) {
+                // Dimensiones iniciales, solo al crear la Scene.
+                primaryStage.setScene(
+                        new Scene(root, ancho, alto)
+                );
+            } else {
+                // Cambiar la vista sin cambiar el Stage ni su estado.
+                scene.setRoot(root);
+            }
 
-            FadeTransition fadeIn =
-                    new FadeTransition(
-                            Duration.millis(400),
-                            root
-                    );
+            FadeTransition fadeIn = new FadeTransition(
+                    Duration.millis(400),
+                    root
+            );
 
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
 
         } catch (Exception e) {
-
             System.err.println(
                     "Error al cargar la pantalla: " + fxmlRuta
             );
-
             e.printStackTrace();
         }
     }

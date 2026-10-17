@@ -81,6 +81,7 @@ public class CatalogoController {
     // ========================================
 
     @FXML private VBox panelMedicamentos;
+    @FXML private VBox panelFormulario;
     @FXML private TextField txtPrecioMedicamento;
     @FXML private TextField txtPrincipioActivo;
     @FXML private TextField txtConcentracion;
@@ -146,6 +147,12 @@ public class CatalogoController {
 
         cmbCategoria.getSelectionModel()
                 .select("Medicamentos");
+
+        boolean puedeEditar = SesionUsuario.esAdministrador();
+        panelFormulario.setDisable(!puedeEditar);
+        if (!puedeEditar) {
+            lblEstado.setText("Modo consulta: solo ADMINISTRADOR puede modificar productos.");
+        }
     }
 
     // ========================================
@@ -804,7 +811,7 @@ public class CatalogoController {
 
     @FXML
     private void onGuardar() {
-
+        if (!validarPermisoEdicion()) return;
         try {
 
             int id = switch (cmbCategoria.getValue()) {
@@ -854,7 +861,7 @@ public class CatalogoController {
 
     @FXML
     private void onActualizar() {
-
+        if (!validarPermisoEdicion()) return;
         if (seleccionado == null) {
 
             advertencia(
@@ -924,7 +931,7 @@ public class CatalogoController {
 
     @FXML
     private void onDesactivar() {
-
+        if (!validarPermisoEdicion()) return;
         if (seleccionado == null) {
 
             advertencia("Seleccione un producto");
@@ -994,6 +1001,12 @@ public class CatalogoController {
     // ========================================
     // MENSAJES
     // ========================================
+
+    private boolean validarPermisoEdicion() {
+        if (SesionUsuario.esAdministrador()) return true;
+        advertencia("Solo ADMINISTRADOR puede modificar el catalogo.");
+        return false;
+    }
 
     private void advertencia(String mensaje) {
 

@@ -1,9 +1,6 @@
 package org.example.carestock.model;
-
 public class ProductoDirector {
-
     private Producto builder;
-
     public ProductoDirector(Producto builder) {
         if (builder == null) {
             throw new IllegalArgumentException(
@@ -12,7 +9,6 @@ public class ProductoDirector {
         }
         this.builder = builder;
     }
-
     public void changeBuilder(Producto builder) {
         if (builder == null) {
             throw new IllegalArgumentException(

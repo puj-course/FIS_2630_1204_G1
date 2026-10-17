@@ -1,161 +1,260 @@
 @startuml
 
-title CareStock - Diagrama de Clases UML
-
+skinparam backgroundColor #F0F0F0
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 70
+skinparam packageFontSize 14
+skinparam packageFontStyle bold
+hide circle
 
-' ==========================================
-' APLICACIÓN PRINCIPAL
-' ==========================================
+top to bottom direction
 
-package "org.example.carestock" {
+' ============================================================
+' 1. APLICACION PRINCIPAL
+' ============================================================
+package "carestock" {
 
     class CareStockApp {
 - {static} instance: CareStockApp
 
 - primaryStage: Stage
 
-        + start(Stage): void
+
+        + {static} getInstance(): CareStockApp
+        + start(stage: Stage): void
         + mostrarLogin(): void
         + mostrarDashboard(): void
-        + mostrarInventario(): void
-        + {static} main(String[]): void
+        + mostrarCatalogo(): void
+        + mostrarConsultaUnificada(): void
+        + cerrarSesion(): void
+        + {static} main(args: String[]): void
+    }
+
+    class Launcher <<arranque>> {
+        + {static} main(args: String[]): void
+    }
+
+    class PruebaConexion <<utilidad>> {
+        + {static} main(args: String[]): void
     }
 }
 
-' ==========================================
-' CONFIGURACIÓN Y BASE DE DATOS
-' ==========================================
-
-package "org.example.carestock.config" {
-
+' ============================================================
+' 2. CONFIGURACION Y BASE DE DATOS
+' ============================================================
+package "config" {
     class ConexionBD {
-- {static} URL: String
+- {static} pool: HikariDataSource
 
-- {static} USUARIO: String
+- ConexionBD()
 
-- {static} CLAVE: String
 
         + {static} getConexion(): Connection
+- {static} cargarConfiguracion(): Properties
+
+- {static} crearPool(): HikariDataSource
+
+        + {static} estadoPool(): String
+        + {static} cerrarPool(): void
     }
 }
 
-' ==========================================
-' CONTROLADORES
-' ==========================================
+class "com.zaxxer.hikari.HikariDataSource" as HikariDataSource <<biblioteca externa>> {
+    + getConnection(): Connection
+    + close(): void
+}
 
-package "org.example.carestock.controller" {
+' ============================================================
+' 3. CONTROLADORES
+' ============================================================
+package "controller" {
 
     class LoginController {
 - txtEmail: TextField
 
 - txtPassword: PasswordField
 
-- btnIngresar: Button
-
-- lblNotificacion: Label
-
 - authService: AuthenticationService
 
-        + initialize(): void
-- ejecutarLogin(): void
 
+        + LoginController()
+        + initialize(): void
     }
 
     class InventarioController {
-- tblInventario: TableView
+- tablaLotes: TableView<Lote>
+
+- listaLotes: ObservableList<Lote>
 
 - txtBuscar: TextField
 
-- btnRegistrar: Button
+- cmbCategoria: ComboBox<String>
+
+- inventario: Inventario
+
+
+        + InventarioController()
+        + initialize(): void
+    }
+
+    class CatalogoController {
+- tablaProductos: TableView<RegistroCatalogo>
+
+- cmbCategoria: ComboBox<String>
+
+- inventario: Inventario
+
 
         + initialize(): void
-        + cargarDatosInventario(): void
+    }
+
+    class ConsultaInventarioController {
+- tablaInventario: TableView<ProductoInventario>
+
+- productos: ObservableList<ProductoInventario>
+
+- filtrados: FilteredList<ProductoInventario>
+
+- sesionVista: DatosUsuario
+
+- inventario: Inventario
+
+
+        + initialize(): void
+    }
+
+    class "CatalogoController.CategoriaMedicamento" as CategoriaMedicamento <<record auxiliar>> {
+        + id: int
+        + nombre: String
     }
 }
 
-' ==========================================
-' SERVICIOS
-' ==========================================
-
-package "org.example.carestock.service" {
+' ============================================================
+' 4. SERVICIOS
+' ============================================================
+package "service" {
 
     class AuthenticationService {
-        + autenticar(email: String, password: String): boolean
+- usuarioDAO: UsuarioDAO
+
+
+        + AuthenticationService()
+        + autenticar(email: String, password: String): Usuario
+    }
+
+    class RegistroLoteService {
+        + registrarMedicamentoLote(lote: Lote, idUsuario: int, idFarmacia: int): Lote
+    }
+
+    class FarmacovigilanciaService {
+        + dispensarMedicamento(idLote: int, cantidad: int): void
+        + dispensarMedicamento(idLote: int, cantidad: int, idFarmacia: int, idUsuario: int): void
     }
 }
 
-' ==========================================
-' CAPA DE PERSISTENCIA - DAO
-' ==========================================
-
-package "org.example.carestock.dao" {
+' ============================================================
+' 5. DAO
+' ============================================================
+package "dao" {
 
     interface LoteDAO {
-        + listar(): List<Lote>
-        + guardar(lote: Lote): boolean
+        + guardar(lote: Lote): void
+        + buscarPorId(idLote: int): Lote
+        + listarPorMedicamento(idMedicamento: int): List<Lote>
+        + listarPorFarmacia(idFarmacia: int): List<Lote>
+        + listarTodos(): List<Lote>
+        + actualizarCantidad(idLote: int, cantidad: int): void
+        + actualizarEstado(idLote: int, estado: String): void
     }
 
     class LoteDAOImpl {
-        + listar(): List<Lote>
-        + guardar(lote: Lote): boolean
+        + guardar(lote: Lote): void
+        + buscarPorId(idLote: int): Lote
+        + listarPorMedicamento(idMedicamento: int): List<Lote>
+        + listarPorFarmacia(idFarmacia: int): List<Lote>
+        + listarTodos(): List<Lote>
+        + actualizarCantidad(idLote: int, cantidad: int): void
+        + actualizarEstado(idLote: int, estado: String): void
     }
 
     interface MedicamentoDAO {
-        + listar(): List<Medicamento>
-        + buscarPorCodigo(codigo: String): Medicamento
-        + actualizarStock(id: int, cantidad: int): boolean
+        + guardar(medicamento: Medicamento): void
+        + buscarPorId(idMedicamento: int): Medicamento
+        + buscarPorCodigoInvima(codigo: String): Medicamento
+        + listarTodos(): List<Medicamento>
+        + listarCategorias(): Map<Integer, String>
+        + categoriaPorMedicamento(): Map<Integer, String>
+        + actualizarEstado(id: int, estado: String): void
     }
 
     class MedicamentoDAOImpl {
-        + listar(): List<Medicamento>
-        + buscarPorCodigo(codigo: String): Medicamento
-        + actualizarStock(id: int, cantidad: int): boolean
+        + guardar(medicamento: Medicamento): void
+        + buscarPorId(idMedicamento: int): Medicamento
+        + buscarPorCodigoInvima(codigo: String): Medicamento
+        + listarTodos(): List<Medicamento>
+        + listarCategorias(): Map<Integer, String>
+        + categoriaPorMedicamento(): Map<Integer, String>
+        + actualizarEstado(id: int, estado: String): void
     }
 
     interface UsuarioDAO {
         + buscarPorEmail(email: String): Usuario
-        + listar(): List<Usuario>
     }
 
     class UsuarioDAOImpl {
         + buscarPorEmail(email: String): Usuario
-        + listar(): List<Usuario>
+    }
+
+    class MedicamentoCatalogoDAO {
+        + listarPorFarmacia(idFarmacia: int): List<Medicamento>
+        + actualizar(id: int, producto: Medicamento, idFarmacia: int, idUsuario: int): boolean
+        + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
+        + {static} validarCampos(producto: Medicamento): void
+    }
+
+    class AseoDAO {
+        + guardar(producto: Aseo, idFarmacia: int, idUsuario: int): int
+        + buscarPorId(id: int, idFarmacia: int): RegistroCatalogo
+        + listarPorFarmacia(idFarmacia: int): List<RegistroCatalogo>
+        + actualizar(id: int, producto: Aseo, idFarmacia: int, idUsuario: int): boolean
+        + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
+    }
+
+    class MaternidadDAO {
+        + guardar(producto: Maternidad, idFarmacia: int, idUsuario: int): int
+        + buscarPorId(id: int, idFarmacia: int): RegistroCatalogo
+        + listarPorFarmacia(idFarmacia: int): List<RegistroCatalogo>
+        + actualizar(id: int, producto: Maternidad, idFarmacia: int, idUsuario: int): boolean
+        + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
+    }
+
+    class ConsultaInventarioDAO <<RealSubject>> {
+        + listarPorFarmacia(idFarmacia: int): List<ProductoInventario>
     }
 }
 
-' ==========================================
-' EXCEPCIONES
-' ==========================================
-
-package "org.example.carestock.exception" {
-
-    class ReglaNegocioException {
+' ============================================================
+' 6. EXCEPCIONES
+' ============================================================
+package "exception" {
+    class ReglaNegocioException <<Exception>> {
         + ReglaNegocioException(mensaje: String)
     }
 }
 
-' ==========================================
-' MODELO DE NEGOCIO
-' ==========================================
-
-package "org.example.carestock.model" {
-
-    ' --------------------------------------
-    ' INTERFAZ DE VALIDACIÓN
-    ' --------------------------------------
+' ============================================================
+' 7. MODELO DE NEGOCIO
+' ============================================================
+package "model" {
 
     interface Validable {
         + validar(): void
         + esAptoParaDispensar(): boolean
     }
-
-    ' --------------------------------------
-    ' INTERFAZ BUILDER - PRODUCTO
-    ' --------------------------------------
 
     interface Producto <<Builder>> {
         + reset(): void
@@ -166,60 +265,61 @@ package "org.example.carestock.model" {
         + setStock(stock: int): Producto
     }
 
-    ' --------------------------------------
-    ' DIRECTOR DEL BUILDER
-    ' --------------------------------------
-
     class ProductoDirector <<Director>> {
 - builder: Producto
+
 
         + ProductoDirector(builder: Producto)
         + changeBuilder(builder: Producto): void
         + make(type: String): void
     }
 
-    ' --------------------------------------
-    ' ALERTAS SANITARIAS
-    ' --------------------------------------
+    class AlertaInvima <<modelo historico / test>> {
+- idAlerta: String
 
-    class AlertaInvima {
-- idAlerta: int
+- cmAfectado: String
 
-- descripcion: String
+- loteAfectado: String
 
-- fechaAlerta: Timestamp
+- motivo: String
 
-        + getters y setters()
+- fechaEmision: LocalDate
+
+- activa: boolean
+
+
+        + validar(): void
+        + esAptoParaDispensar(): boolean
     }
-
-    ' --------------------------------------
-    ' COSMÉTICO
-    ' --------------------------------------
 
     class Cosmetico {
 - idCosmetico: int
 
+- codigo: String
+
 - nombre: String
+
+- precio: double
+
+- stock: int
 
 - registroSanitario: String
 
+- tipoPiel: String
+
+
         + validar(): void
         + esAptoParaDispensar(): boolean
-        + {static} builder(): CosmeticoBuilder
-        + getters y setters()
     }
-
-    ' --------------------------------------
-    ' BUILDER DE COSMÉTICO
-    ' --------------------------------------
 
     class CosmeticoBuilder <<ConcreteBuilder>> {
 - cosmetico: Cosmetico
 
+
         + reset(): void
         + setCodigo(codigo: String): CosmeticoBuilder
         + setNombre(nombre: String): CosmeticoBuilder
-        + setDescripcion(descripcion: String): CosmeticoBuilder
+        + setDescripcion(texto: String): Producto
         + setPrecio(precio: double): CosmeticoBuilder
         + setStock(stock: int): CosmeticoBuilder
         + setRegistroSanitario(valor: String): CosmeticoBuilder
@@ -227,47 +327,43 @@ package "org.example.carestock.model" {
         + build(): Cosmetico
     }
 
-    ' --------------------------------------
-    ' DISPOSITIVO MÉDICO
-    ' --------------------------------------
-
     class DispositivoMedico {
 - idDispositivo: int
+
 - codigo: String
+
 - nombre: String
+
 - descripcion: String
+
 - precio: double
+
 - stock: int
+
 - claseRiesgo: String
+
 - registroSanitario: String
+
 
         + validar(): void
         + esAptoParaDispensar(): boolean
         + {static} builder(): DispositivoMedicoBuilder
-        + getters y setters()
     }
-
-    ' --------------------------------------
-    ' BUILDER DE DISPOSITIVO MÉDICO
-    ' --------------------------------------
 
     class DispositivoMedicoBuilder <<ConcreteBuilder>> {
 - dispositivo: DispositivoMedico
 
+
         + reset(): void
         + setCodigo(codigo: String): DispositivoMedicoBuilder
         + setNombre(nombre: String): DispositivoMedicoBuilder
-        + setDescripcion(descripcion: String): DispositivoMedicoBuilder
+        + setDescripcion(texto: String): DispositivoMedicoBuilder
         + setPrecio(precio: double): DispositivoMedicoBuilder
         + setStock(stock: int): DispositivoMedicoBuilder
-        + setClaseRiesgo(claseRiesgo: String): DispositivoMedicoBuilder
-        + setRegistroSanitario(registroSanitario: String): DispositivoMedicoBuilder
+        + setClaseRiesgo(valor: String): DispositivoMedicoBuilder
+        + setRegistroSanitario(valor: String): DispositivoMedicoBuilder
         + build(): DispositivoMedico
     }
-
-    ' --------------------------------------
-    ' LOTE
-    ' --------------------------------------
 
     class Lote {
 - idLote: int
@@ -276,16 +372,26 @@ package "org.example.carestock.model" {
 
 - idMedicamento: int
 
+- cantidadActual: int
+
 - fechaVencimiento: LocalDate
 
-- cantidadDisponible: int
+- idUbicacion: Integer
 
-        + getters y setters()
+- estadoLote: String
+
+- fechaIngreso: LocalDateTime
+
+- idUsuario: Integer
+
+- idUsuarioModificacion: Integer
+
+- fechaModificacion: LocalDateTime
+
+
+        + validar(): void
+        + esAptoParaDispensar(): boolean
     }
-
-    ' --------------------------------------
-    ' MEDICAMENTO
-    ' --------------------------------------
 
     class Medicamento {
 - idMedicamento: int
@@ -298,35 +404,48 @@ package "org.example.carestock.model" {
 
 - concentracion: String
 
-- stockActual: int
+- formaFarmaceutica: String
+
+- idCategoria: Integer
+
+- stockMinimo: int
+
+- stockTotal: int
+
+- estado: String
+
+- idFarmacia: Integer
+
+- presentacion: String
+
+- precio: BigDecimal
+
+- idUsuarioCreacion: Integer
+
+- idUsuarioModificacion: Integer
+
+- fechaModificacion: LocalDateTime
+
 
         + validar(): void
         + esAptoParaDispensar(): boolean
-        + {static} builder(): MedicamentoBuilder
-        + getters y setters()
+        + {static} builder(): Medicamento.MedicamentoBuilder
     }
-
-    ' --------------------------------------
-    ' BUILDER DE MEDICAMENTO
-    ' --------------------------------------
 
     class MedicamentoBuilder <<ConcreteBuilder>> {
 - medicamento: Medicamento
 
+
         + reset(): void
         + setCodigo(codigo: String): MedicamentoBuilder
         + setNombre(nombre: String): MedicamentoBuilder
-        + setDescripcion(descripcion: String): MedicamentoBuilder
+        + setDescripcion(texto: String): Producto
         + setPrecio(precio: double): MedicamentoBuilder
         + setStock(stock: int): MedicamentoBuilder
         + principioActivo(valor: String): MedicamentoBuilder
         + concentracion(valor: String): MedicamentoBuilder
         + build(): Medicamento
     }
-
-    ' --------------------------------------
-    ' USUARIO
-    ' --------------------------------------
 
     class Usuario {
 - idUsuario: int
@@ -339,158 +458,467 @@ package "org.example.carestock.model" {
 
 - rol: String
 
+
+        + getIdUsuario(): int
+        + getEmail(): String
+        + getRol(): String
+    }
+
+    class Aseo {
+- idAseo: int
+
+- idFarmacia: Integer
+
+- idUsuarioCreacion: Integer
+
 - estado: String
 
-        + getters y setters()
+- codigo: String
+
+- nombre: String
+
+- descripcion: String
+
+- precio: double
+
+- stock: int
+
+- tipoAseo: String
+
+- biodegradable: boolean
+
+- componentesActivos: String
+
+
+        + validar(): void
+        + esAptoParaDispensar(): boolean
+    }
+
+    class AseoBuilder <<ConcreteBuilder>> {
+- aseo: Aseo
+
+
+        + reset(): void
+        + setCodigo(codigo: String): AseoBuilder
+        + setNombre(nombre: String): AseoBuilder
+        + setDescripcion(texto: String): AseoBuilder
+        + setPrecio(precio: double): AseoBuilder
+        + setStock(stock: int): AseoBuilder
+        + tipoAseo(valor: String): AseoBuilder
+        + biodegradable(valor: boolean): AseoBuilder
+        + componentesActivos(valor: String): AseoBuilder
+        + build(): Aseo
+    }
+
+    class Maternidad {
+- codigo: String
+
+- nombre: String
+
+- descripcion: String
+
+- precio: double
+
+- stock: int
+
+- etapaRecomendada: String
+
+- hipoalergenico: boolean
+
+- edadGestacionalSugerida: int
+
+
+        + validar(): void
+        + esAptoParaDispensar(): boolean
+    }
+
+    class MaternidadBuilder <<ConcreteBuilder>> {
+- maternidad: Maternidad
+
+
+        + reset(): void
+        + setCodigo(codigo: String): MaternidadBuilder
+        + setNombre(nombre: String): MaternidadBuilder
+        + setDescripcion(texto: String): MaternidadBuilder
+        + setPrecio(precio: double): MaternidadBuilder
+        + setStock(stock: int): MaternidadBuilder
+        + etapaRecomendada(valor: String): MaternidadBuilder
+        + hipoalergenico(valor: boolean): MaternidadBuilder
+        + edadGestacionalSugerida(valor: int): MaternidadBuilder
+        + build(): Maternidad
     }
 }
 
-' ==========================================
-' RELACIONES DE PERSISTENCIA
-' ==========================================
+' ============================================================
+' 8. FACHADA / PATRON GOF FACADE
+' ============================================================
+package "facade" {
+    class Inventario <<Facade>> {
+- idUsuario: int
 
+- aseoDAO: AseoDAO
+
+- maternidadDAO: MaternidadDAO
+
+- medicamentoDAO: MedicamentoDAO
+
+- medicamentoCatalogoDAO: MedicamentoCatalogoDAO
+
+- loteDAO: LoteDAO
+
+- consulta: ConsultaInventario
+
+- registroLoteService: RegistroLoteService
+
+- farmacovigilanciaService: FarmacovigilanciaService
+
+
+        + Inventario(usuario: Usuario)
+- farmaciaActual(): int
+
+        + registrarMedicamento(producto: Medicamento): Medicamento
+        + listarMedicamentos(): List<RegistroCatalogo>
+        + actualizarMedicamento(id: int, producto: Medicamento): boolean
+        + desactivarMedicamento(id: int): boolean
+        + registrarAseo(producto: Aseo): int
+        + buscarAseo(id: int): RegistroCatalogo
+        + listarAseo(): List<RegistroCatalogo>
+        + actualizarAseo(id: int, producto: Aseo): boolean
+        + desactivarAseo(id: int): boolean
+        + registrarMaternidad(producto: Maternidad): int
+        + buscarMaternidad(id: int): RegistroCatalogo
+        + listarMaternidad(): List<RegistroCatalogo>
+        + actualizarMaternidad(id: int, producto: Maternidad): boolean
+        + desactivarMaternidad(id: int): boolean
+        + listarLotes(): List<Lote>
+        + registrarLote(lote: Lote): Lote
+        + dispensarMedicamento(idLote: int, cantidad: int): void
+        + listarCategoriasMedicamento(): Map<Integer, String>
+        + categoriaPorMedicamento(): Map<Integer, String>
+        + contarPorCategoria(): Map<String, Integer>
+        + listarInventarioUnificado(): List<ProductoInventario>
+        + actualizarInventarioUnificado(): List<ProductoInventario>
+    }
+
+    interface "Inventario.Escritura<T>" as EscrituraInventario <<funcional interna>> {
+        + ejecutar(farmacia: int): T
+    }
+}
+
+' ============================================================
+' 9. DTO / CONSULTA UNIFICADA Y VISTAS
+' ============================================================
+package "dto" {
+    class RegistroCatalogo <<record>> {
+        + id: int
+        + producto: Object
+        + estado: String
+    }
+
+    class ProductoInventario <<record>> {
+        + id: int
+        + categoria: String
+        + codigo: String
+        + nombre: String
+        + presentacion: String
+        + existencia: int
+        + estado: String
+    }
+
+    class FiltroProductoInventario <<utility>> {
+        + {static} coincide(producto: ProductoInventario, categoria: String, busqueda: String): boolean
+    }
+
+    class DatosCatalogo <<record>> {
+        + productos: List<RegistroCatalogo>
+        + categoriasMedicamento: Map<Integer, String>
+        + creadoNanos: long
+    }
+
+    class DatosLotes <<record>> {
+        + lotes: List<Lote>
+        + categoriaPorMedicamento: Map<Integer, String>
+        + categorias: Map<Integer, String>
+        + conteoTipos: Map<String, Integer>
+    }
+}
+
+' ============================================================
+' 10. PROXY Y CACHE MULTIFARMACIA
+' ============================================================
+package "proxy" {
+
+    interface ConsultaInventario <<Subject>> {
+        + listarPorFarmacia(idFarmacia: int): List<ProductoInventario>
+    }
+
+    class ConsultaInventarioProxy <<Proxy>> {
+- real: ConsultaInventario
+
+- ttlNanos: long
+
+- cache: LinkedHashMap<Integer, Entrada>
+
+- pendientes: Map<Integer, Carga>
+
+- aciertos: AtomicLong
+
+- consultas: AtomicLong
+
+
+        + ConsultaInventarioProxy(real: ConsultaInventario, ttl: Duration)
+        + listarPorFarmacia(idFarmacia: int): List<ProductoInventario>
+        + invalidarFarmacia(idFarmacia: int): void
+        + invalidar(): void
+        + aciertos(): long
+        + consultasReales(): long
+    }
+
+    class "ConsultaInventarioProxy.Entrada" as ProxyEntrada <<record interno>> {
+        + datos: List<ProductoInventario>
+        + creadaNanos: long
+    }
+
+    class "ConsultaInventarioProxy.Carga" as ProxyCarga <<auxiliar interno>> {
+        + futuro: CompletableFuture<List<ProductoInventario>>
+    }
+
+    class InventarioConsultas <<factory / singleton>> {
+- {static} PROXY: ConsultaInventarioProxy
+
+
+        + {static} compartida(): ConsultaInventarioProxy
+        + {static} invalidarFarmacia(idFarmacia: int): void
+        + {static} invalidar(): void
+    }
+
+    class CacheFarmacia <<cache TTL/LRU>> {
+- cache: LinkedHashMap<Integer, Object>
+
+- pendientes: Map<Integer, Object>
+
+- ttlNanos: long
+
+- maxFarmacias: int
+
+- maxFilas: int
+
+
+        + CacheFarmacia(ttlSegundos: int, maxFarmacias: int, maxFilas: int)
+        + invalidarFarmacia(farmacia: int): void
+        + invalidarTodo(): void
+        + estadisticas(): String
+    }
+
+    class VistasCache <<cache de vistas>> {
+- {static} CATALOGO: CacheFarmacia
+
+- {static} LOTES: CacheFarmacia
+
+
+        + {static} invalidarFarmacia(farmacia: int): void
+        + {static} invalidarTodo(): void
+        + {static} metricas(): String
+    }
+}
+
+' ============================================================
+' 11. SESION Y CONTEXTO DE FARMACIA
+' ============================================================
+package "session" {
+    class SesionUsuario <<session context>> {
+- {static} actual: DatosUsuario
+
+
+        + {static} iniciar(usuario: Usuario): void
+        + {static} estaActiva(): boolean
+        + {static} actual(): DatosUsuario
+        + {static} usuarioParaFachada(): Usuario
+        + {static} cerrar(): void
+    }
+
+    class DatosUsuario <<record anidado>> {
+        + id: int
+        + nombre: String
+        + email: String
+        + rol: String
+        + idFarmacia: Integer
+        + farmacia: String
+    }
+}
+
+' ============================================================
+' 12. RELACIONES DE PERSISTENCIA (UML Estricto)
+' ============================================================
 LoteDAO <|.. LoteDAOImpl
 MedicamentoDAO <|.. MedicamentoDAOImpl
 UsuarioDAO <|.. UsuarioDAOImpl
+ConsultaInventario <|.. ConsultaInventarioDAO
+ConsultaInventario <|.. ConsultaInventarioProxy
 
-LoteDAOImpl --> ConexionBD : JDBC
-MedicamentoDAOImpl --> ConexionBD : JDBC
-UsuarioDAOImpl --> ConexionBD : JDBC
+LoteDAOImpl ..> ConexionBD : JDBC
+MedicamentoDAOImpl ..> ConexionBD : JDBC
+UsuarioDAOImpl ..> ConexionBD : JDBC
+MedicamentoCatalogoDAO ..> ConexionBD : JDBC
+AseoDAO ..> ConexionBD : JDBC
+MaternidadDAO ..> ConexionBD : JDBC
+ConsultaInventarioDAO ..> ConexionBD : JDBC
 
 UsuarioDAOImpl ..> Usuario : mapea
 MedicamentoDAOImpl ..> Medicamento : mapea
+MedicamentoCatalogoDAO ..> Medicamento : mapea
 LoteDAOImpl ..> Lote : mapea
+AseoDAO ..> Aseo : mapea
+MaternidadDAO ..> Maternidad : mapea
+ConsultaInventarioDAO ..> ProductoInventario : devuelve
 
-' ==========================================
-' RELACIONES DE CONTROLADORES
-' ==========================================
-
+' ============================================================
+' 13. CONTROLADORES / APLICACION
+' ============================================================
 LoginController --> AuthenticationService : utiliza
 AuthenticationService --> UsuarioDAO : consulta
+LoginController ..> SesionUsuario : inicia sesion
 
-InventarioController --> MedicamentoDAO : utiliza
-InventarioController --> LoteDAO : utiliza
-
-' ==========================================
-' RELACIONES DE LA APLICACIÓN
-' ==========================================
+InventarioController --> Inventario : utiliza
+CatalogoController --> Inventario : utiliza
+ConsultaInventarioController --> Inventario : utiliza
+ConsultaInventarioController ..> FiltroProductoInventario : filtra
 
 CareStockApp --> LoginController : carga FXML
 CareStockApp --> InventarioController : carga FXML
+CareStockApp --> CatalogoController : carga FXML
+CareStockApp --> ConsultaInventarioController : carga FXML
+CareStockApp ..> SesionUsuario : cierre de sesion
+Launcher ..> CareStockApp : inicia
+PruebaConexion ..> ConexionBD : verifica
 
-' ==========================================
-' VALIDACIÓN DE REGLAS DE NEGOCIO
-' ==========================================
+CatalogoController ..> AseoBuilder : construye
+CatalogoController ..> MaternidadBuilder : construye
+CatalogoController ..> Medicamento : construye
 
+' ============================================================
+' 14. FACHADA Y SERVICIOS
+' ============================================================
+Inventario --> AseoDAO : gestiona
+Inventario --> MaternidadDAO : gestiona
+Inventario --> MedicamentoDAO : utiliza
+Inventario --> MedicamentoCatalogoDAO : gestiona
+Inventario --> LoteDAO : consulta
+Inventario --> RegistroLoteService : registra lotes
+Inventario --> FarmacovigilanciaService : dispensa
+Inventario --> ConsultaInventario : consulta unificada
+Inventario ..> SesionUsuario : valida contexto
+Inventario ..> InventarioConsultas : invalida cache
+
+RegistroLoteService ..> ConexionBD : JDBC
+FarmacovigilanciaService ..> ConexionBD : JDBC
+RegistroLoteService ..> Lote : registra
+FarmacovigilanciaService ..> Lote : dispensa
+
+' ============================================================
+' 15. VALIDACIONES Y REGLAS DE NEGOCIO
+' ============================================================
 Validable <|.. Medicamento
 Validable <|.. Cosmetico
 Validable <|.. DispositivoMedico
+Validable <|.. Aseo
+Validable <|.. Maternidad
+Validable <|.. Lote
+Validable <|.. AlertaInvima
+Validable ..> ReglaNegocioException : lanza
 
-Validable ..> ReglaNegocioException : puede lanzar
-
-' ==========================================
-' PATRÓN BUILDER
-' ==========================================
-
-' Constructores concretos implementan
-' el contrato definido por Producto
-
-Producto <|.. MedicamentoBuilder : implementa
-Producto <|.. CosmeticoBuilder : implementa
-Producto <|.. DispositivoMedicoBuilder : implementa
-
-' El director utiliza la interfaz
-' para construir cualquier producto
+' ============================================================
+' 16. BUILDER
+' ============================================================
+Producto <|.. MedicamentoBuilder
+Producto <|.. CosmeticoBuilder
+Producto <|.. DispositivoMedicoBuilder
+Producto <|.. AseoBuilder
+Producto <|.. MaternidadBuilder
 
 ProductoDirector o--> Producto : utiliza
-
-' Los builders construyen
-' sus respectivos objetos
-
 MedicamentoBuilder --> Medicamento : construye
 CosmeticoBuilder --> Cosmetico : construye
 DispositivoMedicoBuilder --> DispositivoMedico : construye
+AseoBuilder --> Aseo : construye
+MaternidadBuilder --> Maternidad : construye
 
-' ==========================================
-' RELACIONES DEL MODELO
-' ==========================================
-
+' ============================================================
+' 17. MODELO, DTO, PROXY Y SESION
+' ============================================================
 Medicamento "1" -- "0..*" Lote : posee
+SesionUsuario *-- DatosUsuario : conserva
+SesionUsuario ..> Usuario : autentica
+SesionUsuario ..> InventarioConsultas : invalida al cambiar
 
-' ==========================================
-' DOCUMENTACIÓN DEL PATRÓN BUILDER
-' ==========================================
+RegistroCatalogo ..> Medicamento : contiene
+RegistroCatalogo ..> Aseo : contiene
+RegistroCatalogo ..> Maternidad : contiene
+DatosCatalogo o--> RegistroCatalogo : productos
+DatosLotes o--> Lote : lotes
+FiltroProductoInventario ..> ProductoInventario : filtra
 
+ConsultaInventarioProxy --> ConsultaInventario : RealSubject
+InventarioConsultas o--> ConsultaInventarioProxy : instancia compartida
+ConsultaInventarioProxy ..> SesionUsuario : autoriza farmacia
+ConsultaInventarioProxy --> ProductoInventario : almacena
+VistasCache *-- CacheFarmacia : gestiona caches
+VistasCache ..> DatosCatalogo : cache catalogo
+VistasCache ..> DatosLotes : cache lotes
+Inventario ..> EscrituraInventario : coordina escritura
+ConsultaInventarioProxy *-- ProxyEntrada : almacena
+ConsultaInventarioProxy *-- ProxyCarga : coordina cargas
+
+' ============================================================
+' 18. NOTAS DE DISENO (Estructura uniforme para patrones GoF)
+' ============================================================
 note right of ProductoDirector
-    Patrón Builder - Director
-
-    Mantiene una referencia
-    a la interfaz Producto.
-
-    make(String type):
-
-1. Ejecuta builder.reset()
-
-2. Si type = "estandar":
-       codigo = PROD-001
-       nombre = Producto Comercial Estándar
-       precio = 25000.0
-       stock = 50
-
-    3. Si type = "premium":
-       codigo = PROD-999
-       nombre = Producto de Alta Gama
-       precio = 120000.0
-       stock = 10
-
-    Permite cambiar el constructor
-    mediante changeBuilder().
+  Patron Builder:
+  El Director utiliza la interfaz Producto
+  y permite cambiar el constructor concreto.
 end note
 
 note bottom of Producto
-    Interfaz Builder
-
-    Define los pasos comunes
-    para construir productos.
-
-    Los métodos set permiten
-    encadenar operaciones.
-
-    No contiene atributos de instancia
-    ni implementa la persistencia.
+  Patron Builder:
+  Contrato abstracto para la construccion
+  de modelos del dominio.
 end note
 
-note bottom of MedicamentoBuilder
-    Concrete Builder
-
-    Implementa Producto.
-
-    Configura propiedades comunes
-    y específicas de medicamentos.
-
-    build() retorna Medicamento.
+note right of MedicamentoBuilder
+  Patron Builder:
+  Builder concreto del contrato Producto.
 end note
 
-note bottom of CosmeticoBuilder
-    Concrete Builder
-
-    Implementa Producto.
-
-    Configura propiedades comunes
-    y específicas de cosméticos.
-
-    build() retorna Cosmetico.
+note bottom of Inventario
+  Patron Facade:
+  Coordina catalogo, lotes y dispensacion
+  para el usuario y farmacia activos.
+  Invalida el Proxy tras escrituras.
 end note
 
-note bottom of DispositivoMedicoBuilder
-    Concrete Builder
+note right of ConsultaInventarioProxy
+  Patron GoF Proxy (Caching Proxy):
+  Representa el Proxy del Subject ConsultaInventario.
+- Implementa cache LRU por farmacia con TTL configurable.
 
-    Implementa Producto.
+- Evita lecturas concurrentes duplicadas hacia la BD.
 
-    Configura propiedades comunes
-    y específicas de dispositivos médicos.
+- Valida permisos de acceso por sesion de usuario.
 
-    build() retorna DispositivoMedico.
+- Permite invalidacion total o por farmacia.
+
+end note
+
+note bottom of VistasCache
+  Patron Caching:
+  Infraestructura para cachear DTOs
+  de catalogo y lotes de manera centralizada.
+end note
+
+note bottom of AlertaInvima
+  Modelo Historico / Test:
+  Incluida para conservar la trazabilidad
+  del modelo (se ubica en src/test/java).
 end note
 
 @enduml

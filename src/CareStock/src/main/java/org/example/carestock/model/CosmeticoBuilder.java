@@ -3,22 +3,18 @@ package org.example.carestock.model;
 
 public  class CosmeticoBuilder implements Producto {
     private Cosmetico cosmetico;
-
     public CosmeticoBuilder() {
         this.reset();
     }
-
     @Override
     public void reset() {
         this.cosmetico = new Cosmetico();
     }
-
     @Override
     public CosmeticoBuilder setCodigo(String codigo) {
         cosmetico.setCodigo(codigo);
         return this;
     }
-
     @Override
     public CosmeticoBuilder setNombre(String nombre) {
         cosmetico.setNombre(nombre);
