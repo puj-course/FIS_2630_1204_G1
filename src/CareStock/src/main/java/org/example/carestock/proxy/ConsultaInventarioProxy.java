@@ -55,6 +55,10 @@ public final class ConsultaInventarioProxy
 
     private final Object monitor = new Object();
 
+    // Version del contexto de sesion.
+    // Una invalidacion global cancela solicitudes anteriores.
+    private long versionSesion;
+
     // Cache LRU: una entrada independiente por farmacia.
     private final LinkedHashMap<Integer, Entrada> cache =
             new LinkedHashMap<>(16, 0.75f, true);
@@ -134,6 +138,12 @@ public final class ConsultaInventarioProxy
             int idFarmacia
     ) throws SQLException {
 
+        final long versionSolicitud;
+
+        synchronized (monitor) {
+            versionSolicitud = versionSesion;
+        }
+
         for (;;) {
             verificarAcceso(idFarmacia);
 
@@ -141,12 +151,15 @@ public final class ConsultaInventarioProxy
             boolean responsable;
 
             synchronized (monitor) {
+                verificarVersionSesion(versionSolicitud);
                 limpiarVencidas(reloj.getAsLong());
 
                 Entrada entrada = cache.get(idFarmacia);
 
                 // CACHE HIT
                 if (entrada != null) {
+                    verificarAcceso(idFarmacia);
+                    verificarVersionSesion(versionSolicitud);
                     aciertos.incrementAndGet();
                     return entrada.datos();
                 }
@@ -172,6 +185,10 @@ public final class ConsultaInventarioProxy
                         carga.futuro.join();
 
                 verificarAcceso(idFarmacia);
+
+                synchronized (monitor) {
+                    verificarVersionSesion(versionSolicitud);
+                }
 
                 return datos;
 
@@ -201,6 +218,15 @@ public final class ConsultaInventarioProxy
                         causa
                 );
             }
+        }
+    }
+
+    // Invocar con el monitor adquirido.
+    private void verificarVersionSesion(long versionSolicitud) {
+        if (versionSolicitud != versionSesion) {
+            throw new SecurityException(
+                    "La sesion cambio durante la consulta de inventario"
+            );
         }
     }
 
@@ -311,6 +337,7 @@ public final class ConsultaInventarioProxy
      */
     public void invalidar() {
         synchronized (monitor) {
+            versionSesion++;
             cache.clear();
 
             for (Carga carga : pendientes.values()) {
