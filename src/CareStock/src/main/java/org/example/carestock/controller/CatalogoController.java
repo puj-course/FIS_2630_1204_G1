@@ -510,6 +510,7 @@ public class CatalogoController {
 
     @FXML
     private void onNuevo() {
+        tablaProductos.getSelectionModel().clearSelection();
         limpiar();
         txtCodigo.requestFocus();
     }
