@@ -842,11 +842,18 @@ public class CatalogoController {
             limpiar();
             cargarTabla();
 
-            new Alert(
-                    Alert.AlertType.INFORMATION,
-                    "Producto registrado con ID " + id,
-                    ButtonType.OK
-            ).showAndWait();
+            String nombreProducto = txtNombre.getText().trim();
+
+            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+            alerta.setTitle("Registro Exitoso");
+            alerta.setHeaderText(null);
+            alerta.setContentText("El producto '" + nombreProducto + "' fue guardado con ID: " + id);
+
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
+            delay.setOnFinished(e -> alerta.close());
+            delay.play();
+
+            alerta.showAndWait();
 
         } catch (Exception e) {
 
