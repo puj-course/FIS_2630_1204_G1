@@ -860,9 +860,11 @@ public class CatalogoController {
     // ========================================
 
     @FXML
-    private void onGuardar() {
+        private void onGuardar() {
         if (!validarPermisoEdicion()) return;
         try {
+
+            String nombreProducto = txtNombre.getText().trim();
 
             int id = switch (cmbCategoria.getValue()) {
 
@@ -887,15 +889,17 @@ public class CatalogoController {
                         );
             };
 
+            if (id <= 0) {
+                throw new Exception("La base de datos no devolvió un ID válido.");
+            }
+
             limpiar();
             cargarTabla();
-
-            String nombreProducto = txtNombre.getText().trim();
 
             Alert alerta = new Alert(Alert.AlertType.INFORMATION);
             alerta.setTitle("Registro Exitoso");
             alerta.setHeaderText(null);
-            alerta.setContentText("El producto '" + nombreProducto + "' fue guardado con ID: " + id);
+            alerta.setContentText("El producto '" + nombreProducto + "' fue guardado correctamente. ID: " + id);
 
             javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
             delay.setOnFinished(e -> alerta.close());
