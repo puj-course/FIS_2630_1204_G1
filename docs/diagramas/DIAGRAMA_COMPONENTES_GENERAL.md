@@ -159,3 +159,9 @@ Ruta base: `src/CareStock/src/main/java/org/example/carestock/`.
 - La restricción por rol `ADMINISTRADOR` se comprueba en las pantallas (`CareStockApp` L144, `CatalogoController` L1075); la fachada `Inventario` no la comprueba.
 - En este zip `ReglaNegocioException` y `LoteDAO` están en su carpeta del módulo (`exception/` y `dao/`). Si en GitHub siguen en `src/test/java`, hay que moverlas para que el módulo compile.
 - Ya hay dos pruebas con JUnit (`ConsultaInventarioProxyTest` y `FiltroProductoInventarioTest`); no hay pruebas de los DAO ni de la fachada.
+
+---
+
+## Vista C4 actualizada
+
+La representación de **componentes C4 (nivel 3)**, vinculada con los paquetes y clases implementados, está en [DIAGRAMA_COMPONENTES_C4.md](DIAGRAMA_COMPONENTES_C4.md). Se conserva este documento como referencia de trazabilidad previa.
