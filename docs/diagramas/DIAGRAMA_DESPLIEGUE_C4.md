@@ -8,46 +8,107 @@
 
 Se muestran **instancias ejecutadas** y los nodos que las alojan. No se presenta GitHub, Maven ni GitHub Actions como servidores de producción: pertenecen al proceso de construcción y entrega. Neon aloja la base PostgreSQL y **no** ejecuta una API de CareStock.
 
+**Leyenda de los diagramas:**
+
+- **Cajas grandes con borde punteado:** nodos de despliegue (equipo, JVM, Docker, nube). Los nodos anidados se ejecutan dentro del que los contiene.
+- **Recuadros redondeados:** software que se ejecuta (la aplicación CareStock).
+- **Cilindro:** base de datos.
+- **Flecha azul gruesa:** conexión de datos por JDBC sobre TLS.
+- **Flecha naranja punteada:** lectura de la configuración local.
+
 ## Escenario A - Ejecución local del sistema
 
 ```mermaid
-C4Deployment
-    title CareStock - Despliegue local con PostgreSQL en Neon
+%%{init: {
+  "theme": "base",
+  "flowchart": { "curve": "basis", "nodeSpacing": 40, "rankSpacing": 70, "padding": 15, "useMaxWidth": false },
+  "themeVariables": {
+    "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+    "fontSize": "16px",
+    "lineColor": "#5B6B7C"
+  }
+}}%%
+flowchart TB
 
-    Deployment_Node(equipo, "Equipo del usuario", "Windows / sistema de escritorio compatible") {
-        Deployment_Node(jvm, "Entorno Java", "JDK 21 y JavaFX 21") {
-            Container(app, "CareStock", "Java 21 / JavaFX 21", "Aplicacion de escritorio con MVC, Facade, Proxy, DAO y HikariCP")
-        }
-    }
+    subgraph equipo["EQUIPO DEL USUARIO · Windows / escritorio compatible"]
+        cfg("<b>conexion-local.properties</b><br/>db.url, db.user, db.password<br/>db.pool.min / db.pool.max")
 
-    Deployment_Node(nube, "Nube Neon", "Servicio administrado de PostgreSQL") {
-        ContainerDb(bd, "Base de datos CareStock", "PostgreSQL", "Persistencia de usuarios, farmacias, productos, lotes y movimientos")
-    }
+        subgraph jvm["ENTORNO JAVA · JDK 21 + JavaFX 21"]
+            app("<b>CareStock</b><br/>Java 21 / JavaFX 21<br/>MVC, Facade, Proxy, DAO<br/>HikariCP y caché en memoria")
+        end
+    end
 
-    Rel(app, bd, "Consulta y modifica informacion", "JDBC / PostgreSQL con TLS, puerto 5432")
+    subgraph nube["NUBE NEON · PostgreSQL administrado"]
+        bd[("<b>Base de datos CareStock</b><br/>PostgreSQL<br/>Usuarios, farmacias, productos,<br/>lotes y movimientos")]
+    end
+
+    cfg -.->|"lee al iniciar"| app
+    app ==>|"JDBC / PostgreSQL<br/>TLS · puerto 5432"| bd
+
+    linkStyle 0 stroke:#D9822B,stroke-width:2px,stroke-dasharray:6 4
+    linkStyle 1 stroke:#2F6DB5,stroke-width:4px
+
+    classDef appC fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2.5px,color:#0B2A4A
+    classDef cfgC fill:#FDE7D3,stroke:#D9822B,stroke-width:2.5px,color:#5A2E06
+    classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2.5px,color:#FFFFFF
+
+    class app appC
+    class cfg cfgC
+    class bd bdC
+
+    style equipo fill:#F5F7FA,stroke:#5B6B7C,stroke-width:3px,stroke-dasharray:6 4,color:#1F2933
+    style jvm fill:#EAF3FC,stroke:#2F6DB5,stroke-width:3px,stroke-dasharray:6 4,color:#0B2A4A
+    style nube fill:#E6F7EC,stroke:#2E9E5B,stroke-width:3px,stroke-dasharray:6 4,color:#0A4A26
 ```
 
-**Recorrido:** el usuario interactúa con ventanas JavaFX en su equipo. La JVM ejecuta el código de CareStock y abre conexiones con Neon a través de HikariCP/JDBC. No hay navegador, SPA ni API HTTP intermedia en la arquitectura actual.
+**Recorrido:** el usuario interactúa con ventanas JavaFX en su equipo. La JVM ejecuta el código de CareStock, lee la configuración local y abre conexiones con Neon a través de HikariCP/JDBC. No hay navegador, SPA ni API HTTP intermedia en la arquitectura actual.
 
 ## Escenario B - Ejecución Docker opcional
 
 ```mermaid
-C4Deployment
-    title CareStock - Despliegue opcional mediante Docker
+%%{init: {
+  "theme": "base",
+  "flowchart": { "curve": "basis", "nodeSpacing": 40, "rankSpacing": 70, "padding": 15, "useMaxWidth": false },
+  "themeVariables": {
+    "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+    "fontSize": "16px",
+    "lineColor": "#5B6B7C"
+  }
+}}%%
+flowchart TB
 
-    Deployment_Node(host, "Equipo anfitrion", "Windows / Linux con Docker Engine") {
-        Deployment_Node(engine, "Docker Engine", "Entorno de contenedores") {
-            Deployment_Node(instancia, "Contenedor CareStock", "Eclipse Temurin 21 + Xvfb") {
-                Container(app_docker, "CareStock JavaFX", "Java 21 / Maven / JavaFX", "Ejecucion grafica con display virtual Xvfb")
-            }
-        }
-    }
+    subgraph host["EQUIPO ANFITRIÓN · Windows / Linux"]
+        cfg("<b>conexion-local.properties</b><br/>Archivo local de configuración")
 
-    Deployment_Node(neon, "Nube Neon", "PostgreSQL administrado") {
-        ContainerDb(bd_docker, "Base de datos CareStock", "PostgreSQL", "Datos persistentes compartidos por la aplicacion")
-    }
+        subgraph engine["DOCKER ENGINE · Entorno de contenedores"]
+            subgraph instancia["CONTENEDOR CARESTOCK · Eclipse Temurin 21 + Xvfb"]
+                app("<b>CareStock JavaFX</b><br/>Java 21 / Maven / JavaFX<br/>Display virtual Xvfb<br/>HikariCP y caché en memoria")
+            end
+        end
+    end
 
-    Rel(app_docker, bd_docker, "Lee y escribe datos", "JDBC / PostgreSQL con TLS, puerto 5432")
+    subgraph neon["NUBE NEON · PostgreSQL administrado"]
+        bd[("<b>Base de datos CareStock</b><br/>PostgreSQL<br/>Datos compartidos por la aplicación")]
+    end
+
+    cfg -.->|"montado solo lectura<br/>/app/config"| app
+    app ==>|"JDBC / PostgreSQL<br/>TLS · puerto 5432"| bd
+
+    linkStyle 0 stroke:#D9822B,stroke-width:2px,stroke-dasharray:6 4
+    linkStyle 1 stroke:#2F6DB5,stroke-width:4px
+
+    classDef appC fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2.5px,color:#0B2A4A
+    classDef cfgC fill:#FDE7D3,stroke:#D9822B,stroke-width:2.5px,color:#5A2E06
+    classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2.5px,color:#FFFFFF
+
+    class app appC
+    class cfg cfgC
+    class bd bdC
+
+    style host fill:#F5F7FA,stroke:#5B6B7C,stroke-width:3px,stroke-dasharray:6 4,color:#1F2933
+    style engine fill:#EDF0F4,stroke:#0DB7ED,stroke-width:3px,stroke-dasharray:6 4,color:#0B4F6C
+    style instancia fill:#E1F5FD,stroke:#0DB7ED,stroke-width:3px,stroke-dasharray:6 4,color:#0B4F6C
+    style neon fill:#E6F7EC,stroke:#2E9E5B,stroke-width:3px,stroke-dasharray:6 4,color:#0A4A26
 ```
 
 **Importante:** el `Dockerfile` ejecuta JavaFX mediante `xvfb-run`; esto **no publica una interfaz web** ni implica que se pueda ver la GUI automáticamente desde un navegador. Docker es una opción de empaquetado y ejecución, no el contenedor lógico C4 del nivel 2.
