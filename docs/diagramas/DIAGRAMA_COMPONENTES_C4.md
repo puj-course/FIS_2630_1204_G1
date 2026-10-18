@@ -9,44 +9,91 @@
 
 Identificar los componentes lógicos dentro de la **misma aplicación de escritorio** y sus dependencias. En C4, un componente es una agrupación de responsabilidades dentro de un contenedor, no necesariamente una clase individual ni un proceso separado. **PostgreSQL/Neon está fuera** del contenedor JavaFX.
 
-## Diagrama C4
+## Diagrama de componentes
+
+**Leyenda:** las flechas gruesas son el flujo principal de la aplicación; las punteadas son relaciones transversales con la sesión activa.
 
 ```mermaid
-C4Component
-    title CareStock - Nivel 3: componentes de la aplicacion de escritorio
+%%{init: {
+  "theme": "base",
+  "flowchart": { "curve": "basis", "nodeSpacing": 45, "rankSpacing": 60, "padding": 12 },
+  "themeVariables": {
+    "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+    "fontSize": "14px",
+    "lineColor": "#5B6B7C"
+  }
+}}%%
+flowchart TB
 
-    ContainerDb(bd, "Base de datos CareStock", "PostgreSQL / Neon", "Usuarios, farmacias, productos, lotes y movimientos")
+    ui["Presentación y navegación<br/>JavaFX / FXML<br/>Login, inventario, catálogo y consulta"]
 
-    Container_Boundary(desktop, "CareStock - aplicacion JavaFX") {
-        Component(ui, "Presentacion y navegacion", "JavaFX / FXML", "CareStockApp y controladores de login, inventario, catalogo y consulta")
-        Component(auth, "Autenticacion", "AuthenticationService / BCrypt", "Verifica credenciales")
-        Component(sesion, "Sesion activa", "SesionUsuario", "Identidad, rol y farmacia asignada")
-        Component(fachada, "Fachada de inventario", "Inventario / GoF Facade", "Centraliza operaciones de catalogo, lotes e inventario")
-        Component(proxy, "Consulta de inventario", "ConsultaInventarioProxy / GoF Proxy", "Cache TTL, invalidacion y acceso por farmacia")
-        Component(servicios, "Servicios de negocio", "Java", "Registro de lotes, dispensacion y vencimientos")
-        Component(builder, "Construccion de productos", "AseoBuilder / MaternidadBuilder", "Construye entidades de productos")
-        Component(modelo, "Dominio y DTO", "model / DataTransferObject", "Entidades, Validable y objetos de transferencia")
-        Component(dao, "Persistencia", "DAO concretos / JDBC", "Usuarios, catalogo, lotes y consulta consolidada")
-        Component(conexion, "Conexion a base de datos", "ConexionBD / HikariCP", "Proporciona conexiones JDBC agrupadas")
-    }
+    subgraph acceso["① Acceso y sesión"]
+        direction LR
+        auth["Autenticación<br/>AuthenticationService / BCrypt<br/>Verifica credenciales"]
+        sesion["Sesión activa<br/>SesionUsuario<br/>Identidad, rol y farmacia"]
+    end
 
-    Rel(ui, auth, "Inicia sesion")
-    Rel(ui, sesion, "Consulta usuario y farmacia")
-    Rel(ui, fachada, "Solicita operaciones")
-    Rel(ui, builder, "Crea productos")
-    Rel(auth, dao, "Consulta usuario")
-    Rel(fachada, sesion, "Valida identidad y farmacia")
-    Rel(fachada, proxy, "Consulta inventario unificado")
-    Rel(fachada, servicios, "Delega reglas de negocio")
-    Rel(fachada, dao, "Realiza operaciones de catalogo")
-    Rel(proxy, sesion, "Autoriza consulta por farmacia")
-    Rel(proxy, dao, "Usa consulta real en cache miss")
-    Rel(builder, modelo, "Construye entidades")
-    Rel(dao, modelo, "Lee y escribe entidades")
-    Rel(dao, conexion, "Obtiene conexiones")
-    Rel(servicios, conexion, "Ejecuta operaciones JDBC")
-    Rel(sesion, conexion, "Valida usuario y farmacia")
-    Rel(conexion, bd, "Lee y escribe", "JDBC / PostgreSQL sobre TLS")
+    subgraph negocio["② Lógica de negocio"]
+        direction LR
+        fachada["Fachada de inventario<br/>GoF Facade<br/>Centraliza operaciones"]
+        proxy["Consulta de inventario<br/>GoF Proxy<br/>Caché TTL y acceso por farmacia"]
+        servicios["Servicios de negocio<br/>Java<br/>Lotes, dispensación y vencimientos"]
+    end
+
+    subgraph dominio["③ Dominio"]
+        direction LR
+        builder["Construcción de productos<br/>AseoBuilder / MaternidadBuilder"]
+        modelo["Dominio y DTO<br/>model / DataTransferObject<br/>Entidades y Validable"]
+    end
+
+    subgraph datos["④ Acceso a datos"]
+        direction LR
+        dao["Persistencia<br/>DAO concretos / JDBC"]
+        conexion["Conexión a BD<br/>ConexionBD / HikariCP"]
+    end
+
+    bd[("Base de datos CareStock<br/>PostgreSQL / Neon")]
+
+    %% Flujo principal
+    ui ==> fachada
+    ui ==> auth
+    ui ==> builder
+    fachada ==> proxy
+    fachada ==> servicios
+    fachada ==> dao
+    proxy ==> dao
+    servicios ==> conexion
+    auth ==> dao
+    builder ==> modelo
+    dao ==> modelo
+    dao ==> conexion
+    conexion ==>|"JDBC / TLS"| bd
+
+    %% Relaciones transversales (sesión y autorización)
+    ui -.->|"consulta"| sesion
+    fachada -.->|"valida"| sesion
+    proxy -.->|"autoriza"| sesion
+    sesion -.->|"valida usuario"| conexion
+
+    %% Estilos
+    classDef presentacion fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2px,color:#0B2A4A
+    classDef seguridad fill:#FDE7D3,stroke:#D9822B,stroke-width:2px,color:#5A2E06
+    classDef negocioC fill:#D8F0E0,stroke:#2E9E5B,stroke-width:2px,color:#0F3D22
+    classDef dominioC fill:#EADCF7,stroke:#8A4FC7,stroke-width:2px,color:#3A1A5C
+    classDef datosC fill:#E3E8EE,stroke:#5B6B7C,stroke-width:2px,color:#1F2933
+    classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2px,color:#FFFFFF
+
+    class ui presentacion
+    class auth,sesion seguridad
+    class fachada,proxy,servicios negocioC
+    class builder,modelo dominioC
+    class dao,conexion datosC
+    class bd bdC
+
+    style acceso fill:#FFF8F0,stroke:#D9822B,stroke-dasharray:4 4,color:#5A2E06
+    style negocio fill:#F3FBF6,stroke:#2E9E5B,stroke-dasharray:4 4,color:#0F3D22
+    style dominio fill:#F9F4FD,stroke:#8A4FC7,stroke-dasharray:4 4,color:#3A1A5C
+    style datos fill:#F5F7FA,stroke:#5B6B7C,stroke-dasharray:4 4,color:#1F2933
 ```
 
 ## Componentes y trazabilidad al código
