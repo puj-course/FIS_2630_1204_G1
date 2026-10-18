@@ -48,15 +48,15 @@
 
                 <Button text="Consulta unificada"
                         onAction="#onConsultaUnificada"
-                        style="-fx-background-color: #FFFFFF; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
+                        style="-fx-background-color: #B7A6E0; -fx-text-fill: #FFFFFF; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
 
                 <Button text="Volver al inventario"
                         onAction="#onVolver"
-                        style="-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.45); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
+                        style="-fx-background-color: rgba(32,48,47,0.08); -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
 
                 <Button text="Cerrar sesión"
                         onAction="#onCerrarSesion"
-                        style="-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.45); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
+                        style="-fx-background-color: rgba(32,48,47,0.08); -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
             </children>
         </HBox>
     </top>
@@ -73,7 +73,7 @@
                 <VBox style="-fx-background-color: #FDFBF7; -fx-padding: 22 12 22 28;">
                     <children>
                         <VBox spacing="12.0" VBox.vgrow="ALWAYS"
-                              style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #D6E6E4; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8); -fx-padding: 22;">
+                              style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #E3D9F5; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(183,166,224,0.18), 20, 0, 0, 8); -fx-padding: 22;">
                             <children>
 
                                 <HBox spacing="10.0" alignment="CENTER_LEFT">
@@ -84,19 +84,19 @@
                                         <ComboBox fx:id="cmbCategoria"
                                                   prefHeight="40.0"
                                                   prefWidth="200.0"
-                                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4;" />
+                                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5;" />
 
                                         <Region HBox.hgrow="ALWAYS" />
 
                                         <Button text="Actualizar lista"
                                                 onAction="#onRefrescar"
-                                                style="-fx-background-color: #E3F3F2; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+                                                style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
                                     </children>
                                 </HBox>
 
                                 <TableView fx:id="tablaProductos"
                                            VBox.vgrow="ALWAYS"
-                                           style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #D6E6E4; -fx-border-width: 1;">
+                                           style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #E3D9F5; -fx-border-width: 1;">
                                     <columns>
                                         <TableColumn fx:id="colId" text="ID" prefWidth="55.0" />
                                         <TableColumn fx:id="colCodigo" text="Código / INVIMA" prefWidth="120.0" />
@@ -123,7 +123,7 @@
                         <VBox style="-fx-background-color: #FDFBF7; -fx-padding: 22 28 22 12;">
                             <children>
                                 <VBox fx:id="panelFormulario" spacing="10.0"
-                                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #D6E6E4; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8); -fx-padding: 26;">
+                                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #E3D9F5; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(183,166,224,0.18), 20, 0, 0, 8); -fx-padding: 26;">
                                     <children>
 
                                         <Label fx:id="lblSeleccion" text="Nuevo producto" textFill="#20302F">
@@ -132,7 +132,7 @@
                                             </font>
                                         </Label>
 
-                                        <Separator style="-fx-background-color: #D6E6E4;" />
+                                        <Separator style="-fx-background-color: #E3D9F5;" />
 
                                         <!-- CAMPOS COMUNES -->
                                         <Label fx:id="lblCodigoCampo" text="Código" textFill="#20302F"
@@ -140,14 +140,14 @@
                                         <TextField fx:id="txtCodigo"
                                                    prefHeight="40.0"
                                                    promptText="Código único por farmacia o INVIMA"
-                                                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                         <Label fx:id="lblNombreCampo" text="Nombre" textFill="#20302F"
                                                style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                         <TextField fx:id="txtNombre"
                                                    prefHeight="40.0"
                                                    promptText="Nombre del producto"
-                                                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                         <!-- DESCRIPCIÓN -->
                                         <VBox fx:id="panelDescripcion" spacing="6.0">
@@ -157,7 +157,7 @@
                                                 <TextField fx:id="txtDescripcion"
                                                            prefHeight="40.0"
                                                            promptText="Descripción del producto"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
                                             </children>
                                         </VBox>
 
@@ -173,7 +173,7 @@
                                                                 <TextField fx:id="txtPrecio"
                                                                            prefHeight="40.0"
                                                                            promptText="Ej: 15000.00"
-                                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
                                                             </children>
                                                         </VBox>
                                                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
@@ -183,7 +183,7 @@
                                                                 <TextField fx:id="txtStock"
                                                                            prefHeight="40.0"
                                                                            promptText="Ej: 10"
-                                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
                                                             </children>
                                                         </VBox>
                                                     </children>
@@ -194,21 +194,21 @@
                                         <!-- PRODUCTOS DE ASEO -->
                                         <VBox fx:id="panelAseo" spacing="8.0">
                                             <children>
-                                                <Separator style="-fx-background-color: #D6E6E4;" />
-                                                <Label text="CAMPOS DE ASEO" textFill="#0E7C7B"
+                                                <Separator style="-fx-background-color: #E3D9F5;" />
+                                                <Label text="CAMPOS DE ASEO" textFill="#6B5B95"
                                                        style="-fx-font-size: 11; -fx-font-weight: bold;" />
 
                                                 <Label text="Tipo de aseo" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtTipoAseo"
                                                            prefHeight="40.0"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Componentes activos" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtComponentesActivos"
                                                            prefHeight="40.0"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <CheckBox fx:id="chkBiodegradable" text="Biodegradable" textFill="#6D8683" />
                                             </children>
@@ -217,22 +217,22 @@
                                         <!-- PRODUCTOS DE MATERNIDAD -->
                                         <VBox fx:id="panelMaternidad" spacing="8.0" visible="false" managed="false">
                                             <children>
-                                                <Separator style="-fx-background-color: #D6E6E4;" />
-                                                <Label text="CAMPOS DE MATERNIDAD" textFill="#0E7C7B"
+                                                <Separator style="-fx-background-color: #E3D9F5;" />
+                                                <Label text="CAMPOS DE MATERNIDAD" textFill="#6B5B95"
                                                        style="-fx-font-size: 11; -fx-font-weight: bold;" />
 
                                                 <Label text="Etapa recomendada" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtEtapa"
                                                            prefHeight="40.0"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Edad gestacional sugerida" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtEdadGestacional"
                                                            prefHeight="40.0"
                                                            promptText="Semanas"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <CheckBox fx:id="chkHipoalergenico" text="Hipoalergénico" textFill="#6D8683" />
                                             </children>
@@ -241,8 +241,8 @@
                                         <!-- MEDICAMENTOS -->
                                         <VBox fx:id="panelMedicamentos" spacing="8.0" visible="false" managed="false">
                                             <children>
-                                                <Separator style="-fx-background-color: #D6E6E4;" />
-                                                <Label text="CAMPOS DE MEDICAMENTOS" textFill="#0E7C7B"
+                                                <Separator style="-fx-background-color: #E3D9F5;" />
+                                                <Label text="CAMPOS DE MEDICAMENTOS" textFill="#6B5B95"
                                                        style="-fx-font-size: 11; -fx-font-weight: bold;" />
 
                                                 <Label text="Principio activo (obligatorio)" textFill="#20302F"
@@ -250,58 +250,58 @@
                                                 <TextField fx:id="txtPrincipioActivo"
                                                            prefHeight="40.0"
                                                            promptText="Ej: Paracetamol"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Concentración" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtConcentracion"
                                                            prefHeight="40.0"
                                                            promptText="Ej: 500 mg"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Forma farmacéutica" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtFormaFarmaceutica"
                                                            prefHeight="40.0"
                                                            promptText="Ej: Tableta"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Presentación" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtPresentacion"
                                                            prefHeight="40.0"
                                                            promptText="Ej: Caja x 20"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Categoría farmacológica (obligatoria)" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <ComboBox fx:id="cmbCategoriaMedicamento"
                                                           maxWidth="Infinity"
                                                           prefHeight="40.0"
-                                                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4;" />
+                                                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5;" />
 
                                                 <Label text="Precio de venta (COP)" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtPrecioMedicamento"
                                                            prefHeight="40.0"
                                                            promptText="Ej: 15000.00"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <Label text="Stock mínimo (obligatorio)" textFill="#20302F"
                                                        style="-fx-font-size: 12; -fx-font-weight: bold;" />
                                                 <TextField fx:id="txtStockMinimo"
                                                            prefHeight="40.0"
                                                            promptText="Ej: 5"
-                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E3D9F5; -fx-padding: 0 12;" />
 
                                                 <VBox spacing="4.0"
-                                                      style="-fx-background-color: #E3F3F2; -fx-background-radius: 10; -fx-padding: 12 14;">
+                                                      style="-fx-background-color: #EDE7F7; -fx-background-radius: 10; -fx-padding: 12 14;">
                                                     <children>
                                                         <Label text="Stock total (solo lectura)" wrapText="true" textFill="#6D8683"
                                                                style="-fx-font-size: 11; -fx-font-weight: bold;" />
                                                         <Label fx:id="lblStockMedicamento"
                                                                text="0 (gestionado mediante lotes)"
-                                                               textFill="#0E7C7B"
+                                                               textFill="#6B5B95"
                                                                style="-fx-font-weight: bold;" />
                                                         <Label text="Las existencias se gestionan mediante lotes."
                                                                wrapText="true"
@@ -312,7 +312,7 @@
                                             </children>
                                         </VBox>
 
-                                        <Separator style="-fx-background-color: #D6E6E4;" />
+                                        <Separator style="-fx-background-color: #E3D9F5;" />
 
                                         <!-- OPERACIONES CRUD -->
                                         <HBox spacing="8.0" alignment="CENTER_LEFT">
@@ -321,19 +321,19 @@
                                                 <Button fx:id="btnLimpiar"
                                                         text="Nuevo"
                                                         onAction="#onNuevo"
-                                                        style="-fx-background-color: #E3F3F2; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+                                                        style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
                                                 <Button text="Registrar"
                                                         onAction="#onGuardar"
-                                                        style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 18;" />
+                                                        style="-fx-background-color: #B7A6E0; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 18;" />
 
                                                 <Button text="Actualizar"
                                                         onAction="#onActualizar"
-                                                        style="-fx-background-color: #E3F3F2; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+                                                        style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
                                                 <Button text="Desactivar"
                                                         onAction="#onDesactivar"
-                                                        style="-fx-background-color: #FDECEA; -fx-text-fill: #C53030; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+                                                        style="-fx-background-color: #F0A8A8; -fx-text-fill: #FFFFFF; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
                                             </children>
                                         </HBox>
 
