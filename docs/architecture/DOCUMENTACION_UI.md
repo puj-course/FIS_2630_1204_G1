@@ -195,3 +195,22 @@ Todo lo del Farmacéutico, más la sección "Registro de auditoría". Etiqueta d
 | Registrar ingreso de lote | ✅ | ✅ |
 | Ver alertas críticas | ✅ | ✅ |
 | Registro de auditoría | ❌ | ✅ |
+
+
+
+## 13. Migración de la Paleta Oficial al Catálogo de Productos (HU-102)
+
+El catálogo de productos (`catalogo-view.fxml`) usaba un esquema verde-azulado (`#0E7C7B`, `#0B615F`, `#F4FAF9`...) que no correspondía a la paleta oficial pastel de la sección 1. Se migró a la paleta oficial:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Fondo general | `#F4FAF9` | Marfil `#FDFBF7` |
+| Encabezado | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
+| Botón "Registrar" y "Consulta unificada" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` |
+| Botones secundarios ("Nuevo", "Actualizar", "Actualizar lista") | `#E3F3F2` / `#0E7C7B` | Lavanda claro `#EDE7F7` / `#6B5B95` |
+| Botón "Desactivar" (acción crítica) | `#FDECEA` / `#C53030` | Coral `#F0A8A8` |
+| Bordes de tarjetas y campos | `#D6E6E4` | `#E3D9F5` (derivado de Lavanda) |
+
+**Contraste:** el encabezado pasó de fondo oscuro a Menta claro, por lo que el texto del título cambió de blanco a `#20302F` para mantener legibilidad (criterio WCAG 2.1 AA).
+
+**Pendiente:** `login-view.fxml` e `inventario-view.fxml` todavía usan el esquema anterior. Queda para una historia futura migrarlos con esta tabla como referencia.

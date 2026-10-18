@@ -390,6 +390,7 @@ La publicación de un JAR como artefacto **no equivale a desplegar la aplicació
 - [Pull Requests](https://github.com/puj-course/FIS_2630_1204_G1/pulls)
 - [GitHub Actions](https://github.com/puj-course/FIS_2630_1204_G1/actions)
 - [`docs/`](docs/) — arquitectura, pruebas, Scrum y manuales
+- [`docs/user_guide/catalogo-productos.md`](docs/user_guide/catalogo-productos.md) — guía de uso del catálogo unificado de productos
 - [`CHANGELOG.md`](CHANGELOG.md) — historial de cambios
 - [`LICENSE`](LICENSE) — licencia del proyecto (MIT)
 
