@@ -251,3 +251,8 @@ La base de datos se mantiene desacoplada de la aplicación mediante el uso de Po
 
 Esta arquitectura evita incorporar componentes que actualmente no forman parte de CareStock, como Kubernetes, Redis, API Gateway o una arquitectura de microservicios.
 EOF
+---
+
+## Vista C4 actualizada
+
+La representación de **despliegue C4** separando ejecución local y Docker opcional está en [DIAGRAMA_DESPLIEGUE_C4.md](DIAGRAMA_DESPLIEGUE_C4.md). La versión C4 tiene prioridad para describir los entornos de ejecución del proyecto actual.
