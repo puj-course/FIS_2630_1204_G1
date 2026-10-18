@@ -4,6 +4,7 @@
 **Contenedor analizado:** aplicación de escritorio JavaFX 21 sobre Java 21  
 **Ubicación del código:** `src/CareStock/src/main/java/org/example/carestock/`  
 **Alcance:** arquitectura implementada; no representa una API web ni microservicios.
+
 **Nivel 3:** porque hace zoom dentro de un solo contenedor (la aplicación JavaFX) y muestra sus componentes internos y cómo se comunican. La base de datos aparece, pero solo como el elemento externo con el que se conecta.
 
 ## Objetivo y límites
