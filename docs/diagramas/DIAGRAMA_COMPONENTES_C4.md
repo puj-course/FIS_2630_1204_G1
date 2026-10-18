@@ -22,37 +22,44 @@ Identificar los componentes lógicos dentro de la **misma aplicación de escrito
 ```mermaid
 %%{init: {
   "theme": "base",
-  "flowchart": { "curve": "basis", "nodeSpacing": 30, "rankSpacing": 70, "padding": 20, "useMaxWidth": true },
+  "flowchart": { 
+    "curve": "basis", 
+    "nodeSpacing": 45, 
+    "rankSpacing": 85, 
+    "padding": 30, 
+    "useMaxWidth": true 
+  },
   "themeVariables": {
     "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
     "fontSize": "15px",
-    "lineColor": "#5B6B7C"
+    "lineColor": "#5B6B7C",
+    "subGraphTitleMargin": { "top": 15, "bottom": 15 }
   }
 }}%%
 flowchart TB
 
-    subgraph presentacion ["PRESENTACION"]
-        ui("<b>Presentacion</b><br/>JavaFX / FXML<br/>Controladores y vistas")
+    subgraph presentacion [" PRESENTACIÓN "]
+        ui("<b>Presentación</b><br/>JavaFX / FXML<br/>Controladores y vistas")
         builder("<b>Builders</b><br/>Aseo / Maternidad")
     end
 
-    subgraph acceso ["ACCESO Y SESION"]
-        auth("<b>Autenticacion</b><br/>BCrypt")
-        sesion("<b>Sesion activa</b><br/>Usuario, rol y farmacia")
+    subgraph acceso [" ACCESO Y SESIÓN "]
+        auth("<b>Autenticación</b><br/>BCrypt")
+        sesion("<b>Sesión activa</b><br/>Usuario, rol y farmacia")
     end
 
-    subgraph negocio ["LOGICA DE NEGOCIO"]
+    subgraph negocio [" LÓGICA DE NEGOCIO "]
         fachada("<b>Fachada</b><br/>GoF Facade")
-        proxy("<b>Proxy de consulta</b><br/>GoF Proxy<br/>Cache TTL")
+        proxy("<b>Proxy de consulta</b><br/>GoF Proxy<br/>Caché TTL")
         servicios("<b>Servicios</b><br/>Lotes y vencimientos")
     end
 
-    subgraph datos ["ACCESO A DATOS"]
+    subgraph datos [" ACCESO A DATOS "]
         dao("<b>Persistencia</b><br/>DAO / JDBC")
-        conexion("<b>Conexion</b><br/>HikariCP")
+        conexion("<b>Conexión</b><br/>HikariCP")
     end
 
-    subgraph dominio ["DOMINIO"]
+    subgraph dominio [" DOMINIO "]
         modelo("<b>Dominio y DTO</b><br/>Entidades")
     end
 
@@ -75,7 +82,7 @@ flowchart TB
     %% Base de datos
     conexion ==>|"JDBC / TLS"| bd
 
-    %% Sesion
+    %% Sesión
     ui -.->|"consulta"| sesion
     fachada -.->|"valida"| sesion
     proxy -.->|"autoriza"| sesion
