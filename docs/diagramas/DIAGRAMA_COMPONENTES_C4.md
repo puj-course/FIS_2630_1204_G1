@@ -22,75 +22,69 @@ Identificar los componentes lógicos dentro de la **misma aplicación de escrito
 ```mermaid
 %%{init: {
   "theme": "base",
-  "flowchart": { "curve": "basis", "nodeSpacing": 60, "rankSpacing": 85, "padding": 20, "htmlLabels": true },
+  "flowchart": { "curve": "basis", "nodeSpacing": 30, "rankSpacing": 70, "padding": 15, "useMaxWidth": false },
   "themeVariables": {
     "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
-    "fontSize": "15px",
+    "fontSize": "16px",
     "lineColor": "#5B6B7C"
   }
 }}%%
 flowchart TB
 
-    subgraph presentacion["<span style='font-size:20px'><b>⓪ PRESENTACIÓN</b></span>"]
-        direction LR
-        ui("Presentación y navegación<br/>JavaFX / FXML<br/>Login, inventario, catálogo y consulta")
-        builder("Construcción de productos<br/>AseoBuilder / MaternidadBuilder")
+    subgraph presentacion["PRESENTACIÓN"]
+        ui("<b>Presentación</b><br/>JavaFX / FXML<br/>Controladores y vistas")
+        builder("<b>Builders</b><br/>Aseo / Maternidad")
     end
 
-    subgraph acceso["<span style='font-size:20px'><b>① ACCESO Y SESIÓN</b></span>"]
-        direction LR
-        auth("Autenticación<br/>AuthenticationService / BCrypt<br/>Verifica credenciales")
-        sesion("Sesión activa<br/>SesionUsuario<br/>Identidad, rol y farmacia")
+    subgraph acceso["ACCESO Y SESIÓN"]
+        auth("<b>Autenticación</b><br/>BCrypt")
+        sesion("<b>Sesión activa</b><br/>Usuario, rol y farmacia")
     end
 
-    subgraph negocio["<span style='font-size:20px'><b>② LÓGICA DE NEGOCIO</b></span>"]
-        direction LR
-        fachada("Fachada de inventario<br/>GoF Facade<br/>Centraliza operaciones")
-        proxy("Consulta de inventario<br/>GoF Proxy<br/>Caché TTL y acceso por farmacia")
-        servicios("Servicios de negocio<br/>Java<br/>Lotes, dispensación y vencimientos")
+    subgraph negocio["LÓGICA DE NEGOCIO"]
+        fachada("<b>Fachada</b><br/>GoF Facade")
+        proxy("<b>Proxy de consulta</b><br/>GoF Proxy<br/>Caché TTL")
+        servicios("<b>Servicios</b><br/>Lotes y vencimientos")
     end
 
-    subgraph datos["<span style='font-size:20px'><b>③ ACCESO A DATOS</b></span>"]
-        direction LR
-        dao("Persistencia<br/>DAO concretos / JDBC")
-        conexion("Conexión a BD<br/>ConexionBD / HikariCP")
+    subgraph datos["ACCESO A DATOS"]
+        dao("<b>Persistencia</b><br/>DAO / JDBC")
+        conexion("<b>Conexión</b><br/>HikariCP")
     end
 
-    subgraph dominio["<span style='font-size:20px'><b>④ DOMINIO</b></span>"]
-        modelo("Dominio y DTO<br/>model / DataTransferObject<br/>Entidades y Validable")
+    subgraph dominio["DOMINIO"]
+        modelo("<b>Dominio y DTO</b><br/>Entidades")
     end
 
-    bd[("Base de datos CareStock<br/>PostgreSQL / Neon")]
+    bd[("<b>CareStock DB</b><br/>PostgreSQL / Neon")]
 
-    %% ---------- Flujo principal (enlaces 0-11) ----------
-    ui ==>|"solicita operaciones"| fachada
-    ui ==>|"inicia sesión"| auth
-    ui ==>|"crea productos"| builder
-    fachada ==>|"consulta inventario"| proxy
-    fachada ==>|"delega reglas"| servicios
-    fachada ==>|"opera catálogo"| dao
+    %% Flujo principal (0-11)
+    ui ==> fachada
+    ui ==> auth
+    ui ==> builder
+    fachada ==> proxy
+    fachada ==> servicios
+    fachada ==> dao
     proxy ==>|"cache miss"| dao
-    servicios ==>|"ejecuta JDBC"| conexion
-    auth ==>|"consulta usuario"| dao
-    dao ==>|"obtiene conexiones"| conexion
-    dao ==>|"lee y escribe"| modelo
-    builder ==>|"construye entidades"| modelo
+    servicios ==> conexion
+    auth ==> dao
+    dao ==> conexion
+    dao ==> modelo
+    builder ==> modelo
 
-    %% ---------- Acceso a la base de datos (enlace 12) ----------
+    %% Base de datos (12)
     conexion ==>|"JDBC / TLS"| bd
 
-    %% ---------- Relaciones transversales con la sesión (enlaces 13-16) ----------
-    ui -.->|"consulta usuario y farmacia"| sesion
-    fachada -.->|"valida identidad"| sesion
-    proxy -.->|"autoriza por farmacia"| sesion
-    sesion -.->|"valida usuario"| conexion
+    %% Sesión (13-16)
+    ui -.->|"consulta"| sesion
+    fachada -.->|"valida"| sesion
+    proxy -.->|"autoriza"| sesion
+    sesion -.->|"usuario"| conexion
 
-    %% ---------- Estilo de conectores ----------
     linkStyle 0,1,2,3,4,5,6,7,8,9,10,11 stroke:#4A5B6D,stroke-width:3px
     linkStyle 12 stroke:#2F6DB5,stroke-width:4px
     linkStyle 13,14,15,16 stroke:#D9822B,stroke-width:2px,stroke-dasharray:6 4
 
-    %% ---------- Estilo de componentes ----------
     classDef presentacionC fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2.5px,color:#0B2A4A
     classDef seguridad fill:#FDE7D3,stroke:#D9822B,stroke-width:2.5px,color:#5A2E06
     classDef negocioC fill:#D8F0E0,stroke:#2E9E5B,stroke-width:2.5px,color:#0F3D22
@@ -99,14 +93,12 @@ flowchart TB
     classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2.5px,color:#FFFFFF
 
     class ui presentacionC
-    class builder dominioC
+    class builder,modelo dominioC
     class auth,sesion seguridad
     class fachada,proxy,servicios negocioC
-    class modelo dominioC
     class dao,conexion datosC
     class bd bdC
 
-    %% ---------- Estilo de paquetes ----------
     style presentacion fill:#EAF3FC,stroke:#2F6DB5,stroke-width:3px,color:#0B2A4A
     style acceso fill:#FFF1E2,stroke:#D9822B,stroke-width:3px,color:#7A3E05
     style negocio fill:#E6F7EC,stroke:#2E9E5B,stroke-width:3px,color:#0A4A26
