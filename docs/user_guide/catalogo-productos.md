@@ -51,3 +51,8 @@ En medicamentos el stock total es de solo lectura: se gestiona mediante lotes.
 - **Consulta unificada:** abre el inventario que combina los 3 tipos de producto, filtrado por la farmacia asignada al usuario.
 - **Volver al inventario / Cerrar sesión:** navegación y salida segura.
 
+
+## 6. Validación
+
+Guía revisada por: Valentina Carrillo Peñuela — 17/10/2026. Siguió los pasos sin ayuda adicional y confirmó que los campos coinciden con el formulario real.
+
