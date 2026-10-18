@@ -4,6 +4,7 @@
 **Contenedor analizado:** aplicación de escritorio JavaFX 21 sobre Java 21  
 **Ubicación del código:** `src/CareStock/src/main/java/org/example/carestock/`  
 **Alcance:** arquitectura implementada; no representa una API web ni microservicios.
+**Nivel 3:** porque hace zoom dentro de un solo contenedor (la aplicación JavaFX) y muestra sus componentes internos y cómo se comunican. La base de datos aparece, pero solo como el elemento externo con el que se conecta.
 
 ## Objetivo y límites
 
@@ -11,90 +12,113 @@ Identificar los componentes lógicos dentro de la **misma aplicación de escrito
 
 ## Diagrama de componentes
 
-**Leyenda:** las flechas gruesas son el flujo principal de la aplicación; las punteadas son relaciones transversales con la sesión activa.
+**Leyenda de conectores:**
+
+- **Gris grueso:** flujo principal de llamadas entre componentes.
+- **Naranja punteado:** relaciones transversales con la sesión activa (identidad y farmacia).
+- **Azul grueso:** acceso final a la base de datos por JDBC sobre TLS.
 
 ```mermaid
 %%{init: {
   "theme": "base",
-  "flowchart": { "curve": "basis", "nodeSpacing": 45, "rankSpacing": 60, "padding": 12 },
+  "flowchart": { "curve": "basis", "nodeSpacing": 60, "rankSpacing": 85, "padding": 20, "htmlLabels": true },
   "themeVariables": {
     "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
-    "fontSize": "14px",
+    "fontSize": "15px",
     "lineColor": "#5B6B7C"
   }
 }}%%
 flowchart TB
 
-    ui["Presentación y navegación<br/>JavaFX / FXML<br/>Login, inventario, catálogo y consulta"]
-
-    subgraph acceso["① Acceso y sesión"]
+    subgraph presentacion["<span style='font-size:20px'><b>⓪ PRESENTACIÓN</b></span>"]
         direction LR
-        auth["Autenticación<br/>AuthenticationService / BCrypt<br/>Verifica credenciales"]
-        sesion["Sesión activa<br/>SesionUsuario<br/>Identidad, rol y farmacia"]
+        ui("Presentación y navegación<br/>JavaFX / FXML<br/>Login, inventario, catálogo y consulta")
+        builder("Construcción de productos<br/>AseoBuilder / MaternidadBuilder")
     end
 
-    subgraph negocio["② Lógica de negocio"]
+    subgraph acceso["<span style='font-size:20px'><b>① ACCESO Y SESIÓN</b></span>"]
         direction LR
-        fachada["Fachada de inventario<br/>GoF Facade<br/>Centraliza operaciones"]
-        proxy["Consulta de inventario<br/>GoF Proxy<br/>Caché TTL y acceso por farmacia"]
-        servicios["Servicios de negocio<br/>Java<br/>Lotes, dispensación y vencimientos"]
+        auth("Autenticación<br/>AuthenticationService / BCrypt<br/>Verifica credenciales")
+        sesion("Sesión activa<br/>SesionUsuario<br/>Identidad, rol y farmacia")
     end
 
-    subgraph dominio["③ Dominio"]
+    subgraph negocio["<span style='font-size:20px'><b>② LÓGICA DE NEGOCIO</b></span>"]
         direction LR
-        builder["Construcción de productos<br/>AseoBuilder / MaternidadBuilder"]
-        modelo["Dominio y DTO<br/>model / DataTransferObject<br/>Entidades y Validable"]
+        fachada("Fachada de inventario<br/>GoF Facade<br/>Centraliza operaciones")
+        proxy("Consulta de inventario<br/>GoF Proxy<br/>Caché TTL y acceso por farmacia")
+        servicios("Servicios de negocio<br/>Java<br/>Lotes, dispensación y vencimientos")
     end
 
-    subgraph datos["④ Acceso a datos"]
+    subgraph datos["<span style='font-size:20px'><b>③ ACCESO A DATOS</b></span>"]
         direction LR
-        dao["Persistencia<br/>DAO concretos / JDBC"]
-        conexion["Conexión a BD<br/>ConexionBD / HikariCP"]
+        dao("Persistencia<br/>DAO concretos / JDBC")
+        conexion("Conexión a BD<br/>ConexionBD / HikariCP")
+    end
+
+    subgraph dominio["<span style='font-size:20px'><b>④ DOMINIO</b></span>"]
+        modelo("Dominio y DTO<br/>model / DataTransferObject<br/>Entidades y Validable")
     end
 
     bd[("Base de datos CareStock<br/>PostgreSQL / Neon")]
 
-    %% Flujo principal
-    ui ==> fachada
-    ui ==> auth
-    ui ==> builder
-    fachada ==> proxy
-    fachada ==> servicios
-    fachada ==> dao
-    proxy ==> dao
-    servicios ==> conexion
-    auth ==> dao
-    builder ==> modelo
-    dao ==> modelo
-    dao ==> conexion
+    %% ---------- Flujo principal (enlaces 0-11) ----------
+    ui ==>|"solicita operaciones"| fachada
+    ui ==>|"inicia sesión"| auth
+    ui ==>|"crea productos"| builder
+    fachada ==>|"consulta inventario"| proxy
+    fachada ==>|"delega reglas"| servicios
+    fachada ==>|"opera catálogo"| dao
+    proxy ==>|"cache miss"| dao
+    servicios ==>|"ejecuta JDBC"| conexion
+    auth ==>|"consulta usuario"| dao
+    dao ==>|"obtiene conexiones"| conexion
+    dao ==>|"lee y escribe"| modelo
+    builder ==>|"construye entidades"| modelo
+
+    %% ---------- Acceso a la base de datos (enlace 12) ----------
     conexion ==>|"JDBC / TLS"| bd
 
-    %% Relaciones transversales (sesión y autorización)
-    ui -.->|"consulta"| sesion
-    fachada -.->|"valida"| sesion
-    proxy -.->|"autoriza"| sesion
+    %% ---------- Relaciones transversales con la sesión (enlaces 13-16) ----------
+    ui -.->|"consulta usuario y farmacia"| sesion
+    fachada -.->|"valida identidad"| sesion
+    proxy -.->|"autoriza por farmacia"| sesion
     sesion -.->|"valida usuario"| conexion
 
-    %% Estilos
-    classDef presentacion fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2px,color:#0B2A4A
-    classDef seguridad fill:#FDE7D3,stroke:#D9822B,stroke-width:2px,color:#5A2E06
-    classDef negocioC fill:#D8F0E0,stroke:#2E9E5B,stroke-width:2px,color:#0F3D22
-    classDef dominioC fill:#EADCF7,stroke:#8A4FC7,stroke-width:2px,color:#3A1A5C
-    classDef datosC fill:#E3E8EE,stroke:#5B6B7C,stroke-width:2px,color:#1F2933
-    classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2px,color:#FFFFFF
+    %% ---------- Estilo de conectores ----------
+    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11 stroke:#4A5B6D,stroke-width:3px
+    linkStyle 12 stroke:#2F6DB5,stroke-width:4px
+    linkStyle 13,14,15,16 stroke:#D9822B,stroke-width:2px,stroke-dasharray:6 4
 
-    class ui presentacion
+    %% ---------- Estilo de componentes ----------
+    classDef presentacionC fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2.5px,color:#0B2A4A
+    classDef seguridad fill:#FDE7D3,stroke:#D9822B,stroke-width:2.5px,color:#5A2E06
+    classDef negocioC fill:#D8F0E0,stroke:#2E9E5B,stroke-width:2.5px,color:#0F3D22
+    classDef dominioC fill:#EADCF7,stroke:#8A4FC7,stroke-width:2.5px,color:#3A1A5C
+    classDef datosC fill:#E3E8EE,stroke:#5B6B7C,stroke-width:2.5px,color:#1F2933
+    classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2.5px,color:#FFFFFF
+
+    class ui presentacionC
+    class builder dominioC
     class auth,sesion seguridad
     class fachada,proxy,servicios negocioC
-    class builder,modelo dominioC
+    class modelo dominioC
     class dao,conexion datosC
     class bd bdC
 
-    style acceso fill:#FFF8F0,stroke:#D9822B,stroke-dasharray:4 4,color:#5A2E06
-    style negocio fill:#F3FBF6,stroke:#2E9E5B,stroke-dasharray:4 4,color:#0F3D22
-    style dominio fill:#F9F4FD,stroke:#8A4FC7,stroke-dasharray:4 4,color:#3A1A5C
-    style datos fill:#F5F7FA,stroke:#5B6B7C,stroke-dasharray:4 4,color:#1F2933
+    %% ---------- Estilo de paquetes ----------
+    style presentacion fill:#EAF3FC,stroke:#2F6DB5,stroke-width:3px,color:#0B2A4A
+    style acceso fill:#FFF1E2,stroke:#D9822B,stroke-width:3px,color:#7A3E05
+    style negocio fill:#E6F7EC,stroke:#2E9E5B,stroke-width:3px,color:#0A4A26
+    style datos fill:#EDF0F4,stroke:#5B6B7C,stroke-width:3px,color:#1F2933
+    style dominio fill:#F3EAFB,stroke:#8A4FC7,stroke-width:3px,color:#4A1F7A
 ```
+
+### Cómo leer el diagrama
+
+1. La **presentación** (JavaFX) es el único punto de entrada: invoca la fachada, la autenticación y los builders.
+2. La **fachada** coordina el proxy de consulta, los servicios de negocio y los DAO.
+3. Los **DAO** y los servicios obtienen conexiones del pool `ConexionBD`, que es el único componente que habla con PostgreSQL/Neon.
+4. La **sesión activa** se consulta de forma transversal (flechas naranjas) para validar identidad y farmacia, sin formar parte del flujo principal.
 
 ## Componentes y trazabilidad al código
 
