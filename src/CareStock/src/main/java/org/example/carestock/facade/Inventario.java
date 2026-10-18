@@ -99,14 +99,11 @@ public class Inventario {
 
         int farmacia = farmaciaActual();
 
-        try {
-            return operacion.ejecutar(farmacia);
-        } finally {
-            // Se descarta tambien ante errores.
-            // Invalidar no significa que la operacion
-            // haya sido exitosa.
-            InventarioConsultas.invalidar();
-        }
+        // Invalidar despues de una escritura confirmada.
+        // Ante una excepcion o rollback se conserva la cache.
+        T resultado = operacion.ejecutar(farmacia);
+        InventarioConsultas.invalidarFarmacia(farmacia);
+        return resultado;
     }
 
     // ==================================================
@@ -445,7 +442,7 @@ public class Inventario {
 
         int farmacia = farmaciaActual();
 
-        InventarioConsultas.invalidar();
+        InventarioConsultas.invalidarFarmacia(farmacia);
 
         return consulta.listarPorFarmacia(farmacia);
     }

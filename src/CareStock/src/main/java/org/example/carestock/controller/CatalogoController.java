@@ -24,7 +24,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 /**
  * Controlador del catalogo de productos.
  *
@@ -156,6 +157,53 @@ public class CatalogoController {
     }
 
     // ========================================
+    public void abrirDesdeConsulta(
+            String categoria,
+            Integer idProducto
+    ) {
+        if (!SesionUsuario.esAdministrador()) {
+            lblEstado.setText(
+                    "Sin permisos para modificar productos."
+            );
+            return;
+        }
+
+        String categoriaFormulario = switch (categoria) {
+            case "Medicamento", "Medicamentos" -> "Medicamentos";
+            case "Aseo" -> "Aseo";
+            case "Maternidad" -> "Maternidad";
+            default -> throw new IllegalArgumentException(
+                    "Categoria no reconocida"
+            );
+        };
+
+        cmbCategoria.getSelectionModel()
+                .select(categoriaFormulario);
+
+        if (idProducto == null) {
+            limpiar();
+            lblEstado.setText(
+                    "Formulario listo para registrar."
+            );
+            txtCodigo.requestFocus();
+            return;
+        }
+
+        for (RegistroCatalogo<?> fila :
+                tablaProductos.getItems()) {
+
+            if (fila.id() == idProducto.intValue()) {
+                tablaProductos.getSelectionModel().select(fila);
+                tablaProductos.scrollTo(fila);
+                return;
+            }
+        }
+
+        lblEstado.setText(
+                "Producto no disponible en la farmacia activa."
+        );
+    }
+
     // CONFIGURACION DE TABLA
     // ========================================
 
@@ -510,7 +558,9 @@ public class CatalogoController {
 
     @FXML
     private void onNuevo() {
+        tablaProductos.getSelectionModel().clearSelection();
         limpiar();
+        txtCodigo.requestFocus();
     }
 
     // ========================================
@@ -810,9 +860,11 @@ public class CatalogoController {
     // ========================================
 
     @FXML
-    private void onGuardar() {
+        private void onGuardar() {
         if (!validarPermisoEdicion()) return;
         try {
+
+            String nombreProducto = txtNombre.getText().trim();
 
             int id = switch (cmbCategoria.getValue()) {
 
@@ -837,14 +889,23 @@ public class CatalogoController {
                         );
             };
 
+            if (id <= 0) {
+                throw new Exception("La base de datos no devolvió un ID válido.");
+            }
+
             limpiar();
             cargarTabla();
 
-            new Alert(
-                    Alert.AlertType.INFORMATION,
-                    "Producto registrado con ID " + id,
-                    ButtonType.OK
-            ).showAndWait();
+            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+            alerta.setTitle("Registro Exitoso");
+            alerta.setHeaderText(null);
+            alerta.setContentText("El producto '" + nombreProducto + "' fue guardado correctamente. ID: " + id);
+
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
+            delay.setOnFinished(e -> alerta.close());
+            delay.play();
+
+            alerta.showAndWait();
 
         } catch (Exception e) {
 
@@ -909,12 +970,21 @@ public class CatalogoController {
                 return;
             }
 
+            String nombreProducto = txtNombre.getText().trim();
+
             limpiar();
             cargarTabla();
+            
+            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+            alerta.setTitle("Actualización Exitosa");
+            alerta.setHeaderText(null);
+            alerta.setContentText("El producto '" + nombreProducto + "' fue actualizado correctamente.");
 
-            lblEstado.setText(
-                    "Producto actualizado correctamente."
-            );
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
+            delay.setOnFinished(e -> alerta.close());
+            delay.play();
+
+            alerta.showAndWait();
 
         } catch (Exception e) {
 
@@ -1017,17 +1087,21 @@ public class CatalogoController {
         ).showAndWait();
     }
 
-    private void mostrarError(
+        private void mostrarError(
             String titulo,
             Exception e
     ) {
 
         lblEstado.setText(titulo);
 
-        new Alert(
-                Alert.AlertType.ERROR,
-                titulo + ": " + e.getMessage(),
-                ButtonType.OK
-        ).showAndWait();
+        Alert alertaError = new Alert(Alert.AlertType.ERROR);
+        alertaError.setTitle("Error en el Sistema");
+        alertaError.setHeaderText(titulo);
+        alertaError.setContentText(e.getMessage() != null ? e.getMessage() : "Ocurrió un error inesperado.");
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+        delay.setOnFinished(event -> alertaError.close());
+        delay.play();
+
+        alertaError.showAndWait();
     }
 }

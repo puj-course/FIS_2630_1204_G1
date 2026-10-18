@@ -20,7 +20,7 @@ public class ConsultaInventarioDAO implements ConsultaInventario {
     private static final String SQL = """
         SELECT 'Medicamento' AS categoria,
                m.id_medicamento AS id,
-               m.codigo_invima AS codigo,
+               COALESCE(NULLIF(BTRIM(m.codigo_invima), ''), 'No registrado') AS codigo,
                m.nombre_comercial AS nombre,
                COALESCE(NULLIF(BTRIM(m.presentacion), ''),
                         NULLIF(BTRIM(m.forma_farmaceutica), ''),
@@ -34,9 +34,9 @@ public class ConsultaInventarioDAO implements ConsultaInventario {
 
         SELECT 'Aseo' AS categoria,
                a.id_aseo AS id,
-               a.codigo AS codigo,
+               COALESCE(NULLIF(BTRIM(a.codigo), ''), 'No registrado') AS codigo,
                a.nombre AS nombre,
-               'Unidad por definir' AS presentacion,
+               'No registrada' AS presentacion,
                COALESCE(a.stock, 0) AS existencia,
                a.estado AS estado
         FROM aseo a
@@ -46,9 +46,9 @@ public class ConsultaInventarioDAO implements ConsultaInventario {
 
         SELECT 'Maternidad' AS categoria,
                mt.id_maternidad AS id,
-               mt.codigo AS codigo,
+               COALESCE(NULLIF(BTRIM(mt.codigo), ''), 'No registrado') AS codigo,
                mt.nombre AS nombre,
-               'Unidad por definir' AS presentacion,
+               'No registrada' AS presentacion,
                COALESCE(mt.stock, 0) AS existencia,
                mt.estado AS estado
         FROM maternidad mt
