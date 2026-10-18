@@ -37,28 +37,28 @@ Identificar los componentes lógicos dentro de la **misma aplicación de escrito
 }}%%
 flowchart TB
 
-    subgraph presentacion ["     PRESENTACIÓN     "]
+    subgraph presentacion ["PRESENTACIÓN"]
         ui("<b>Presentación</b><br/>JavaFX / FXML<br/>Controladores y vistas")
         builder("<b>Builders</b><br/>Aseo / Maternidad")
     end
 
-    subgraph acceso ["     ACCESO Y SESIÓN     "]
+    subgraph acceso ["ACCESO Y SESIÓN"]
         auth("<b>Autenticación</b><br/>BCrypt")
         sesion("<b>Sesión activa</b><br/>Usuario, rol y farmacia")
     end
 
-    subgraph negocio ["     LÓGICA DE NEGOCIO     "]
+    subgraph negocio ["LÓGICA DE NEGOCIO"]
         fachada("<b>Fachada</b><br/>GoF Facade")
         proxy("<b>Proxy de consulta</b><br/>GoF Proxy<br/>Caché TTL")
         servicios("<b>Servicios</b><br/>Lotes y vencimientos")
     end
 
-    subgraph datos ["     ACCESO A DATOS     "]
+    subgraph datos ["ACCESO A DATOS"]
         dao("<b>Persistencia</b><br/>DAO / JDBC")
         conexion("<b>Conexión</b><br/>HikariCP")
     end
 
-    subgraph dominio ["     DOMINIO     "]
+    subgraph dominio ["DOMINIO"]
         modelo("<b>Dominio y DTO</b><br/>Entidades")
     end
 
@@ -87,8 +87,8 @@ flowchart TB
     proxy -.->|"autoriza"| sesion
     sesion -.->|"usuario"| conexion
 
-    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11 stroke:#4A5B6D,stroke-width:3px
-    linkStyle 12 stroke:#2F6DB5,stroke-width:4px
+    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11 stroke:#4A5B6D,stroke-width:4px
+    linkStyle 12 stroke:#2F6DB5,stroke-width:5px
     linkStyle 13,14,15,16 stroke:#D9822B,stroke-width:2px,stroke-dasharray:6 4
 
     classDef presentacionC fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2.5px,color:#0B2A4A
