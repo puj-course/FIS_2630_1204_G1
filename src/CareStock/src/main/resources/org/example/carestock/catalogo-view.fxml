@@ -12,31 +12,31 @@
             fx:controller="org.example.carestock.controller.CatalogoController"
             prefWidth="1150.0"
             prefHeight="760.0"
-            style="-fx-background-color: #F4FAF9;">
+            style="-fx-background-color: #FDFBF7;">
 
     <!-- =================================== -->
     <!-- CABECERA DEL CATÁLOGO               -->
     <!-- =================================== -->
     <top>
         <HBox alignment="CENTER_LEFT" spacing="14.0"
-              style="-fx-background-color: linear-gradient(to bottom right, #0E7C7B, #0B615F); -fx-padding: 20 28 20 28;">
+              style="-fx-background-color: #A7D8D8; -fx-padding: 20 28 20 28;">
             <children>
                 <StackPane prefHeight="44.0" prefWidth="44.0">
                     <children>
-                        <Circle fill="#E3F3F2" radius="22.0" />
-                        <Rectangle fill="#0E7C7B" height="22.0" arcHeight="3.0" arcWidth="3.0" width="6.0" />
-                        <Rectangle fill="#0E7C7B" height="6.0" arcHeight="3.0" arcWidth="3.0" width="22.0" />
+                        <Circle fill="#FDFBF7" radius="22.0" />
+                        <Rectangle fill="#B7A6E0" height="22.0" arcHeight="3.0" arcWidth="3.0" width="6.0" />
+                        <Rectangle fill="#B7A6E0" height="6.0" arcHeight="3.0" arcWidth="3.0" width="22.0" />
                     </children>
                 </StackPane>
 
                 <VBox alignment="CENTER_LEFT" spacing="2.0">
                     <children>
-                        <Label text="CareStock" textFill="WHITE">
+                        <Label text="CareStock" textFill="#20302F">
                             <font>
                                 <Font name="System Bold" size="24.0" />
                             </font>
                         </Label>
-                        <Label text="Catálogo de productos" textFill="#E3F3F2">
+                        <Label text="Catálogo de productos" textFill="#45605C">
                             <font>
                                 <Font name="System Bold" size="12.0" />
                             </font>
@@ -66,11 +66,11 @@
     <!-- =================================== -->
     <center>
         <SplitPane dividerPositions="0.60"
-                   style="-fx-background-color: #F4FAF9; -fx-box-border: transparent;">
+                   style="-fx-background-color: #FDFBF7; -fx-box-border: transparent;">
             <items>
 
                 <!-- ============ PANEL IZQUIERDO ============ -->
-                <VBox style="-fx-background-color: #F4FAF9; -fx-padding: 22 12 22 28;">
+                <VBox style="-fx-background-color: #FDFBF7; -fx-padding: 22 12 22 28;">
                     <children>
                         <VBox spacing="12.0" VBox.vgrow="ALWAYS"
                               style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #D6E6E4; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8); -fx-padding: 22;">
@@ -118,9 +118,9 @@
 
                 <!-- ============ PANEL DERECHO ============ -->
                 <ScrollPane fitToWidth="true"
-                            style="-fx-background-color: #F4FAF9; -fx-background: #F4FAF9; -fx-border-color: transparent;">
+                            style="-fx-background-color: #FDFBF7; -fx-background: #FDFBF7; -fx-border-color: transparent;">
                     <content>
-                        <VBox style="-fx-background-color: #F4FAF9; -fx-padding: 22 28 22 12;">
+                        <VBox style="-fx-background-color: #FDFBF7; -fx-padding: 22 28 22 12;">
                             <children>
                                 <VBox fx:id="panelFormulario" spacing="10.0"
                                       style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #D6E6E4; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8); -fx-padding: 26;">
