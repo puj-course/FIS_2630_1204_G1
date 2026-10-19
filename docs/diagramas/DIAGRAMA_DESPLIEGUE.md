@@ -18,54 +18,54 @@ El código fuente se almacena en **GitHub** y los procesos de integración conti
 ```mermaid
 flowchart TB
 
-    subgraph DEV["💻 Nodo: Equipo de Desarrollo"]
+    subgraph DEV[" Nodo: Equipo de Desarrollo"]
         direction TB
 
-        DEVELOPER["👨‍💻 Desarrollador"]
+        DEVELOPER[" Desarrollador"]
 
-        SOURCE["📄 <<artifact>>
+        SOURCE[" <<artifact>>
         Código fuente CareStock
         Java / JavaFX"]
 
-        MAVEN["⚙️ <<artifact>>
+        MAVEN[" <<artifact>>
         Maven Wrapper
         pom.xml"]
 
-        DOCKERFILE["🐳 <<artifact>>
+        DOCKERFILE[" <<artifact>>
         Dockerfile"]
     end
 
-    subgraph GITHUB["☁️ Nodo: GitHub"]
+    subgraph GITHUB[" Nodo: GitHub"]
         direction TB
 
-        REPOSITORY["📦 <<artifact>>
+        REPOSITORY[" <<artifact>>
         Repositorio CareStock"]
 
-        ACTIONS["⚙️ <<executionEnvironment>>
+        ACTIONS[" <<executionEnvironment>>
         GitHub Actions
         Integración Continua"]
     end
 
-    subgraph USER_DEVICE["💻 Nodo: Equipo del Usuario"]
+    subgraph USER_DEVICE[" Nodo: Equipo del Usuario"]
         direction TB
 
         OS["<<device>>
         Windows / Linux"]
 
-        subgraph DOCKER["🐳 <<executionEnvironment>>
+        subgraph DOCKER[" <<executionEnvironment>>
         Docker Engine"]
 
-            CONTAINER["📦 <<node>>
+            CONTAINER[" <<node>>
             Contenedor CareStock"]
 
-            APP["☕ <<artifact>>
+            APP[" <<artifact>>
             Aplicación CareStock
             Java + JavaFX"]
         end
     end
 
-    subgraph CLOUD["☁️ Nodo: Infraestructura Cloud"]
-        NEON["🐘 <<database>>
+    subgraph CLOUD[" Nodo: Infraestructura Cloud"]
+        NEON[" <<database>>
         Neon PostgreSQL
         Base de Datos CareStock"]
     end
