@@ -63,10 +63,6 @@ package "config" {
     }
 }
 
-class "com.zaxxer.hikari.HikariDataSource" as HikariDataSource <<biblioteca externa>> {
-    + getConnection(): Connection
-    + close(): void
-}
 
 ' ============================================================
 ' 3. CONTROLADORES
@@ -214,6 +210,29 @@ package "dao" {
         + actualizar(id: int, producto: Medicamento, idFarmacia: int, idUsuario: int): boolean
         + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
         + {static} validarCampos(producto: Medicamento): void
+    }
+
+    ' ------------------------------------------------------------
+    ' GOF COMPORTAMIENTO: TEMPLATE METHOD
+    ' Base generica de los catalogos de aseo y maternidad.
+    ' Los metodos final fijan la secuencia de validacion, SQL y mapeo.
+    ' Las subclases implementan los pasos variables (hooks).
+    ' ------------------------------------------------------------
+    abstract class "CatalogoDAO<T extends Validable>" as CatalogoDAO <<Template Method>> {
+        # {abstract} tabla(): String
+        # {abstract} columnaId(): String
+        # {abstract} nombreProducto(): String
+        # {abstract} columnasEspecificas(): List<String>
+        # {abstract} asignarCampos(ps: PreparedStatement, producto: T): void
+        # {abstract} construir(rs: ResultSet): RegistroCatalogo<T>
+
+        + {final} guardar(producto: T, idFarmacia: int, idUsuario: int): int
+        + {final} buscarPorId(id: int, idFarmacia: int): RegistroCatalogo<T>
+        + {final} listarPorFarmacia(idFarmacia: int): List<RegistroCatalogo<T>>
+        + {final} actualizar(id: int, producto: T, idFarmacia: int, idUsuario: int): boolean
+        + {final} desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
+        # {final} asignarCamposComunes(ps: PreparedStatement, codigo: String, nombre: String, descripcion: String, precio: double, stock: int): void
+        - mapear(rs: ResultSet): RegistroCatalogo<T>
     }
 
     class AseoDAO {
@@ -750,11 +769,19 @@ package "session" {
 ' ============================================================
 ' 12. RELACIONES DE PERSISTENCIA (UML Estricto)
 ' ============================================================
+' Plantilla de persistencia reutilizada por los DAO concretos.
+CatalogoDAO <|-- AseoDAO : extiende
+CatalogoDAO <|-- MaternidadDAO : extiende
+
 LoteDAO <|.. LoteDAOImpl
 MedicamentoDAO <|.. MedicamentoDAOImpl
 UsuarioDAO <|.. UsuarioDAOImpl
 ConsultaInventario <|.. ConsultaInventarioDAO
 ConsultaInventario <|.. ConsultaInventarioProxy
+
+CatalogoDAO ..> ConexionBD : JDBC
+CatalogoDAO ..> Validable : requiere validacion
+CatalogoDAO ..> RegistroCatalogo : crea / retorna
 
 LoteDAOImpl ..> ConexionBD : JDBC
 MedicamentoDAOImpl ..> ConexionBD : JDBC
@@ -768,6 +795,8 @@ UsuarioDAOImpl ..> Usuario : mapea
 MedicamentoDAOImpl ..> Medicamento : mapea
 MedicamentoCatalogoDAO ..> Medicamento : mapea
 LoteDAOImpl ..> Lote : mapea
+AseoDAO ..> AseoBuilder : construye al leer
+MaternidadDAO ..> MaternidadBuilder : construye al leer
 AseoDAO ..> Aseo : mapea
 MaternidadDAO ..> Maternidad : mapea
 ConsultaInventarioDAO ..> ProductoInventario : devuelve
@@ -872,6 +901,15 @@ ConsultaInventarioProxy *-- ProxyCarga : coordina cargas
 ' ============================================================
 ' 18. NOTAS DE DISENO (Estructura uniforme para patrones GoF)
 ' ============================================================
+note bottom of CatalogoDAO
+  Patron GoF Template Method:
+  Las operaciones CRUD son metodos final que
+  fijan el algoritmo de acceso a los datos.
+  AseoDAO y MaternidadDAO especializan
+  tabla, columnas, parametros y mapeo.
+  Reutiliza validaciones y JDBC comunes.
+end note
+
 note right of ProductoDirector
   Patron Builder:
   El Director utiliza la interfaz Producto
@@ -909,10 +947,26 @@ note right of ConsultaInventarioProxy
 
 end note
 
+note bottom of InventarioConsultas
+  Instancia compartida (Singleton):
+  Conserva un unico ConsultaInventarioProxy
+  mediante un atributo static final.
+  compartida() devuelve esa instancia;
+  no genera un Proxy por controlador.
+end note
+
 note bottom of VistasCache
   Patron Caching:
   Infraestructura para cachear DTOs
   de catalogo y lotes de manera centralizada.
+end note
+
+note bottom of ConsultaInventarioController
+  Observacion reactiva de JavaFX:
+  Los listeners de propiedades actualizan
+  filtros y seleccion en la vista.
+  Es uso de la API JavaFX; no se declara
+  un Observer de dominio propio.
 end note
 
 note bottom of AlertaInvima

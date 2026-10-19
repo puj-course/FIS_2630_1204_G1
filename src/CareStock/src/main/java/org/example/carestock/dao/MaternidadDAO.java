@@ -2,7 +2,8 @@ package org.example.carestock.dao;
 
 import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.model.Maternidad;
-import org.example.carestock.model.MaternidadBuilder;
+import org.example.carestock.factory.FabricaMaternidad;
+import org.example.carestock.factory.FabricaProducto;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +12,8 @@ import java.sql.Types;
 import java.util.List;
 
 public class MaternidadDAO extends CatalogoDAO<Maternidad> {
+    private static final FabricaProducto<Maternidad> FABRICA =
+            new FabricaMaternidad();
 
     @Override
     protected String tabla() {
@@ -45,19 +48,30 @@ public class MaternidadDAO extends CatalogoDAO<Maternidad> {
     protected RegistroCatalogo<Maternidad> construir(ResultSet rs) throws SQLException {
         int edad = rs.getInt("edad_gestacional_sugerida");
         if (rs.wasNull()) edad = 0;
+        final int edadFinal = edad;
 
-        Maternidad producto = new MaternidadBuilder()
-                .setCodigo(rs.getString("codigo"))
-                .setNombre(rs.getString("nombre"))
-                .setDescripcion(rs.getString("descripcion"))
-                .setPrecio(rs.getBigDecimal("precio").doubleValue())
-                .setStock(rs.getInt("stock"))
-                .etapaRecomendada(rs.getString("etapa_recomendada"))
-                .hipoalergenico(rs.getBoolean("hipoalergenico"))
-                .edadGestacionalSugerida(edad)
-                .build();
+        String codigo = rs.getString("codigo");
+        String nombre = rs.getString("nombre");
+        String descripcion = rs.getString("descripcion");
+        double precio = rs.getBigDecimal("precio").doubleValue();
+        int stock = rs.getInt("stock");
+        String etapa = rs.getString("etapa_recomendada");
+        boolean hipoalergenico = rs.getBoolean("hipoalergenico");
 
-        return new RegistroCatalogo<>(rs.getInt("id_maternidad"), producto, rs.getString("estado"));
+        Maternidad producto = FABRICA.crear(p -> {
+            p.setCodigo(codigo);
+            p.setNombre(nombre);
+            p.setDescripcion(descripcion);
+            p.setPrecio(precio);
+            p.setStock(stock);
+            p.setEtapaRecomendada(etapa);
+            p.setHipoalergenico(hipoalergenico);
+            p.setEdadGestacionalSugerida(edadFinal);
+        });
+
+        return new RegistroCatalogo<>(
+                rs.getInt("id_maternidad"), producto,
+                rs.getString("estado"));
     }
 
     private static void establecerEdad(PreparedStatement ps, int indice, int edadGestacional)

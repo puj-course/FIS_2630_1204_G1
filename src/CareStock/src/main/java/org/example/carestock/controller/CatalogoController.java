@@ -13,9 +13,11 @@ import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.facade.Inventario;
 
 import org.example.carestock.model.Aseo;
-import org.example.carestock.model.AseoBuilder;
+import org.example.carestock.factory.FabricaAseo;
+import org.example.carestock.factory.FabricaMaternidad;
+import org.example.carestock.factory.FabricaMedicamento;
+import org.example.carestock.factory.FabricaProducto;
 import org.example.carestock.model.Maternidad;
-import org.example.carestock.model.MaternidadBuilder;
 import org.example.carestock.model.Medicamento;
 
 import org.example.carestock.session.SesionUsuario;
@@ -99,6 +101,15 @@ public class CatalogoController {
     // ========================================
     // FACHADA GOF
     // ========================================
+
+    private static final FabricaProducto<Aseo> FABRICA_ASEO =
+            new FabricaAseo();
+
+    private static final FabricaProducto<Maternidad> FABRICA_MATERNIDAD =
+            new FabricaMaternidad();
+
+    private static final FabricaProducto<Medicamento> FABRICA_MEDICAMENTO =
+            new FabricaMedicamento();
 
     private Inventario inventario;
     private RegistroCatalogo<?> seleccionado;
@@ -766,93 +777,78 @@ public class CatalogoController {
     }
 
     // ========================================
-    // BUILDER GOF - ASEO
+    // FACTORY METHOD GOF - ASEO
     // ========================================
 
     private Aseo construirAseo() {
-
-        return new AseoBuilder()
-                .setCodigo(txtCodigo.getText())
-                .setNombre(txtNombre.getText())
-                .setDescripcion(txtDescripcion.getText())
-                .setPrecio(leerPrecio())
-                .setStock(leerStock())
-                .tipoAseo(txtTipoAseo.getText())
-                .componentesActivos(
-                        txtComponentesActivos.getText()
-                )
-                .biodegradable(
-                        chkBiodegradable.isSelected()
-                )
-                .build();
+        return FABRICA_ASEO.crear(p -> {
+            p.setCodigo(txtCodigo.getText());
+            p.setNombre(txtNombre.getText());
+            p.setDescripcion(txtDescripcion.getText());
+            p.setPrecio(leerPrecio());
+            p.setStock(leerStock());
+            p.setTipoAseo(txtTipoAseo.getText());
+            p.setComponentesActivos(
+                    txtComponentesActivos.getText());
+            p.setBiodegradable(
+                    chkBiodegradable.isSelected());
+        });
     }
 
     // ========================================
-    // BUILDER GOF - MATERNIDAD
+    // FACTORY METHOD GOF - MATERNIDAD
     // ========================================
 
     private Maternidad construirMaternidad() {
-
         int edad = LecturaCampos.enteroOpcional(
                 txtEdadGestacional.getText(),
-                "La edad gestacional"
-        );
+                "La edad gestacional");
 
-        return new MaternidadBuilder()
-                .setCodigo(txtCodigo.getText())
-                .setNombre(txtNombre.getText())
-                .setDescripcion(txtDescripcion.getText())
-                .setPrecio(leerPrecio())
-                .setStock(leerStock())
-                .etapaRecomendada(txtEtapa.getText())
-                .hipoalergenico(
-                        chkHipoalergenico.isSelected()
-                )
-                .edadGestacionalSugerida(edad)
-                .build();
+        return FABRICA_MATERNIDAD.crear(p -> {
+            p.setCodigo(txtCodigo.getText());
+            p.setNombre(txtNombre.getText());
+            p.setDescripcion(txtDescripcion.getText());
+            p.setPrecio(leerPrecio());
+            p.setStock(leerStock());
+            p.setEtapaRecomendada(txtEtapa.getText());
+            p.setHipoalergenico(
+                    chkHipoalergenico.isSelected());
+            p.setEdadGestacionalSugerida(edad);
+        });
     }
 
     // ========================================
-    // CONSTRUCCION DE MEDICAMENTO
+    // FACTORY METHOD GOF - MEDICAMENTO
     // ========================================
 
     private Medicamento construirMedicamento() {
-
         CategoriaMedicamento categoria =
                 cmbCategoriaMedicamento.getValue();
 
         if (categoria == null) {
             throw new IllegalArgumentException(
-                    "Seleccione una categoria farmacologica"
-            );
+                    "Seleccione una categoria farmacologica");
         }
 
         int minimo = LecturaCampos.entero(
                 txtStockMinimo.getText(),
-                "El stock minimo"
-        );
+                "El stock minimo");
 
-        return Medicamento.builder()
-                .codigoInvima(txtCodigo.getText())
-                .nombreComercial(txtNombre.getText())
-                .principioActivo(
-                        txtPrincipioActivo.getText()
-                )
-                .concentracion(
-                        txtConcentracion.getText()
-                )
-                .formaFarmaceutica(
-                        txtFormaFarmaceutica.getText()
-                )
-                .presentacion(
-                        txtPresentacion.getText()
-                )
-                .idCategoria(categoria.id())
-                .stockMinimo(minimo)
-                .precio(leerPrecioMedicamento())
-                .stockTotal(0)
-                .estado("ACTIVO")
-                .build();
+        return FABRICA_MEDICAMENTO.crear(p -> {
+            p.setCodigoInvima(txtCodigo.getText());
+            p.setNombreComercial(txtNombre.getText());
+            p.setPrincipioActivo(
+                    txtPrincipioActivo.getText());
+            p.setConcentracion(txtConcentracion.getText());
+            p.setFormaFarmaceutica(
+                    txtFormaFarmaceutica.getText());
+            p.setPresentacion(txtPresentacion.getText());
+            p.setIdCategoria(categoria.id());
+            p.setStockMinimo(minimo);
+            p.setPrecio(leerPrecioMedicamento());
+            p.setStockTotal(0);
+            p.setEstado("ACTIVO");
+        });
     }
 
     // ========================================
