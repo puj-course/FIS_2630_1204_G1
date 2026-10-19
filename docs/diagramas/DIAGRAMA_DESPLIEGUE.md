@@ -1,5 +1,5 @@
 cat > docs/architecture/DIAGRAMA_DESPLIEGUE.md <<'EOF'
-# 🚀 CareStock - Diagrama de Despliegue
+#  CareStock - Diagrama de Despliegue
 
 ## 1. Descripción
 
@@ -18,12 +18,12 @@ El código fuente se almacena en **GitHub** y los procesos de integración conti
 ```mermaid
 flowchart TB
 
-    subgraph DEV[" Nodo: Equipo de Desarrollo"]
+    subgraph DEV["Nodo: Equipo de Desarrollo"]
         direction TB
 
         DEVELOPER[" Desarrollador"]
 
-        SOURCE[" <<artifact>>
+        SOURCE["<<artifact>>
         Código fuente CareStock
         Java / JavaFX"]
 
@@ -31,17 +31,17 @@ flowchart TB
         Maven Wrapper
         pom.xml"]
 
-        DOCKERFILE[" <<artifact>>
+        DOCKERFILE["<<artifact>>
         Dockerfile"]
     end
 
-    subgraph GITHUB[" Nodo: GitHub"]
+    subgraph GITHUB["Nodo: GitHub"]
         direction TB
 
-        REPOSITORY[" <<artifact>>
+        REPOSITORY["<<artifact>>
         Repositorio CareStock"]
 
-        ACTIONS[" <<executionEnvironment>>
+        ACTIONS["<<executionEnvironment>>
         GitHub Actions
         Integración Continua"]
     end
@@ -64,7 +64,7 @@ flowchart TB
         end
     end
 
-    subgraph CLOUD[" Nodo: Infraestructura Cloud"]
+    subgraph CLOUD["Nodo: Infraestructura Cloud"]
         NEON[" <<database>>
         Neon PostgreSQL
         Base de Datos CareStock"]
