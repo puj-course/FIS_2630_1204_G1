@@ -55,12 +55,6 @@ public class DispositivoMedico implements Validable {
                 && Double.isFinite(precio)
                 && precio >= 0;
     }
-    // ==========================================
-    // FACTORY METHOD DEL BUILDER
-    // ==========================================
-    public static DispositivoMedicoBuilder builder() {
-        return new DispositivoMedicoBuilder();
-    }
     public int getIdDispositivo() {
         return idDispositivo;
     }

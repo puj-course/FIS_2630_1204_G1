@@ -2,7 +2,8 @@ package org.example.carestock.dao;
 
 import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.model.Aseo;
-import org.example.carestock.model.AseoBuilder;
+import org.example.carestock.factory.FabricaAseo;
+import org.example.carestock.factory.FabricaProducto;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +11,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class AseoDAO extends CatalogoDAO<Aseo> {
+    private static final FabricaProducto<Aseo> FABRICA =
+            new FabricaAseo();
 
     @Override
     protected String tabla() {
@@ -42,16 +45,28 @@ public class AseoDAO extends CatalogoDAO<Aseo> {
 
     @Override
     protected RegistroCatalogo<Aseo> construir(ResultSet rs) throws SQLException {
-        Aseo producto = new AseoBuilder()
-                .setCodigo(rs.getString("codigo"))
-                .setNombre(rs.getString("nombre"))
-                .setDescripcion(rs.getString("descripcion"))
-                .setPrecio(rs.getBigDecimal("precio").doubleValue())
-                .setStock(rs.getInt("stock"))
-                .tipoAseo(rs.getString("tipo_aseo"))
-                .biodegradable(rs.getBoolean("biodegradable"))
-                .componentesActivos(rs.getString("componentes_activos"))
-                .build();
-        return new RegistroCatalogo<>(rs.getInt("id_aseo"), producto, rs.getString("estado"));
+        String codigo = rs.getString("codigo");
+        String nombre = rs.getString("nombre");
+        String descripcion = rs.getString("descripcion");
+        double precio = rs.getBigDecimal("precio").doubleValue();
+        int stock = rs.getInt("stock");
+        String tipo = rs.getString("tipo_aseo");
+        boolean biodegradable = rs.getBoolean("biodegradable");
+        String componentes = rs.getString("componentes_activos");
+
+        Aseo producto = FABRICA.crear(p -> {
+            p.setCodigo(codigo);
+            p.setNombre(nombre);
+            p.setDescripcion(descripcion);
+            p.setPrecio(precio);
+            p.setStock(stock);
+            p.setTipoAseo(tipo);
+            p.setBiodegradable(biodegradable);
+            p.setComponentesActivos(componentes);
+        });
+
+        return new RegistroCatalogo<>(
+                rs.getInt("id_aseo"), producto,
+                rs.getString("estado"));
     }
 }
