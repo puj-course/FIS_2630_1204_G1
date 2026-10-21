@@ -247,6 +247,29 @@ public class ControladorCatalogo {
         colEstado.setCellValueFactory(
                 c -> str(c.getValue().estado())
         );
+        tablaProductos.setRowFactory(tv -> new TableRow<RegistroCatalogo<?>>() {
+            @Override
+            protected void updateItem(RegistroCatalogo<?> item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else {
+                    int stockActual = stock(item.producto());
+                    int stockMinimo = 0;
+                    boolean esMedicamento = item.producto() instanceof Medicamento;
+                    
+                    if (esMedicamento) {
+                        stockMinimo = ((Medicamento) item.producto()).getStockMinimo();
+                    }
+
+                    if (esMedicamento && stockActual <= stockMinimo) {
+                        setStyle("-fx-background-color: #FFE5E5; -fx-text-fill: #C0392B;");
+                    } else {
+                        setStyle(""); 
+                    }
+                }
+            }
+        });
     }
 
     private ReadOnlyStringWrapper str(Object valor) {
