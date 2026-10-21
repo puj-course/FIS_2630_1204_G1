@@ -183,6 +183,33 @@ public class AplicacionCareStock extends Application {
                 720
         );
     }
+    
+    public void mostrarFormularioMovimientos() {
+
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        if (SesionUsuario.actual().idFarmacia() == null) {
+
+            Alert alerta = new Alert(
+                    Alert.AlertType.WARNING,
+                    "Se requiere una farmacia asignada."
+            );
+
+            alerta.setHeaderText(null);
+            alerta.showAndWait();
+            return;
+        }
+
+        transicionarEscena(
+                "/org/example/carestock/movimientos-view.fxml",
+                1100,
+                750
+        );
+    }
+
     public void cerrarSesion() {
 
         SesionUsuario.cerrar();
