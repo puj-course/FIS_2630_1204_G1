@@ -220,6 +220,14 @@ public class ControladorInventario {
     }
 
     @FXML
+    private void onAbrirMovimientos() {
+        org.example.carestock.AplicacionCareStock.getInstance()
+                .mostrarFormularioMovimientos();
+    }
+
+
+
+    @FXML
     private void onAbrirCatalogo() {
         AplicacionCareStock.getInstance().mostrarCatalogo();
     }
