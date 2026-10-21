@@ -1,7 +1,7 @@
 package org.example.carestock.proxy;
 
-import org.example.carestock.DataTransferObject.DatosCatalogo;
-import org.example.carestock.DataTransferObject.DatosLotes;
+import org.example.carestock.dto.DatosCatalogo;
+import org.example.carestock.dto.DatosLotes;
 
 import java.util.concurrent.Callable;
 import java.util.function.BooleanSupplier;

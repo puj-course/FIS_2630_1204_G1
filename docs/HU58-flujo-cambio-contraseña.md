@@ -39,11 +39,11 @@ almacena en PostgreSQL.
 | 5 | El sistema valida que las dos nuevas contraseñas coincidan | 
 `CambioPasswordView.java` |
 | 6 | El sistema verifica la contraseña actual contra la base de datos | 
-`UsuarioDAO.cambiarPassword()` |
+`UsuarioDao.cambiarPassword()` |
 | 7 | El sistema cifra la nueva contraseña con BCrypt | `BCrypt.hashpw()` 
 |
 | 8 | El sistema actualiza la contraseña en PostgreSQL | 
-`UsuarioDAO.cambiarPassword()` |
+`UsuarioDao.cambiarPassword()` |
 | 9 | El sistema muestra un mensaje de éxito al usuario | 
 `CambioPasswordView.java` |
 
@@ -57,9 +57,9 @@ almacena en PostgreSQL.
 | 2 | Las dos nuevas contraseñas deben coincidir | 
 `CambioPasswordView.java` |
 | 3 | La contraseña actual debe ser correcta | 
-`UsuarioDAO.cambiarPassword()` |
+`UsuarioDao.cambiarPassword()` |
 | 4 | La nueva contraseña se cifra con BCrypt | 
-`UsuarioDAO.cambiarPassword()` |
+`UsuarioDao.cambiarPassword()` |
 
 ---
 
@@ -68,7 +68,7 @@ almacena en PostgreSQL.
 | Capa | Componente |
 |------|------------|
 | Interfaz | `CambioPasswordView.java` |
-| Acceso a datos | `UsuarioDAO.java` |
+| Acceso a datos | `UsuarioDao.java` |
 | Seguridad | `BCrypt` (jbcrypt) |
 | Base de datos | Tabla `USUARIOS` en PostgreSQL |
 

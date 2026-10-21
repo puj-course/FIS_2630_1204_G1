@@ -24,7 +24,7 @@ sesión y la capa de acceso a datos.
 ```mermaid
 classDiagram
 
-    class InventarioController {
+    class ControladorInventario {
         +initialize()
         +cargarInventario()
         -mostrarInventarioVacio()
@@ -61,9 +61,9 @@ classDiagram
         -nombre
     }
 
-    InventarioController --> UserSession : consulta sesión
+    ControladorInventario --> UserSession : consulta sesión
     UserSession --> Usuario : usuario activo
-    InventarioController --> InventarioDAO : solicita inventario filtrado
+    ControladorInventario --> InventarioDAO : solicita inventario filtrado
     InventarioDAO --> Inventario : recupera
     Usuario --> Farmacia : pertenece a
     Inventario --> Farmacia : stock asociado a
@@ -71,7 +71,7 @@ classDiagram
 
 ### Responsabilidades
 
-**InventarioController**
+**ControladorInventario**
 
 Responsable de inicializar la vista de inventario y solicitar los registros
 correspondientes a la farmacia del usuario activo.
@@ -104,7 +104,7 @@ La dependencia esperada para HU-67 es:
 JavaFX / TableView
         |
         v
-InventarioController
+ControladorInventario
         |
         +------> UserSession
         |            |
@@ -175,7 +175,7 @@ UserSession
         ↓
 id_farmacia
         ↓
-InventarioController
+ControladorInventario
         ↓
 InventarioDAO
         ↓

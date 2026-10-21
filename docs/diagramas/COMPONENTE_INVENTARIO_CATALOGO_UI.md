@@ -6,8 +6,8 @@ Parte 3 de 3 del diagrama de componentes de presentación y sesión (HU.85). Có
 
 ```mermaid
 flowchart LR
-    INV["Inventario (interfaz)<br/>inventario-view.fxml + InventarioController"]
-    CAT["Catálogo (interfaz)<br/>catalogo-view.fxml + CatalogoController"]
+    INV["Inventario (interfaz)<br/>inventario-view.fxml + ControladorInventario"]
+    CAT["Catálogo (interfaz)<br/>catalogo-view.fxml + ControladorCatalogo"]
 
     IEVT1(["Eventos de inventario<br/>onRefrescar, onFiltrarTodos, onFiltrarVencidos,<br/>onFiltrarDisponibles, onDispensar,<br/>onAbrirCatalogo, onCerrarSesion"])
     IEVT2(["Eventos de catálogo<br/>onNuevo, onGuardar, onActualizar, onDesactivar,<br/>onRefrescar, onVolver, onCerrarSesion"])
@@ -40,10 +40,10 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 | Elemento | Detalle |
 |---|---|
 | Responsabilidad | Mostrar los lotes en una tabla, filtrarlos, dispensar unidades de un lote y navegar al catálogo |
-| Clases y recursos | `InventarioController` e `inventario-view.fxml` |
+| Clases y recursos | `ControladorInventario` e `inventario-view.fxml` |
 | Interfaz que provee | Siete manejadores: refrescar, tres filtros, dispensar, abrir catálogo y cerrar sesión |
 | Interfaces que requiere | `ILoteDAO.listarTodos`; `IMedicamentoDAO.listarCategorias` y `categoriaPorMedicamento`; `IDispensacion.dispensarMedicamento`; `ISesion.actual`; `INavegacion` |
-| Cómo obtiene sus dependencias | `new LoteDAOImpl()`, `new MedicamentoDAOImpl()` y `new FarmacovigilanciaService()` en el constructor |
+| Cómo obtiene sus dependencias | `new LoteDaoJdbc()`, `new MedicamentoDaoJdbc()` y `new ServicioFarmacovigilancia()` en el constructor |
 
 La tabla combina tres predicados (`filtroTexto`, `filtroEstado`, `filtroCategoria`) con `Predicate.and`, sobre una `FilteredList` y una `SortedList`. Al abrirse, `cargarInformacionSesion` lanza `IllegalStateException` si no hay sesión activa; con sesión, muestra en etiquetas el nombre, el correo, el rol (`Rol #N`) y la farmacia con su id.
 
@@ -52,7 +52,7 @@ La tabla combina tres predicados (`filtroTexto`, `filtroEstado`, `filtroCategori
 | Elemento | Detalle |
 |---|---|
 | Responsabilidad | Gestionar los productos de aseo y de maternidad de la farmacia del usuario |
-| Clases y recursos | `CatalogoController` y `catalogo-view.fxml` |
+| Clases y recursos | `ControladorCatalogo` y `catalogo-view.fxml` |
 | Interfaz que provee | Siete manejadores: nuevo, guardar, actualizar, desactivar, refrescar, volver y cerrar sesión |
 | Interfaces que requiere | `IInventarioFachada`; los constructores `AseoBuilder` y `MaternidadBuilder` (contrato `Producto`); `ISesion.usuarioParaFachada`; `INavegacion` |
 | Cómo obtiene sus dependencias | `new Inventario(SesionUsuario.usuarioParaFachada())` |
@@ -61,8 +61,8 @@ Operaciones de la fachada que usa: `listarAseo`, `listarMaternidad`, `registrarA
 
 ## 4. Observaciones verificadas en el código
 
-- `InventarioController` sigue llamando a `LoteDAOImpl` y `MedicamentoDAOImpl` **directamente** para las lecturas, sin servicio. `CatalogoController`, en cambio, pasa por la fachada.
-- `InventarioController` llama a la versión **de dos argumentos** de `dispensarMedicamento`, que está marcada `@Deprecated` y no comprueba la farmacia del lote ni registra al usuario. La versión de cuatro argumentos, que sí lo hace, solo la usa la fachada, y la fachada no tiene ningún llamador en las pantallas.
-- `LoteDAOImpl.listarTodos` no filtra por farmacia, así que la tabla de inventario muestra los lotes de todas las farmacias aunque la etiqueta indique la del usuario.
+- `ControladorInventario` sigue llamando a `LoteDaoJdbc` y `MedicamentoDaoJdbc` **directamente** para las lecturas, sin servicio. `ControladorCatalogo`, en cambio, pasa por la fachada.
+- `ControladorInventario` llama a la versión **de dos argumentos** de `dispensarMedicamento`, que está marcada `@Deprecated` y no comprueba la farmacia del lote ni registra al usuario. La versión de cuatro argumentos, que sí lo hace, solo la usa la fachada, y la fachada no tiene ningún llamador en las pantallas.
+- `LoteDaoJdbc.listarTodos` no filtra por farmacia, así que la tabla de inventario muestra los lotes de todas las farmacias aunque la etiqueta indique la del usuario.
 - La tabla muestra `id_medicamento` (un número), no el nombre del medicamento.
 - La fachada tiene métodos sin llamador en las pantallas: `buscarAseo`, `buscarMaternidad`, `registrarMedicamento`, `registrarLote` y `dispensarMedicamento`.

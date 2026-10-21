@@ -27,8 +27,8 @@ flowchart LR
             MainDashboardFX"]
 
             DAO["<<artifact>>
-            MedicamentoDAO /
-            LoteDAO"]
+            MedicamentoDao /
+            LoteDao"]
 
         end
     end

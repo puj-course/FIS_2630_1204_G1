@@ -37,7 +37,7 @@ Ambos representan usuarios autenticados que poseen una farmacia asignada dentro 
        │                              │ cargarInventario()
        │                              ▼
        │                                                    ◉
-       │                                            InventarioController
+       │                                            ControladorInventario
        │                                                &lt;&lt;control&gt;&gt;
        │                                                    │
        │                                                    ├──────────────────────────► ◯
@@ -93,7 +93,7 @@ La vista no determina manualmente la farmacia ni realiza directamente el filtrad
 
 ---
 
-### Control — `InventarioController`
+### Control — `ControladorInventario`
 
 Representa el componente encargado de coordinar el caso de uso.
 

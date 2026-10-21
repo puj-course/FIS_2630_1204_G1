@@ -1,10 +1,10 @@
 # Patrón Template Method: los DAO del catálogo
 
-Patrón de **comportamiento** de la gestión de productos de CareStock, introducido en la HU.94. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDAO`). Los números de línea corresponden a esa versión.
+Patrón de **comportamiento** de la gestión de productos de CareStock, introducido en la HU.94. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDao`). Los números de línea corresponden a esa versión.
 
 ## 1. Qué problema resuelve
 
-`AseoDAO` y `MaternidadDAO` hacían lo mismo con dos tablas distintas: guardar, buscar, listar, actualizar y desactivar. Al ignorar el nombre del tipo, **115 de sus líneas eran idénticas**, el 78 %. Lo único que cambiaba era:
+`AseoDao` y `MaternidadDao` hacían lo mismo con dos tablas distintas: guardar, buscar, listar, actualizar y desactivar. Al ignorar el nombre del tipo, **115 de sus líneas eran idénticas**, el 78 %. Lo único que cambiaba era:
 
 - Las columnas del `INSERT` y del `UPDATE`.
 - Los valores que se asignan a cada parámetro.
@@ -17,7 +17,7 @@ El patrón **Template Method** deja el flujo común **una sola vez** en una clas
 ```mermaid
 classDiagram
     direction TB
-    class CatalogoDAO~T~ {
+    class CatalogoDao~T~ {
         <<abstract>>
         +guardar()
         +buscarPorId()
@@ -31,12 +31,12 @@ classDiagram
         #asignarCampos()*
         #construir()*
     }
-    class AseoDAO {
+    class AseoDao {
         #tabla()
         #asignarCampos()
         #construir()
     }
-    class MaternidadDAO {
+    class MaternidadDao {
         #tabla()
         #asignarCampos()
         #construir()
@@ -45,19 +45,19 @@ classDiagram
     class Inventario {
         <<Facade>>
     }
-    CatalogoDAO <|-- AseoDAO
-    CatalogoDAO <|-- MaternidadDAO
-    Inventario --> AseoDAO
-    Inventario --> MaternidadDAO
+    CatalogoDao <|-- AseoDao
+    CatalogoDao <|-- MaternidadDao
+    Inventario --> AseoDao
+    Inventario --> MaternidadDao
 ```
 
 | Papel del patrón | Qué es | Archivo y línea |
 |---|---|---|
-| Clase abstracta | `CatalogoDAO<T extends Validable>` | `dao/CatalogoDAO.java` L16 |
-| Métodos plantilla (`final`) | `guardar` L30, `buscarPorId` L58, `listarPorFarmacia` L73, `actualizar` L89, `desactivar` L112 | `dao/CatalogoDAO.java` |
-| Ganchos (`abstract`) | `tabla`, `columnaId`, `nombreProducto`, `columnasEspecificas`, `asignarCampos` y `construir` | `dao/CatalogoDAO.java` L18 a L28 |
-| Clase concreta 1 | `AseoDAO extends CatalogoDAO<Aseo>` | `dao/AseoDAO.java` L12 |
-| Clase concreta 2 | `MaternidadDAO extends CatalogoDAO<Maternidad>` | `dao/MaternidadDAO.java` L13 |
+| Clase abstracta | `CatalogoDao<T extends Validable>` | `dao/CatalogoDao.java` L16 |
+| Métodos plantilla (`final`) | `guardar` L30, `buscarPorId` L58, `listarPorFarmacia` L73, `actualizar` L89, `desactivar` L112 | `dao/CatalogoDao.java` |
+| Ganchos (`abstract`) | `tabla`, `columnaId`, `nombreProducto`, `columnasEspecificas`, `asignarCampos` y `construir` | `dao/CatalogoDao.java` L18 a L28 |
+| Clase concreta 1 | `AseoDao extends CatalogoDao<Aseo>` | `dao/AseoDao.java` L12 |
+| Clase concreta 2 | `MaternidadDao extends CatalogoDao<Maternidad>` | `dao/MaternidadDao.java` L13 |
 
 ## 3. Cómo funciona
 
@@ -71,7 +71,7 @@ Cada método plantilla es `final` en el código (el diagrama no lo marca): las s
 
 Qué aporta cada subclase:
 
-| Gancho | `AseoDAO` | `MaternidadDAO` |
+| Gancho | `AseoDao` | `MaternidadDao` |
 |---|---|---|
 | `tabla()` | `aseo` | `maternidad` |
 | `columnaId()` | `id_aseo` | `id_maternidad` |
@@ -85,16 +85,16 @@ El método protegido `asignarCamposComunes` (L128) asigna código, nombre, descr
 
 | Líneas de código, con `import` | Antes | Ahora |
 |---|---|---|
-| `AseoDAO` | 147 | 48 |
-| `MaternidadDAO` | 159 | 56 |
-| `CatalogoDAO` | No existía | 139 |
+| `AseoDao` | 147 | 48 |
+| `MaternidadDao` | 159 | 56 |
+| `CatalogoDao` | No existía | 139 |
 | **Total** | 306 | 243 |
 
 El total baja poco porque hoy solo hay dos tipos. La ventaja real es que **un tipo nuevo cuesta unas 50 líneas** (los seis ganchos) en vez de unas 150 de flujo repetido, y que cualquier corrección del flujo se hace en un solo lugar.
 
 ## 5. Qué no cambia
 
-- Los métodos públicos de `AseoDAO` y `MaternidadDAO` conservan su nombre, parámetros y excepciones, así que `Inventario` y las pantallas no se tocan.
+- Los métodos públicos de `AseoDao` y `MaternidadDao` conservan su nombre, parámetros y excepciones, así que `Inventario` y las pantallas no se tocan.
 - El SQL que se envía es el mismo, así como los mensajes de error.
 - Se comprobó con una base de datos simulada que el código anterior y el nuevo dan el mismo SQL, los mismos parámetros, los mismos resultados y los mismos errores en 47 escenarios (guardar, buscar, listar, actualizar y desactivar, con datos válidos e inválidos, para los dos tipos). Esa prueba no forma parte del repositorio.
 
@@ -102,6 +102,6 @@ El total baja poco porque hoy solo hay dos tipos. La ventaja real es que **un ti
 
 | Dónde | Qué mirar |
 |---|---|
-| Diagrama de clases | `DIAGRAMA_CLASES_ACTUAL.md`, diagrama 2: `CatalogoDAO` con la marca `<<abstract>>` y las dos subclases |
+| Diagrama de clases | `DIAGRAMA_CLASES_ACTUAL.md`, diagrama 2: `CatalogoDao` con la marca `<<abstract>>` y las dos subclases |
 | Diagrama de componentes | Dentro del componente "DAO de catálogo" (flechas 17 y 34) |
-| Código | `CatalogoDAO.java` (plantilla), `AseoDAO.java` y `MaternidadDAO.java` (ganchos) |
+| Código | `CatalogoDao.java` (plantilla), `AseoDao.java` y `MaternidadDao.java` (ganchos) |

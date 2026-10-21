@@ -1,10 +1,10 @@
 # Patrón Proxy: la consulta de inventario con caché y control de acceso
 
-Patrón **estructural** de la gestión de productos de CareStock, con un **Singleton** que guarda el proxy compartido. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDAO`). Los números de línea corresponden a esa versión.
+Patrón **estructural** de la gestión de productos de CareStock, con un **Singleton** que guarda el proxy compartido. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDao`). Los números de línea corresponden a esa versión.
 
 ## 1. Qué problema resuelve
 
-La consulta unificada junta tres tablas (medicamentos, aseo y maternidad) con un `UNION ALL` (`ConsultaInventarioDAO.java` L33). Repetirla cada vez que una pantalla la pide es lento y además cualquier llamador podría pedir los datos de otra farmacia.
+La consulta unificada junta tres tablas (medicamentos, aseo y maternidad) con un `UNION ALL` (`ConsultaInventarioBaseDatos.java` L33). Repetirla cada vez que una pantalla la pide es lento y además cualquier llamador podría pedir los datos de otra farmacia.
 
 El patrón **Proxy** pone un intermediario con la **misma interfaz** que el objeto real. Este intermediario hace tres cosas antes de llegar a la base de datos: comprueba que la farmacia pedida sea la de la sesión, devuelve lo que ya guardó en memoria si todavía no venció, y descarta la consulta si la sesión cambió mientras estaba en curso.
 
@@ -25,7 +25,7 @@ classDiagram
         +invalidarFarmacia()
         +aciertos()
     }
-    class ConsultaInventarioDAO {
+    class ConsultaInventarioBaseDatos {
         +listarPorFarmacia()
     }
     class InventarioConsultas {
@@ -40,10 +40,10 @@ classDiagram
     class SesionUsuario
 
     ConsultaInventarioProxy ..|> ConsultaInventario
-    ConsultaInventarioDAO ..|> ConsultaInventario
+    ConsultaInventarioBaseDatos ..|> ConsultaInventario
     ConsultaInventarioProxy o-- ConsultaInventario : real
     InventarioConsultas --> ConsultaInventarioProxy
-    InventarioConsultas --> ConsultaInventarioDAO
+    InventarioConsultas --> ConsultaInventarioBaseDatos
     Inventario --> InventarioConsultas
     ConsultaInventarioProxy ..> SesionUsuario
     SesionUsuario ..> InventarioConsultas
@@ -52,7 +52,7 @@ classDiagram
 | Papel del patrón | Clase | Archivo y línea |
 |---|---|---|
 | Interfaz común | `ConsultaInventario` | `proxy/ConsultaInventario.java` L6 |
-| Objeto real | `ConsultaInventarioDAO` | `dao/ConsultaInventarioDAO.java` L18 |
+| Objeto real | `ConsultaInventarioBaseDatos` | `dao/ConsultaInventarioBaseDatos.java` L18 |
 | Proxy | `ConsultaInventarioProxy` | `proxy/ConsultaInventarioProxy.java` L28 |
 | Quien guarda el proxy | `InventarioConsultas` | `proxy/InventarioConsultas.java` |
 
@@ -78,7 +78,7 @@ El tiempo de vida de lo guardado es de **30 segundos** por defecto (L26) y se pu
 | `Inventario.listarInventarioUnificado` consulta | `Inventario.java` L431 |
 | `SesionUsuario.iniciar` vacía la caché al abrir sesión | `SesionUsuario.java` L47 |
 | Cada escritura confirmada de la fachada vacía la caché de su farmacia | `Inventario.java` L105 |
-| `ConsultaInventarioController` lee las estadísticas de la caché | `ConsultaInventarioController.java` L407 |
+| `ControladorConsultaInventario` lee las estadísticas de la caché | `ControladorConsultaInventario.java` L407 |
 
 ## 6. Pruebas que lo respaldan
 

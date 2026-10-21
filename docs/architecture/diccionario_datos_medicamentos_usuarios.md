@@ -1,22 +1,22 @@
 # Diccionario de datos — CareStock
 
-> Generado a partir de `MedicamentoDAO.java` (consultas reales contra Neon) y Usuario.
+> Generado a partir de `MedicamentoDao.java` (consultas reales contra Neon) y Usuario.
 ---
 
 ## Tabla `MEDICAMENTOS`
 
 | Columna | Tipo | Obligatorio | Origen de la confirmación |
 |---|---|---|---|
-| `id_medicamento` | (numérico, probable `SERIAL`/`BIGINT`) | Sí (PK) | Usado como PK en `MedicamentoDAO.obtenerTodos()` |
-| `codigo_invima` | VARCHAR | No confirmado | Usado en `MedicamentoDAO` (insert y select) |
+| `id_medicamento` | (numérico, probable `SERIAL`/`BIGINT`) | Sí (PK) | Usado como PK en `MedicamentoDao.obtenerTodos()` |
+| `codigo_invima` | VARCHAR | No confirmado | Usado en `MedicamentoDao` (insert y select) |
 | `nombre_comercial` | VARCHAR | **Sí** | `ALTER COLUMN nombre_comercial SET NOT NULL` |
 | `principio_activo` | VARCHAR | **Sí** | `ALTER COLUMN principio_activo SET NOT NULL` |
 | `concentracion` | VARCHAR | **Sí** | `ALTER COLUMN concentracion SET NOT NULL` |
-| `forma_farmaceutica` | VARCHAR | **Sí** | `ALTER COLUMN forma_farmaceutica SET NOT NULL` (no se usa en `MedicamentoDAO`, pero sí en la migración) |
+| `forma_farmaceutica` | VARCHAR | **Sí** | `ALTER COLUMN forma_farmaceutica SET NOT NULL` (no se usa en `MedicamentoDao`, pero sí en la migración) |
 | `presentacion` | VARCHAR(100) | **Sí** | Agregada por migración: `ADD COLUMN presentacion VARCHAR(100)` + `SET NOT NULL` |
-| `id_categoria` | INTEGER | **Sí** | FK hacia `CATEGORIAS.id_categoria` (join visible en `MedicamentoDAO`); `SET NOT NULL` en migración |
-| `stock_total` | INTEGER | No confirmado (tiene default en el DAO: `0` si es null) | Usado en `MedicamentoDAO.obtenerTodos()` y en `obtenerTotalUnidadesStock()` |
-| `stock_minimo` | INTEGER | No confirmado (default `0` en el DAO) | Usado en `MedicamentoDAO.obtenerAlertasCriticas()`: `stock_total <= stock_minimo` |
+| `id_categoria` | INTEGER | **Sí** | FK hacia `CATEGORIAS.id_categoria` (join visible en `MedicamentoDao`); `SET NOT NULL` en migración |
+| `stock_total` | INTEGER | No confirmado (tiene default en el DAO: `0` si es null) | Usado en `MedicamentoDao.obtenerTodos()` y en `obtenerTotalUnidadesStock()` |
+| `stock_minimo` | INTEGER | No confirmado (default `0` en el DAO) | Usado en `MedicamentoDao.obtenerAlertasCriticas()`: `stock_total <= stock_minimo` |
 | `id_usuario_creacion` | INTEGER | **Sí** | FK hacia `USUARIOS.id_usuario`; agregada por migración, `SET NOT NULL` |
 | `fecha_creacion` | TIMESTAMP | **Sí** | `DEFAULT CURRENT_TIMESTAMP`, agregada por migración |
 

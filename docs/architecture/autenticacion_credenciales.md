@@ -5,19 +5,19 @@
 
 ## Componentes involucrados
 
-- `AuthenticationService` (`service/AuthenticationService.java`)
-- `UsuarioDAO.buscarPorEmail(String email)` (`dao/UsuarioDAO.java`)
+- `ServicioAutenticacion` (`service/ServicioAutenticacion.java`)
+- `UsuarioDao.buscarPorEmail(String email)` (`dao/UsuarioDao.java`)
 - `AccesoDAO.registrarAcceso(int idUsuario, String resultado)` (`dao/AccesoDAO.java`)
 - `Usuario` (`model/Usuario.java`)
 
 ## Flujo de autenticación
 
-1. `AuthenticationService.autenticar(email, password)` recibe el correo y la
+1. `ServicioAutenticacion.autenticar(email, password)` recibe el correo y la
    contraseña en texto plano ingresados en el login.
 2. Valida que ninguno de los dos campos venga vacío o nulo; si falta alguno,
    lanza `IllegalArgumentException` con el mensaje genérico
    `"Usuario o contraseña incorrectos"`.
-3. Busca el usuario por correo con `UsuarioDAO.buscarPorEmail()`. Si no
+3. Busca el usuario por correo con `UsuarioDao.buscarPorEmail()`. Si no
    existe, lanza la misma excepción genérica — **no revela si el correo
    está registrado o no**.
 4. Si el usuario existe pero su estado no es `ACTIVO` (`INACTIVO` o

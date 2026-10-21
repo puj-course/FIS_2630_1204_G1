@@ -6,12 +6,12 @@ classDiagram
       +start(Stage)
       -onLoginClick()
     }
-    class AuthenticationService {
-      -UsuarioDAO usuarioDAO
+    class ServicioAutenticacion {
+      -UsuarioDao usuarioDAO
       -AccesoDAO accesoDAO
       +autenticar(email, password) Usuario
     }
-    class UsuarioDAO {
+    class UsuarioDao {
       +buscarPorEmail(email) Usuario
     }
     class AccesoDAO {
@@ -48,12 +48,12 @@ classDiagram
       +esAdministrador() boolean
       +esFarmaceutico() boolean
     }
-    LoginFX --> AuthenticationService
+    LoginFX --> ServicioAutenticacion
     LoginFX --> UserSession
-    AuthenticationService --> UsuarioDAO
-    AuthenticationService --> AccesoDAO
-    AuthenticationService ..> Usuario
-    UsuarioDAO ..> Usuario
+    ServicioAutenticacion --> UsuarioDao
+    ServicioAutenticacion --> AccesoDAO
+    ServicioAutenticacion ..> Usuario
+    UsuarioDao ..> Usuario
     UserSession *-- CurrentUser
     UserSession ..> Usuario
 ```

@@ -41,7 +41,7 @@ El flujo multi-farmacia permite que CareStock opere con múltiples sedes, garant
 | `FarmaciaService` | `service/FarmaciaService.java` | Lógica de farmacias |
 | `UsuarioService` | `service/UsuarioService.java` | Lógica de usuarios |
 | `UserSession` | `session/UserSession.java` | Almacena el usuario con su farmacia |
-| `MedicamentoDAO` | `dao/MedicamentoDAO.java` | Consultas filtradas por farmacia |
+| `MedicamentoDao` | `dao/MedicamentoDao.java` | Consultas filtradas por farmacia |
 | `MainDashboardFX` | `view/MainDashboardFX.java` | Muestra el inventario filtrado |
 
 ---

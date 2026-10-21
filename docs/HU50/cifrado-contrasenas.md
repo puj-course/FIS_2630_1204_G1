@@ -53,7 +53,7 @@ en la base de datos, como funciones de PostgreSQL:
 | `fn_autenticar_usuario` | Recibe el correo y la contraseña ingresados, y compara el hash generado a partir de la contraseña contra el hash almacenado, sin descifrar nunca el valor guardado. |
 
 Del lado de JavaFX, la pantalla `CrearUsuarioFX` invoca `fn_crear_usuario` 
-a través de `UsuarioDAO.crear()`, agregando una validación adicional de 
+a través de `UsuarioDao.crear()`, agregando una validación adicional de 
 longitud mínima en la interfaz para dar retroalimentación inmediata al 
 usuario antes de consultar la base de datos.
 

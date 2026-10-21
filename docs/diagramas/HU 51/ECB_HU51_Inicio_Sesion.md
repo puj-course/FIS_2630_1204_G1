@@ -13,7 +13,7 @@ flowchart LR
     LV(("«boundary»<br/><b>LoginFX</b><br/><small>(+ LoginNotification)</small>"))
     MP(("«boundary»<br/><b>MainDashboardFX</b>"))
 
-    AU(("«control»<br/><b>AuthenticationService</b>"))
+    AU(("«control»<br/><b>ServicioAutenticacion</b>"))
     SC(("«control»<br/><b>SessionController</b>"))
 
     US(("«entity»<br/><b>Usuario</b><br/><small>(USUARIOS)</small>"))
@@ -49,7 +49,7 @@ El diagrama modela el flujo de la HU.51 separando la interfaz, la lógica y los 
 
 **Límites (Boundary).** Son las pantallas con las que interactúa el Auxiliar de Farmacia. `LoginFX` recibe el correo y la contraseña y, mediante `LoginNotification`, muestra el mensaje genérico *"Usuario o contraseña incorrectos"* sin revelar si el usuario existe. `MainDashboardFX` es la pantalla principal después del ingreso y ofrece la opción de cerrar sesión.
 
-**Control.** `AuthenticationService` contiene la lógica de autenticación: busca el usuario por correo, verifica que su estado sea `ACTIVO`, compara la contraseña con el hash usando BCrypt y registra cada intento como exitoso o fallido. `SessionController` gestiona la sesión: la crea tras un ingreso válido y la destruye al cerrar sesión.
+**Control.** `ServicioAutenticacion` contiene la lógica de autenticación: busca el usuario por correo, verifica que su estado sea `ACTIVO`, compara la contraseña con el hash usando BCrypt y registra cada intento como exitoso o fallido. `SessionController` gestiona la sesión: la crea tras un ingreso válido y la destruye al cerrar sesión.
 
 **Entidades (Entity).** `Usuario` y `Rol` corresponden a las tablas `USUARIOS` y `ROLES` de PostgreSQL. `AccesoLog` es la tabla `log_accesos`, que deja la trazabilidad de los intentos de ingreso. `UserSession` guarda en memoria al usuario activo (ID, nombre, email, rol y farmacia) para que todas las operaciones posteriores queden vinculadas a él.
 

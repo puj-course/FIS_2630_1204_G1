@@ -22,7 +22,7 @@ Se validará el formulario CrearUsuarioFX sobre la versión que integre las subi
 
 ## Relación con el diseño de software
 
-4.1 MBD: los casos contrastan el flujo previsto de selección y guardado. 4.2 Estructura: CrearUsuarioFX utiliza FarmaciaDAO para cargar sedes y UsuarioService y UsuarioDAO para crear el usuario. 4.3 Comportamiento: carga, selección, validación y persistencia, con salidas de error y estado vacío. 4.4 Patrones: la separación de vista, servicio y DAO permite comprobar cada responsabilidad. Este registro vincula las pruebas al diseño; no certifica la actualización de diagramas de la HU.
+4.1 MBD: los casos contrastan el flujo previsto de selección y guardado. 4.2 Estructura: CrearUsuarioFX utiliza FarmaciaDAO para cargar sedes y UsuarioService y UsuarioDao para crear el usuario. 4.3 Comportamiento: carga, selección, validación y persistencia, con salidas de error y estado vacío. 4.4 Patrones: la separación de vista, servicio y DAO permite comprobar cada responsabilidad. Este registro vincula las pruebas al diseño; no certifica la actualización de diagramas de la HU.
 
 ## Pruebas de carga y persistencia
 
