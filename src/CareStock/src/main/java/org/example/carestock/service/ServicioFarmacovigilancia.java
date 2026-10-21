@@ -1,6 +1,6 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.exception.ReglaNegocioException;
 
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 /** Dispensacion atomica, con control de usuario, farmacia y rol. */
-public class FarmacovigilanciaService {
+public class ServicioFarmacovigilancia {
 
     /**
      * Firma antigua, conservada solamente para detectar llamadas inseguras.
@@ -32,7 +32,7 @@ public class FarmacovigilanciaService {
                     "Lote, cantidad, usuario y farmacia deben ser validos");
         }
 
-        try (Connection con = ConexionBD.getConexion()) {
+        try (Connection con = ConexionBaseDatos.getConexion()) {
             con.setAutoCommit(false);
             try {
                 validarOperador(con, idUsuario, idFarmacia);

@@ -16,11 +16,11 @@ import java.util.Properties;
  *
  * Lee los datos desde config/conexion-local.properties.
  */
-public final class ConexionBD {
+public final class ConexionBaseDatos {
 
     private static volatile HikariDataSource pool;
 
-    private ConexionBD() {
+    private ConexionBaseDatos() {
     }
 
     public static Connection getConexion() throws SQLException {
@@ -28,7 +28,7 @@ public final class ConexionBD {
         HikariDataSource ds = pool;
 
         if (ds == null) {
-            synchronized (ConexionBD.class) {
+            synchronized (ConexionBaseDatos.class) {
                 ds = pool;
 
                 if (ds == null) {

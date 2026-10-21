@@ -1,6 +1,6 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ControlVencimientosService {
+public final class ServicioControlVencimientos {
 
     public int sincronizar(int idFarmacia, int idUsuario)
             throws Exception {
@@ -19,7 +19,7 @@ public final class ControlVencimientosService {
                     "Farmacia y usuario obligatorios");
         }
 
-        try (Connection con = ConexionBD.getConexion()) {
+        try (Connection con = ConexionBaseDatos.getConexion()) {
             boolean autoCommitAnterior = con.getAutoCommit();
             con.setAutoCommit(false);
 

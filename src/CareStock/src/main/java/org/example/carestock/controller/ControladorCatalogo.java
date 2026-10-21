@@ -7,9 +7,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-import org.example.carestock.CareStockApp;
-import org.example.carestock.DataTransferObject.LecturaCampos;
-import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.dto.LecturaCampos;
+import org.example.carestock.dto.RegistroCatalogo;
 import org.example.carestock.facade.Inventario;
 
 import org.example.carestock.model.Aseo;
@@ -34,7 +34,7 @@ import javafx.util.Duration;
  * El CRUD utiliza la fachada Inventario.
  * La consulta unificada es una pantalla independiente.
  */
-public class CatalogoController {
+public class ControladorCatalogo {
 
     // ========================================
     // COMPONENTES GENERALES
@@ -549,21 +549,21 @@ public class CatalogoController {
     @FXML
     private void onConsultaUnificada() {
 
-        CareStockApp.getInstance()
+        AplicacionCareStock.getInstance()
                 .mostrarConsultaUnificada();
     }
 
     @FXML
     private void onVolver() {
 
-        CareStockApp.getInstance()
+        AplicacionCareStock.getInstance()
                 .mostrarDashboard();
     }
 
     @FXML
     private void onCerrarSesion() {
 
-        CareStockApp.getInstance()
+        AplicacionCareStock.getInstance()
                 .cerrarSesion();
     }
 

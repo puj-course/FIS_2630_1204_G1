@@ -126,7 +126,7 @@ classDiagram
 
     class MainDashboardFX {
         -TableView~Medicamento~ tablaInventario
-        -MedicamentoDAO medicamentoDAO
+        -MedicamentoDao medicamentoDAO
         +start(Stage) void
         +cargarDatosDesdeBD() void
         -mostrarInventarioVacio() void
@@ -137,7 +137,7 @@ classDiagram
     %% INVENTARIO
     %% =========================
 
-    class MedicamentoDAO {
+    class MedicamentoDao {
         +obtenerPorFarmacia(int idFarmacia) List~Medicamento~
         +obtenerTotalStockPorFarmacia(int idFarmacia) int
         +obtenerAlertasPorFarmacia(int idFarmacia) int
@@ -195,11 +195,11 @@ classDiagram
 
     CurrentUser "0..*" --> "0..1" Farmacia : asignado a
 
-    MainDashboardFX ..> MedicamentoDAO : consulta por idFarmacia
+    MainDashboardFX ..> MedicamentoDao : consulta por idFarmacia
 
-    MedicamentoDAO ..> DatabaseConfig : obtiene conexión
+    MedicamentoDao ..> DatabaseConfig : obtiene conexión
 
-    MedicamentoDAO ..> Medicamento : obtiene
+    MedicamentoDao ..> Medicamento : obtiene
 
     Medicamento "1" --> "0..*" Lote : posee
 
@@ -232,7 +232,7 @@ idFarmacia
 
 actúa como contexto de seguridad y segmentación de los datos.
 
-Este identificador es utilizado por `MedicamentoDAO` para recuperar únicamente los registros relacionados con la farmacia correspondiente al usuario autenticado. Todos estos diagramas pueden cambiar en un futuro ya que el sistema Carestock se esta modificando para que tenga implementado interfaces.
+Este identificador es utilizado por `MedicamentoDao` para recuperar únicamente los registros relacionados con la farmacia correspondiente al usuario autenticado. Todos estos diagramas pueden cambiar en un futuro ya que el sistema Carestock se esta modificando para que tenga implementado interfaces.
 
 ---
 
@@ -256,7 +256,7 @@ Administrador / Farmacéutico
         idFarmacia
             │
             ▼
-      MedicamentoDAO
+      MedicamentoDao
             │
             ▼
       DatabaseConfig
@@ -281,9 +281,9 @@ El flujo puede resumirse en los siguientes pasos:
 
 7. Se obtiene el `idFarmacia` correspondiente al usuario autenticado.
 
-8. El Dashboard solicita a `MedicamentoDAO` la información correspondiente a dicha farmacia.
+8. El Dashboard solicita a `MedicamentoDao` la información correspondiente a dicha farmacia.
 
-9. `MedicamentoDAO` obtiene una conexión a PostgreSQL mediante `DatabaseConfig`.
+9. `MedicamentoDao` obtiene una conexión a PostgreSQL mediante `DatabaseConfig`.
 
 10. La consulta restringe los resultados utilizando el identificador de farmacia.
 
@@ -414,11 +414,11 @@ El Dashboard no almacena de manera independiente la identidad del usuario.
 
 ---
 
-### 6.7. MainDashboardFX — MedicamentoDAO
+### 6.7. MainDashboardFX — MedicamentoDao
 
 Relación de **dependencia**.
 
-El Dashboard solicita la información del inventario mediante `MedicamentoDAO`.
+El Dashboard solicita la información del inventario mediante `MedicamentoDao`.
 
 El identificador de la farmacia obtenido desde la sesión se utiliza como parámetro para restringir la consulta.
 
@@ -430,11 +430,11 @@ medicamentoDAO.obtenerPorFarmacia(idFarmacia);
 
 ---
 
-### 6.8. MedicamentoDAO — DatabaseConfig
+### 6.8. MedicamentoDao — DatabaseConfig
 
 Relación de **dependencia**.
 
-`MedicamentoDAO` utiliza `DatabaseConfig` para obtener una conexión JDBC hacia la base de datos PostgreSQL alojada en Neon.
+`MedicamentoDao` utiliza `DatabaseConfig` para obtener una conexión JDBC hacia la base de datos PostgreSQL alojada en Neon.
 
 Conceptualmente:
 
@@ -444,7 +444,7 @@ Connection connection = DatabaseConfig.getConnection();
 
 ---
 
-### 6.9. MedicamentoDAO — Medicamento
+### 6.9. MedicamentoDao — Medicamento
 
 Relación de **dependencia**.
 
@@ -489,7 +489,7 @@ Los actores no acceden directamente a las clases responsables de persistencia.
 Por lo tanto, no se establecen asociaciones directas como:
 
 ```text
-Administrador ──X──> MedicamentoDAO
+Administrador ──X──> MedicamentoDao
 Farmacéutico ──X──> DatabaseConfig
 Administrador ──X──> UserSession
 Farmacéutico ──X──> Farmacia
@@ -517,7 +517,7 @@ Administrador
                  │                 Farmacia
                  │
                  ▼
-          MedicamentoDAO
+          MedicamentoDao
                  │
                  ▼
           DatabaseConfig

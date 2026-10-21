@@ -1,7 +1,7 @@
 
 package org.example.carestock.proxy;
 
-import org.example.carestock.dao.ConsultaInventarioDAO;
+import org.example.carestock.dao.ConsultaInventarioBaseDatos;
 
 import java.time.Duration;
 
@@ -12,7 +12,7 @@ public final class InventarioConsultas {
 
     private static final ConsultaInventarioProxy PROXY =
             new ConsultaInventarioProxy(
-                    new ConsultaInventarioDAO(),
+                    new ConsultaInventarioBaseDatos(),
                     obtenerTtl()
             );
 

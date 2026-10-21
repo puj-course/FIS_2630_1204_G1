@@ -5,7 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import org.example.carestock.CareStockApp;
+import org.example.carestock.AplicacionCareStock;
 import org.example.carestock.session.SesionUsuario;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 import javafx.concurrent.Task;
 import org.example.carestock.proxy.InventarioConsultas;
 
-public class InventarioController {
+public class ControladorInventario {
 
     @FXML private TableView<Lote> tablaLotes;
     @FXML private TableColumn<Lote, Integer> colIdLote;
@@ -60,7 +60,7 @@ public class InventarioController {
     private Predicate<Lote> filtroCategoria = lote -> true;
     private Map<Integer, String> categoriaPorMedicamento = new HashMap<>();
 
-    public InventarioController() {
+    public ControladorInventario() {
         this.listaLotes = FXCollections.observableArrayList();
     }
 
@@ -221,12 +221,12 @@ public class InventarioController {
 
     @FXML
     private void onAbrirCatalogo() {
-        CareStockApp.getInstance().mostrarCatalogo();
+        AplicacionCareStock.getInstance().mostrarCatalogo();
     }
 
     @FXML
     private void onCerrarSesion() {
-        CareStockApp.getInstance().cerrarSesion();
+        AplicacionCareStock.getInstance().cerrarSesion();
     }
 
     @FXML

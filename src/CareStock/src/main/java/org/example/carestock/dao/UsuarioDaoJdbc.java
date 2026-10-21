@@ -1,20 +1,20 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.model.Usuario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class UsuarioDAOImpl implements UsuarioDAO {
+public class UsuarioDaoJdbc implements UsuarioDao {
 
     @Override
     public Usuario buscarPorEmail(String email) throws Exception {
         // Consulta adaptada exactamente a las columnas de tu tabla usuarios en Neon
         String sql = "SELECT id_usuario, nombre_completo, email, password_hash, id_rol, estado FROM usuarios WHERE LOWER(email) = LOWER(?) AND UPPER(estado) = 'ACTIVO'";
 
-        try (Connection conn = ConexionBD.getConexion();
+        try (Connection conn = ConexionBaseDatos.getConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, email.trim());

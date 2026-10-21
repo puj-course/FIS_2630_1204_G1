@@ -1,6 +1,6 @@
 package org.example.carestock.session;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.model.Usuario;
 import org.example.carestock.proxy.InventarioConsultas;
 
@@ -65,7 +65,7 @@ public final class SesionUsuario {
               AND UPPER(u.estado) = 'ACTIVO'
             """;
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, usuarioAutenticado.getIdUsuario());

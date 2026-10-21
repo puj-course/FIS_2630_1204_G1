@@ -71,7 +71,7 @@ KEY (id_ubicacion) REFERENCES UBICACIONES (id_ubicacion)`.
 | Interfaz | `MainDashboardFX.java` |
 | Interfaz | `FormularioMedicamentoDialog.java` |
 | Modelo | `Medicamento.java` |
-| Acceso a datos | `MedicamentoDAO.java` |
+| Acceso a datos | `MedicamentoDao.java` |
 | Configuración | `DatabaseConfig.java` |
 | Base de datos | `01_schema_carestock.sql` |
 | Base de datos | `01_sp_ingreso_lotes.sql` |

@@ -15,9 +15,9 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-import org.example.carestock.CareStockApp;
-import org.example.carestock.DataTransferObject.FiltroProductoInventario;
-import org.example.carestock.DataTransferObject.ProductoInventario;
+import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.dto.FiltroProductoInventario;
+import org.example.carestock.dto.ProductoInventario;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.proxy.InventarioConsultas;
 import org.example.carestock.session.SesionUsuario;
@@ -30,7 +30,7 @@ import java.util.List;
  * La fachada utiliza el Proxy para reutilizar consultas vigentes.
  * La carga se ejecuta fuera del hilo grafico de JavaFX.
  */
-public class ConsultaInventarioController {
+public class ControladorConsultaInventario {
 
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private TextField txtBuscar;
@@ -442,7 +442,7 @@ public class ConsultaInventarioController {
 
         vistaActiva = false;
 
-        CareStockApp.getInstance()
+        AplicacionCareStock.getInstance()
                 .mostrarCatalogoParaRegistro(categoria);
     }
 
@@ -464,7 +464,7 @@ public class ConsultaInventarioController {
 
         vistaActiva = false;
 
-        CareStockApp.getInstance()
+        AplicacionCareStock.getInstance()
                 .mostrarCatalogoParaEditar(
                         seleccionado.categoria(),
                         seleccionado.id()
@@ -474,12 +474,12 @@ public class ConsultaInventarioController {
     @FXML
     private void onVolver() {
         vistaActiva = false;
-        CareStockApp.getInstance().mostrarCatalogo();
+        AplicacionCareStock.getInstance().mostrarCatalogo();
     }
 
     @FXML
     private void onCerrarSesion() {
         vistaActiva = false;
-        CareStockApp.getInstance().cerrarSesion();
+        AplicacionCareStock.getInstance().cerrarSesion();
     }
 }

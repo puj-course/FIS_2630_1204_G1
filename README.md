@@ -138,7 +138,7 @@ FIS_2630_1204_G1/
 │   │   │   │   │               │   # Contiene operaciones JDBC sobre tablas y registros
 │   │   │   │   │               │   # Gestiona consultas, inserciones y actualizaciones
 │   │   │   │   │               │
-│   │   │   │   │               ├── DataTransferObject/
+│   │   │   │   │               ├── dto/
 │   │   │   │   │               │   # DTO para transportar información entre componentes
 │   │   │   │   │               │   # Agrupa datos de catálogo, lotes e inventario
 │   │   │   │   │               │   # Evita exponer estructuras de persistencia a las vistas
@@ -190,7 +190,7 @@ FIS_2630_1204_G1/
 │       └── test_data/                   # Datos destinados a escenarios de prueba
 │
 ├── .gitignore                           # Reglas para excluir archivos generados y credenciales
-├── .env.example                        # Referencia histórica de variables; no configura ConexionBD
+├── .env.example                        # Referencia histórica de variables; no configura ConexionBaseDatos
 ├── compose.yaml                        # Orquestación de la ejecución opcional mediante Docker Compose
 ├── BOILERPLATE_template.md             # Plantilla de referencia para documentación o estructura
 ├── CHANGELOG.md                        # Registro histórico de modificaciones y versiones
@@ -209,7 +209,7 @@ cd FIS_2630_1204_G1/src/CareStock
 
 ### 2. Crear la configuración local de PostgreSQL/Neon
 
-La clase `ConexionBD` lee **`config/conexion-local.properties`**, relativa al directorio de ejecución del proyecto. La configuración de la base de datos **no se toma de `DB_URL`, `DB_USER` o `DB_PASSWORD`** en esta implementación.
+La clase `ConexionBaseDatos` lee **`config/conexion-local.properties`**, relativa al directorio de ejecución del proyecto. La configuración de la base de datos **no se toma de `DB_URL`, `DB_USER` o `DB_PASSWORD`** en esta implementación.
 
 Desde `src/CareStock`:
 
@@ -274,7 +274,7 @@ Ejecuta los comandos **desde `src/CareStock`**, no desde la raíz del repositori
 2. Configura el **Project SDK = JDK 21**.
 3. Espera a que Maven descargue y sincronice las dependencias.
 4. Comprueba que exista `config/conexion-local.properties`.
-5. Ejecuta el objetivo Maven **`javafx:run`** o el punto de entrada `org.example.carestock.CareStockApp` con su configuración modular correspondiente.
+5. Ejecuta el objetivo Maven **`javafx:run`** o el punto de entrada `org.example.carestock.AplicacionCareStock` con su configuración modular correspondiente.
 
 ## Ejecución con Docker
 

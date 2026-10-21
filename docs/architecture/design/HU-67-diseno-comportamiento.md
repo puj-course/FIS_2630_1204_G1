@@ -25,7 +25,7 @@ la vista JavaFX hasta la actualización del TableView.
 sequenceDiagram
     actor Usuario
     participant Vista as Vista Inventario JavaFX
-    participant Controller as InventarioController
+    participant Controller as ControladorInventario
     participant Session as UserSession
     participant UsuarioActivo as Usuario
     participant DAO as InventarioDAO

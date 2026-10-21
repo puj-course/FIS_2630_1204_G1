@@ -162,7 +162,7 @@ flowchart TD
     C[FarmaciaDAO]
     D[(PostgreSQL / Neon)]
     E[ComboBox Farmacia]
-    F[UsuarioDAO]
+    F[UsuarioDao]
     G[(USUARIOS)]
 
     A --> B
@@ -198,8 +198,8 @@ El comportamiento esperado es:
 7. Las farmacias son cargadas en el `ComboBox`.
 8. El Administrador selecciona una farmacia.
 9. La interfaz obtiene el identificador de la farmacia seleccionada.
-10. Los datos del nuevo usuario son enviados a `UsuarioDAO`.
-11. `UsuarioDAO` persiste el usuario junto con `id_farmacia`.
+10. Los datos del nuevo usuario son enviados a `UsuarioDao`.
+11. `UsuarioDao` persiste el usuario junto con `id_farmacia`.
 12. La relación queda almacenada en la tabla `USUARIOS`.
 
 ---
@@ -214,7 +214,7 @@ sequenceDiagram
     participant FDAO as FarmaciaDAO
     participant DB as PostgreSQL / Neon
     participant Combo as ComboBox<Farmacia>
-    participant UDAO as UsuarioDAO
+    participant UDAO as UsuarioDao
 
     Admin->>UI: Abrir creación de usuario
 
@@ -276,7 +276,7 @@ List<Farmacia> listarFarmacias();
 
 ---
 
-## UsuarioDAO
+## UsuarioDao
 
 Responsable de:
 
@@ -302,7 +302,7 @@ CareStock utiliza el patrón DAO para separar el acceso a la base de datos del r
 En esta funcionalidad intervienen principalmente:
 
 - `FarmaciaDAO`
-- `UsuarioDAO`
+- `UsuarioDao`
 
 Esto evita incorporar consultas SQL dentro de las clases JavaFX.
 
@@ -336,7 +336,7 @@ Interacción con el usuario
 Persistencia y consulta de farmacias
 ```
 
-`UsuarioDAO`:
+`UsuarioDao`:
 
 ```text
 Persistencia de usuarios
@@ -384,7 +384,7 @@ Esto reduce el acoplamiento entre la interfaz y PostgreSQL.
 
 Las operaciones relacionadas con farmacias permanecen agrupadas dentro de `FarmaciaDAO`.
 
-Las operaciones relacionadas con usuarios permanecen dentro de `UsuarioDAO`.
+Las operaciones relacionadas con usuarios permanecen dentro de `UsuarioDao`.
 
 Esto permite que cada componente concentre comportamiento relacionado con su responsabilidad principal.
 
@@ -420,7 +420,7 @@ CrearUsuarioFX
       |
       +----> FarmaciaDAO
       |
-      +----> UsuarioDAO
+      +----> UsuarioDao
 ```
 
 La interfaz actúa como coordinador de la interacción, pero delega el acceso a persistencia en los DAO.
@@ -453,7 +453,7 @@ Las responsabilidades permanecen distribuidas en componentes especializados:
 ```text
 CrearUsuarioFX -> interacción
 FarmaciaDAO    -> farmacias
-UsuarioDAO     -> usuarios
+UsuarioDao     -> usuarios
 ```
 
 ---
@@ -501,7 +501,7 @@ y para la persistencia:
 CrearUsuarioFX
       |
       v
-UsuarioDAO
+UsuarioDao
       |
       v
 USUARIOS
@@ -532,7 +532,7 @@ Seleccionar farmacia
     ↓
 Crear usuario
     ↓
-UsuarioDAO
+UsuarioDao
     ↓
 USUARIOS.id_farmacia
 ```
@@ -595,7 +595,7 @@ Para considerar completada la Issue #503 se verifica:
 - [x] Se documentó la carga dinámica de farmacias.
 - [x] Se documentó `FarmaciaDAO.listarFarmacias()`.
 - [x] Se documentó el flujo de selección mediante `ComboBox`.
-- [x] Se documentó la persistencia mediante `UsuarioDAO`.
+- [x] Se documentó la persistencia mediante `UsuarioDao`.
 - [x] Se agregó el diseño estructural.
 - [x] Se agregó el diseño de comportamiento.
 - [x] Se agregó el Diseño Basado en Modelos.
@@ -611,6 +611,6 @@ Para considerar completada la Issue #503 se verifica:
 
 La carga dinámica de farmacias durante la creación de usuarios permite mantener una asociación explícita entre cada usuario y su sede correspondiente.
 
-La solución aprovecha los modelos `Usuario` y `Farmacia`, delega el acceso a persistencia en `FarmaciaDAO` y `UsuarioDAO`, y mantiene la interfaz `CrearUsuarioFX` desacoplada de las consultas SQL.
+La solución aprovecha los modelos `Usuario` y `Farmacia`, delega el acceso a persistencia en `FarmaciaDAO` y `UsuarioDao`, y mantiene la interfaz `CrearUsuarioFX` desacoplada de las consultas SQL.
 
 Esta estructura contribuye directamente al soporte multi-farmacia de CareStock y establece la base para funcionalidades posteriores de segregación de inventario, operaciones y permisos según la farmacia asignada al usuario.

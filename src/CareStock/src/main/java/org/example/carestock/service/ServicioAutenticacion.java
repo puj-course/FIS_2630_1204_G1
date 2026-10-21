@@ -1,17 +1,17 @@
 package org.example.carestock.service;
 
-import org.example.carestock.dao.UsuarioDAO;
-import org.example.carestock.dao.UsuarioDAOImpl;
+import org.example.carestock.dao.UsuarioDao;
+import org.example.carestock.dao.UsuarioDaoJdbc;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Usuario;
 import org.mindrot.jbcrypt.BCrypt;
 
 /** Solo admite hashes BCrypt verificables; nunca acepta el prefijo como credencial. */
-public class AuthenticationService {
-    private final UsuarioDAO usuarioDAO;
+public class ServicioAutenticacion {
+    private final UsuarioDao usuarioDAO;
 
-    public AuthenticationService() {
-        this.usuarioDAO = new UsuarioDAOImpl();
+    public ServicioAutenticacion() {
+        this.usuarioDAO = new UsuarioDaoJdbc();
     }
 
     public Usuario autenticar(String email, String password) throws Exception {

@@ -4,10 +4,10 @@ set -euo pipefail
 SALIDA="$HOME/Desktop/CareStock_fuentes_Proxypatch.txt"
 
 ARCHIVOS=(
-    "src/main/java/org/example/carestock/controller/CatalogoController.java"
-    "src/main/java/org/example/carestock/controller/InventarioController.java"
+    "src/main/java/org/example/carestock/controller/ControladorCatalogo.java"
+    "src/main/java/org/example/carestock/controller/ControladorInventario.java"
     "src/main/java/org/example/carestock/facade/Inventario.java"
-    "src/main/java/org/example/carestock/dao/LoteDAOImpl.java"
+    "src/main/java/org/example/carestock/dao/LoteDaoJdbc.java"
     "src/main/java/org/example/carestock/session/SesionUsuario.java"
 )
 

@@ -1,7 +1,7 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.DataTransferObject.ProductoInventario;
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.dto.ProductoInventario;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.proxy.ConsultaInventario;
 
 import java.sql.Connection;
@@ -15,7 +15,7 @@ import java.util.List;
  * RealSubject del patron Proxy.
  * Consulta las tres categorias de productos de una misma farmacia.
  */
-public class ConsultaInventarioDAO implements ConsultaInventario {
+public class ConsultaInventarioBaseDatos implements ConsultaInventario {
 
     private static final String SQL = """
         SELECT 'Medicamento' AS categoria,
@@ -67,7 +67,7 @@ public class ConsultaInventarioDAO implements ConsultaInventario {
 
         List<ProductoInventario> productos = new ArrayList<>();
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(SQL)) {
 
             ps.setInt(1, idFarmacia);

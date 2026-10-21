@@ -1,4 +1,4 @@
-package org.example.carestock.DataTransferObject;
+package org.example.carestock.dto;
 
 import java.util.Objects;
 

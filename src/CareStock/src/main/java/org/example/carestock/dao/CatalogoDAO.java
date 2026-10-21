@@ -1,7 +1,7 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.DataTransferObject.RegistroCatalogo;
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.dto.RegistroCatalogo;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.model.Validable;
 
 import java.math.BigDecimal;
@@ -13,18 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class CatalogoDAO<T extends Validable> {
-
+public abstract class CatalogoDao<T extends Validable> {
     protected abstract String tabla();
-
     protected abstract String columnaId();
-
     protected abstract String nombreProducto();
-
     protected abstract List<String> columnasEspecificas();
-
     protected abstract void asignarCampos(PreparedStatement ps, T producto) throws SQLException;
-
     protected abstract RegistroCatalogo<T> construir(ResultSet rs) throws SQLException;
 
     public final int guardar(T producto, int idFarmacia, int idUsuario) throws Exception {
@@ -40,7 +34,7 @@ public abstract class CatalogoDAO<T extends Validable> {
                 + "VALUES (?, ?, ?, ?, ?, " + "?, ".repeat(cantidad)
                 + "?, ?, 'ACTIVO') RETURNING " + columnaId();
 
-        try (Connection conexion = ConexionBD.getConexion();
+        try (Connection conexion = ConexionBaseDatos.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             asignarCampos(ps, producto);
             ps.setInt(6 + cantidad, idFarmacia);
@@ -60,7 +54,7 @@ public abstract class CatalogoDAO<T extends Validable> {
         validarFarmacia(idFarmacia);
         String sql = "SELECT * FROM " + tabla() + " WHERE " + columnaId()
                 + " = ? AND id_farmacia = ?";
-        try (Connection conexion = ConexionBD.getConexion();
+        try (Connection conexion = ConexionBaseDatos.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.setInt(2, idFarmacia);
@@ -74,7 +68,7 @@ public abstract class CatalogoDAO<T extends Validable> {
         validarFarmacia(idFarmacia);
         List<RegistroCatalogo<T>> productos = new ArrayList<>();
         String sql = "SELECT * FROM " + tabla() + " WHERE id_farmacia = ? ORDER BY nombre";
-        try (Connection conexion = ConexionBD.getConexion();
+        try (Connection conexion = ConexionBaseDatos.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idFarmacia);
             try (ResultSet rs = ps.executeQuery()) {
@@ -99,7 +93,7 @@ public abstract class CatalogoDAO<T extends Validable> {
                 + ", id_usuario_modificacion = ?, fecha_modificacion = CURRENT_TIMESTAMP "
                 + "WHERE " + columnaId() + " = ? AND id_farmacia = ? AND estado = 'ACTIVO'";
 
-        try (Connection conexion = ConexionBD.getConexion();
+        try (Connection conexion = ConexionBaseDatos.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             asignarCampos(ps, producto);
             ps.setInt(6 + cantidad, idUsuario);
@@ -116,7 +110,7 @@ public abstract class CatalogoDAO<T extends Validable> {
                 + "id_usuario_modificacion = ?, "
                 + "fecha_modificacion = CURRENT_TIMESTAMP "
                 + "WHERE " + columnaId() + " = ? AND id_farmacia = ? AND estado = 'ACTIVO'";
-        try (Connection conexion = ConexionBD.getConexion();
+        try (Connection conexion = ConexionBaseDatos.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idUsuario);
             ps.setInt(2, id);

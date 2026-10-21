@@ -17,7 +17,7 @@ Se utilizan tres farmacias independientes:
 La prueba de integración establece diferentes usuarios en
 UserSession y obtiene el id_farmacia mediante SessionContext.
 
-Posteriormente se consulta MedicamentoDAO utilizando únicamente
+Posteriormente se consulta MedicamentoDao utilizando únicamente
 el id_farmacia proveniente de la sesión.
 
 ## Flujo validado
@@ -26,7 +26,7 @@ Usuario
 -> UserSession
 -> SessionContext
 -> id_farmacia
--> MedicamentoDAO
+-> MedicamentoDao
 -> PostgreSQL
 -> inventario de la farmacia activa
 
@@ -75,7 +75,7 @@ No se permite realizar una consulta global de inventario.
 
 ## Seguridad
 
-La consulta utilizada por MedicamentoDAO incluye:
+La consulta utilizada por MedicamentoDao incluye:
 
 WHERE m.id_farmacia = ?
 
@@ -105,7 +105,7 @@ Se utilizan tres farmacias independientes:
 La prueba de integración establece diferentes usuarios en
 UserSession y obtiene el id_farmacia mediante SessionContext.
 
-Posteriormente se consulta MedicamentoDAO utilizando únicamente
+Posteriormente se consulta MedicamentoDao utilizando únicamente
 el id_farmacia proveniente de la sesión.
 
 ## Flujo validado
@@ -114,7 +114,7 @@ Usuario
 -> UserSession
 -> SessionContext
 -> id_farmacia
--> MedicamentoDAO
+-> MedicamentoDao
 -> PostgreSQL
 -> inventario de la farmacia activa
 
@@ -163,7 +163,7 @@ No se permite realizar una consulta global de inventario.
 
 ## Seguridad
 
-La consulta utilizada por MedicamentoDAO incluye:
+La consulta utilizada por MedicamentoDao incluye:
 
 WHERE m.id_farmacia = ?
 

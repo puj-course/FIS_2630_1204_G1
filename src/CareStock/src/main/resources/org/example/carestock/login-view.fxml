@@ -7,7 +7,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<HBox prefHeight="650.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.carestock.controller.LoginController">
+<HBox prefHeight="650.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.carestock.controller.ControladorInicioSesion">
     <children>
         <!-- Panel Lateral Decorativo -->
         <VBox alignment="CENTER_LEFT" prefWidth="420.0" spacing="12.0" style="-fx-background-color: linear-gradient(to bottom right, #0E7C7B, #0B615F); -fx-padding: 60;">

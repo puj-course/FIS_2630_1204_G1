@@ -46,7 +46,7 @@ stateDiagram-v2
 
 | Caso | Estado | Evidencia |
 |---|---|---|
-| Producto propio: los cambios se guardan y se ven en la tabla | **Cumplido** | `Inventario.actualizarMedicamento` llama a `MedicamentoCatalogoDAO.actualizar`; `onActualizar` recarga la tabla |
+| Producto propio: los cambios se guardan y se ven en la tabla | **Cumplido** | `Inventario.actualizarMedicamento` llama a `MedicamentoCatalogoDao.actualizar`; `onActualizar` recarga la tabla |
 | Producto de otra farmacia: se rechaza y no se modifica | **Cumplido** | El `WHERE` con `id_farmacia` no coincide y el controlador muestra la advertencia |
 | Cambio de estado entre `ACTIVO` e `INACTIVO` | **Parcial** | Solo existe Desactivar; no hay forma de volver a `ACTIVO` |
 
@@ -56,6 +56,6 @@ stateDiagram-v2
 
 Verificadas en el código:
 
-1. **`MedicamentoDAOImpl.actualizarEstado` no filtra por farmacia.** Su `WHERE` solo usa el id del medicamento. Ninguna clase lo invoca hoy, pero usarlo desde la aplicación permitiría modificar productos de otra farmacia.
+1. **`MedicamentoDaoJdbc.actualizarEstado` no filtra por farmacia.** Su `WHERE` solo usa el id del medicamento. Ninguna clase lo invoca hoy, pero usarlo desde la aplicación permitiría modificar productos de otra farmacia.
 2. **Los listados incluyen los productos inactivos.** Filtran solo por farmacia. Si se selecciona uno inactivo y se pulsa Actualizar, la operación no encuentra ninguna fila activa y muestra la advertencia.
 3. **`CatalogoService` no existe.** La fachada `Inventario` cumple ese papel.

@@ -1,6 +1,6 @@
 # Segregación por farmacia: modelo de datos
 
-Cómo se separa la información de cada farmacia en la base de datos PostgreSQL de Neon. Fuente de las columnas: los scripts de `src/sql/` y las sentencias SQL del código. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDAO`). Los números de línea corresponden a esa versión.
+Cómo se separa la información de cada farmacia en la base de datos PostgreSQL de Neon. Fuente de las columnas: los scripts de `src/sql/` y las sentencias SQL del código. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDao`). Los números de línea corresponden a esa versión.
 
 ## 1. Diagrama entidad-relación
 
@@ -74,7 +74,7 @@ erDiagram
     }
 ```
 
-Los tipos de `ASEO` y `MATERNIDAD` se infieren de cómo los usa el DAO (por ejemplo, `setBigDecimal` para el precio). Las columnas y la clave foránea se deducen de las sentencias `INSERT`, `UPDATE` y `SELECT` de `CatalogoDAO`.
+Los tipos de `ASEO` y `MATERNIDAD` se infieren de cómo los usa el DAO (por ejemplo, `setBigDecimal` para el precio). Las columnas y la clave foránea se deducen de las sentencias `INSERT`, `UPDATE` y `SELECT` de `CatalogoDao`.
 
 ## 2. Cómo se separa cada tabla
 
@@ -84,7 +84,7 @@ Los tipos de `ASEO` y `MATERNIDAD` se infieren de cómo los usa el DAO (por ejem
 | `USUARIOS` | Columna `id_farmacia` | Clave foránea a `FARMACIAS` (`ddl/05_superadmin_jerarquia_usuarios_issue_456.sql`) |
 | `MEDICAMENTOS` | Columna `id_farmacia`, obligatoria | `NOT NULL` con clave foránea, y un índice único `(id_farmacia, codigo_invima)` (`ddl/04_multifarmacia_inventario.sql`) |
 | `LOTES` | **Indirecta**: pertenece a la farmacia de su medicamento | No tiene `id_farmacia`; las consultas y la sincronización de vencimientos unen con `MEDICAMENTOS` |
-| `ASEO` | Columna `id_farmacia` | Las sentencias de `CatalogoDAO` la usan siempre en el `WHERE` |
+| `ASEO` | Columna `id_farmacia` | Las sentencias de `CatalogoDao` la usan siempre en el `WHERE` |
 | `MATERNIDAD` | Columna `id_farmacia` | Igual que `ASEO` |
 
 Consecuencia del índice único de `MEDICAMENTOS`: el mismo código INVIMA puede existir en dos farmacias, pero no repetirse dentro de una.

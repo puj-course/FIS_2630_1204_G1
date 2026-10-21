@@ -1,6 +1,6 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.example.carestock.dto.RegistroCatalogo;
 import org.example.carestock.model.Aseo;
 import org.example.carestock.factory.FabricaAseo;
 import org.example.carestock.factory.FabricaProducto;
@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class AseoDAO extends CatalogoDAO<Aseo> {
+public class AseoDao extends CatalogoDao<Aseo> {
     private static final FabricaProducto<Aseo> FABRICA =
             new FabricaAseo();
 

@@ -1,6 +1,6 @@
 # Patrón Strategy en los filtros del inventario
 
-Documentación del patrón comportamental **Strategy**, aplicado en su forma funcional con `java.util.function.Predicate`, en los filtros de la pantalla de inventario (`InventarioController` e `inventario-view.fxml`).
+Documentación del patrón comportamental **Strategy**, aplicado en su forma funcional con `java.util.function.Predicate`, en los filtros de la pantalla de inventario (`ControladorInventario` e `inventario-view.fxml`).
 
 ---
 
@@ -16,7 +16,7 @@ La tabla de lotes se filtra por texto, por estado y por categoría, y las tres r
 |---|---|
 | **Strategy** | `Predicate<Lote>` |
 | **ConcreteStrategy** | Las lambdas asignadas en `aplicarFiltroTexto`, `aplicarFiltroCategoria`, `onFiltrarTodos`, `onFiltrarVencidos` y `onFiltrarDisponibles` (esta usa `Lote::esAptoParaDispensar`) |
-| **Context** | `InventarioController`, que guarda las estrategias activas en `filtroTexto`, `filtroEstado` y `filtroCategoria` y las combina en `aplicarFiltros` |
+| **Context** | `ControladorInventario`, que guarda las estrategias activas en `filtroTexto`, `filtroEstado` y `filtroCategoria` y las combina en `aplicarFiltros` |
 
 ---
 
@@ -32,7 +32,7 @@ classDiagram
         +and(Predicate) Predicate
     }
 
-    class InventarioController {
+    class ControladorInventario {
         <<Context>>
         -Predicate~Lote~ filtroTexto
         -Predicate~Lote~ filtroEstado
@@ -62,7 +62,7 @@ classDiagram
     EVencidos ..|> Predicate
     EAptos ..|> Predicate
 
-    InventarioController --> Predicate : combina con and
+    ControladorInventario --> Predicate : combina con and
 ```
 
 ---

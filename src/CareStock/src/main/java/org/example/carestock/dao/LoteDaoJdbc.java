@@ -1,13 +1,13 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.model.Lote;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoteDAOImpl implements LoteDAO {
+public class LoteDaoJdbc implements LoteDao {
 
     @Override
     public void guardar(Lote lote) throws Exception {
@@ -16,7 +16,7 @@ public class LoteDAOImpl implements LoteDAO {
         String sql = "INSERT INTO lotes (numero_lote, id_medicamento, cantidad_actual, fecha_vencimiento, " +
                 "id_ubicacion, estado_lote, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, lote.getNumeroLote());
@@ -45,7 +45,7 @@ public class LoteDAOImpl implements LoteDAO {
     @Override
     public Lote buscarPorId(int idLote) throws Exception {
         String sql = "SELECT * FROM lotes WHERE id_lote = ?";
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idLote);
@@ -63,7 +63,7 @@ public class LoteDAOImpl implements LoteDAO {
         List<Lote> lista = new ArrayList<>();
         String sql = "SELECT * FROM lotes WHERE id_medicamento = ? ORDER BY fecha_vencimiento ASC";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idMedicamento);
@@ -92,7 +92,7 @@ public class LoteDAOImpl implements LoteDAO {
                 """;
 
         List<Lote> lista = new ArrayList<>();
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idFarmacia);
             try (ResultSet rs = ps.executeQuery()) {
@@ -115,7 +115,7 @@ public class LoteDAOImpl implements LoteDAO {
     public void actualizarCantidad(int idLote, int nuevaCantidad) throws Exception {
         String sql = "UPDATE lotes SET cantidad_actual = ?, fecha_modificacion = NOW() WHERE id_lote = ?";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, nuevaCantidad);
@@ -128,7 +128,7 @@ public class LoteDAOImpl implements LoteDAO {
     public void actualizarEstado(int idLote, String nuevoEstado) throws Exception {
         String sql = "UPDATE lotes SET estado_lote = ?, fecha_modificacion = NOW() WHERE id_lote = ?";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevoEstado);

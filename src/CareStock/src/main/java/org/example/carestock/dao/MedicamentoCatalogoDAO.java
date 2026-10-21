@@ -1,6 +1,6 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.model.Medicamento;
 
 import java.sql.Connection;
@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Operaciones de catalogo; no modifica existencias ni movimientos de lotes. */
-public class MedicamentoCatalogoDAO {
+public class MedicamentoCatalogoDao {
 
     public List<Medicamento> listarPorFarmacia(int idFarmacia) throws SQLException {
         validarId(idFarmacia, "farmacia");
         String sql = "SELECT * FROM medicamentos WHERE id_farmacia = ? "
                 + "ORDER BY nombre_comercial, id_medicamento";
         List<Medicamento> resultado = new ArrayList<>();
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idFarmacia);
             try (ResultSet rs = ps.executeQuery()) {
@@ -42,7 +42,7 @@ public class MedicamentoCatalogoDAO {
                 + "id_categoria = ?, stock_minimo = ?, presentacion = ?, precio = ?, "
                 + "id_usuario_modificacion = ?, fecha_modificacion = CURRENT_TIMESTAMP "
                 + "WHERE id_medicamento = ? AND id_farmacia = ? AND estado = 'ACTIVO'";
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, producto.getCodigoInvima().trim());
             ps.setString(2, producto.getNombreComercial().trim());
@@ -72,7 +72,7 @@ public class MedicamentoCatalogoDAO {
                 + "AND m.estado = 'ACTIVO' AND m.stock_total = 0 "
                 + "AND NOT EXISTS (SELECT 1 FROM lotes l "
                 + "WHERE l.id_medicamento = m.id_medicamento AND l.cantidad_actual > 0)";
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idUsuario);
             ps.setInt(2, idMedicamento);

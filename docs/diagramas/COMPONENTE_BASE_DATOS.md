@@ -6,7 +6,7 @@ Parte 2 de 3 del diagrama de componentes de datos y del diagrama general (HU.87)
 
 ```mermaid
 flowchart LR
-    CON["Proveedor de conexión<br/>ConexionBD"]
+    CON["Proveedor de conexión<br/>ConexionBaseDatos"]
     ISQL(["JDBC sobre TLS<br/>sentencias SQL"])
 
     subgraph BD["Base de datos PostgreSQL en Neon"]
@@ -42,13 +42,13 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 
 | Tabla | Quién la usa | Operaciones | Columnas relevantes |
 |---|---|---|---|
-| `lotes` | `LoteDAOImpl`, `RegistroLoteService`, `FarmacovigilanciaService` | `INSERT`, `SELECT`, `UPDATE` | `id_lote`, `numero_lote`, `id_medicamento`, `cantidad_actual`, `fecha_vencimiento`, `id_ubicacion`, `estado_lote`, `id_usuario`, `id_usuario_modificacion`, `fecha_modificacion` |
-| `medicamentos` | `MedicamentoDAOImpl`, `RegistroLoteService`, `FarmacovigilanciaService` | `INSERT`, `SELECT`, `UPDATE` | `codigo_invima`, `nombre_comercial`, `id_categoria`, `stock_minimo`, `stock_total`, `estado`, `id_farmacia`, `id_usuario_creacion`, `id_usuario_modificacion`, `fecha_modificacion` |
-| `categorias` | `MedicamentoDAOImpl` | `SELECT` | `id_categoria`, `nombre_categoria` |
-| `usuarios` | `UsuarioDAOImpl`, `SesionUsuario`, `Inventario` | `SELECT` | `id_usuario`, `nombre_completo`, `email`, `password_hash`, `id_rol`, `estado`, `id_farmacia` |
+| `lotes` | `LoteDaoJdbc`, `ServicioRegistroLote`, `ServicioFarmacovigilancia` | `INSERT`, `SELECT`, `UPDATE` | `id_lote`, `numero_lote`, `id_medicamento`, `cantidad_actual`, `fecha_vencimiento`, `id_ubicacion`, `estado_lote`, `id_usuario`, `id_usuario_modificacion`, `fecha_modificacion` |
+| `medicamentos` | `MedicamentoDaoJdbc`, `ServicioRegistroLote`, `ServicioFarmacovigilancia` | `INSERT`, `SELECT`, `UPDATE` | `codigo_invima`, `nombre_comercial`, `id_categoria`, `stock_minimo`, `stock_total`, `estado`, `id_farmacia`, `id_usuario_creacion`, `id_usuario_modificacion`, `fecha_modificacion` |
+| `categorias` | `MedicamentoDaoJdbc` | `SELECT` | `id_categoria`, `nombre_categoria` |
+| `usuarios` | `UsuarioDaoJdbc`, `SesionUsuario`, `Inventario` | `SELECT` | `id_usuario`, `nombre_completo`, `email`, `password_hash`, `id_rol`, `estado`, `id_farmacia` |
 | `farmacias` | `SesionUsuario`, `Inventario` | `SELECT` (con `LEFT JOIN` o `JOIN`) | `id_farmacia`, `nombre`, `estado` (`ACTIVA`) |
-| `aseo` | `AseoDAO` | `INSERT`, `SELECT`, `UPDATE` | `codigo`, `nombre`, `descripcion`, `precio`, `stock`, `tipo_aseo`, `biodegradable`, `componentes_activos`, `id_farmacia`, `id_usuario_creacion`, `estado` |
-| `maternidad` | `MaternidadDAO` | `INSERT`, `SELECT`, `UPDATE` | `codigo`, `nombre`, `descripcion`, `precio`, `stock`, `etapa_recomendada`, `hipoalergenico`, `edad_gestacional_sugerida`, `id_farmacia`, `id_usuario_creacion`, `estado` |
+| `aseo` | `AseoDao` | `INSERT`, `SELECT`, `UPDATE` | `codigo`, `nombre`, `descripcion`, `precio`, `stock`, `tipo_aseo`, `biodegradable`, `componentes_activos`, `id_farmacia`, `id_usuario_creacion`, `estado` |
+| `maternidad` | `MaternidadDao` | `INSERT`, `SELECT`, `UPDATE` | `codigo`, `nombre`, `descripcion`, `precio`, `stock`, `etapa_recomendada`, `hipoalergenico`, `edad_gestacional_sugerida`, `id_farmacia`, `id_usuario_creacion`, `estado` |
 
 ## 3. Dependencias con los scripts del repositorio
 
@@ -71,8 +71,8 @@ Dos servicios además modifican `stock_total` con un `UPDATE` propio:
 
 | Servicio | `UPDATE` |
 |---|---|
-| `RegistroLoteService` | `stock_total = stock_total + cantidad` después de insertar el lote |
-| `FarmacovigilanciaService` | `stock_total = stock_total - cantidad` después de actualizar el lote, con la condición `stock_total >= cantidad` |
+| `ServicioRegistroLote` | `stock_total = stock_total + cantidad` después de insertar el lote |
+| `ServicioFarmacovigilancia` | `stock_total = stock_total - cantidad` después de actualizar el lote, con la condición `stock_total >= cantidad` |
 
 Si el trigger está activo, el efecto sería: el trigger deja `stock_total` igual a la suma de los lotes disponibles y el servicio lo vuelve a ajustar. Al dispensar la totalidad de un lote, el trigger dejaría el total en cero y la condición `stock_total >= cantidad` del servicio no se cumpliría, de modo que la operación terminaría en "Stock total inconsistente".
 

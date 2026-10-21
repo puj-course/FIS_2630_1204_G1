@@ -11,13 +11,13 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.controller.CatalogoController;
+import org.example.carestock.controller.ControladorCatalogo;
 
 import java.net.URL;
 
-public class CareStockApp extends Application {
+public class AplicacionCareStock extends Application {
 
-    private static CareStockApp instance;
+    private static AplicacionCareStock instance;
 
     private Stage primaryStage;
 
@@ -28,7 +28,7 @@ public class CareStockApp extends Application {
 
     private DestinoCatalogo destinoCatalogo;
 
-    public static CareStockApp getInstance() {
+    public static AplicacionCareStock getInstance() {
         return instance;
     }
 
@@ -218,7 +218,7 @@ public class CareStockApp extends Application {
                 DestinoCatalogo destino = destinoCatalogo;
                 destinoCatalogo = null;
 
-                CatalogoController controlador =
+                ControladorCatalogo controlador =
                         loader.getController();
 
                 controlador.abrirDesdeConsulta(

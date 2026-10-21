@@ -2,13 +2,13 @@ package org.example.carestock.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.example.carestock.CareStockApp;
+import org.example.carestock.AplicacionCareStock;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Usuario;
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.service.AuthenticationService;
+import org.example.carestock.service.ServicioAutenticacion;
 
-public class LoginController {
+public class ControladorInicioSesion {
 
     @FXML private TextField txtEmail;
     @FXML private PasswordField txtPassword;
@@ -17,10 +17,10 @@ public class LoginController {
     @FXML private ProgressIndicator loaderCarga; // Indicador de carga animado
     @FXML private Label lblNotificacion;
 
-    private final AuthenticationService authService;
+    private final ServicioAutenticacion authService;
 
-    public LoginController() {
-        this.authService = new AuthenticationService();
+    public ControladorInicioSesion() {
+        this.authService = new ServicioAutenticacion();
     }
 
     @FXML
@@ -75,7 +75,7 @@ public class LoginController {
             SesionUsuario.iniciar(usuarioValido);
 
             // Transición suave al Dashboard
-            CareStockApp.getInstance().mostrarDashboard();
+            AplicacionCareStock.getInstance().mostrarDashboard();
 
         } catch (ReglaNegocioException e) {
             mostrarMensaje(e.getMessage(), true);

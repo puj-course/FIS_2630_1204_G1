@@ -65,7 +65,7 @@ C4Deployment
 ## Conexiones y configuración
 
 - **Aplicación a Neon:** JDBC con protocolo PostgreSQL, puerto típico **5432**, con TLS exigido mediante `sslmode=require` en la URL de ejemplo.
-- **Credenciales y parámetros:** archivo local `src/CareStock/config/conexion-local.properties`, leído por `ConexionBD.java`. Las claves son `db.url`, `db.user`, `db.password`, `db.pool.max` y `db.pool.min`.
+- **Credenciales y parámetros:** archivo local `src/CareStock/config/conexion-local.properties`, leído por `ConexionBaseDatos.java`. Las claves son `db.url`, `db.user`, `db.password`, `db.pool.max` y `db.pool.min`.
 - **Configuración de referencia:** `src/CareStock/config/conexion-local.properties.example`. Nunca versionar credenciales reales.
 - **Docker Compose:** `compose.yaml` monta el archivo `conexion-local.properties` en `/app/config/conexion-local.properties` en modo solo lectura.
 - **Rendimiento:** HikariCP administra el pool de conexiones; el Proxy mantiene su caché en memoria dentro del proceso Java.
@@ -80,8 +80,8 @@ C4Deployment
 ## Evidencia en el repositorio
 
 - `src/CareStock/pom.xml`: Java 21, dependencias JavaFX y Maven.
-- `src/CareStock/src/main/java/org/example/carestock/CareStockApp.java`: entrada JavaFX.
-- `src/CareStock/src/main/java/org/example/carestock/config/ConexionBD.java`: JDBC y HikariCP con configuración local.
+- `src/CareStock/src/main/java/org/example/carestock/AplicacionCareStock.java`: entrada JavaFX.
+- `src/CareStock/src/main/java/org/example/carestock/config/ConexionBaseDatos.java`: JDBC y HikariCP con configuración local.
 - `src/CareStock/config/conexion-local.properties.example`: configuración de base de datos.
 - `src/CareStock/Dockerfile` y `compose.yaml`: ejecución Docker opcional.
 

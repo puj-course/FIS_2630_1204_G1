@@ -1,13 +1,13 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Lote;
 
 import java.sql.*;
 
 /** Registra lote y actualiza stock_total en una sola transaccion JDBC. */
-public class RegistroLoteService {
+public class ServicioRegistroLote {
 
     public Lote registrarMedicamentoLote(Lote lote, int idUsuario, int idFarmacia) throws Exception {
         if (lote==null) throw new IllegalArgumentException("Lote obligatorio");
@@ -20,7 +20,7 @@ public class RegistroLoteService {
             lote.setEstadoLote("DISPONIBLE");
         lote.validar();
 
-        try (Connection con = ConexionBD.getConexion()) {
+        try (Connection con = ConexionBaseDatos.getConexion()) {
             con.setAutoCommit(false);
             try {
                 String verificar = "SELECT id_medicamento FROM medicamentos " +

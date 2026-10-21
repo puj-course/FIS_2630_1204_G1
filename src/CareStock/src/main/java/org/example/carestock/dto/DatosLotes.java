@@ -1,4 +1,4 @@
-package org.example.carestock.DataTransferObject;
+package org.example.carestock.dto;
 
 import org.example.carestock.model.Lote;
 import java.util.*;

@@ -20,7 +20,7 @@ Los patrones implementados y representados son:
 - **Factory Method (Creacional):** creación especializada de medicamentos, productos de aseo y maternidad.
 - **Facade (Estructural):** centralización de operaciones del inventario mediante la clase `Inventario`.
 - **Proxy (Estructural):** optimización de consultas mediante caché TTL y segregación por farmacia.
-- **Template Method (Comportamiento):** reutilización del proceso de persistencia en `CatalogoDAO`.
+- **Template Method (Comportamiento):** reutilización del proceso de persistencia en `CatalogoDao`.
 
 **PostgreSQL/Neon está fuera del contenedor JavaFX.** La comunicación se realiza mediante JDBC y el pool de conexiones HikariCP.
 
@@ -65,7 +65,7 @@ flowchart TB
     %% ============================================
 
     subgraph acceso ["ACCESO Y SESIÓN"]
-        auth("<b>Autenticación</b><br/>AuthenticationService<br/>BCrypt")
+        auth("<b>Autenticación</b><br/>ServicioAutenticacion<br/>BCrypt")
         sesion("<b>Sesión activa</b><br/>SesionUsuario<br/>Usuario, rol y farmacia")
     end
 
@@ -88,7 +88,7 @@ flowchart TB
     subgraph datos ["ACCESO A DATOS"]
         dao("<b>Persistencia</b><br/>DAO / JDBC<br/>Template Method")
 
-        conexion("<b>Conexión</b><br/>ConexionBD<br/>HikariCP")
+        conexion("<b>Conexión</b><br/>ConexionBaseDatos<br/>HikariCP")
     end
 
     %% ============================================
@@ -214,7 +214,7 @@ Los controladores gestionan eventos, formularios, validaciones de entrada e inte
 
 Desde esta capa se invoca:
 
-- `AuthenticationService` para autenticar usuarios.
+- `ServicioAutenticacion` para autenticar usuarios.
 - `Inventario` para operaciones de negocio.
 - Las fábricas del patrón **Factory Method** para construir los objetos correspondientes a cada categoría.
 
@@ -239,7 +239,7 @@ Las implementaciones concretas son:
 **Flujo de creación desde JavaFX:**
 
 1. El usuario selecciona la categoría del producto.
-2. `CatalogoController` recopila los datos del formulario.
+2. `ControladorCatalogo` recopila los datos del formulario.
 3. El controlador utiliza la fábrica correspondiente.
 4. La fábrica concreta instancia el modelo de dominio.
 5. Se configuran los atributos y se ejecuta la validación mediante `Validable`.
@@ -247,7 +247,7 @@ Las implementaciones concretas son:
 
 **Flujo de reconstrucción desde PostgreSQL:**
 
-1. `AseoDAO` o `MaternidadDAO` ejecuta una consulta.
+1. `AseoDao` o `MaternidadDao` ejecuta una consulta.
 2. El DAO obtiene los atributos mediante `ResultSet`.
 3. Utiliza su fábrica concreta para reconstruir el objeto de dominio.
 4. Retorna el producto dentro de `RegistroCatalogo`.
@@ -292,28 +292,28 @@ Los DAO encapsulan la comunicación con PostgreSQL, evitando que los controlador
 
 El componente de persistencia incluye:
 
-- `CatalogoDAO`
-- `AseoDAO`
-- `MaternidadDAO`
-- `MedicamentoDAOImpl`
-- `MedicamentoCatalogoDAO`
-- `LoteDAOImpl`
-- `UsuarioDAOImpl`
-- `ConsultaInventarioDAO`
+- `CatalogoDao`
+- `AseoDao`
+- `MaternidadDao`
+- `MedicamentoDaoJdbc`
+- `MedicamentoCatalogoDao`
+- `LoteDaoJdbc`
+- `UsuarioDaoJdbc`
+- `ConsultaInventarioBaseDatos`
 
-El patrón **Template Method** está presente en `CatalogoDAO`, que define operaciones comunes y permite que los DAO concretos especialicen los pasos relacionados con cada categoría.
+El patrón **Template Method** está presente en `CatalogoDao`, que define operaciones comunes y permite que los DAO concretos especialicen los pasos relacionados con cada categoría.
 
 Para productos de aseo y maternidad, los DAO también utilizan las fábricas correspondientes para reconstruir los objetos.
 
 ### 6. Conexión a PostgreSQL
 
-La clase `ConexionBD` administra el acceso a la base de datos.
+La clase `ConexionBaseDatos` administra el acceso a la base de datos.
 
 Utiliza **HikariCP** para proporcionar conexiones reutilizables y reducir el costo de establecer una conexión nueva en cada consulta.
 
 El acceso se realiza mediante:
 
-`DAO / Servicios → ConexionBD → HikariCP → JDBC/TLS → PostgreSQL/Neon`
+`DAO / Servicios → ConexionBaseDatos → HikariCP → JDBC/TLS → PostgreSQL/Neon`
 
 En esta arquitectura no existe un backend HTTP intermedio.
 
@@ -337,17 +337,17 @@ La sesión no administra directamente el pool de conexiones JDBC.
 
 | Componente C4 | Archivos y paquetes reales | Responsabilidad |
 |---|---|---|
-| Presentación | `CareStockApp.java`, `controller/*`, recursos FXML | Navegación, formularios y eventos JavaFX |
-| Autenticación | `service/AuthenticationService.java`, `dao/UsuarioDAOImpl.java` | Verificación de credenciales mediante BCrypt |
+| Presentación | `AplicacionCareStock.java`, `controller/*`, recursos FXML | Navegación, formularios y eventos JavaFX |
+| Autenticación | `service/ServicioAutenticacion.java`, `dao/UsuarioDaoJdbc.java` | Verificación de credenciales mediante BCrypt |
 | Sesión | `session/SesionUsuario.java` | Identidad, rol y farmacia activa |
 | Fachada | `facade/Inventario.java` | Centralizar operaciones y validar el contexto de farmacia |
 | Proxy | `proxy/ConsultaInventarioProxy.java`, `proxy/InventarioConsultas.java` | Caché por farmacia, TTL, LRU y autorización |
-| Servicios | `service/RegistroLoteService.java`, `service/FarmacovigilanciaService.java`, `service/ControlVencimientosService.java` | Operaciones de negocio, dispensación y lotes |
+| Servicios | `service/ServicioRegistroLote.java`, `service/ServicioFarmacovigilancia.java`, `service/ServicioControlVencimientos.java` | Operaciones de negocio, dispensación y lotes |
 | Factory Method | `factory/FabricaProducto.java`, `factory/FabricaAseo.java`, `factory/FabricaMaternidad.java`, `factory/FabricaMedicamento.java` | Crear, configurar y validar productos especializados |
 | Dominio | `model/*` | Entidades y reglas de validación |
 | DTO | `dto/*` | Transferencia de información entre componentes y vistas |
-| DAO | `dao/*`, incluyendo `CatalogoDAO` y `ConsultaInventarioDAO` | SQL, reconstrucción de entidades y persistencia |
-| Conexión | `config/ConexionBD.java` | Administración de conexiones JDBC mediante HikariCP |
+| DAO | `dao/*`, incluyendo `CatalogoDao` y `ConsultaInventarioBaseDatos` | SQL, reconstrucción de entidades y persistencia |
+| Conexión | `config/ConexionBaseDatos.java` | Administración de conexiones JDBC mediante HikariCP |
 
 ## Reglas arquitectónicas que se deben mostrar
 
@@ -393,13 +393,13 @@ La invalidación permite evitar que se mantengan datos obsoletos después de mod
 
 ### 6. Template Method
 
-`CatalogoDAO` define una secuencia común de operaciones de persistencia.
+`CatalogoDao` define una secuencia común de operaciones de persistencia.
 
 Los DAO especializados implementan los pasos variables sin duplicar completamente el algoritmo.
 
 ### 7. Acceso a datos
 
-La aplicación accede a PostgreSQL/Neon mediante conexiones proporcionadas por `ConexionBD`.
+La aplicación accede a PostgreSQL/Neon mediante conexiones proporcionadas por `ConexionBaseDatos`.
 
 HikariCP administra el pool y JDBC ejecuta las operaciones SQL.
 
@@ -422,7 +422,7 @@ Los patrones implementados desempeñan responsabilidades complementarias:
 | Factory Method | Creacional | `FabricaProducto` y fábricas concretas | Creación y validación de productos |
 | Facade | Estructural | `Inventario` | Coordinación de operaciones de negocio |
 | Proxy | Estructural | `ConsultaInventarioProxy` | Caché y control de acceso a consultas |
-| Template Method | Comportamiento | `CatalogoDAO` | Reutilización de algoritmos de persistencia |
+| Template Method | Comportamiento | `CatalogoDao` | Reutilización de algoritmos de persistencia |
 
 Estos patrones colaboran sin reemplazar la arquitectura MVC.
 
@@ -433,7 +433,7 @@ El registro de un producto desde JavaFX sigue conceptualmente esta secuencia:
 1. El usuario autenticado abre el catálogo.
 2. Selecciona medicamentos, aseo o maternidad.
 3. Completa los campos del formulario.
-4. `CatalogoController` selecciona la fábrica correspondiente.
+4. `ControladorCatalogo` selecciona la fábrica correspondiente.
 5. Factory Method crea y valida el objeto de dominio.
 6. El controlador entrega el objeto a `Inventario`.
 7. La fachada utiliza la farmacia activa del usuario.
@@ -448,7 +448,7 @@ Este flujo permite separar la creación de objetos, las reglas de negocio, la pe
 - El patrón Builder fue reemplazado por Factory Method en el catálogo de productos.
 - Las fábricas pertenecen al paquete `factory`, aunque en el diagrama se agrupan visualmente con el dominio debido a su responsabilidad de creación.
 - Factory Method no reemplaza la fachada ni los DAO.
-- Template Method continúa definiendo las operaciones comunes de persistencia en `CatalogoDAO`.
+- Template Method continúa definiendo las operaciones comunes de persistencia en `CatalogoDao`.
 - El Proxy administra consultas y caché; no se encarga de crear productos.
 - La sesión mantiene información del usuario y farmacia, pero no administra conexiones JDBC.
 - La representación de componentes es lógica: todas estas responsabilidades se ejecutan dentro de la misma aplicación JavaFX.

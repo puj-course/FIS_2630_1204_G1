@@ -1,6 +1,6 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.model.Medicamento;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MedicamentoDAOImpl implements MedicamentoDAO {
+public class MedicamentoDaoJdbc implements MedicamentoDao {
 
     @Override
     public void guardar(Medicamento medicamento) throws Exception {
@@ -21,7 +21,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
                 "estado, id_farmacia, presentacion, id_usuario_creacion, precio) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, medicamento.getCodigoInvima());
@@ -61,7 +61,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
     @Override
     public Medicamento buscarPorId(int idMedicamento) throws Exception {
         String sql = "SELECT * FROM medicamentos WHERE id_medicamento = ?";
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idMedicamento);
@@ -77,7 +77,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
     @Override
     public Medicamento buscarPorCodigoInvima(String codigoInvima) throws Exception {
         String sql = "SELECT * FROM medicamentos WHERE codigo_invima = ?";
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, codigoInvima);
@@ -95,7 +95,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
         List<Medicamento> lista = new ArrayList<>();
         String sql = "SELECT * FROM medicamentos ORDER BY nombre_comercial ASC";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
@@ -111,7 +111,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
         Map<Integer, String> categorias = new LinkedHashMap<>();
         String sql = "SELECT id_categoria, nombre_categoria FROM categorias ORDER BY nombre_categoria ASC";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
@@ -137,7 +137,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
     public void actualizarEstado(int idMedicamento, String nuevoEstado) throws Exception {
         String sql = "UPDATE medicamentos SET estado = ?, fecha_modificacion = NOW() WHERE id_medicamento = ?";
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevoEstado);
@@ -154,7 +154,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
                  "GROUP BY c.nombre_categoria " +
                  "ORDER BY c.nombre_categoria";
 
-    try (Connection con = ConexionBD.getConexion();
+    try (Connection con = ConexionBaseDatos.getConexion();
          Statement st = con.createStatement();
          ResultSet rs = st.executeQuery(sql)) {
 

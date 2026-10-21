@@ -26,7 +26,7 @@ module org.example.carestock {
     exports org.example.carestock.controller;
     exports org.example.carestock.facade;
     exports org.example.carestock.factory;
-    exports org.example.carestock.DataTransferObject;
+    exports org.example.carestock.dto;
     exports org.example.carestock.session;
     requires org.slf4j.simple;
 }

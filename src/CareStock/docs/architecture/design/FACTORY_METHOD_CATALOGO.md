@@ -9,8 +9,8 @@ El patron creacional Factory Method reemplaza Builder en el catalogo.
 - Concrete Creators: FabricaAseo, FabricaMaternidad y FabricaMedicamento
 - Products: Aseo, Maternidad y Medicamento
 
-CatalogoController delega la construccion a las fabricas.
-AseoDAO y MaternidadDAO utilizan las fabricas al leer PostgreSQL.
+ControladorCatalogo delega la construccion a las fabricas.
+AseoDao y MaternidadDao utilizan las fabricas al leer PostgreSQL.
 
 La fabrica crea y valida objetos en memoria.
 Inventario (Facade) conserva la autorizacion y la farmacia activa.
