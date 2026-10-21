@@ -19,7 +19,50 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 
+import org.example.carestock.service.ServicioMovimientosProducto;
+
 public class Inventario {
+
+    private final ServicioMovimientosProducto servicioMovimientos =
+            new ServicioMovimientosProducto();
+
+    public ServicioMovimientosProducto.ResultadoMovimiento registrarMovimientoAseo(
+            int idAseo,
+            ServicioMovimientosProducto.TipoMovimiento tipo,
+            int cantidad,
+            String motivo
+    ) throws Exception {
+
+        return escribir(f -> servicioMovimientos.registrar(
+                ServicioMovimientosProducto.Categoria.ASEO,
+                idAseo,
+                tipo,
+                cantidad,
+                motivo,
+                idUsuario,
+                f
+        ));
+    }
+
+    public ServicioMovimientosProducto.ResultadoMovimiento registrarMovimientoMaternidad(
+            int idMaternidad,
+            ServicioMovimientosProducto.TipoMovimiento tipo,
+            int cantidad,
+            String motivo
+    ) throws Exception {
+
+        return escribir(f -> servicioMovimientos.registrar(
+                ServicioMovimientosProducto.Categoria.MATERNIDAD,
+                idMaternidad,
+                tipo,
+                cantidad,
+                motivo,
+                idUsuario,
+                f
+        ));
+    }
+
+
 
     private final int idUsuario;
 
