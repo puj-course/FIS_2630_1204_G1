@@ -55,7 +55,7 @@
                     <Label text="Formulario de movimientos"
                            style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #20302F;"/>
 
-                    <Label text="Selecciona un producto de tu farmacia, indica el movimiento y valida la información."
+                    <Label text="Selecciona un producto de tu farmacia, indica el movimiento y registra la operación."
                            wrapText="true"
                            style="-fx-text-fill: #57716F;"/>
 
@@ -154,7 +154,7 @@
                     <VBox spacing="10"
                           style="-fx-background-color: #E9F4F3; -fx-padding: 18; -fx-background-radius: 12;">
 
-                        <Label text="Estado de validación"
+                        <Label text="Estado del movimiento"
                                style="-fx-font-weight: bold; -fx-text-fill: #0B615F;"/>
 
                         <Label fx:id="lblEstado"
@@ -171,8 +171,8 @@
                                 style="-fx-background-color: #EDF1F0; -fx-padding: 12 24; -fx-background-radius: 9;"/>
 
                         <Button fx:id="btnValidar"
-                                text="Validar movimiento"
-                                onAction="#onValidar"
+                                text="Registrar movimiento"
+                                onAction="#onRegistrar"
                                 style="-fx-background-color: #0E7C7B; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 9;"/>
                     </HBox>
                 </VBox>
