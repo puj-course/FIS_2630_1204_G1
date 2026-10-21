@@ -9,27 +9,60 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+# Evita ejecutar varios CI obsoletos del mismo PR.
+concurrency:
+  group: carestock-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
-    name: Compilar y verificar proyecto
+    name: Compilar, probar y empaquetar
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: src/CareStock
 
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Configurar Java 21
+      - name: Configurar Java 21 y cache Maven
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-          cache-dependency-path: src/CareStock/pom.xml
+          cache-dependency-path: |
+            src/CareStock/pom.xml
+            src/CareStock/.mvn/wrapper/maven-wrapper.properties
 
-      - name: Dar permisos al Maven Wrapper
-        working-directory: src/CareStock
+      - name: Preparar Maven Wrapper
         run: chmod +x mvnw
 
-      - name: Compilar y ejecutar verificaciones
-        working-directory: src/CareStock
-        run: ./mvnw -B clean verify
+      - name: Compilar y ejecutar pruebas
+        run: |
+          echo "=== Entorno Java ==="
+          java -version
+
+          echo "=== Inicio Maven ==="
+          date -u
+
+          time ./mvnw -B -ntp clean verify
+
+          echo "=== Final Maven ==="
+          date -u
+
+      # En main, verify ya ha generado el archivo JAR.
+      - name: Publicar artefacto CareStock
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CareStock-build
+          path: src/CareStock/target/*.jar
+          if-no-files-found: error
+          retention-days: 7
