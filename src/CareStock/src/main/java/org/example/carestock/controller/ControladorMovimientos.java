@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Issue #789: formulario de movimientos.
- * Captura y valida sin modificar la base de datos.
+ * Formulario de movimientos con persistencia transaccional.
  */
 public class ControladorMovimientos {
 
@@ -39,6 +38,9 @@ public class ControladorMovimientos {
 
     private int idUsuario;
     private int idFarmacia;
+    private boolean registroEnCurso;
+    private String confirmacionPendiente;
+
 
     private record OpcionProducto(
             String categoria,
@@ -131,6 +133,8 @@ public class ControladorMovimientos {
     }
 
     private void cargarProductos() {
+        OpcionProducto seleccionPrevia = cmbProducto.getValue();
+
 
         if (!sesionSinCambios()) {
             mostrarError(
@@ -204,13 +208,15 @@ public class ControladorMovimientos {
             }
         };
 
-        tarea.setOnSucceeded(evento -> {
 
+        tarea.setOnSucceeded(evento -> {
             btnActualizar.setDisable(false);
 
             if (!sesionSinCambios()) {
-                mostrarError(
-                        "La sesión cambió. No se muestran datos anteriores."
+                productos.clear();
+                filtrarProductos();
+                lblEstado.setText(
+                        "La sesión cambió. Vuelve a iniciar sesión."
                 );
                 return;
             }
@@ -218,29 +224,67 @@ public class ControladorMovimientos {
             productos.setAll(tarea.getValue());
             filtrarProductos();
 
+            // Mantener la selección después de actualizar.
+            if (seleccionPrevia != null) {
+                cmbProducto.getItems().stream()
+                        .filter(p ->
+                                p.id() == seleccionPrevia.id()
+                                && p.categoria().equals(
+                                        seleccionPrevia.categoria()
+                                )
+                        )
+                        .findFirst()
+                        .ifPresent(cmbProducto::setValue);
+            }
+
             btnValidar.setDisable(false);
 
-            lblEstado.setText(
-                    productos.isEmpty()
-                            ? "No hay productos activos de aseo o maternidad."
-                            : "Productos disponibles: "
-                                    + productos.size()
-                                    + ". Selecciona un producto."
-            );
+            if (confirmacionPendiente != null) {
+                lblEstado.setText(
+                        confirmacionPendiente
+                        + " Existencias actualizadas."
+                );
+                confirmacionPendiente = null;
+            } else {
+                lblEstado.setText(
+                        productos.isEmpty()
+                                ? "No hay productos activos de aseo o maternidad."
+                                : "Productos disponibles: "
+                                        + productos.size()
+                                        + ". Selecciona un producto."
+                );
+            }
         });
 
         tarea.setOnFailed(evento -> {
-
             btnActualizar.setDisable(false);
             productos.clear();
             filtrarProductos();
 
-            mostrarError(
-                    "No se pudieron consultar los productos: "
-                            + (tarea.getException() == null
-                            ? "Error desconocido"
-                            : tarea.getException().getMessage())
-            );
+            if (confirmacionPendiente != null) {
+                String confirmacion = confirmacionPendiente;
+                confirmacionPendiente = null;
+
+                lblEstado.setText(
+                        confirmacion
+                        + " No se pudieron actualizar las existencias en pantalla."
+                );
+
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "El movimiento fue registrado, pero no fue posible "
+                        + "actualizar la lista de productos. "
+                        + "Intenta Actualizar productos."
+                ).showAndWait();
+
+            } else {
+                mostrarError(
+                        "No se pudieron consultar los productos: "
+                        + (tarea.getException() == null
+                                ? "Error desconocido"
+                                : tarea.getException().getMessage())
+                );
+            }
         });
 
         Thread hilo = new Thread(
@@ -279,24 +323,23 @@ public class ControladorMovimientos {
         );
     }
 
+
     @FXML
-    private void onValidar() {
+    private void onRegistrar() {
+        if (registroEnCurso) {
+            return;
+        }
 
         if (!sesionSinCambios()) {
             mostrarError(
-                    "La sesión no coincide con la farmacia del formulario."
+                    "La sesión cambió. Vuelve a iniciar sesión."
             );
             return;
         }
 
         OpcionProducto producto = cmbProducto.getValue();
         String movimiento = cmbMovimiento.getValue();
-
-        String cantidadTexto =
-                txtCantidad.getText().trim();
-
-        String motivo =
-                txtMotivo.getText().trim();
+        String motivo = txtMotivo.getText().trim();
 
         if (producto == null) {
             mostrarError(
@@ -306,17 +349,17 @@ public class ControladorMovimientos {
         }
 
         if (movimiento == null) {
-            mostrarError(
-                    "Selecciona ENTRADA o SALIDA."
-            );
+            mostrarError("Selecciona ENTRADA o SALIDA.");
             return;
         }
 
-        int cantidad;
+        final int cantidad;
 
         try {
-            cantidad = Integer.parseInt(cantidadTexto);
-        } catch (NumberFormatException ex) {
+            cantidad = Integer.parseInt(
+                    txtCantidad.getText().trim()
+            );
+        } catch (NumberFormatException error) {
             mostrarError(
                     "La cantidad debe ser un número entero positivo."
             );
@@ -330,58 +373,181 @@ public class ControladorMovimientos {
             return;
         }
 
-        if (motivo.isBlank()) {
+        if (motivo.isBlank() || motivo.length() > 250) {
             mostrarError(
-                    "Debes indicar el motivo del movimiento."
-            );
-            return;
-        }
-
-        if (motivo.length() > 250) {
-            mostrarError(
-                    "El motivo no puede superar 250 caracteres."
+                    "Indica un motivo de máximo 250 caracteres."
             );
             return;
         }
 
         if ("SALIDA".equals(movimiento)
                 && cantidad > producto.stock()) {
-
             mostrarError(
-                    "La salida excede el stock mostrado. Actualiza los productos."
+                    "El stock mostrado es insuficiente. "
+                    + "Actualiza los productos antes de continuar."
             );
             return;
         }
 
-        // #790 incorporará el guardado transaccional.
-        // #791 integrará la actualización de inventario y caché.
+        // Confirmar antes de modificar existencias.
+        Alert confirmacion = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
+
+        confirmacion.setTitle("Confirmar movimiento");
+        confirmacion.setHeaderText(
+                "¿Registrar este movimiento?"
+        );
+
+        confirmacion.setContentText(
+                "Producto: " + producto.nombre()
+                + "\nTipo: " + movimiento
+                + "\nCantidad: " + cantidad
+                + "\nMotivo: " + motivo
+        );
+
+        if (confirmacion.showAndWait().orElse(
+                ButtonType.CANCEL
+        ) != ButtonType.OK) {
+            return;
+        }
+
+        final org.example.carestock.model.Usuario usuario =
+                SesionUsuario.usuarioParaFachada();
+
+        final org.example.carestock.service.ServicioMovimientosProducto.TipoMovimiento tipo =
+                org.example.carestock.service.ServicioMovimientosProducto.TipoMovimiento.valueOf(
+                        movimiento
+                );
+
+        registroEnCurso = true;
+        bloquearFormulario(true);
 
         lblEstado.setText(
-                "Validación correcta: "
-                        + movimiento + " de "
-                        + cantidad + " unidad(es) de "
-                        + producto.nombre() + ". Sin registrar."
+                "Registrando movimiento, espera un momento..."
         );
 
-        Alert aviso = new Alert(
-                Alert.AlertType.INFORMATION
+        Task<org.example.carestock.service.ServicioMovimientosProducto.ResultadoMovimiento> tarea =
+                new Task<>() {
+
+                    @Override
+                    protected org.example.carestock.service.ServicioMovimientosProducto.ResultadoMovimiento call()
+                            throws Exception {
+
+                        if (!sesionSinCambios()) {
+                            throw new IllegalStateException(
+                                    "La sesión cambió antes del registro."
+                            );
+                        }
+
+                        Inventario inventario = new Inventario(
+                                usuario
+                        );
+
+                        if ("Aseo".equals(producto.categoria())) {
+                            return inventario.registrarMovimientoAseo(
+                                    producto.id(),
+                                    tipo,
+                                    cantidad,
+                                    motivo
+                            );
+                        }
+
+                        return inventario.registrarMovimientoMaternidad(
+                                producto.id(),
+                                tipo,
+                                cantidad,
+                                motivo
+                        );
+                    }
+                };
+
+        tarea.setOnSucceeded(evento -> {
+            registroEnCurso = false;
+            bloquearFormulario(false);
+
+            var resultado = tarea.getValue();
+
+            if (!sesionSinCambios()) {
+                lblEstado.setText(
+                        "Movimiento registrado. La sesión cambió; "
+                        + "vuelve a iniciar sesión para consultar existencias."
+                );
+                return;
+            }
+
+            confirmacionPendiente =
+                    "Movimiento registrado correctamente "
+                    + "(N.º " + resultado.idMovimiento() + "). "
+                    + "Stock: " + resultado.stockAnterior()
+                    + " → " + resultado.stockPosterior() + ".";
+
+            txtCantidad.clear();
+            txtMotivo.clear();
+
+            // Recargar productos después del COMMIT.
+            cargarProductos();
+
+            Alert aviso = new Alert(
+                    Alert.AlertType.INFORMATION
+            );
+
+            aviso.setTitle("Movimiento registrado");
+            aviso.setHeaderText(
+                    "El movimiento se guardó correctamente"
+            );
+
+            aviso.setContentText(
+                    "Producto: " + producto.nombre()
+                    + "\nMovimiento: " + movimiento
+                    + "\nCantidad: " + cantidad
+                    + "\nStock anterior: "
+                    + resultado.stockAnterior()
+                    + "\nStock actual: "
+                    + resultado.stockPosterior()
+                    + "\nN.º de registro: "
+                    + resultado.idMovimiento()
+            );
+
+            aviso.showAndWait();
+        });
+
+        tarea.setOnFailed(evento -> {
+            registroEnCurso = false;
+            bloquearFormulario(false);
+
+            Throwable causa = tarea.getException();
+
+            if (causa instanceof org.example.carestock.exception.ReglaNegocioException
+                    || causa instanceof IllegalStateException) {
+
+                mostrarError(causa.getMessage());
+
+            } else {
+                mostrarError(
+                        "No se pudo confirmar el resultado del movimiento. "
+                        + "Comprueba el historial antes de volver a intentarlo."
+                );
+            }
+        });
+
+        Thread hilo = new Thread(
+                tarea,
+                "registrar-movimiento-carestock"
         );
 
-        aviso.setTitle("Movimiento validado");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
 
-        aviso.setHeaderText(
-                "Datos correctos · Sin cambios en inventario"
-        );
-
-        aviso.setContentText(
-                "Producto: " + producto.nombre()
-                        + "\nMovimiento: " + movimiento
-                        + "\nCantidad: " + cantidad
-                        + "\nMotivo: " + motivo
-                        + "\n\nLos datos son correctos. El movimiento aún no se ha registrado y las existencias no han cambiado."
-        );
-
-        aviso.showAndWait();
+    private void bloquearFormulario(boolean bloqueado) {
+        cmbCategoria.setDisable(bloqueado);
+        cmbProducto.setDisable(bloqueado);
+        cmbMovimiento.setDisable(bloqueado);
+        txtCantidad.setDisable(bloqueado);
+        txtMotivo.setDisable(bloqueado);
+        btnActualizar.setDisable(bloqueado);
+        btnValidar.setDisable(bloqueado);
     }
 
     private void mostrarError(String mensaje) {
@@ -402,6 +568,13 @@ public class ControladorMovimientos {
 
     @FXML
     private void onVolver() {
+        if (registroEnCurso) {
+            mostrarError(
+                    "Espera a que termine el registro antes de salir."
+            );
+            return;
+        }
+
         org.example.carestock.AplicacionCareStock.getInstance().mostrarDashboard();
     }
 }
