@@ -240,9 +240,32 @@ public class ControladorCatalogo {
                 c -> str(precioTexto(c.getValue().producto()))
         );
 
-        colStock.setCellValueFactory(
-                c -> str(stock(c.getValue().producto()))
-        );
+        colStock.setCellFactory(col -> new TableCell<RegistroCatalogo<?>, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setTooltip(null);
+                } else {
+                    setText(item);
+                    
+                    RegistroCatalogo<?> registro = getTableRow().getItem();
+                    if (registro != null && registro.producto() instanceof Medicamento) {
+                        Medicamento m = (Medicamento) registro.producto();
+                        if (m.getStockTotal() <= m.getStockMinimo()) {
+                            Tooltip tooltip = new Tooltip("¡Alerta de stock mínimo!");
+                            tooltip.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold;");
+                            setTooltip(tooltip);
+                        } else {
+                            setTooltip(null);
+                        }
+                    } else {
+                        setTooltip(null);
+                    }
+                }
+            }
+        });
 
         colEstado.setCellValueFactory(
                 c -> str(c.getValue().estado())
