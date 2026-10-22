@@ -9,10 +9,10 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.carestock.controller.ControladorInventario"
+            fx:controller="org.example.carestock.controller.InventarioController"
             prefWidth="1100.0"
             prefHeight="750.0"
-            style="-fx-background-color: #F4FAF9;">
+            style="-fx-background-color: #FDFBF7;">
 
     <!-- ======================================= -->
     <!-- CABECERA PRINCIPAL                      -->
@@ -20,7 +20,7 @@
 
     <top>
         <VBox spacing="14.0"
-              style="-fx-background-color: linear-gradient(to bottom right, #0E7C7B, #0B615F); -fx-padding: 20 28 20 28;">
+              style="-fx-background-color: #A7D8D8; -fx-padding: 20 28 20 28;">
 
             <children>
 
@@ -31,16 +31,16 @@
                         <StackPane prefHeight="44.0"
                                    prefWidth="44.0">
                             <children>
-                                <Circle fill="#E3F3F2"
+                                <Circle fill="#FDFBF7"
                                         radius="22.0" />
 
-                                <Rectangle fill="#0E7C7B"
+                                <Rectangle fill="#B7A6E0"
                                            height="22.0"
                                            arcHeight="3.0"
                                            arcWidth="3.0"
                                            width="6.0" />
 
-                                <Rectangle fill="#0E7C7B"
+                                <Rectangle fill="#B7A6E0"
                                            height="6.0"
                                            arcHeight="3.0"
                                            arcWidth="3.0"
@@ -53,7 +53,7 @@
                             <children>
 
                                 <Label text="CareStock"
-                                       textFill="WHITE">
+                                       textFill="#20302F">
                                     <font>
                                         <Font name="System Bold"
                                               size="24.0" />
@@ -61,7 +61,7 @@
                                 </Label>
 
                                 <Label text="Control de Inventario"
-                                       textFill="#E3F3F2">
+                                       textFill="#2E4A48">
                                     <font>
                                         <Font name="System Bold"
                                               size="12.0" />
@@ -76,15 +76,11 @@
                         <Button fx:id="btnCatalogo"
                                 text="Catálogo"
                                 onAction="#onAbrirCatalogo"
-                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
-                        <Button text="Movimientos"
-                                onAction="#onAbrirMovimientos"
-                                style="-fx-background-color: #E3F3F2; -fx-text-fill: #0B615F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
-
+                                style="-fx-background-color: #B7A6E0; -fx-text-fill: #FFFFFF; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
 
                         <Button text="Cerrar sesión"
                                 onAction="#onCerrarSesion"
-                                style="-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.45); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
+                                style="-fx-background-color: rgba(32,48,47,0.08); -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;" />
 
                     </children>
                 </HBox>
@@ -98,22 +94,22 @@
                         <VBox spacing="4.0"
                               HBox.hgrow="ALWAYS"
                               alignment="CENTER_LEFT"
-                              style="-fx-background-color: rgba(255,255,255,0.10); -fx-background-radius: 12; -fx-padding: 12 16;">
+                              style="-fx-background-color: rgba(253,251,247,0.70); -fx-background-radius: 12; -fx-padding: 12 16;">
 
                             <children>
 
                                 <Label text="USUARIO AUTENTICADO"
-                                       textFill="#BFE3E1"
+                                       textFill="#2E4A48"
                                        style="-fx-font-size: 10; -fx-font-weight: bold;" />
 
                                 <Label fx:id="lblUsuarioSesion"
                                        text="Cargando usuario..."
-                                       textFill="WHITE"
+                                       textFill="#20302F"
                                        style="-fx-font-size: 16; -fx-font-weight: bold;" />
 
                                 <Label fx:id="lblEmailSesion"
                                        text="correo@ejemplo.com"
-                                       textFill="#E3F3F2"
+                                       textFill="#2E4A48"
                                        style="-fx-font-size: 12;" />
 
                             </children>
@@ -122,17 +118,17 @@
                         <VBox spacing="4.0"
                               alignment="CENTER_LEFT"
                               prefWidth="200.0"
-                              style="-fx-background-color: rgba(255,255,255,0.10); -fx-background-radius: 12; -fx-padding: 12 16;">
+                              style="-fx-background-color: rgba(253,251,247,0.70); -fx-background-radius: 12; -fx-padding: 12 16;">
 
                             <children>
 
                                 <Label text="ROL DEL USUARIO"
-                                       textFill="#BFE3E1"
+                                       textFill="#2E4A48"
                                        style="-fx-font-size: 10; -fx-font-weight: bold;" />
 
                                 <Label fx:id="lblRolSesion"
                                        text="Cargando..."
-                                       textFill="WHITE"
+                                       textFill="#20302F"
                                        style="-fx-font-size: 15; -fx-font-weight: bold;" />
 
                             </children>
@@ -141,17 +137,17 @@
                         <VBox spacing="4.0"
                               alignment="CENTER_LEFT"
                               prefWidth="220.0"
-                              style="-fx-background-color: rgba(255,255,255,0.10); -fx-background-radius: 12; -fx-padding: 12 16;">
+                              style="-fx-background-color: rgba(253,251,247,0.70); -fx-background-radius: 12; -fx-padding: 12 16;">
 
                             <children>
 
                                 <Label text="FARMACIA ASIGNADA"
-                                       textFill="#BFE3E1"
+                                       textFill="#2E4A48"
                                        style="-fx-font-size: 10; -fx-font-weight: bold;" />
 
                                 <Label fx:id="lblFarmaciaSesion"
                                        text="Cargando..."
-                                       textFill="WHITE"
+                                       textFill="#20302F"
                                        style="-fx-font-size: 15; -fx-font-weight: bold;" />
 
                             </children>
@@ -161,7 +157,7 @@
                 </HBox>
 
                 <Label text="Gestión de inventario, trazabilidad y dispensación segura"
-                       textFill="#E3F3F2"
+                       textFill="#2E4A48"
                        style="-fx-font-size: 12;" />
 
             </children>
@@ -174,10 +170,10 @@
 
     <center>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                    style="-fx-background: #F4FAF9; -fx-background-color: #F4FAF9; -fx-border-color: transparent;">
+                    style="-fx-background: #FDFBF7; -fx-background-color: #FDFBF7; -fx-border-color: transparent;">
             <content>
                 <VBox spacing="16.0"
-                      style="-fx-background-color: #F4FAF9;">
+                      style="-fx-background-color: #FDFBF7;">
 
             <padding>
                 <Insets top="22.0"
@@ -394,7 +390,7 @@
                 </TableView>
 
                 <!-- MODULO DE DISPENSACION -->
-                <VBox style="-fx-background-color: #F4FAF9; -fx-padding: 0 0 6 0;">
+                <VBox style="-fx-background-color: #FDFBF7; -fx-padding: 0 0 6 0;">
 
             <children>
 
