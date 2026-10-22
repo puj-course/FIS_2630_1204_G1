@@ -237,3 +237,30 @@ La pantalla de inicio de sesión (`login-view.fxml`) usaba el esquema verde-azul
 **Fuera de alcance (código):** `LoginController` aplica por código el borde de los campos con foco (`#0E7C7B`) y los colores de los mensajes de error y éxito (`#FDEDEC` / `#C0392B` y `#EAFAF1` / `#27AE60`). Esos colores no se pueden cambiar desde el FXML y quedan para una historia aparte.
 
 ![Login con la paleta oficial](HU118-login-paleta.png)
+
+
+
+## 15. Migración de la Paleta Oficial a la Pantalla de Inventario (HU-119)
+
+La pantalla de inventario (`inventario-view.fxml`) se migró de la paleta verde-azulada anterior a la paleta oficial editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Fondo general | `#F4FAF9` | Marfil `#FDFBF7` |
+| Cabecera | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
+| Textos de la cabecera | `#FFFFFF` / `#E3F3F2` / `#BFE3E1` | `#20302F` / `#2E4A48` |
+| Tarjetas de sesión (usuario, rol, farmacia) | blanco translúcido | Marfil translúcido |
+| Botón "Catálogo", "Actualizar tabla" y "Dispensar medicamento" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` / `#FFFFFF` |
+| Botón "Cerrar sesión" | blanco translúcido | `#20302F` translúcido (igual que el catálogo) |
+| Borde de tarjetas y tablas | `#D6E6E4` | `#E3D9F5` |
+| Borde de campos (búsqueda, categoría, cantidad) | `#D6E6E4` | `#D0D0D0` |
+| Tarjeta "Total de lotes" | `#0E7C7B` | número `#6B5B95`, borde `#E3D9F5` |
+| Tarjeta "Lotes vencidos" | `#C53030` | número `#7A2E2E`, borde Coral `#F0A8A8` |
+| Tarjeta "Dispensación / Disponibles" | `#2F855A` | texto `#2F6F6F`, borde Menta `#A7D8D8` |
+| Color de foco y selección de filas (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Accesibilidad:** las tarjetas conservan el texto explícito (por ejemplo "LOTES VENCIDOS") y la columna "Estado" de la tabla muestra el estado en texto, así que el color no es la única señal (WCAG 2.1 AA). Los textos sobre Coral y Durazno son oscuros, nunca blancos.
+
+**Fuera de alcance (código):** `InventarioController` aplica por código el color de las filas de lotes vencidos (`#FED7D7`) y no disponibles (`#FEEBC8`) y el de la etiqueta del lote seleccionado (`#1A365D` / `#4A5568`). Esos colores no se pueden cambiar desde el FXML y quedan para una historia aparte.
+
+![Inventario con la paleta oficial](HU119-inventario-paleta.png)
