@@ -1,6 +1,4 @@
-
 package org.example.carestock;
-
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
