@@ -208,13 +208,13 @@ El catálogo de productos (`catalogo-view.fxml`) usaba un esquema verde-azulado 
 | Encabezado | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
 | Botón "Registrar" y "Consulta unificada" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` |
 | Botones secundarios ("Nuevo", "Actualizar", "Actualizar lista") | `#E3F3F2` / `#0E7C7B` | Lavanda claro `#EDE7F7` / `#6B5B95` |
-| Botón "Desactivar" (acción crítica) | `#FDECEA` / `#C53030` | Coral `#F0A8A8` |
-| Bordes de tarjetas y campos | `#D6E6E4` | `#E3D9F5` (derivado de Lavanda) |
+| Botón "Desactivar" (acción crítica) | `#FDECEA` / `#C53030` | Coral `#F0A8A8` con texto `#7A2E2E` |
+| Bordes de tarjetas | `#D6E6E4` | `#E3D9F5` (derivado de Lavanda) |
+| Bordes de campos de texto y listas | `#D6E6E4` | `#D0D0D0` (sección 5) |
 
 **Contraste:** el encabezado pasó de fondo oscuro a Menta claro, por lo que el texto del título cambió de blanco a `#20302F` para mantener legibilidad (criterio WCAG 2.1 AA).
 
-**Pendiente:** `login-view.fxml` e `inventario-view.fxml` todavía usan el esquema anterior. Queda para una historia futura migrarlos con esta tabla como referencia.
-
+**Actualización:** el login, el inventario y la consulta unificada se migraron después con esta misma tabla (secciones 14, 15 y 16). El texto del botón "Desactivar" y el borde de los campos se ajustaron a la sección 5 en HU-120. Los colores que el código Java asigna mientras la app corre quedaron fuera de alcance (ver "Fuera de alcance" en las secciones 14, 15 y 16).
 
 ## 14. Migración de la Paleta Oficial a la Pantalla de Login (HU-118)
 
