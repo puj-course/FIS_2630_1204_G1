@@ -13,10 +13,10 @@
         <mxCell id="LoginFX_m2" parent="LoginFX" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- onLoginClick()" vertex="1">
           <mxGeometry height="25" width="220" y="55" as="geometry" />
         </mxCell>
-        <mxCell id="AuthService" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="AuthenticationService" vertex="1">
+        <mxCell id="AuthService" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="ServicioAutenticacion" vertex="1">
           <mxGeometry height="130" width="280" x="340" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="AS_a1" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- usuarioDAO: UsuarioDAO" vertex="1">
+        <mxCell id="AS_a1" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- usuarioDAO: UsuarioDao" vertex="1">
           <mxGeometry height="25" width="280" y="30" as="geometry" />
         </mxCell>
         <mxCell id="AS_a2" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="- accesoDAO: AccesoDAO" vertex="1">
@@ -28,10 +28,10 @@
         <mxCell id="AS_m1" parent="AuthService" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ autenticar(email, password): Usuario" vertex="1">
           <mxGeometry height="25" width="280" y="88" as="geometry" />
         </mxCell>
-        <mxCell id="UsuarioDAO" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="UsuarioDAO" vertex="1">
+        <mxCell id="UsuarioDao" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="UsuarioDao" vertex="1">
           <mxGeometry height="55" width="260" x="700" y="20" as="geometry" />
         </mxCell>
-        <mxCell id="UD_m1" parent="UsuarioDAO" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ buscarPorEmail(email): Usuario" vertex="1">
+        <mxCell id="UD_m1" parent="UsuarioDao" style="text;align=left;verticalAlign=middle;spacingLeft=8;fontSize=12;" value="+ buscarPorEmail(email): Usuario" vertex="1">
           <mxGeometry height="25" width="260" y="30" as="geometry" />
         </mxCell>
         <mxCell id="AccesoDAO" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=1;resizeParent=1;resizeParentMax=0;collapsible=0;swimlaneFillColor=none;fillColor=none;strokeColor=#000000;" value="AccesoDAO" vertex="1">
@@ -139,7 +139,7 @@
         <mxCell id="e2" edge="1" parent="1" source="LoginFX" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="UserSession" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="AuthService" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="UsuarioDAO" value="">
+        <mxCell id="e3" edge="1" parent="1" source="AuthService" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="UsuarioDao" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e4" edge="1" parent="1" source="AuthService" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;html=1;fontSize=11;" target="AccesoDAO" value="">

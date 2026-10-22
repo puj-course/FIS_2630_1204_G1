@@ -12,8 +12,8 @@ El archivo editable está disponible en `PROCESO_CATALOGO_UNIFICADO.drawio` dent
 
 El diagrama modela dos procesos reales del catálogo de productos:
 
-1. **Registrar o editar un producto**, iniciado desde `CatalogoController`.
-2. **Consultar el inventario unificado**, iniciado desde `ConsultaInventarioController`.
+1. **Registrar o editar un producto**, iniciado desde `ControladorCatalogo`.
+2. **Consultar el inventario unificado**, iniciado desde `ControladorConsultaInventario`.
 
 Ambos procesos parten de la misma pantalla de catálogo y conviven en la misma vista, pero siguen caminos distintos una vez el usuario decide qué acción realizar.
 
@@ -23,11 +23,11 @@ Ambos procesos parten de la misma pantalla de catálogo y conviven en la misma v
 | :--- | :--- |
 | Selecciona categoría | `cmbCategoria` en `catalogo-view.fxml` |
 | Completa formulario dinámico | `panelAseo` / `panelMaternidad` / `panelMedicamentos` |
-| Clic en Registrar o Actualizar | `CatalogoController.onGuardar()` / `onActualizar()` |
+| Clic en Registrar o Actualizar | `ControladorCatalogo.onGuardar()` / `onActualizar()` |
 | Construye el objeto con el Builder | `construirAseo()` / `construirMaternidad()` / `construirMedicamento()` |
 | Llama a la Fachada | `Inventario.registrarX()` / `actualizarX()` |
 | Valida sesión y farmacia activa | `Inventario.farmaciaActual()` |
-| Persiste el registro | DAO correspondiente (`AseoDAO`, `MaternidadDAO`, `MedicamentoDAOImpl`) |
+| Persiste el registro | DAO correspondiente (`AseoDao`, `MaternidadDao`, `MedicamentoDaoJdbc`) |
 | Único punto de error | el `catch (Exception e)` de `onGuardar()` cubre validación, Builder, farmacia y base de datos a la vez — no hay rutas de error separadas en el código real |
 | Confirmación | `limpiar()` + `cargarTabla()` + `Alert` de información |
 
@@ -37,12 +37,12 @@ Ambos procesos parten de la misma pantalla de catálogo y conviven en la misma v
 
 | Paso en el diagrama | Clase / método real |
 | :--- | :--- |
-| Clic en "Consulta unificada" | `CatalogoController.onConsultaUnificada()` |
+| Clic en "Consulta unificada" | `ControladorCatalogo.onConsultaUnificada()` |
 | Solicita datos por farmacia | `ConsultaInventarioProxy.listarPorFarmacia(idFarmacia)` |
 | Evalúa vigencia de caché (TTL) | `ConsultaInventarioProxy` (caché LRU, máximo 16 farmacias) |
 | Si hay acierto de caché | retorna los datos ya almacenados (cache hit) |
-| Si no hay acierto | `ConsultaInventarioDAO` consulta PostgreSQL y el resultado se guarda en caché |
-| Muestra resultado | tabla de `ConsultaInventarioController`, siempre segregada por la farmacia activa de la sesión |
+| Si no hay acierto | `ConsultaInventarioBaseDatos` consulta PostgreSQL y el resultado se guarda en caché |
+| Muestra resultado | tabla de `ControladorConsultaInventario`, siempre segregada por la farmacia activa de la sesión |
 
 ## 5. Trazabilidad a patrones GoF
 
@@ -54,8 +54,8 @@ Ambos procesos parten de la misma pantalla de catálogo y conviven en la misma v
 
 ## 6. Referencias de código
 
-- `org.example.carestock.controller.CatalogoController`
-- `org.example.carestock.controller.ConsultaInventarioController`
+- `org.example.carestock.controller.ControladorCatalogo`
+- `org.example.carestock.controller.ControladorConsultaInventario`
 - `org.example.carestock.facade.Inventario`
 - `org.example.carestock.model.AseoBuilder`, `MaternidadBuilder`, `MedicamentoBuilder`
 - `org.example.carestock.proxy.ConsultaInventarioProxy`, `InventarioConsultas`

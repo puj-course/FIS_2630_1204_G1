@@ -6,9 +6,9 @@ Parte 1 de 3 del diagrama de componentes de negocio y dominio (HU.86). Código f
 
 ```mermaid
 flowchart LR
-    AUTH["Servicio de autenticación<br/>AuthenticationService"]
-    DISP["Servicio de farmacovigilancia<br/>FarmacovigilanciaService"]
-    REG["Servicio de registro de lote<br/>RegistroLoteService"]
+    AUTH["Servicio de autenticación<br/>ServicioAutenticacion"]
+    DISP["Servicio de farmacovigilancia<br/>ServicioFarmacovigilancia"]
+    REG["Servicio de registro de lote<br/>ServicioRegistroLote"]
     FAC["Fachada de inventario<br/>Inventario"]
 
     IAUT(["IAutenticacion<br/>autenticar"])
@@ -18,7 +18,7 @@ flowchart LR
 
     IUSU(["IUsuarioDAO<br/>buscarPorEmail"])
     IMED(["IMedicamentoDAO<br/>guardar"])
-    ICAT(["Operaciones de catálogo<br/>AseoDAO, MaternidadDAO"])
+    ICAT(["Operaciones de catálogo<br/>AseoDao, MaternidadDao"])
     ICON(["IConexion<br/>getConexion"])
     IVAL(["Validable<br/>validar"])
     IREG(["ReglaNegocioException"])
@@ -50,14 +50,14 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 
 | Componente | Responsabilidad | Provee | Requiere |
 |---|---|---|---|
-| `AuthenticationService` | Verificar correo y contraseña | `IAutenticacion.autenticar` | `IUsuarioDAO`, la librería BCrypt, `ReglaNegocioException` |
-| `FarmacovigilanciaService` | Dispensar unidades de un lote respetando las reglas sanitarias | `IDispensacion`: `dispensarMedicamento(idLote, cantidad)` (deprecada) y `dispensarMedicamento(idLote, cantidad, idFarmacia, idUsuario)` | `IConexion` (SQL directo), `ReglaNegocioException` |
-| `RegistroLoteService` | Registrar un lote y subir el stock del medicamento en una sola transacción | `IRegistroLote.registrarMedicamentoLote(lote, idUsuario, idFarmacia)` | `IConexion` (SQL directo), `Validable` (`lote.validar`), `ReglaNegocioException` |
-| `Inventario` (fachada) | Dar un único punto de entrada para las operaciones de inventario de la farmacia del usuario | `IInventarioFachada` | `AseoDAO`, `MaternidadDAO`, `IMedicamentoDAO`, `IRegistroLote`, `IDispensacion`, `IConexion`, `Validable`, `ReglaNegocioException` |
+| `ServicioAutenticacion` | Verificar correo y contraseña | `IAutenticacion.autenticar` | `IUsuarioDAO`, la librería BCrypt, `ReglaNegocioException` |
+| `ServicioFarmacovigilancia` | Dispensar unidades de un lote respetando las reglas sanitarias | `IDispensacion`: `dispensarMedicamento(idLote, cantidad)` (deprecada) y `dispensarMedicamento(idLote, cantidad, idFarmacia, idUsuario)` | `IConexion` (SQL directo), `ReglaNegocioException` |
+| `ServicioRegistroLote` | Registrar un lote y subir el stock del medicamento en una sola transacción | `IRegistroLote.registrarMedicamentoLote(lote, idUsuario, idFarmacia)` | `IConexion` (SQL directo), `Validable` (`lote.validar`), `ReglaNegocioException` |
+| `Inventario` (fachada) | Dar un único punto de entrada para las operaciones de inventario de la farmacia del usuario | `IInventarioFachada` | `AseoDao`, `MaternidadDao`, `IMedicamentoDAO`, `IRegistroLote`, `IDispensacion`, `IConexion`, `Validable`, `ReglaNegocioException` |
 
 ## 3. Reglas que aplica cada servicio
 
-**`AuthenticationService.autenticar`** lanza `ReglaNegocioException` cuando:
+**`ServicioAutenticacion.autenticar`** lanza `ReglaNegocioException` cuando:
 
 | Condición | Mensaje |
 |---|---|
@@ -68,7 +68,7 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 
 Antes de devolver al usuario, el servicio borra su contraseña (`setPassword(null)`).
 
-**`FarmacovigilanciaService.dispensarMedicamento`** (versión de cuatro argumentos), dentro de una transacción:
+**`ServicioFarmacovigilancia.dispensarMedicamento`** (versión de cuatro argumentos), dentro de una transacción:
 
 1. Exige `idFarmacia > 0`, `idUsuario > 0` y `cantidad > 0`.
 2. Lee el lote unido a su medicamento con bloqueo (`FOR UPDATE OF l, m`).
@@ -79,14 +79,14 @@ Antes de devolver al usuario, el servicio borra su contraseña (`setPassword(nul
 
 La versión de dos argumentos hace lo mismo pero sin comprobar la farmacia y sin registrar al usuario.
 
-**`RegistroLoteService.registrarMedicamentoLote`**: exige cantidad positiva y ubicación; asigna el usuario y el estado `DISPONIBLE` por defecto; llama a `lote.validar()`; y en una transacción comprueba que el medicamento exista, esté `ACTIVO` y sea de la farmacia (con bloqueo), inserta el lote y suma la cantidad a `stock_total`.
+**`ServicioRegistroLote.registrarMedicamentoLote`**: exige cantidad positiva y ubicación; asigna el usuario y el estado `DISPONIBLE` por defecto; llama a `lote.validar()`; y en una transacción comprueba que el medicamento exista, esté `ACTIVO` y sea de la farmacia (con bloqueo), inserta el lote y suma la cantidad a `stock_total`.
 
 **`Inventario` (fachada)** resuelve la farmacia del usuario con una consulta (`usuarios` unido con `farmacias`, ambos activos) cada vez que se llama; si no la encuentra lanza "Usuario inactivo o sin farmacia activa asignada". `registrarMedicamento` fija la farmacia, el usuario creador, el stock en cero y el estado `ACTIVO` por defecto, exige categoría y principio activo, y llama a `validar()`.
 
 ## 4. Observaciones verificadas en el código
 
 - **Cambio frente a la versión anterior:** la autenticación ahora usa `BCrypt.checkpw`, y la dispensación y el registro de lote son transaccionales.
-- **Posible doble conteo del stock (a verificar):** `FarmacovigilanciaService` y `RegistroLoteService` modifican `medicamentos.stock_total` con un `UPDATE` propio, pero el repositorio define el trigger `trg_actualizar_stock_total`, que recalcula ese mismo campo cada vez que cambia `lotes`. Si el trigger está activo en Neon, el stock se ajustaría dos veces. Cómo comprobarlo está en `COMPONENTE_BASE_DATOS.md`.
-- **SQL fuera de los DAO:** `FarmacovigilanciaService`, `RegistroLoteService` y `Inventario` abren conexiones y escriben SQL directamente.
-- **Sin llamador en las pantallas:** `Inventario.registrarMedicamento`, `registrarLote` y `dispensarMedicamento`, y por tanto `RegistroLoteService`, no los invoca ningún controlador.
-- **Dependencias creadas con `new`:** `Inventario`, `AuthenticationService` y los controladores instancian sus colaboradores directamente.
+- **Posible doble conteo del stock (a verificar):** `ServicioFarmacovigilancia` y `ServicioRegistroLote` modifican `medicamentos.stock_total` con un `UPDATE` propio, pero el repositorio define el trigger `trg_actualizar_stock_total`, que recalcula ese mismo campo cada vez que cambia `lotes`. Si el trigger está activo en Neon, el stock se ajustaría dos veces. Cómo comprobarlo está en `COMPONENTE_BASE_DATOS.md`.
+- **SQL fuera de los DAO:** `ServicioFarmacovigilancia`, `ServicioRegistroLote` y `Inventario` abren conexiones y escriben SQL directamente.
+- **Sin llamador en las pantallas:** `Inventario.registrarMedicamento`, `registrarLote` y `dispensarMedicamento`, y por tanto `ServicioRegistroLote`, no los invoca ningún controlador.
+- **Dependencias creadas con `new`:** `Inventario`, `ServicioAutenticacion` y los controladores instancian sus colaboradores directamente.

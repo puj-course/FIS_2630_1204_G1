@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.carestock.controller.ControladorMovimientos"
+            prefWidth="1100.0"
+            prefHeight="750.0"
+            style="-fx-background-color: #F4FAF9;">
+
+    <top>
+        <VBox spacing="12"
+              style="-fx-padding: 22 30; -fx-background-color: linear-gradient(to bottom right, #0E7C7B, #0B615F);">
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+
+                <Label text="CareStock  /  Movimientos"
+                       textFill="WHITE"
+                       style="-fx-font-size: 23; -fx-font-weight: bold;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="Volver al inventario"
+                        onAction="#onVolver"
+                        style="-fx-background-color: WHITE; -fx-text-fill: #0B615F; -fx-font-weight: bold; -fx-background-radius: 9; -fx-padding: 10 16;"/>
+            </HBox>
+
+            <Label text="Entradas y salidas · Productos de aseo y maternidad"
+                   textFill="#D6EFED"/>
+
+            <HBox spacing="24" alignment="CENTER_LEFT">
+                <Label text="Usuario:" textFill="WHITE"/>
+                <Label fx:id="lblUsuario"
+                       textFill="WHITE"
+                       style="-fx-font-weight: bold;"/>
+
+                <Label text="Farmacia activa:" textFill="WHITE"/>
+                <Label fx:id="lblFarmacia"
+                       textFill="WHITE"
+                       style="-fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    style="-fx-background: #F4FAF9; -fx-background-color: #F4FAF9;">
+
+            <content>
+                <VBox spacing="18" maxWidth="850"
+                      style="-fx-padding: 26 32; -fx-background-color: #F4FAF9;">
+
+                    <Label text="Formulario de movimientos"
+                           style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #20302F;"/>
+
+                    <Label text="Selecciona un producto de tu farmacia, indica el movimiento y registra la operación."
+                           wrapText="true"
+                           style="-fx-text-fill: #57716F;"/>
+
+                    <!-- SECCION 1 -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: WHITE; -fx-background-radius: 16; -fx-padding: 24; -fx-border-radius: 16; -fx-border-color: #D9E8E6;">
+
+                        <Label text="1. Selección de producto"
+                               style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #0B615F;"/>
+
+                        <HBox spacing="12">
+
+                            <VBox spacing="7" HBox.hgrow="ALWAYS">
+
+                                <Label text="Categoría *"
+                                       style="-fx-font-weight: bold;"/>
+
+                                <ComboBox fx:id="cmbCategoria"
+                                          maxWidth="Infinity"
+                                          prefHeight="42"/>
+                            </VBox>
+
+                            <VBox spacing="7" HBox.hgrow="ALWAYS">
+
+                                <Label text="Producto de la farmacia *"
+                                       style="-fx-font-weight: bold;"/>
+
+                                <ComboBox fx:id="cmbProducto"
+                                          maxWidth="Infinity"
+                                          prefHeight="42"
+                                          promptText="Seleccionar producto"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+
+                            <Label fx:id="lblStock"
+                                   text="Selecciona un producto para ver sus existencias."
+                                   wrapText="true"
+                                   style="-fx-text-fill: #47706D; -fx-font-weight: bold;"/>
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <Button fx:id="btnActualizar"
+                                    text="Actualizar productos"
+                                    onAction="#onActualizar"
+                                    style="-fx-background-color: #E4F3F1; -fx-text-fill: #0B615F; -fx-background-radius: 8; -fx-padding: 9 14;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- SECCION 2 -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: WHITE; -fx-background-radius: 16; -fx-padding: 24; -fx-border-radius: 16; -fx-border-color: #D9E8E6;">
+
+                        <Label text="2. Datos del movimiento"
+                               style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #0B615F;"/>
+
+                        <HBox spacing="12">
+
+                            <VBox spacing="7" HBox.hgrow="ALWAYS">
+
+                                <Label text="Tipo de movimiento *"
+                                       style="-fx-font-weight: bold;"/>
+
+                                <ComboBox fx:id="cmbMovimiento"
+                                          maxWidth="Infinity"
+                                          prefHeight="42"
+                                          promptText="ENTRADA o SALIDA"/>
+                            </VBox>
+
+                            <VBox spacing="7" HBox.hgrow="ALWAYS">
+
+                                <Label text="Cantidad (unidades) *"
+                                       style="-fx-font-weight: bold;"/>
+
+                                <TextField fx:id="txtCantidad"
+                                           promptText="Ej.: 10"
+                                           prefHeight="42"/>
+                            </VBox>
+                        </HBox>
+
+                        <Label text="Motivo *"
+                               style="-fx-font-weight: bold;"/>
+
+                        <TextArea fx:id="txtMotivo"
+                                  promptText="Ej.: Recepción de pedido o entrega a servicio"
+                                  prefRowCount="3"
+                                  wrapText="true"/>
+
+                        <Label text="* Campos obligatorios. Cantidades enteras y mayores que cero."
+                               wrapText="true"
+                               style="-fx-text-fill: #667F7C; -fx-font-size: 11;"/>
+                    </VBox>
+
+                    <!-- RESULTADO -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: #E9F4F3; -fx-padding: 18; -fx-background-radius: 12;">
+
+                        <Label text="Estado del movimiento"
+                               style="-fx-font-weight: bold; -fx-text-fill: #0B615F;"/>
+
+                        <Label fx:id="lblEstado"
+                               text="Cargando productos..."
+                               wrapText="true"
+                               style="-fx-text-fill: #385B58;"/>
+
+                    </VBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="12">
+
+                        <Button text="Volver"
+                                onAction="#onVolver"
+                                style="-fx-background-color: #EDF1F0; -fx-padding: 12 24; -fx-background-radius: 9;"/>
+
+                        <Button fx:id="btnValidar"
+                                text="Registrar movimiento"
+                                onAction="#onRegistrar"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 9;"/>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

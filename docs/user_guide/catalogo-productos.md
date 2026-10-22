@@ -1,6 +1,6 @@
 # Guía de usuario — Catálogo unificado de productos (CareStock)
 
-Guía de uso de la pantalla de catálogo (`catalogo-view.fxml` / `CatalogoController`) para consultar, registrar, editar y desactivar medicamentos, productos de aseo y productos de maternidad.
+Guía de uso de la pantalla de catálogo (`catalogo-view.fxml` / `ControladorCatalogo`) para consultar, registrar, editar y desactivar medicamentos, productos de aseo y productos de maternidad.
 
 ## 1. Quién puede hacer qué
 

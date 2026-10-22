@@ -1,6 +1,6 @@
 # Formulario único de registro de productos (HU-92)
 
-Documentación de la pantalla de catálogo (`catalogo-view.fxml` y `CatalogoController`), con la que se registran, editan y desactivan medicamentos, productos de aseo y productos de maternidad desde un solo formulario.
+Documentación de la pantalla de catálogo (`catalogo-view.fxml` y `ControladorCatalogo`), con la que se registran, editan y desactivan medicamentos, productos de aseo y productos de maternidad desde un solo formulario.
 
 Este documento describe la **pantalla**: acceso, campos, reglas y mensajes. El proceso general del catálogo está en [`HU-103/PROCESO_CATALOGO_UNIFICADO.md`](../HU-103/PROCESO_CATALOGO_UNIFICADO.md) y la edición de un medicamento en [`HU98/Diagrama-editar-medicamento.md`](../HU98/Diagrama-editar-medicamento.md).
 
@@ -12,12 +12,12 @@ Código fuente: `src/CareStock/src/main/java/org/example/carestock/`.
 
 ```mermaid
 flowchart TD
-    A["login-view.fxml<br/>LoginController"] -->|"credenciales válidas<br/>SesionUsuario.iniciar"| B["inventario-view.fxml<br/>InventarioController"]
-    B -->|"botón Catálogo<br/>onAbrirCatalogo"| C{"CareStockApp.mostrarCatalogo()<br/>¿SesionUsuario.estaActiva()?"}
+    A["login-view.fxml<br/>ControladorInicioSesion"] -->|"credenciales válidas<br/>SesionUsuario.iniciar"| B["inventario-view.fxml<br/>ControladorInventario"]
+    B -->|"botón Catálogo<br/>onAbrirCatalogo"| C{"AplicacionCareStock.mostrarCatalogo()<br/>¿SesionUsuario.estaActiva()?"}
     C -->|"no"| A
-    C -->|"sí"| D["catalogo-view.fxml<br/>CatalogoController"]
+    C -->|"sí"| D["catalogo-view.fxml<br/>ControladorCatalogo"]
     D -->|"initialize"| E["Crea Inventario con<br/>SesionUsuario.usuarioParaFachada()<br/>y selecciona Medicamentos"]
-    D -->|"Consulta unificada"| F["consulta-inventario-view.fxml<br/>ConsultaInventarioController"]
+    D -->|"Consulta unificada"| F["consulta-inventario-view.fxml<br/>ControladorConsultaInventario"]
     D -->|"Volver al inventario"| B
     D -->|"Cerrar sesión"| A
 ```
@@ -121,7 +121,7 @@ Al cargar la tabla, la línea de estado muestra "Se cargaron n registros de cate
 ```mermaid
 sequenceDiagram
     actor U as Usuario
-    participant C as CatalogoController
+    participant C as ControladorCatalogo
     participant B as Builder de la categoría
     participant I as Inventario (fachada)
     participant D as DAO de la categoría
@@ -173,10 +173,10 @@ El producto queda en la farmacia del usuario autenticado: la fachada la obtiene 
 | El código/registro INVIMA es obligatorio. | `Medicamento.validar` |
 | Principio activo obligatorio | `Inventario.registrarMedicamento` |
 | Categoria obligatoria para medicamento | `Inventario.registrarMedicamento` |
-| Seleccione una categoria farmacologica | `CatalogoController.construirMedicamento` |
-| El precio debe ser no negativo | `CatalogoController.leerPrecio` |
-| El stock no puede ser negativo | `CatalogoController.leerStock` |
-| Precio invalido. Use: 15000.00 | `CatalogoController.leerPrecioMedicamento` |
+| Seleccione una categoria farmacologica | `ControladorCatalogo.construirMedicamento` |
+| El precio debe ser no negativo | `ControladorCatalogo.leerPrecio` |
+| El stock no puede ser negativo | `ControladorCatalogo.leerStock` |
+| Precio invalido. Use: 15000.00 | `ControladorCatalogo.leerPrecioMedicamento` |
 
 ### 7.2 Mensajes de la pantalla
 
@@ -211,8 +211,8 @@ Verificadas en el código:
 | Elemento | Ubicación |
 |---|---|
 | Vista | `src/main/resources/org/example/carestock/catalogo-view.fxml` |
-| Controlador | `controller/CatalogoController.java` |
-| Navegación | `CareStockApp.java` (`mostrarCatalogo`, `mostrarDashboard`, `mostrarConsultaUnificada`) |
+| Controlador | `controller/ControladorCatalogo.java` |
+| Navegación | `AplicacionCareStock.java` (`mostrarCatalogo`, `mostrarDashboard`, `mostrarConsultaUnificada`) |
 | Sesión | `session/SesionUsuario.java` |
 | Fachada | `facade/Inventario.java` |
 | Builders | `model/AseoBuilder.java`, `model/MaternidadBuilder.java`, `Medicamento.builder()` |

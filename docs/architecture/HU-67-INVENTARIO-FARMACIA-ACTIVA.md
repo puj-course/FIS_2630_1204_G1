@@ -38,7 +38,7 @@ Componentes involucrados:
 - GestionInventarioFX
   Utiliza exclusivamente la farmacia correspondiente a la sesión.
 
-- MedicamentoDAO
+- MedicamentoDao
   Ejecuta las consultas filtradas mediante id_farmacia.
 
 - InventarioCrudService
@@ -51,7 +51,7 @@ MainDashboardFX
         -> UserSession
 
 MainDashboardFX
-    -> MedicamentoDAO
+    -> MedicamentoDao
         -> PostgreSQL / Neon
 
 GestionInventarioFX
@@ -72,7 +72,7 @@ Secuencia de carga:
 3. Se abre MainDashboardFX.
 4. MainDashboardFX ejecuta cargarDatosDesdeBD().
 5. SessionContext obtiene el id_farmacia de la sesión.
-6. MedicamentoDAO consulta exclusivamente esa farmacia.
+6. MedicamentoDao consulta exclusivamente esa farmacia.
 7. Los medicamentos obtenidos se cargan en ObservableList.
 8. TableView refleja automáticamente la colección.
 9. Al cerrar sesión, UserSession elimina el usuario anterior.

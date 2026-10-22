@@ -20,8 +20,8 @@ El inicio de sesión se implementa en `LoginFX.java`. El flujo es el siguiente:
 1. El usuario ingresa su correo y contraseña.
 2. El sistema valida que ambos campos no estén vacíos.
 3. Si algún campo está vacío, muestra un mensaje de error y detiene el proceso.
-4. Si ambos campos están completos, llama a `AuthenticationService.autenticar(email, password)`.
-5. El servicio consulta la base de datos a través de `UsuarioDAO.buscarPorEmail(email)`.
+4. Si ambos campos están completos, llama a `ServicioAutenticacion.autenticar(email, password)`.
+5. El servicio consulta la base de datos a través de `UsuarioDao.buscarPorEmail(email)`.
 6. Si las credenciales son correctas, retorna un objeto `Usuario` con los datos del usuario.
 7. Si las credenciales son incorrectas, lanza `IllegalArgumentException` y muestra un mensaje genérico ("Correo o contraseña incorrectos").
 8. Si ocurre un error de conexión, muestra un mensaje genérico sin exponer detalles internos.
@@ -47,8 +47,8 @@ El inicio de sesión se implementa en `LoginFX.java`. El flujo es el siguiente:
 | Componente | Archivo | Función |
 |------------|---------|---------|
 | LoginFX | `view/LoginFX.java` | Interfaz de inicio de sesión |
-| AuthenticationService | `service/AuthenticationService.java` | Lógica de autenticación |
-| UsuarioDAO | `dao/UsuarioDAO.java` | Consulta a la base de datos |
+| ServicioAutenticacion | `service/ServicioAutenticacion.java` | Lógica de autenticación |
+| UsuarioDao | `dao/UsuarioDao.java` | Consulta a la base de datos |
 | UserSession | `session/UserSession.java` | Almacenamiento de la sesión |
 
 ---

@@ -1,14 +1,14 @@
 package org.example.carestock;
 
-import org.example.carestock.dao.LoteDAO;
-import org.example.carestock.dao.LoteDAOImpl;
+import org.example.carestock.dao.LoteDao;
+import org.example.carestock.dao.LoteDaoJdbc;
 import org.example.carestock.model.Lote;
 
 import java.util.List;
 
 public class PruebaConexion {
     public static void main(String[] args) {
-        LoteDAO loteDAO = new LoteDAOImpl();
+        LoteDao loteDAO = new LoteDaoJdbc();
 
         try {
             System.out.println("Consultando lotes registrados en Neon DB...\n");
@@ -31,7 +31,7 @@ public class PruebaConexion {
                 }
             }
 
-            System.out.println("\n✅ ¡Tarea 2 completada con éxito! Modelo Lote, LoteDAO y FarmacovigilanciaService listos.");
+            System.out.println("\n✅ ¡Tarea 2 completada con éxito! Modelo Lote, LoteDao y ServicioFarmacovigilancia listos.");
 
         } catch (Exception e) {
             System.err.println("❌ Error al consultar lotes: " + e.getMessage());

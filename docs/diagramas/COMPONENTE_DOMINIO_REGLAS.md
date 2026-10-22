@@ -34,7 +34,7 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 | `AlertaInvima` | Sí | Debe asociarse a un código de medicamento y tener motivo |
 | `Usuario` | No | Contenedor de datos: id, nombre, correo, contraseña y rol |
 
-`RegistroCatalogo<T>` es un registro (`record`) con tres campos: `id`, `producto` y `estado`. Los DAO de catálogo lo usan para devolver cada producto junto con su identificador y su estado, y vive en el paquete `DataTransferObject`.
+`RegistroCatalogo<T>` es un registro (`record`) con tres campos: `id`, `producto` y `estado`. Los DAO de catálogo lo usan para devolver cada producto junto con su identificador y su estado, y vive en el paquete `dto`.
 
 ## 3. Excepción del dominio
 
@@ -44,11 +44,11 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 
 | Usuario del componente | Cómo lo usa |
 |---|---|
-| `AseoDAO` y `MaternidadDAO` | Llaman a `validar()` al guardar |
-| `MedicamentoDAOImpl.guardar` y `Inventario.registrarMedicamento` | Llaman a `validar()` antes del `INSERT` |
-| `RegistroLoteService` | Llama a `lote.validar()` antes de registrar el lote |
-| `InventarioController` | Usa `Lote::esAptoParaDispensar` como filtro de la tabla |
-| `AuthenticationService`, `LoginController` | Lanzan y capturan `ReglaNegocioException` |
+| `AseoDao` y `MaternidadDao` | Llaman a `validar()` al guardar |
+| `MedicamentoDaoJdbc.guardar` y `Inventario.registrarMedicamento` | Llaman a `validar()` antes del `INSERT` |
+| `ServicioRegistroLote` | Llama a `lote.validar()` antes de registrar el lote |
+| `ControladorInventario` | Usa `Lote::esAptoParaDispensar` como filtro de la tabla |
+| `ServicioAutenticacion`, `ControladorInicioSesion` | Lanzan y capturan `ReglaNegocioException` |
 
 ## 5. Observaciones verificadas en el código
 

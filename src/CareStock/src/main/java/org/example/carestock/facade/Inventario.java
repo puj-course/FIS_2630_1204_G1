@@ -1,17 +1,17 @@
 
 package org.example.carestock.facade;
 
-import org.example.carestock.DataTransferObject.ProductoInventario;
-import org.example.carestock.DataTransferObject.RegistroCatalogo;
-import org.example.carestock.config.ConexionBD;
+import org.example.carestock.dto.ProductoInventario;
+import org.example.carestock.dto.RegistroCatalogo;
+import org.example.carestock.config.ConexionBaseDatos;
 import org.example.carestock.dao.*;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.*;
 import org.example.carestock.proxy.ConsultaInventario;
 import org.example.carestock.proxy.InventarioConsultas;
-import org.example.carestock.service.RegistroLoteService;
-import org.example.carestock.service.FarmacovigilanciaService;
-import org.example.carestock.service.ControlVencimientosService;
+import org.example.carestock.service.ServicioRegistroLote;
+import org.example.carestock.service.ServicioFarmacovigilancia;
+import org.example.carestock.service.ServicioControlVencimientos;
 import org.example.carestock.session.SesionUsuario;
 
 import java.sql.Connection;
@@ -19,32 +19,75 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 
+import org.example.carestock.service.ServicioMovimientosProducto;
+
 public class Inventario {
+
+    private final ServicioMovimientosProducto servicioMovimientos =
+            new ServicioMovimientosProducto();
+
+    public ServicioMovimientosProducto.ResultadoMovimiento registrarMovimientoAseo(
+            int idAseo,
+            ServicioMovimientosProducto.TipoMovimiento tipo,
+            int cantidad,
+            String motivo
+    ) throws Exception {
+
+        return escribir(f -> servicioMovimientos.registrar(
+                ServicioMovimientosProducto.Categoria.ASEO,
+                idAseo,
+                tipo,
+                cantidad,
+                motivo,
+                idUsuario,
+                f
+        ));
+    }
+
+    public ServicioMovimientosProducto.ResultadoMovimiento registrarMovimientoMaternidad(
+            int idMaternidad,
+            ServicioMovimientosProducto.TipoMovimiento tipo,
+            int cantidad,
+            String motivo
+    ) throws Exception {
+
+        return escribir(f -> servicioMovimientos.registrar(
+                ServicioMovimientosProducto.Categoria.MATERNIDAD,
+                idMaternidad,
+                tipo,
+                cantidad,
+                motivo,
+                idUsuario,
+                f
+        ));
+    }
+
+
 
     private final int idUsuario;
 
-    private final AseoDAO aseoDAO = new AseoDAO();
-    private final MaternidadDAO maternidadDAO = new MaternidadDAO();
+    private final AseoDao aseoDAO = new AseoDao();
+    private final MaternidadDao maternidadDAO = new MaternidadDao();
 
-    private final MedicamentoDAO medicamentoDAO =
-            new MedicamentoDAOImpl();
+    private final MedicamentoDao medicamentoDAO =
+            new MedicamentoDaoJdbc();
 
-    private final MedicamentoCatalogoDAO medicamentoCatalogoDAO =
-            new MedicamentoCatalogoDAO();
+    private final MedicamentoCatalogoDao medicamentoCatalogoDAO =
+            new MedicamentoCatalogoDao();
 
-    private final LoteDAO loteDAO = new LoteDAOImpl();
+    private final LoteDao loteDAO = new LoteDaoJdbc();
 
     private final ConsultaInventario consulta =
             InventarioConsultas.compartida();
 
-    private final RegistroLoteService registroLoteService =
-            new RegistroLoteService();
+    private final ServicioRegistroLote registroLoteService =
+            new ServicioRegistroLote();
 
-    private final FarmacovigilanciaService farmacovigilanciaService =
-            new FarmacovigilanciaService();
+    private final ServicioFarmacovigilancia farmacovigilanciaService =
+            new ServicioFarmacovigilancia();
 
-    private final ControlVencimientosService controlVencimientosService =
-            new ControlVencimientosService();
+    private final ServicioControlVencimientos controlVencimientosService =
+            new ServicioControlVencimientos();
 
     public Inventario(Usuario usuario) {
         if (usuario == null || usuario.getIdUsuario() <= 0) {
@@ -72,7 +115,7 @@ public class Inventario {
               AND UPPER(TRIM(f.estado)) = 'ACTIVA'
             """;
 
-        try (Connection con = ConexionBD.getConexion();
+        try (Connection con = ConexionBaseDatos.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
@@ -254,7 +297,7 @@ public class Inventario {
                 );
             }
 
-            MedicamentoCatalogoDAO.validarCampos(producto);
+            MedicamentoCatalogoDao.validarCampos(producto);
 
             medicamentoDAO.guardar(producto);
 

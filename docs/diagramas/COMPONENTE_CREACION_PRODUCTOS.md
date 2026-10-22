@@ -46,7 +46,7 @@ El patrón es **Builder con Director**: el director conoce la receta y cada cons
 
 | Pieza | Quién la usa |
 |---|---|
-| `AseoBuilder` y `MaternidadBuilder` | `CatalogoController` (para armar el producto de la pantalla) y `AseoDAO` y `MaternidadDAO` |
+| `AseoBuilder` y `MaternidadBuilder` | `ControladorCatalogo` (para armar el producto de la pantalla) y `AseoDao` y `MaternidadDao` |
 | `ProductoDirector` | Ninguna clase de la aplicación |
 | `MedicamentoBuilder`, `CosmeticoBuilder`, `DispositivoMedicoBuilder` | Ninguna clase de la aplicación fuera de las propias entidades |
 | `Medicamento.builder()` y `DispositivoMedico.builder()` | Nadie los invoca |
@@ -55,7 +55,7 @@ El patrón es **Builder con Director**: el director conoce la receta y cada cons
 
 | Hallazgo | Evidencia |
 |---|---|
-| El Builder **sí está integrado** para los dos productos del catálogo: la pantalla construye con `AseoBuilder` y `MaternidadBuilder` | `CatalogoController` |
+| El Builder **sí está integrado** para los dos productos del catálogo: la pantalla construye con `AseoBuilder` y `MaternidadBuilder` | `ControladorCatalogo` |
 | El Director sigue sin invocarse; sus valores son datos de ejemplo fijos | `ProductoDirector.make` |
 | Existen **dos** clases llamadas `MedicamentoBuilder`: una anidada en `Medicamento` y otra independiente que implementa `Producto` | `Medicamento.java` y `MedicamentoBuilder.java` |
 | `MedicamentoBuilder.setDescripcion` devuelve `null`, lo que rompería un encadenamiento posterior | `MedicamentoBuilder.java` |

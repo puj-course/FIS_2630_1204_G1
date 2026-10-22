@@ -13,7 +13,7 @@ El diagrama modela el flujo de la HU.49 separando la interfaz, la lógica y los 
 
 **Límite (Boundary).** HistorialAccesosFX es la pantalla que muestra el historial. Contiene un ComboBox para filtrar por usuario y una TableView para mostrar los registros.
 
-**Controles.** AccesoDAO accede a la vista vw_historial_accesos para obtener los registros. UsuarioDAO obtiene la lista de usuarios para el filtro.
+**Controles.** AccesoDAO accede a la vista vw_historial_accesos para obtener los registros. UsuarioDao obtiene la lista de usuarios para el filtro.
 
 **Entidades (Entity).** AccesoLog representa un registro del historial. Usuario representa al usuario para el filtro.
 

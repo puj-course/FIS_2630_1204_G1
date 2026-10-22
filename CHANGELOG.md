@@ -31,7 +31,7 @@ El historial se presenta en orden cronológico inverso, conservando las decision
 ### Verificación
 
 - Se obtuvo `BUILD SUCCESS` en la compilación de referencia de `Proxypatch`, con 52 archivos Java compilados.
-- Se corrigió la integración de `main` que previamente presentaba 97 errores por ausencia de `LoteDAO` y `ReglaNegocioException` en el árbol compilado.
+- Se corrigió la integración de `main` que previamente presentaba 97 errores por ausencia de `LoteDao` y `ReglaNegocioException` en el árbol compilado.
 - Queda pendiente registrar la evidencia definitiva de CI/CD y Docker después de la refactorización completa.
 
 ---
@@ -48,7 +48,7 @@ El historial se presenta en orden cronológico inverso, conservando las decision
 
 ### Cambiado
 
-- Se actualizó `ConexionBD` para administrar conexiones reutilizables mediante HikariCP, reduciendo la necesidad de crear conexiones físicas repetidamente.
+- Se actualizó `ConexionBaseDatos` para administrar conexiones reutilizables mediante HikariCP, reduciendo la necesidad de crear conexiones físicas repetidamente.
 - Se incorporó la lectura de credenciales desde `config/conexion-local.properties`.
 - Se habilitaron parámetros configurables para el tamaño del pool de conexiones.
 - Se incorporaron políticas de expiración, invalidación y control de concurrencia dentro de los componentes de caché.
@@ -138,7 +138,7 @@ El historial se presenta en orden cronológico inverso, conservando las decision
 - Se revisaron las consultas y operaciones DAO para utilizar identificadores de farmacia al acceder a los registros.
 - Se incorporó el control explícito de transacciones mediante `setAutoCommit(false)`, `commit()` y `rollback()`.
 - Se buscó garantizar que la actualización de existencias y el registro del movimiento correspondiente se ejecuten de forma atómica.
-- Se revisaron los componentes `LoteDAO`, `DespachoService` y las operaciones de inventario involucradas en las escrituras.
+- Se revisaron los componentes `LoteDao`, `DespachoService` y las operaciones de inventario involucradas en las escrituras.
 
 ### Historias y tareas relacionadas
 
@@ -196,7 +196,7 @@ El historial se presenta en orden cronológico inverso, conservando las decision
 
 - Se integró el código Java inicial bajo el paquete `com.carestock`, correspondiente a la estructura utilizada en esa etapa del proyecto.
 - Se incorporaron los modelos `Lote` y `Ubicacion` sin duplicar la entidad `Medicamento`.
-- Se agregaron componentes de persistencia `LoteDAO`, `UbicacionDAO` y `UsuarioDAO`.
+- Se agregaron componentes de persistencia `LoteDao`, `UbicacionDAO` y `UsuarioDao`.
 - Se incorporó `IngresoLoteService` para coordinar el registro de lotes.
 - Se agregó Maven con dependencias de JavaFX, PostgreSQL JDBC y JUnit.
 - Se incorporaron carpetas de configuración, scripts auxiliares y workflows de CI y empaquetado.
