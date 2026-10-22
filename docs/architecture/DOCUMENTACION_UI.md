@@ -264,3 +264,43 @@ La pantalla de inventario (`inventario-view.fxml`) se migró de la paleta verde-
 **Fuera de alcance (código):** `InventarioController` aplica por código el color de las filas de lotes vencidos (`#FED7D7`) y no disponibles (`#FEEBC8`) y el de la etiqueta del lote seleccionado (`#1A365D` / `#4A5568`). Esos colores no se pueden cambiar desde el FXML y quedan para una historia aparte.
 
 ![Inventario con la paleta oficial](HU119-inventario-paleta.png)
+
+
+## 16. Migración de la Paleta Oficial a la Consulta Unificada y Ajuste del Catálogo (HU-120)
+
+La consulta unificada (`consulta-inventario-view.fxml`) casi no tenía estilos (solo el encabezado en `#0E7C7B`). Se le aplicó la paleta oficial editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Fondo general | sin estilo | Marfil `#FDFBF7` |
+| Encabezado | `#0E7C7B` | Menta `#A7D8D8` |
+| Título del encabezado | `#FFFFFF` | `#20302F` |
+| Botones "Volver" y "Cerrar sesión" | sin estilo | `#20302F` translúcido (igual que el catálogo) |
+| Botón "Registrar producto" (acción primaria) | sin estilo | Lavanda `#B7A6E0` / `#FFFFFF` |
+| Botones "Actualizar datos" y "Editar seleccionado" | sin estilo | Lavanda claro `#EDE7F7` / `#6B5B95` |
+| Campos de búsqueda y categoría | sin estilo | borde `#D0D0D0` |
+| Tabla | sin estilo | borde `#E3D9F5` |
+| Color de foco y selección de filas (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Ajuste del catálogo (`catalogo-view.fxml`):** al revisar HU-102 contra la sección 5 de esta guía se encontraron diferencias, corregidas en HU-120:
+
+- El botón "Desactivar" usaba texto blanco sobre Coral; la guía pide `#7A2E2E` (blanco sobre Coral queda prohibido).
+- Los campos de texto y listas usaban borde `#E3D9F5`; la guía pide `#D0D0D0` en reposo. Las tarjetas conservan `#E3D9F5`.
+- El color de foco y selección de filas usaba el azul por defecto; ahora es Lavanda `#B7A6E0`.
+
+**Fuera de alcance (código):** `ConsultaInventarioController` aplica por código el fondo `#FFF3E0` a la fila de un producto sin existencias. Ese color no se puede cambiar desde el FXML y queda para una historia aparte. La columna "Existencias" mantiene el número, por lo que el color no es la única señal.
+
+**Estado de la migración a la paleta oficial:**
+
+| Pantalla | Archivo | Historia |
+| :--- | :--- | :--- |
+| Login | `login-view.fxml` | HU-118 |
+| Inventario | `inventario-view.fxml` | HU-119 |
+| Catálogo de productos | `catalogo-view.fxml` | HU-102 y HU-120 |
+| Consulta unificada | `consulta-inventario-view.fxml` | HU-120 |
+
+`hello-view.fxml` es la plantilla vacía de JavaFX y no tiene colores.
+
+**Observación de accesibilidad (pendiente de decisión del equipo):** la sección 5 define el botón primario con texto blanco sobre Lavanda `#B7A6E0`. Ese par tiene un contraste de 2.2:1, por debajo del mínimo de 4.5:1 de WCAG 2.1 AA para texto normal. Si el equipo decide corregirlo, bastaría usar texto `#20302F` (contraste 6.3:1) en los botones primarios de todas las pantallas.
+
+![Consulta unificada con la paleta oficial](HU120-consulta-paleta.png)
