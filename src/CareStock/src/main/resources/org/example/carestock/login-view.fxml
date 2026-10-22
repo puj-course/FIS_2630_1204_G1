@@ -7,17 +7,17 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<HBox prefHeight="650.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.carestock.controller.ControladorInicioSesion">
+<HBox prefHeight="650.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.carestock.controller.LoginController">
     <children>
         <!-- Panel Lateral Decorativo -->
-        <VBox alignment="CENTER_LEFT" prefWidth="420.0" spacing="12.0" style="-fx-background-color: linear-gradient(to bottom right, #0E7C7B, #0B615F); -fx-padding: 60;">
+        <VBox alignment="CENTER_LEFT" prefWidth="420.0" spacing="12.0" style="-fx-background-color: #A7D8D8; -fx-padding: 60;">
             <children>
-                <Label text="Control de inventario,&#10;lotes y vencimientos&#10;en un solo lugar." textFill="WHITE" wrapText="true">
+                <Label text="Control de inventario,&#10;lotes y vencimientos&#10;en un solo lugar." textFill="#20302F" wrapText="true">
                     <font>
                         <Font name="System Bold" size="22.0" />
                     </font>
                 </Label>
-                <Label text="Trazabilidad en tiempo real y farmacovigilancia integrada." textFill="#e3f3f2" wrapText="true">
+                <Label text="Trazabilidad en tiempo real y farmacovigilancia integrada." textFill="#2E4A48" wrapText="true">
                     <font>
                         <Font size="13.0" />
                     </font>
@@ -26,22 +26,22 @@
         </VBox>
 
         <!-- Contenedor Centrado de la Tarjeta -->
-        <VBox alignment="CENTER" style="-fx-background-color: #F4FAF9;" HBox.hgrow="ALWAYS">
+        <VBox alignment="CENTER" style="-fx-background-color: #FDFBF7;" HBox.hgrow="ALWAYS">
             <padding>
                 <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
             </padding>
             <children>
                 <!-- Tarjeta de Login -->
-                <VBox alignment="CENTER_LEFT" maxWidth="380.0" spacing="14.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #D6E6E4; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(14,124,123,0.12), 20, 0, 0, 8); -fx-padding: 32;">
+                <VBox alignment="CENTER_LEFT" maxWidth="380.0" spacing="14.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: #E3D9F5; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(183,166,224,0.25), 20, 0, 0, 8); -fx-padding: 32;">
                     <children>
                         <!-- Marca / Logo -->
                         <HBox alignment="CENTER_LEFT" spacing="14.0">
                             <children>
                                 <StackPane prefHeight="44.0" prefWidth="44.0">
                                     <children>
-                                        <Circle fill="#E3F3F2" radius="22.0" />
-                                        <Rectangle fill="#0E7C7B" height="22.0" arcHeight="3.0" arcWidth="3.0" width="6.0" />
-                                        <Rectangle fill="#0E7C7B" height="6.0" arcHeight="3.0" arcWidth="3.0" width="22.0" />
+                                        <Circle fill="#EDE7F7" radius="22.0" />
+                                        <Rectangle fill="#B7A6E0" height="22.0" arcHeight="3.0" arcWidth="3.0" width="6.0" />
+                                        <Rectangle fill="#B7A6E0" height="6.0" arcHeight="3.0" arcWidth="3.0" width="22.0" />
                                     </children>
                                 </StackPane>
                                 <VBox alignment="CENTER_LEFT" spacing="2.0">
@@ -51,7 +51,7 @@
                                                 <Font name="System Bold" size="26.0" />
                                             </font>
                                         </Label>
-                                        <Label text="Sistema de Gestión Farmacéutica" textFill="#6D8683">
+                                        <Label text="Sistema de Gestión Farmacéutica" textFill="#5B6663">
                                             <font>
                                                 <Font name="System Bold" size="12.0" />
                                             </font>
@@ -61,7 +61,7 @@
                             </children>
                         </HBox>
 
-                        <Label text="Inicia sesión para gestionar tu inventario de medicamentos y normatividad INVIMA." textFill="#6D8683" wrapText="true">
+                        <Label text="Inicia sesión para gestionar tu inventario de medicamentos y normatividad INVIMA." textFill="#5B6663" wrapText="true">
                             <font>
                                 <Font size="12.0" />
                             </font>
@@ -75,7 +75,7 @@
                                         <Font name="System Bold" size="12.0" />
                                     </font>
                                 </Label>
-                                <TextField fx:id="txtEmail" onAction="#onEmailAction" prefHeight="42.0" promptText="nombre@carestock.com" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                <TextField fx:id="txtEmail" onAction="#onEmailAction" prefHeight="42.0" promptText="nombre@carestock.com" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0; -fx-padding: 0 12;" />
                             </children>
                         </VBox>
 
@@ -87,23 +87,23 @@
                                         <Font name="System Bold" size="12.0" />
                                     </font>
                                 </Label>
-                                <PasswordField fx:id="txtPassword" onAction="#onPasswordAction" prefHeight="42.0" promptText="••••••••" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D6E6E4; -fx-padding: 0 12;" />
+                                <PasswordField fx:id="txtPassword" onAction="#onPasswordAction" prefHeight="42.0" promptText="••••••••" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0; -fx-padding: 0 12;" />
                             </children>
                         </VBox>
 
-                        <CheckBox fx:id="chkRecordarme" text="Recordar mi correo" textFill="#6D8683">
+                        <CheckBox fx:id="chkRecordarme" text="Recordar mi correo" textFill="#5B6663">
                             <font>
                                 <Font size="11.0" />
                             </font>
                         </CheckBox>
 
-                        <Button fx:id="btnIngresar" defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#onIngresar" prefHeight="44.0" style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Iniciar sesión" />
+                        <Button fx:id="btnIngresar" defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#onIngresar" prefHeight="44.0" style="-fx-background-color: #B7A6E0; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Iniciar sesión" />
 
                         <Label fx:id="lblNotificacion" maxWidth="1.7976931348623157E308" visible="false" wrapText="true" />
 
-                        <Separator style="-fx-background-color: #D6E6E4;" />
+                        <Separator style="-fx-background-color: #E3D9F5;" />
 
-                        <Label text="Acceso exclusivo para personal autorizado de farmacia y regentes IPS." textFill="#6D8683" wrapText="true">
+                        <Label text="Acceso exclusivo para personal autorizado de farmacia y regentes IPS." textFill="#5B6663" wrapText="true">
                             <font>
                                 <Font size="10.0" />
                             </font>
