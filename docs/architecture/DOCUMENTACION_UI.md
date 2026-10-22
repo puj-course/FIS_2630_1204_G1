@@ -214,3 +214,26 @@ El catálogo de productos (`catalogo-view.fxml`) usaba un esquema verde-azulado 
 **Contraste:** el encabezado pasó de fondo oscuro a Menta claro, por lo que el texto del título cambió de blanco a `#20302F` para mantener legibilidad (criterio WCAG 2.1 AA).
 
 **Pendiente:** `login-view.fxml` e `inventario-view.fxml` todavía usan el esquema anterior. Queda para una historia futura migrarlos con esta tabla como referencia.
+
+
+## 14. Migración de la Paleta Oficial a la Pantalla de Login (HU-118)
+
+La pantalla de inicio de sesión (`login-view.fxml`) usaba el esquema verde-azulado anterior (`#0E7C7B`, `#0B615F`, `#F4FAF9`...). Se migró a la paleta oficial de la sección 1 editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Panel lateral de marca | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
+| Texto del panel lateral | `#FFFFFF` / `#E3F3F2` | `#20302F` / `#2E4A48` |
+| Fondo del lado del formulario | `#F4FAF9` | Marfil `#FDFBF7` |
+| Borde y sombra de la tarjeta | `#D6E6E4` / sombra verde | `#E3D9F5` / sombra Lavanda |
+| Logo (círculo y cruz) | `#E3F3F2` / `#0E7C7B` | `#EDE7F7` / Lavanda `#B7A6E0` |
+| Texto secundario | `#6D8683` | `#5B6663` |
+| Botón "Iniciar sesión" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` / `#FFFFFF` |
+| Borde de los campos en reposo | `#D6E6E4` | `#D0D0D0` |
+| Color de foco y selección (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Contraste y accesibilidad:** el panel lateral pasó de fondo oscuro a Menta claro, por lo que sus textos pasaron de blanco a `#20302F` y `#2E4A48` (contraste sobre Menta de 8.8:1 y 6.2:1), según WCAG 2.1 AA.
+
+**Fuera de alcance (código):** `LoginController` aplica por código el borde de los campos con foco (`#0E7C7B`) y los colores de los mensajes de error y éxito (`#FDEDEC` / `#C0392B` y `#EAFAF1` / `#27AE60`). Esos colores no se pueden cambiar desde el FXML y quedan para una historia aparte.
+
+![Login con la paleta oficial](HU118-login-paleta.png)
