@@ -208,9 +208,99 @@ El catálogo de productos (`catalogo-view.fxml`) usaba un esquema verde-azulado 
 | Encabezado | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
 | Botón "Registrar" y "Consulta unificada" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` |
 | Botones secundarios ("Nuevo", "Actualizar", "Actualizar lista") | `#E3F3F2` / `#0E7C7B` | Lavanda claro `#EDE7F7` / `#6B5B95` |
-| Botón "Desactivar" (acción crítica) | `#FDECEA` / `#C53030` | Coral `#F0A8A8` |
-| Bordes de tarjetas y campos | `#D6E6E4` | `#E3D9F5` (derivado de Lavanda) |
+| Botón "Desactivar" (acción crítica) | `#FDECEA` / `#C53030` | Coral `#F0A8A8` con texto `#7A2E2E` |
+| Bordes de tarjetas | `#D6E6E4` | `#E3D9F5` (derivado de Lavanda) |
+| Bordes de campos de texto y listas | `#D6E6E4` | `#D0D0D0` (sección 5) |
 
 **Contraste:** el encabezado pasó de fondo oscuro a Menta claro, por lo que el texto del título cambió de blanco a `#20302F` para mantener legibilidad (criterio WCAG 2.1 AA).
 
-**Pendiente:** `login-view.fxml` e `inventario-view.fxml` todavía usan el esquema anterior. Queda para una historia futura migrarlos con esta tabla como referencia.
+**Actualización:** el login, el inventario y la consulta unificada se migraron después con esta misma tabla (secciones 14, 15 y 16). El texto del botón "Desactivar" y el borde de los campos se ajustaron a la sección 5 en HU-120. Los colores que el código Java asigna mientras la app corre quedaron fuera de alcance (ver "Fuera de alcance" en las secciones 14, 15 y 16).
+
+## 14. Migración de la Paleta Oficial a la Pantalla de Login (HU-118)
+
+La pantalla de inicio de sesión (`login-view.fxml`) usaba el esquema verde-azulado anterior (`#0E7C7B`, `#0B615F`, `#F4FAF9`...). Se migró a la paleta oficial de la sección 1 editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Panel lateral de marca | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
+| Texto del panel lateral | `#FFFFFF` / `#E3F3F2` | `#20302F` / `#2E4A48` |
+| Fondo del lado del formulario | `#F4FAF9` | Marfil `#FDFBF7` |
+| Borde y sombra de la tarjeta | `#D6E6E4` / sombra verde | `#E3D9F5` / sombra Lavanda |
+| Logo (círculo y cruz) | `#E3F3F2` / `#0E7C7B` | `#EDE7F7` / Lavanda `#B7A6E0` |
+| Texto secundario | `#6D8683` | `#5B6663` |
+| Botón "Iniciar sesión" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` / `#FFFFFF` |
+| Borde de los campos en reposo | `#D6E6E4` | `#D0D0D0` |
+| Color de foco y selección (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Contraste y accesibilidad:** el panel lateral pasó de fondo oscuro a Menta claro, por lo que sus textos pasaron de blanco a `#20302F` y `#2E4A48` (contraste sobre Menta de 8.8:1 y 6.2:1), según WCAG 2.1 AA.
+
+**Fuera de alcance (código):** `LoginController` aplica por código el borde de los campos con foco (`#0E7C7B`) y los colores de los mensajes de error y éxito (`#FDEDEC` / `#C0392B` y `#EAFAF1` / `#27AE60`). Esos colores no se pueden cambiar desde el FXML y quedan para una historia aparte.
+
+![Login con la paleta oficial](HU118-login-paleta.png)
+
+
+
+## 15. Migración de la Paleta Oficial a la Pantalla de Inventario (HU-119)
+
+La pantalla de inventario (`inventario-view.fxml`) se migró de la paleta verde-azulada anterior a la paleta oficial editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Fondo general | `#F4FAF9` | Marfil `#FDFBF7` |
+| Cabecera | gradiente `#0E7C7B` → `#0B615F` | Menta `#A7D8D8` |
+| Textos de la cabecera | `#FFFFFF` / `#E3F3F2` / `#BFE3E1` | `#20302F` / `#2E4A48` |
+| Tarjetas de sesión (usuario, rol, farmacia) | blanco translúcido | Marfil translúcido |
+| Botón "Catálogo", "Actualizar tabla" y "Dispensar medicamento" (acción primaria) | `#0E7C7B` / `#FFFFFF` | Lavanda `#B7A6E0` / `#FFFFFF` |
+| Botón "Cerrar sesión" | blanco translúcido | `#20302F` translúcido (igual que el catálogo) |
+| Borde de tarjetas y tablas | `#D6E6E4` | `#E3D9F5` |
+| Borde de campos (búsqueda, categoría, cantidad) | `#D6E6E4` | `#D0D0D0` |
+| Tarjeta "Total de lotes" | `#0E7C7B` | número `#6B5B95`, borde `#E3D9F5` |
+| Tarjeta "Lotes vencidos" | `#C53030` | número `#7A2E2E`, borde Coral `#F0A8A8` |
+| Tarjeta "Dispensación / Disponibles" | `#2F855A` | texto `#2F6F6F`, borde Menta `#A7D8D8` |
+| Color de foco y selección de filas (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Accesibilidad:** las tarjetas conservan el texto explícito (por ejemplo "LOTES VENCIDOS") y la columna "Estado" de la tabla muestra el estado en texto, así que el color no es la única señal (WCAG 2.1 AA). Los textos sobre Coral y Durazno son oscuros, nunca blancos.
+
+**Fuera de alcance (código):** `InventarioController` aplica por código el color de las filas de lotes vencidos (`#FED7D7`) y no disponibles (`#FEEBC8`) y el de la etiqueta del lote seleccionado (`#1A365D` / `#4A5568`). Esos colores no se pueden cambiar desde el FXML y quedan para una historia aparte.
+
+![Inventario con la paleta oficial](HU119-inventario-paleta.png)
+
+
+## 16. Migración de la Paleta Oficial a la Consulta Unificada y Ajuste del Catálogo (HU-120)
+
+La consulta unificada (`consulta-inventario-view.fxml`) casi no tenía estilos (solo el encabezado en `#0E7C7B`). Se le aplicó la paleta oficial editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Fondo general | sin estilo | Marfil `#FDFBF7` |
+| Encabezado | `#0E7C7B` | Menta `#A7D8D8` |
+| Título del encabezado | `#FFFFFF` | `#20302F` |
+| Botones "Volver" y "Cerrar sesión" | sin estilo | `#20302F` translúcido (igual que el catálogo) |
+| Botón "Registrar producto" (acción primaria) | sin estilo | Lavanda `#B7A6E0` / `#FFFFFF` |
+| Botones "Actualizar datos" y "Editar seleccionado" | sin estilo | Lavanda claro `#EDE7F7` / `#6B5B95` |
+| Campos de búsqueda y categoría | sin estilo | borde `#D0D0D0` |
+| Tabla | sin estilo | borde `#E3D9F5` |
+| Color de foco y selección de filas (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Ajuste del catálogo (`catalogo-view.fxml`):** al revisar HU-102 contra la sección 5 de esta guía se encontraron diferencias, corregidas en HU-120:
+
+- El botón "Desactivar" usaba texto blanco sobre Coral; la guía pide `#7A2E2E` (blanco sobre Coral queda prohibido).
+- Los campos de texto y listas usaban borde `#E3D9F5`; la guía pide `#D0D0D0` en reposo. Las tarjetas conservan `#E3D9F5`.
+- El color de foco y selección de filas usaba el azul por defecto; ahora es Lavanda `#B7A6E0`.
+
+**Fuera de alcance (código):** `ConsultaInventarioController` aplica por código el fondo `#FFF3E0` a la fila de un producto sin existencias. Ese color no se puede cambiar desde el FXML y queda para una historia aparte. La columna "Existencias" mantiene el número, por lo que el color no es la única señal.
+
+**Estado de la migración a la paleta oficial:**
+
+| Pantalla | Archivo | Historia |
+| :--- | :--- | :--- |
+| Login | `login-view.fxml` | HU-118 |
+| Inventario | `inventario-view.fxml` | HU-119 |
+| Catálogo de productos | `catalogo-view.fxml` | HU-102 y HU-120 |
+| Consulta unificada | `consulta-inventario-view.fxml` | HU-120 |
+
+`hello-view.fxml` es la plantilla vacía de JavaFX y no tiene colores.
+
+**Observación de accesibilidad (pendiente de decisión del equipo):** la sección 5 define el botón primario con texto blanco sobre Lavanda `#B7A6E0`. Ese par tiene un contraste de 2.2:1, por debajo del mínimo de 4.5:1 de WCAG 2.1 AA para texto normal. Si el equipo decide corregirlo, bastaría usar texto `#20302F` (contraste 6.3:1) en los botones primarios de todas las pantallas.
+
+![Consulta unificada con la paleta oficial](HU120-consulta-paleta.png)
