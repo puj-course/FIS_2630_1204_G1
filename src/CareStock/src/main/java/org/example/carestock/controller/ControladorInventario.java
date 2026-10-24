@@ -335,10 +335,11 @@ public class ControladorInventario {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
-            @FXML
+               @FXML
     private void onExportarCSV() {
-        if (tablaLotes.getItems().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Sin datos", "No hay lotes en la tabla para exportar.");
+        if (tablaLotes.getItems() == null || tablaLotes.getItems().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Sin datos para exportar", 
+                    "No hay lotes visibles en la tabla. Si aplicaste filtros, intenta limpiarlos antes de exportar.");
             return;
         }
 
@@ -354,6 +355,7 @@ public class ControladorInventario {
             try (java.io.PrintWriter writer = new java.io.PrintWriter(archivo, "UTF-8")) {
                 
                 writer.println("ID Lote;Numero Lote;ID Medicamento;Cantidad;Fecha Vencimiento;Estado");
+
                 for (Lote lote : tablaLotes.getItems()) {
                     writer.println(
                             lote.getIdLote() + ";" +
@@ -366,7 +368,7 @@ public class ControladorInventario {
                 }
 
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Exportación Exitosa", 
-                        "El archivo CSV se guardó correctamente en:\n" + archivo.getAbsolutePath());
+                        "El archivo CSV se guardó correctamente con " + tablaLotes.getItems().size() + " registros.\n\nRuta:\n" + archivo.getAbsolutePath());
 
             } catch (java.io.IOException e) {
                 mostrarAlerta(Alert.AlertType.ERROR, "Error de Exportación", 
