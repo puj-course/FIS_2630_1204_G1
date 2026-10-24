@@ -208,6 +208,25 @@ public class AplicacionCareStock extends Application {
         );
     }
 
+    public void mostrarFormularioAjustes() {
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+        var sesion = SesionUsuario.actual();
+        String rol = sesion.rol() == null ? "" : sesion.rol().trim();
+        boolean admin = "ADMINISTRADOR".equalsIgnoreCase(rol)
+                || "SUPER_ADMIN".equalsIgnoreCase(rol);
+        if (!admin || sesion.idFarmacia() == null) {
+            Alert alerta = new Alert(Alert.AlertType.WARNING,
+                    "Solo administradores con farmacia asignada pueden ajustar existencias.");
+            alerta.setHeaderText(null);
+            alerta.showAndWait();
+            return;
+        }
+        transicionarEscena("/org/example/carestock/ajustes-view.fxml", 1100, 750);
+    }
+
     public void cerrarSesion() {
 
         SesionUsuario.cerrar();
