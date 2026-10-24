@@ -351,6 +351,24 @@
                                   prefWidth="220.0"
                                   promptText="Seleccionar categoría"
                                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;" />
+        
+                        <Label text="Desde:"
+                               textFill="#20302F"
+                               style="-fx-font-weight: bold; -fx-font-size: 12;" />
+                        
+                        <DatePicker fx:id="dateInicio"
+                                    prefHeight="42.0"
+                                    promptText="Fecha Inicio"
+                                    style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;" />
+
+                        <Label text="Hasta:"
+                               textFill="#20302F"
+                               style="-fx-font-weight: bold; -fx-font-size: 12;" />
+                        
+                        <DatePicker fx:id="dateFin"
+                                    prefHeight="42.0"
+                                    promptText="Fecha Fin"
+                                    style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;" />
 
                     </children>
                 </HBox>
