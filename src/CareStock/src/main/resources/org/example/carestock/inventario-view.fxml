@@ -199,6 +199,10 @@
                         </Label>
 
                         <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnExportarCSV"
+                                text="Exportar CSV"
+                                onAction="#onExportarCSV"
+                                style="-fx-background-color: #FDFBF7; -fx-text-fill: #6B5B95; -fx-border-color: #B7A6E0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 18;" />
 
                         <Button text="Actualizar tabla"
                                 onAction="#onRefrescar"
