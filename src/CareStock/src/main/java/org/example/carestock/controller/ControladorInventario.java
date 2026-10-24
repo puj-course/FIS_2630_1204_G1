@@ -36,6 +36,7 @@ public class ControladorInventario {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private Button btnExportarCSV;
 
     @FXML private Label lblTotalLotes;
     @FXML private Label lblLotesVencidos;
@@ -333,5 +334,10 @@ public class ControladorInventario {
         alert.setHeaderText(titulo);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+        @FXML
+    private void onExportarCSV() {
+        // Aquí irá el siguiente subissue (#805)
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Exportar CSV", "Botón listo. La lógica se implementará en el issue #805.");
     }
 }
