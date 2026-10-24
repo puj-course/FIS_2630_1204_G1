@@ -54,6 +54,8 @@ public class ControladorInventario {
     @FXML private TextField txtBuscar;
     @FXML private TextField txtCantidad;
     @FXML private ComboBox<String> cmbCategoria;
+    @FXML private DatePicker dateInicio;
+    @FXML private DatePicker dateFin;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
