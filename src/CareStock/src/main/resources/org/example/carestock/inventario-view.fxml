@@ -208,6 +208,21 @@
                         </Label>
 
                         <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnNuevoLote"
+                                text="+ Crear lote"
+                                onAction="#onCrearLote"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+
+                        <Button fx:id="btnEditarLote"
+                                text="Editar lote"
+                                onAction="#onEditarLote"
+                                style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+
+                        <Button fx:id="btnRetirarLote"
+                                text="Retirar lote"
+                                onAction="#onRetirarLote"
+                                style="-fx-background-color: #FCE8E8; -fx-text-fill: #A93232; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+
                         <Button fx:id="btnExportarCSV"
                                 text="Exportar CSV"
                                 onAction="#onExportarCSV"

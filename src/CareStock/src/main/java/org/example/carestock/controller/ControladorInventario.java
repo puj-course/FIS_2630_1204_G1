@@ -39,6 +39,9 @@ public class ControladorInventario {
     @FXML private Button btnHistorial;
     @FXML private Button btnAjustes;
     @FXML private Button btnExportarCSV;
+    @FXML private Button btnNuevoLote;
+    @FXML private Button btnEditarLote;
+    @FXML private Button btnRetirarLote;
 
     @FXML private Label lblTotalLotes;
     @FXML private Label lblLotesVencidos;
@@ -83,6 +86,15 @@ public class ControladorInventario {
         boolean puedeConsultarCatalogo = sesion.idFarmacia() != null;
         btnCatalogo.setVisible(puedeConsultarCatalogo);
         btnCatalogo.setManaged(puedeConsultarCatalogo);
+        boolean puedeGestionarLotes = SesionUsuario.esAdministrador()
+                || "SUPER_ADMIN".equalsIgnoreCase(sesion.rol())
+                || "FARMACEUTICO".equalsIgnoreCase(sesion.rol());
+        puedeGestionarLotes = puedeGestionarLotes
+                && sesion.idFarmacia() != null;
+        for (Button boton : List.of(btnNuevoLote, btnEditarLote, btnRetirarLote)) {
+            boton.setVisible(puedeGestionarLotes);
+            boton.setManaged(puedeGestionarLotes);
+        }
         String rolHistorial = sesion.rol() == null ? "" : sesion.rol().trim();
         boolean puedeVerHistorial = puedeConsultarCatalogo
                 && ("ADMINISTRADOR".equalsIgnoreCase(rolHistorial)
@@ -207,6 +219,9 @@ public class ControladorInventario {
     }
 
     private String estadoMostrado(Lote lote) {
+        if ("RETENIDO".equalsIgnoreCase(lote.getEstadoLote())) {
+            return "RETENIDO";
+        }
         if (lote.getFechaVencimiento() != null
                 && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
             return "DESHABILITADO";
@@ -232,6 +247,39 @@ public class ControladorInventario {
                 }
             }
         });
+    }
+
+    @FXML
+    private void onCrearLote() {
+        GestorLotesDialogo gestor = new GestorLotesDialogo(
+                tablaLotes.getScene().getWindow());
+        if (gestor.crear()) onRefrescar();
+    }
+
+    @FXML
+    private void onEditarLote() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING,
+                    "Seleccion requerida",
+                    "Selecciona primero un lote de la tabla.");
+            return;
+        }
+        GestorLotesDialogo gestor = new GestorLotesDialogo(
+                tablaLotes.getScene().getWindow());
+        if (gestor.editar(loteSeleccionado)) onRefrescar();
+    }
+
+    @FXML
+    private void onRetirarLote() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING,
+                    "Seleccion requerida",
+                    "Selecciona primero un lote de la tabla.");
+            return;
+        }
+        GestorLotesDialogo gestor = new GestorLotesDialogo(
+                tablaLotes.getScene().getWindow());
+        if (gestor.retirar(loteSeleccionado)) onRefrescar();
     }
 
     @FXML
