@@ -335,9 +335,43 @@ public class ControladorInventario {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
-        @FXML
+            @FXML
     private void onExportarCSV() {
-        // Aquí irá el siguiente subissue (#805)
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Exportar CSV", "Botón listo. La lógica se implementará en el issue #805.");
+        if (tablaLotes.getItems().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Sin datos", "No hay lotes en la tabla para exportar.");
+            return;
+        }
+
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        fileChooser.setTitle("Guardar Historial de Lotes");
+        fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("Archivos CSV (*.csv)", "*.csv")
+        );
+        
+        java.io.File archivo = fileChooser.showSaveDialog(tablaLotes.getScene().getWindow());
+
+        if (archivo != null) {
+            try (java.io.PrintWriter writer = new java.io.PrintWriter(archivo, "UTF-8")) {
+                
+                writer.println("ID Lote;Numero Lote;ID Medicamento;Cantidad;Fecha Vencimiento;Estado");
+                for (Lote lote : tablaLotes.getItems()) {
+                    writer.println(
+                            lote.getIdLote() + ";" +
+                            lote.getNumeroLote() + ";" +
+                            lote.getIdMedicamento() + ";" +
+                            lote.getCantidadActual() + ";" +
+                            lote.getFechaVencimiento() + ";" +
+                            lote.getEstadoLote()
+                    );
+                }
+
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Exportación Exitosa", 
+                        "El archivo CSV se guardó correctamente en:\n" + archivo.getAbsolutePath());
+
+            } catch (java.io.IOException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de Exportación", 
+                        "No se pudo guardar el archivo: " + e.getMessage());
+            }
+        }
     }
 }
