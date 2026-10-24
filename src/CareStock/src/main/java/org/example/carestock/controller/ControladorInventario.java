@@ -36,6 +36,7 @@ public class ControladorInventario {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private Button btnHistorial;
     @FXML private Button btnAjustes;
     @FXML private Button btnExportarCSV;
 
@@ -82,6 +83,12 @@ public class ControladorInventario {
         boolean puedeConsultarCatalogo = sesion.idFarmacia() != null;
         btnCatalogo.setVisible(puedeConsultarCatalogo);
         btnCatalogo.setManaged(puedeConsultarCatalogo);
+        String rolHistorial = sesion.rol() == null ? "" : sesion.rol().trim();
+        boolean puedeVerHistorial = puedeConsultarCatalogo
+                && ("ADMINISTRADOR".equalsIgnoreCase(rolHistorial)
+                    || "FARMACEUTICO".equalsIgnoreCase(rolHistorial));
+        btnHistorial.setVisible(puedeVerHistorial);
+        btnHistorial.setManaged(puedeVerHistorial);
         String rol = sesion.rol() == null ? "" : sesion.rol().trim();
         boolean puedeAjustar = puedeConsultarCatalogo
                 && ("ADMINISTRADOR".equalsIgnoreCase(rol)
@@ -238,6 +245,11 @@ public class ControladorInventario {
     @FXML
     private void onAbrirAjustes() {
         AplicacionCareStock.getInstance().mostrarFormularioAjustes();
+    }
+
+    @FXML
+    private void onAbrirHistorial() {
+        AplicacionCareStock.getInstance().mostrarHistorialMovimientos();
     }
 
     @FXML

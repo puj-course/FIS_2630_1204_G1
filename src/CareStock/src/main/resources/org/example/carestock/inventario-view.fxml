@@ -77,6 +77,11 @@
                                 onAction="#onAbrirAjustes"
                                 style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 16;" />
 
+                        <Button fx:id="btnHistorial"
+                                text="Historial de movimientos"
+                                onAction="#onAbrirHistorial"
+                                style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 16;" />
+
                         <Button fx:id="btnCatalogo"
                                 text="Catálogo"
                                 onAction="#onAbrirCatalogo"

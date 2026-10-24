@@ -227,6 +227,31 @@ public class AplicacionCareStock extends Application {
         transicionarEscena("/org/example/carestock/ajustes-view.fxml", 1100, 750);
     }
 
+    public void mostrarHistorialMovimientos() {
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        var sesion = SesionUsuario.actual();
+        String rol = sesion.rol() == null ? "" : sesion.rol().trim();
+        boolean autorizado = "ADMINISTRADOR".equalsIgnoreCase(rol)
+                || "FARMACEUTICO".equalsIgnoreCase(rol);
+
+        if (!autorizado || sesion.idFarmacia() == null
+                || sesion.idFarmacia() <= 0) {
+            Alert aviso = new Alert(Alert.AlertType.WARNING,
+                    "Solo Administrador y Farmaceutico con farmacia asignada pueden consultar el historial.");
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
+            return;
+        }
+
+        transicionarEscena(
+                "/org/example/carestock/historial-movimientos-view.fxml",
+                1200, 760);
+    }
+
     public void cerrarSesion() {
 
         SesionUsuario.cerrar();
