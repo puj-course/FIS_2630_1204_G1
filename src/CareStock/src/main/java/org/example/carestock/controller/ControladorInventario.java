@@ -147,6 +147,9 @@ public class ControladorInventario {
 
         configurarEstiloFilas();
         configurarFiltroBusqueda();
+                // #809: Configurar los DatePickers para el filtro
+        dateInicio.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
 
         // Selección intuitiva de fila
         tablaLotes.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -177,17 +180,36 @@ public class ControladorInventario {
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
 
-    private void aplicarFiltros() {
-        datosFiltrados.setPredicate(filtroTexto.and(filtroEstado).and(filtroCategoria));
-    }
+        private void aplicarFiltros() {
 
-    private void aplicarFiltroTexto(String texto) {
+        LocalDate inicio = dateInicio.getValue();
+        LocalDate fin = dateFin.getValue();
+
+        Predicate<Lote> filtroFechas = lote -> {
+            if (lote.getFechaIngreso() == null) return false;
+            LocalDate fechaLote = lote.getFechaIngreso().toLocalDate();
+            
+            boolean cumpleInicio = (inicio == null) || !fechaLote.isBefore(inicio);
+            boolean cumpleFin = (fin == null) || !fechaLote.isAfter(fin);
+            
+            return cumpleInicio && cumpleFin;
+        };
+
+        datosFiltrados.setPredicate(filtroTexto.and(filtroEstado).and(filtroCategoria).and(filtroFechas));
+
+        if (datosFiltrados.isEmpty()) {
+            tablaLotes.setPlaceholder(new Label("No hay movimientos en este rango de fechas."));
+        } else {
+            tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
+        }
+    }
+    
+        private void aplicarFiltroTexto(String texto) {
         String filtro = texto == null ? "" : texto.toLowerCase().trim();
         filtroTexto = lote -> filtro.isEmpty()
                 || (lote.getNumeroLote() != null && lote.getNumeroLote().toLowerCase().contains(filtro))
                 || String.valueOf(lote.getIdMedicamento()).contains(filtro)
-                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro))
-                || estadoMostrado(lote).toLowerCase().contains(filtro);
+                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro));
         aplicarFiltros();
     }
 
@@ -205,6 +227,8 @@ public class ControladorInventario {
         filtroEstado = lote -> true;
         txtBuscar.clear();
         cmbCategoria.getSelectionModel().selectFirst();
+        dateInicio.setValue(null); 
+        dateFin.setValue(null);   
         aplicarFiltros();
     }
 
