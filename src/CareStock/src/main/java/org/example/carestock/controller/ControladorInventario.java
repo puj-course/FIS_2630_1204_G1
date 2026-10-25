@@ -177,6 +177,15 @@ public class ControladorInventario {
             tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
         }
     }
+    
+        private void aplicarFiltroTexto(String texto) {
+        String filtro = texto == null ? "" : texto.toLowerCase().trim();
+        filtroTexto = lote -> filtro.isEmpty()
+                || (lote.getNumeroLote() != null && lote.getNumeroLote().toLowerCase().contains(filtro))
+                || String.valueOf(lote.getIdMedicamento()).contains(filtro)
+                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro));
+        aplicarFiltros();
+    }
 
     private void aplicarFiltroCategoria(String categoria) {
         if (categoria == null || CATEGORIA_TODAS.equals(categoria)) {
