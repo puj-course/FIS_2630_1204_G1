@@ -110,23 +110,38 @@ public class ServicioFarmacovigilancia {
                     }
                 }
 
-                String modificarMedicamento = """
-                        UPDATE medicamentos
-                        SET stock_total = stock_total - ?,
+                String recalcularStock = """
+                        UPDATE medicamentos m
+                        SET stock_total = COALESCE((
+                                SELECT SUM(l.cantidad_actual)
+                                FROM lotes l
+                                WHERE l.id_medicamento = m.id_medicamento
+                                  AND l.estado_lote = 'DISPONIBLE'
+                                  AND l.fecha_vencimiento > CURRENT_DATE
+                            ), 0),
                             id_usuario_modificacion = ?, fecha_modificacion = NOW()
-                        WHERE id_medicamento = ? AND id_farmacia = ?
-                          AND stock_total >= ?
+                        WHERE m.id_medicamento = ? AND m.id_farmacia = ?
                         """;
-                try (PreparedStatement ps = con.prepareStatement(modificarMedicamento)) {
-                    ps.setInt(1, cantidad);
-                    ps.setInt(2, idUsuario);
-                    ps.setInt(3, idMedicamento);
-                    ps.setInt(4, idFarmacia);
-                    ps.setInt(5, cantidad);
+                try (PreparedStatement ps = con.prepareStatement(recalcularStock)) {
+                    ps.setInt(1, idUsuario);
+                    ps.setInt(2, idMedicamento);
+                    ps.setInt(3, idFarmacia);
                     if (ps.executeUpdate() != 1) {
-                        throw new ReglaNegocioException(
-                                "Stock inconsistente: revisar existencias antes de dispensar");
+                        throw new SQLException("No se pudo actualizar el stock total");
                     }
+                }
+                String registrarSalida = """
+                        INSERT INTO log_movimientos
+                            (id_usuario, id_lote, tipo_movimiento,
+                             cantidad_afectada, detalle_cambio)
+                        VALUES (?, ?, 'SALIDA', ?, ?)
+                        """;
+                try (PreparedStatement ps = con.prepareStatement(registrarSalida)) {
+                    ps.setInt(1, idUsuario);
+                    ps.setInt(2, idLote);
+                    ps.setInt(3, cantidad);
+                    ps.setString(4, "Dispensación del lote " + numeroLote);
+                    ps.executeUpdate();
                 }
 
                 con.commit();
