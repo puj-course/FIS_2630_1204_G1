@@ -49,15 +49,28 @@ public class ServicioRegistroLote {
                         lote.setIdLote(rs.getInt(1));
                     }
                 }
-                String incrementar = "UPDATE medicamentos SET stock_total=stock_total+?, " +
+                String recalcular = "UPDATE medicamentos SET stock_total = COALESCE((" +
+                        "SELECT SUM(l.cantidad_actual) FROM lotes l " +
+                        "WHERE l.id_medicamento = medicamentos.id_medicamento " +
+                        "AND l.estado_lote = 'DISPONIBLE' " +
+                        "AND l.fecha_vencimiento > CURRENT_DATE), 0), " +
                         "fecha_modificacion=NOW(), id_usuario_modificacion=? " +
                         "WHERE id_medicamento=? AND id_farmacia=?";
-                try (PreparedStatement ps = con.prepareStatement(incrementar)) {
-                    ps.setInt(1,lote.getCantidadActual());
-                    ps.setInt(2,idUsuario);
-                    ps.setInt(3,lote.getIdMedicamento());
-                    ps.setInt(4,idFarmacia);
+                try (PreparedStatement ps = con.prepareStatement(recalcular)) {
+                    ps.setInt(1,idUsuario);
+                    ps.setInt(2,lote.getIdMedicamento());
+                    ps.setInt(3,idFarmacia);
                     if(ps.executeUpdate()!=1) throw new SQLException("No se pudo actualizar stock_total");
+                }
+                String registrarEntrada = "INSERT INTO log_movimientos " +
+                        "(id_usuario,id_lote,tipo_movimiento,cantidad_afectada,detalle_cambio) " +
+                        "VALUES (?,?,'ENTRADA',?,?)";
+                try (PreparedStatement ps = con.prepareStatement(registrarEntrada)) {
+                    ps.setInt(1,idUsuario);
+                    ps.setInt(2,lote.getIdLote());
+                    ps.setInt(3,lote.getCantidadActual());
+                    ps.setString(4,"Entrada del lote " + lote.getNumeroLote());
+                    ps.executeUpdate();
                 }
                 con.commit();
                 return lote;
