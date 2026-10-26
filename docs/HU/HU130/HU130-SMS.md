@@ -89,3 +89,85 @@ Desde src/CareStock:
 
 El estado ACEPTADA indica aceptacion por el proveedor,
 no entrega confirmada al telefono.
+
+## Integracion con Simple SMS Gateway
+
+### Implementacion
+
+Se incorporo Simple SMS Gateway como proveedor adicional
+de notificaciones SMS para CareStock.
+
+El servicio utiliza un telefono Android con SIM activa
+para enviar mensajes SMS tradicionales mediante la API local.
+
+El proveedor se selecciona con:
+
+SMS_PROVIDER=simple-android
+
+### Arquitectura
+
+CareStock / ProcesoSms
+    |
+    v
+ServicioAlertasSms
+    |
+    v
+ServicioSmsSimpleAndroid
+    |
+    v
+Simple SMS Gateway (Android)
+    |
+    v
+Red del operador movil
+    |
+    v
+Destinatario autorizado
+
+### Funcionalidades
+
+- Envio de SMS reales con contenido personalizado.
+- Identificacion de farmacia y productos afectados.
+- Reutilizacion de la interfaz ServicioSms.
+- Compatibilidad con el sistema de alertas existente.
+- Validacion de destinatarios autorizados.
+- Registro de resultados mediante ResultadoSms.
+- Conservacion de las implementaciones Twilio y simulada.
+
+### Pruebas realizadas
+
+Se comprobo el envio de un SMS personalizado desde
+CareStock utilizando un Android con Simple SMS Gateway.
+
+Se verifico la conectividad local del servidor
+y se adopto HttpURLConnection para la comunicacion HTTP.
+
+### Limitaciones conocidas
+
+- El Android emisor debe permanecer encendido.
+- Simple SMS Gateway debe permanecer activo.
+- El telefono necesita cobertura y una SIM habilitada.
+- CareStock debe mantener activo el proceso de monitoreo.
+- La comunicacion local requiere conectividad de red.
+- El envio puede generar cargos segun el operador.
+- La API local debe mantenerse en una red privada segura.
+- Una respuesta HTTP exitosa no confirma entrega al receptor.
+- Los envios fallidos no se reintentan automaticamente.
+
+### Pendientes
+
+- Validar el flujo automatico completo con datos de Neon.
+- Definir una politica segura de reintentos.
+- Evaluar la disponibilidad permanente del servicio SMS.
+- Consultar con el docente las condiciones de despliegue.
+- Determinar si se requiere infraestructura dedicada.
+
+### Conclusion
+
+CareStock dispone de una integracion capaz de enviar
+SMS tradicionales y personalizados mediante Android.
+
+La arquitectura permite sustituir el proveedor SMS
+sin modificar los servicios principales del inventario.
+
+La disponibilidad permanente queda pendiente
+de una decision de despliegue.
