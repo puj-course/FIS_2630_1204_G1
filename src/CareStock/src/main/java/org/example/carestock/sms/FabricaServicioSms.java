@@ -16,7 +16,7 @@ public final class FabricaServicioSms {
 
         DestinatariosPermitidosSms destinatarios =
                 DestinatariosPermitidosSms.desdeCsv(
-                    System.getenv("SMS_ALLOWED_TO")
+                        System.getenv("SMS_ALLOWED_TO")
                 );
 
         return switch (modo) {
@@ -25,14 +25,7 @@ public final class FabricaServicioSms {
                     new ServicioSmsSimulado(destinatarios);
 
             case "twilio" -> {
-
-                if (!"SI".equalsIgnoreCase(
-                        System.getenv("SMS_CONFIRM_REAL_SEND"))) {
-                    throw new IllegalStateException(
-                        "Para usar Twilio confirme "
-                        + "SMS_CONFIRM_REAL_SEND=SI."
-                    );
-                }
+                exigirEnvioRealConfirmado();
 
                 yield new ServicioSmsTwilio(
                         System.getenv("TWILIO_ACCOUNT_SID"),
@@ -42,9 +35,40 @@ public final class FabricaServicioSms {
                 );
             }
 
+            case "android" -> {
+                exigirEnvioRealConfirmado();
+
+                yield new ServicioSmsAndroid(
+                        System.getenv("SMS_GATEWAY_URL"),
+                        System.getenv("SMS_GATEWAY_USERNAME"),
+                        System.getenv("SMS_GATEWAY_PASSWORD"),
+                        destinatarios
+                );
+            }
+
+            case "simple-android" -> {
+                if (!"SI".equalsIgnoreCase(System.getenv("SMS_CONFIRM_REAL_SEND"))) {
+                    throw new IllegalStateException("Confirme SMS_CONFIRM_REAL_SEND=SI.");
+                }
+                yield new ServicioSmsSimpleAndroid(
+                        System.getenv("SMS_GATEWAY_URL"), destinatarios);
+            }
+
             default -> throw new IllegalArgumentException(
-                    "SMS_PROVIDER debe ser simulado o twilio."
+                    "SMS_PROVIDER debe ser "
+                    + "simulado, twilio o android."
             );
         };
+    }
+
+    private static void exigirEnvioRealConfirmado() {
+
+        if (!"SI".equalsIgnoreCase(
+                System.getenv("SMS_CONFIRM_REAL_SEND"))) {
+
+            throw new IllegalStateException(
+                    "Confirme SMS_CONFIRM_REAL_SEND=SI."
+            );
+        }
     }
 }
