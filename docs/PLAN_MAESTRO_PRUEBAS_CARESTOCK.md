@@ -14,7 +14,7 @@ Establecer una estrategia verificable, incremental y automatizable de aseguramie
 La planificación utilizará dos ejes complementarios:
 
 1. **Módulos técnicos:** `model`, `dto`, `factory`, `service`, `dao`, `session`, `proxy`, `facade`, `controller` y `config`.
-2. **Procesos de negocio:** autenticación, permisos, segregación por farmacia, catálogo, medicamentos/lotes, aseo, maternidad, entradas, salidas, ajustes, auditoría y vencimientos.
+2. **Procesos de negocio:** autenticación, permisos, segregación por farmacia, catálogo, medicamentos,lotes, aseo, maternidad, entradas, salidas, ajustes, auditoría y vencimientos.
 
 **Regla central:** una prueba unitaria demuestra el comportamiento de una unidad; **no** sustituye una prueba de integración, ni demuestra por sí sola el funcionamiento de un flujo completo.
 
