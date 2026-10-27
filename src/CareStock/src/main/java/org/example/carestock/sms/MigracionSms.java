@@ -1,6 +1,6 @@
 package org.example.carestock.sms;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +31,7 @@ public final class MigracionSms {
         String contenido = Files.readString(ruta);
 
         try (Connection conexion =
-                     ConexionBaseDatos.getConexion()) {
+                     ConexionBD.getConexion()) {
 
             conexion.setAutoCommit(false);
 
@@ -56,7 +56,7 @@ public final class MigracionSms {
             }
 
         } finally {
-            ConexionBaseDatos.cerrarPool();
+            ConexionBD.cerrarPool();
         }
     }
 }

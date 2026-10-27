@@ -1,6 +1,6 @@
 package org.example.carestock.sms;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 
 public final class ProcesoSms {
 
@@ -38,7 +38,7 @@ public final class ProcesoSms {
         );
 
         Runtime.getRuntime().addShutdownHook(
-                new Thread(ConexionBaseDatos::cerrarPool)
+                new Thread(ConexionBD::cerrarPool)
         );
 
         System.out.println(
@@ -76,6 +76,6 @@ public final class ProcesoSms {
             }
         }
 
-        ConexionBaseDatos.cerrarPool();
+        ConexionBD.cerrarPool();
     }
 }

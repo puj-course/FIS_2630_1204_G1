@@ -1,6 +1,6 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.model.Lote;
 import org.example.carestock.proxy.InventarioConsultas;
 import org.example.carestock.session.SesionUsuario;
@@ -86,7 +86,7 @@ public final class ServicioCrudLotes {
         Actor a = actor();
         List<MedicamentoOpcion> lista = new ArrayList<>();
 
-        try (Connection con = ConexionBaseDatos.getConexion()) {
+        try (Connection con = ConexionBD.getConexion()) {
             validarActor(con, a);
 
             try (PreparedStatement ps = con.prepareStatement("""
@@ -115,7 +115,7 @@ public final class ServicioCrudLotes {
         Actor a = actor();
         List<UbicacionOpcion> lista = new ArrayList<>();
 
-        try (Connection con = ConexionBaseDatos.getConexion()) {
+        try (Connection con = ConexionBD.getConexion()) {
             validarActor(con, a);
 
             try (PreparedStatement ps = con.prepareStatement(
@@ -296,7 +296,7 @@ public final class ServicioCrudLotes {
         Actor a = actor();
         int idLote;
 
-        try (Connection con = ConexionBaseDatos.getConexion()) {
+        try (Connection con = ConexionBD.getConexion()) {
             boolean anterior = con.getAutoCommit();
             con.setAutoCommit(false);
 
@@ -461,7 +461,7 @@ public final class ServicioCrudLotes {
 
         Actor a = actor();
 
-        try (Connection con = ConexionBaseDatos.getConexion()) {
+        try (Connection con = ConexionBD.getConexion()) {
             boolean anterior = con.getAutoCommit();
             con.setAutoCommit(false);
 
@@ -533,7 +533,7 @@ public final class ServicioCrudLotes {
 
         Actor a = actor();
 
-        try (Connection con = ConexionBaseDatos.getConexion()) {
+        try (Connection con = ConexionBD.getConexion()) {
             boolean anterior = con.getAutoCommit();
             con.setAutoCommit(false);
 

@@ -17,7 +17,7 @@ FIS_2630_1204_G1/
 │               ├── config/
 │               │   └── DatabaseConfig.java
 │               ├── dao/
-│               │   └── MedicamentoDao.java
+│               │   └── MedicamentoDAO.java
 │               ├── model/
 │               │   └── Medicamento.java
 │               └── view/
@@ -139,8 +139,8 @@ public class DatabaseConfig {
 }
 
 
-**C. Capa de Datos: MedicamentoDao.java**
-Ubicacion: Proto/src/com/carestock/dao/MedicamentoDao.java
+**C. Capa de Datos: MedicamentoDAO.java**
+Ubicacion: Proto/src/com/carestock/dao/MedicamentoDAO.java
 
 package com.carestock.dao;
 
@@ -154,7 +154,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MedicamentoDao {
+public class MedicamentoDAO {
 
     public List<Medicamento> obtenerTodos() {
         List<Medicamento> lista = new ArrayList<>();
@@ -350,7 +350,7 @@ Ubicacion: Proto/src/com/carestock/view/MainDashboardFX.java
 
 package com.carestock.view;
 
-import com.carestock.dao.MedicamentoDao;
+import com.carestock.dao.MedicamentoDAO;
 import com.carestock.model.Medicamento;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -373,7 +373,7 @@ public class MainDashboardFX extends Application {
     private ObservableList<Medicamento> listaMedicamentos = FXCollections.observableArrayList();
     private FilteredList<Medicamento> listaFiltrada = new FilteredList<>(listaMedicamentos, p -> true);
 
-    private MedicamentoDao medicamentoDAO = new MedicamentoDao();
+    private MedicamentoDAO medicamentoDAO = new MedicamentoDAO();
 
     private Label lblTotalStock = new Label("0");
     private Label lblProximosVencer = new Label("0");

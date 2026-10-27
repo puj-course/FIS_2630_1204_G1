@@ -1,4 +1,4 @@
-# Componente de autenticación de la interfaz (`ControladorInicioSesion`) — CareStock
+# Componente de autenticación de la interfaz (`LoginController`) — CareStock
 
 Parte 2 de 3 del diagrama de componentes de presentación y sesión (HU.85). Código fuente: `src/CareStock/src/main/java/org/example/carestock/` en `main`, commit `5239998`.
 
@@ -6,7 +6,7 @@ Parte 2 de 3 del diagrama de componentes de presentación y sesión (HU.85). Có
 
 ```mermaid
 flowchart LR
-    LOGIN["Autenticación (interfaz)<br/>login-view.fxml + ControladorInicioSesion"]
+    LOGIN["Autenticación (interfaz)<br/>login-view.fxml + LoginController"]
     IEVT(["Eventos de la vista<br/>onEmailAction, onPasswordAction, onIngresar"])
     IAUT(["IAutenticacion<br/>autenticar(email, password)"])
     ISES(["ISesion<br/>iniciar"])
@@ -27,10 +27,10 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 | Elemento | Detalle |
 |---|---|
 | Responsabilidad | Capturar correo y contraseña, mostrar el estado de carga y los mensajes, abrir la sesión y pasar al inventario |
-| Clases y recursos | `ControladorInicioSesion` y `login-view.fxml` (enlazados con `fx:controller`) |
+| Clases y recursos | `LoginController` y `login-view.fxml` (enlazados con `fx:controller`) |
 | Interfaz que provee | `onEmailAction` (pasa el foco a la contraseña), `onPasswordAction` y `onIngresar` (ambos ejecutan el login) |
 | Interfaces que requiere | `IAutenticacion.autenticar`, `ISesion.iniciar`, `INavegacion.mostrarDashboard`, `ReglaNegocioException` |
-| Cómo obtiene sus dependencias | `new ServicioAutenticacion()` en el constructor |
+| Cómo obtiene sus dependencias | `new AuthenticationService()` en el constructor |
 | Controles de la vista | `txtEmail`, `txtPassword`, `chkRecordarme`, `btnIngresar`, `loaderCarga`, `lblNotificacion` |
 
 ## 3. Secuencia de `ejecutarLogin`
@@ -39,7 +39,7 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 2. Llama a `autenticar(email, password)`.
 3. Muestra "Acceso concedido".
 4. Llama a `SesionUsuario.iniciar(usuario)`.
-5. Llama a `AplicacionCareStock.getInstance().mostrarDashboard()`.
+5. Llama a `CareStockApp.getInstance().mostrarDashboard()`.
 
 | Resultado | Lo que hace el componente |
 |---|---|

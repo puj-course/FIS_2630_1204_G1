@@ -15,11 +15,11 @@ flowchart LR
         NEG["«componente»<br/><b>Módulos de negocio</b><br/><small>IngresoLoteService · InventarioCrudService<br/>DespachoService · FarmaciaService · UsuarioService</small>"]
         I_AUTH(("<i>Autenticacion</i>"))
         I_ACL(("<i>ControlAcceso</i>"))
-        AUTH["«componente»<br/><b>Autenticación</b><br/><small>servicio: ServicioAutenticacion</small>"]
+        AUTH["«componente»<br/><b>Autenticación</b><br/><small>servicio: AuthenticationService</small>"]
         SEG["«componente»<br/><b>Seguridad</b><br/><small>security: AccessControl</small>"]
-        I_USR(("<i>UsuarioDao</i>"))
+        I_USR(("<i>UsuarioDAO</i>"))
         I_ACC(("<i>AccesoDAO</i>"))
-        DAO["«componente»<br/><b>Acceso a Datos</b><br/><small>UsuarioDao · AccesoDAO</small>"]
+        DAO["«componente»<br/><b>Acceso a Datos</b><br/><small>UsuarioDAO · AccesoDAO</small>"]
         I_CON(("<i>Conexion</i>"))
         CFG["«componente»<br/><b>Configuración BD</b>"]
     end
@@ -63,9 +63,9 @@ El diagrama muestra cómo se organiza CareStock en módulos para soportar el ini
 - **Configuración BD:** administra la conexión con la base de datos.
 - **Módulos de negocio:** servicios de lotes, inventario, despacho, farmacias y usuarios, que dependen del control de acceso para operar.
 
-**Interfaces provistas.** Autenticación ofrece `Autenticacion`; Acceso a Datos ofrece `UsuarioDao` y `AccesoDAO`; Seguridad ofrece `ControlAcceso`; Configuración BD ofrece `Conexion`.
+**Interfaces provistas.** Autenticación ofrece `Autenticacion`; Acceso a Datos ofrece `UsuarioDAO` y `AccesoDAO`; Seguridad ofrece `ControlAcceso`; Configuración BD ofrece `Conexion`.
 
-**Interfaces requeridas.** La Vista necesita `Autenticacion` y `ControlAcceso`. Autenticación necesita `UsuarioDao`, `AccesoDAO` y `Cifrado`. Los Módulos de negocio necesitan `ControlAcceso`. Acceso a Datos necesita `Conexion`.
+**Interfaces requeridas.** La Vista necesita `Autenticacion` y `ControlAcceso`. Autenticación necesita `UsuarioDAO`, `AccesoDAO` y `Cifrado`. Los Módulos de negocio necesitan `ControlAcceso`. Acceso a Datos necesita `Conexion`.
 
 **Servicios externos.** **jBCrypt** es la librería que compara la contraseña ingresada con el hash almacenado, de modo que las contraseñas nunca se guardan en texto plano. **Neon PostgreSQL** es la base de datos en la nube con las tablas de usuarios, roles y registro de accesos; Configuración BD se conecta a ella por JDBC.
 

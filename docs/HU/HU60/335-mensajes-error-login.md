@@ -50,7 +50,7 @@ Identificar todos los mensajes de error que muestra el sistema durante el inicio
 
 - **¿Qué dice?** El sistema indica que las credenciales no son válidas.
 - **¿Cuándo aparece?** Cuando el correo no está registrado, la contraseña no coincide, el usuario está INACTIVO o está BLOQUEADO.
-- **¿Dónde?** `ServicioAutenticacion.java`, constante `ERROR_CREDENCIALES`.
+- **¿Dónde?** `AuthenticationService.java`, constante `ERROR_CREDENCIALES`.
 
 ### Mensaje 5: "No fue posible iniciar sesión. Intente nuevamente."
 
@@ -71,7 +71,7 @@ Identificar todos los mensajes de error que muestra el sistema durante el inicio
 | Archivo | Función |
 |---------|---------|
 | `view/LoginFX.java` | Interfaz de inicio de sesión y validaciones del formulario |
-| `service/ServicioAutenticacion.java` | Lógica de autenticación y mensaje de credenciales incorrectas |
+| `service/AuthenticationService.java` | Lógica de autenticación y mensaje de credenciales incorrectas |
 
 ---
 

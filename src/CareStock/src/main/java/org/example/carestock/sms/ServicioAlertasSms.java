@@ -1,6 +1,6 @@
 package org.example.carestock.sms;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 import java.sql.*;
 import java.util.*;
 
@@ -150,7 +150,7 @@ public final class ServicioAlertasSms {
         sincronizar();
 
         try (Connection con =
-                     ConexionBaseDatos.getConexion();
+                     ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement("""
                  UPDATE sms_alertas
                  SET estado = 'INDETERMINADO',
@@ -232,7 +232,7 @@ public final class ServicioAlertasSms {
     private void sincronizar() throws SQLException {
 
         try (Connection con =
-                     ConexionBaseDatos.getConexion()) {
+                     ConexionBD.getConexion()) {
 
             con.setAutoCommit(false);
 
@@ -352,7 +352,7 @@ public final class ServicioAlertasSms {
     private Envio reclamar() throws SQLException {
 
         try (Connection con =
-                     ConexionBaseDatos.getConexion();
+                     ConexionBD.getConexion();
              PreparedStatement ps =
                      con.prepareStatement(RECLAMAR);
              ResultSet rs = ps.executeQuery()) {
@@ -375,7 +375,7 @@ public final class ServicioAlertasSms {
     ) throws SQLException {
 
         try (Connection con =
-                     ConexionBaseDatos.getConexion();
+                     ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement("""
                  UPDATE sms_alertas
                  SET estado = ?,

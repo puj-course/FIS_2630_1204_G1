@@ -10,25 +10,25 @@ El diagrama muestra el flujo de edición de un medicamento en el catálogo, desd
 | Participante | Rol |
 |--------------|-----|
 | `Usuario` | Actor que edita el medicamento |
-| `ControladorCatalogo` | Controlador de la vista de catálogo |
+| `CatalogoController` | Controlador de la vista de catálogo |
 | `Inventario` | Fachada que agrupa las operaciones |
 | `SesionUsuario` | Gestiona la sesión activa |
-| `MedicamentoCatalogoDao` | DAO que actualiza el medicamento |
+| `MedicamentoCatalogoDAO` | DAO que actualiza el medicamento |
 | `Base de Datos` | PostgreSQL/Neon |
 | `InventarioConsultas` | Consultas auxiliares |
 
 ## Flujo principal
 
 1. **Usuario** selecciona un medicamento en la tabla.
-2. **ControladorCatalogo** llama a `llenarFormulario(medicamento)`.
+2. **CatalogoController** llama a `llenarFormulario(medicamento)`.
 3. **Usuario** modifica los campos y pulsa "Actualizar".
-4. **ControladorCatalogo** construye el medicamento con el Builder.
-5. **ControladorCatalogo** llama a `actualizarMedicamento(id, medicamento)`.
+4. **CatalogoController** construye el medicamento con el Builder.
+5. **CatalogoController** llama a `actualizarMedicamento(id, medicamento)`.
 6. **Inventario** llama a `actualizar(id, medicamento, idFarmacia, idUsuario)`.
-7. **MedicamentoCatalogoDao** valida los campos con `validarCampos(medicamento)`.
+7. **MedicamentoCatalogoDAO** valida los campos con `validarCampos(medicamento)`.
 8. **Base de Datos** ejecuta `UPDATE medicamentos de la farmacia`.
 9. **Inventario** invalida la caché con `invalidar()`.
-10. **ControladorCatalogo** recarga la tabla y muestra "Producto actualizado correctamente".
+10. **CatalogoController** recarga la tabla y muestra "Producto actualizado correctamente".
 
 ## Casos alternativos
 
@@ -42,8 +42,8 @@ El diagrama muestra el flujo de edición de un medicamento en el catálogo, desd
 
 | Clase | Método |
 |-------|--------|
-| `ControladorCatalogo` | `onActualizar()`, `construirMedicamento()`, `llenarFormulario()` |
+| `CatalogoController` | `onActualizar()`, `construirMedicamento()`, `llenarFormulario()` |
 | `Inventario` | `actualizarMedicamento(id, medicamento)` |
-| `MedicamentoCatalogoDao` | `actualizar(id, producto, idFarmacia, idUsuario)`, `validarCampos()` |
+| `MedicamentoCatalogoDAO` | `actualizar(id, producto, idFarmacia, idUsuario)`, `validarCampos()` |
 | `SesionUsuario` | `actual()` |
-| `AplicacionCareStock` | Navegación |
+| `CareStockApp` | Navegación |

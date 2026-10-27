@@ -10,9 +10,9 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.CareStockApp;
 import org.example.carestock.dao.HistorialMovimientosDao;
-import org.example.carestock.dto.MovimientoHistorial;
+import org.example.carestock.DataTransferObject.MovimientoHistorial;
 import org.example.carestock.session.SesionUsuario;
 
 import java.time.LocalDate;
@@ -512,14 +512,14 @@ public final class ControladorHistorialMovimientos {
     private void onVolver() {
 
         cancelarConsulta();
-        AplicacionCareStock.getInstance().mostrarDashboard();
+        CareStockApp.getInstance().mostrarDashboard();
     }
 
     @FXML
     private void onCerrarSesion() {
 
         cancelarConsulta();
-        AplicacionCareStock.getInstance().cerrarSesion();
+        CareStockApp.getInstance().cerrarSesion();
     }
 
     private void mostrarError(String mensaje) {

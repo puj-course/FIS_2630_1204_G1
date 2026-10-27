@@ -26,11 +26,11 @@ El mensaje se muestra cuando ocurre cualquiera de estos casos:
 
 | # | Causa | ¿Dónde? |
 |---|-------|---------|
-| 1 | El correo no está registrado en la base de datos | `ServicioAutenticacion.autenticar()` |
-| 2 | La contraseña no coincide con el hash almacenado | `ServicioAutenticacion.autenticar()` |
-| 3 | El usuario está INACTIVO | `ServicioAutenticacion.autenticar()` |
-| 4 | El usuario está BLOQUEADO | `ServicioAutenticacion.autenticar()` |
-| 5 | El hash de la contraseña es inválido | `ServicioAutenticacion.autenticar()` |
+| 1 | El correo no está registrado en la base de datos | `AuthenticationService.autenticar()` |
+| 2 | La contraseña no coincide con el hash almacenado | `AuthenticationService.autenticar()` |
+| 3 | El usuario está INACTIVO | `AuthenticationService.autenticar()` |
+| 4 | El usuario está BLOQUEADO | `AuthenticationService.autenticar()` |
+| 5 | El hash de la contraseña es inválido | `AuthenticationService.autenticar()` |
 
 **Importante:** El sistema usa el mismo mensaje para todos los casos, para no revelar si el correo existe o no.
 
@@ -48,7 +48,7 @@ El mensaje se muestra cuando ocurre cualquiera de estos casos:
 
 | Archivo | Función |
 |---------|---------|
-| `service/ServicioAutenticacion.java` | Genera el mensaje `ERROR_CREDENCIALES` |
+| `service/AuthenticationService.java` | Genera el mensaje `ERROR_CREDENCIALES` |
 | `view/LoginFX.java` | Muestra el mensaje en la interfaz |
 
 ---

@@ -4,7 +4,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.carestock.controller.ControladorConsultaInventario"
+            fx:controller="org.example.carestock.controller.ConsultaInventarioController"
             prefWidth="1150" prefHeight="760"
             style="-fx-background-color: #FDFBF7; -fx-accent: #B7A6E0; -fx-focus-color: #B7A6E0; -fx-faint-focus-color: rgba(183,166,224,0.25);">
 

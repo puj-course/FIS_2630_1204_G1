@@ -18,7 +18,7 @@ El producto siempre se guarda con la farmacia del usuario en sesión (`Inventari
 
 ## 2. Por qué `buscarPorCodigoInvima` no sirve para validar
 
-- `MedicamentoDaoJdbc.buscarPorCodigoInvima` consulta `WHERE codigo_invima = ?` **sin filtrar por farmacia** y devuelve solo la primera fila.
+- `MedicamentoDAOImpl.buscarPorCodigoInvima` consulta `WHERE codigo_invima = ?` **sin filtrar por farmacia** y devuelve solo la primera fila.
 - La base sí permite el mismo INVIMA en farmacias distintas: el script 04 elimina la restricción global y crea el índice por farmacia, con el comentario "el mismo código INVIMA puede existir en más de una sede".
 - Usarlo para validar bloquearía registros válidos de otra farmacia.
 - Ninguna clase de la aplicación lo invoca hoy.
@@ -27,7 +27,7 @@ El producto siempre se guarda con la farmacia del usuario en sesión (`Inventari
 
 ## 3. Observación: el código se recorta solo al editar
 
-El alta de medicamentos guarda el código tal como se escribió (`MedicamentoDaoJdbc.guardar`), mientras que la edición lo recorta con `trim()` (`MedicamentoCatalogoDao.actualizar`). Un código con espacios al final se considera distinto del mismo código sin ellos.
+El alta de medicamentos guarda el código tal como se escribió (`MedicamentoDAOImpl.guardar`), mientras que la edición lo recorta con `trim()` (`MedicamentoCatalogoDAO.actualizar`). Un código con espacios al final se considera distinto del mismo código sin ellos.
 
 ---
 

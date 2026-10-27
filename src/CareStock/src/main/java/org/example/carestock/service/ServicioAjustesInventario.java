@@ -1,6 +1,6 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.dao.AuditoriaAjustesDao;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.AjusteExistencias;
@@ -95,7 +95,7 @@ public final class ServicioAjustesInventario {
         ResultadoAjuste resultado;
 
         try (Connection con =
-                     ConexionBaseDatos.getConexion()) {
+                     ConexionBD.getConexion()) {
 
             con.setAutoCommit(false);
 

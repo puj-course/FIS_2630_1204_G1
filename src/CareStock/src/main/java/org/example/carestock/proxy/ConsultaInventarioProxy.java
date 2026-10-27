@@ -1,5 +1,5 @@
 package org.example.carestock.proxy;
-import org.example.carestock.dto.ProductoInventario;
+import org.example.carestock.DataTransferObject.ProductoInventario;
 import org.example.carestock.session.SesionUsuario;
 
 import java.sql.SQLException;
