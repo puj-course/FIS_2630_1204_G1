@@ -168,6 +168,7 @@ public class ControladorInventario {
 
         cargarDatosTabla();
         cargarContadoresPorCategoria();
+        cargarResumenAlertas();
     }
 
     private void configurarFiltroBusqueda() {
@@ -342,6 +343,7 @@ public class ControladorInventario {
     private void onRefrescar() {
         cargarDatosTabla();
         cargarContadoresPorCategoria();
+        cargarResumenAlertas();
     }
 
     @FXML
@@ -476,15 +478,30 @@ public class ControladorInventario {
             }
         }
     }
-        @FXML
+            private void cargarResumenAlertas() {
+        try {
+            Map<String, Integer> alertas = inventario.obtenerResumenAlertas();
+            
+            int stockBajo = alertas.getOrDefault("stockBajo", 0);
+            int proximosVencer = alertas.getOrDefault("proximosVencer", 0);
+
+            lblAlertaStock.setText(stockBajo + (stockBajo == 1 ? " producto" : " productos"));
+            lblAlertaVencimiento.setText(proximosVencer + (proximosVencer == 1 ? " lote" : " lotes"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            lblAlertaStock.setText("Error");
+            lblAlertaVencimiento.setText("Error");
+        }
+    }
+
+    @FXML
     private void onFiltrarStockBajo() {
-        // Lógica en el subissue #870
-        System.out.println("Filtrar stock bajo presionado");
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Filtro", "Filtrando productos con stock bajo (en desarrollo).");
     }
 
     @FXML
     private void onFiltrarProximosVencer() {
-        // Lógica en el subissue #871
-        System.out.println("Filtrar próximos a vencer presionado");
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Filtro", "Filtrando próximos a vencer (en desarrollo).");
     }
 }
