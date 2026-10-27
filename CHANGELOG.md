@@ -8,6 +8,56 @@ El historial se presenta en orden cronológico inverso, conservando las decision
 
 ---
 
+## [0.1.0-beta.1] — 2026-10-27
+
+### Primera versión preliminar de CareStock
+
+Publicación de una versión beta del sistema académico de gestión y trazabilidad de inventario hospitalario.
+
+### Funcionalidades
+
+- Autenticación y gestión de sesiones mediante BCrypt.
+- Administración de usuarios y contexto de farmacia.
+- Gestión de medicamentos, productos de aseo y maternidad.
+- Consulta unificada del inventario por farmacia.
+- Búsqueda y filtrado de productos.
+- Administración de lotes y existencias.
+- Registro de entradas y salidas de inventario.
+- Ajustes de existencias con validaciones de negocio.
+- Registro de movimientos e historial de auditoría.
+- Validaciones para preservar la consistencia del inventario.
+
+### Arquitectura
+
+- Aplicación de escritorio desarrollada en Java 21 y JavaFX 21.
+- Gestión de dependencias mediante Apache Maven.
+- Persistencia mediante PostgreSQL/Neon y JDBC.
+- Pool de conexiones mediante HikariCP.
+- Separación de responsabilidades mediante MVC, servicios, DAO y DTO.
+
+### Patrones de diseño GoF
+
+- Proxy: optimización y control de consultas del inventario.
+- Facade: centralización de operaciones de inventario.
+- Factory Method: creación especializada de productos.
+- Template Method: reutilización de procedimientos comunes.
+
+### Infraestructura
+
+- Integración continua mediante GitHub Actions.
+- Compilación y verificación mediante Maven.
+- Configuración externa de conexión a la base de datos.
+- Estructura de documentación y seguimiento del desarrollo.
+
+### Alcance de la versión
+
+Esta versión se publica como pre-release académica.
+
+Las integraciones de alertas y SMS que todavía estén en desarrollo quedan fuera del alcance de esta publicación.
+
+Las funcionalidades requieren validación de sus escenarios operativos antes de su utilización en producción.
+
+---
 ## [En preparación] — 2026-10-14 — Consolidación de estructura Maven, Docker y CI/CD
 
 **Rama:** `refactor/estructura-unica-carestock`
