@@ -18,13 +18,13 @@ top to bottom direction
 ' ============================================================
 package "carestock" {
 
-    class AplicacionCareStock {
-- {static} instance: AplicacionCareStock
+    class CareStockApp {
+- {static} instance: CareStockApp
 
 - primaryStage: Stage
 
 
-        + {static} getInstance(): AplicacionCareStock
+        + {static} getInstance(): CareStockApp
         + start(stage: Stage): void
         + mostrarLogin(): void
         + mostrarDashboard(): void
@@ -34,7 +34,7 @@ package "carestock" {
         + {static} main(args: String[]): void
     }
 
-    class LanzadorEjemplo <<arranque>> {
+    class Launcher <<arranque>> {
         + {static} main(args: String[]): void
     }
 
@@ -47,10 +47,10 @@ package "carestock" {
 ' 2. CONFIGURACION Y BASE DE DATOS
 ' ============================================================
 package "config" {
-    class ConexionBaseDatos {
+    class ConexionBD {
 - {static} pool: HikariDataSource
 
-- ConexionBaseDatos()
+- ConexionBD()
 
 
         + {static} getConexion(): Connection
@@ -68,19 +68,19 @@ package "config" {
 ' ============================================================
 package "controller" {
 
-    class ControladorInicioSesion {
+    class LoginController {
 - txtEmail: TextField
 
 - txtPassword: PasswordField
 
-- authService: ServicioAutenticacion
+- authService: AuthenticationService
 
 
-        + ControladorInicioSesion()
+        + LoginController()
         + initialize(): void
     }
 
-    class ControladorInventario {
+    class InventarioController {
 - tablaLotes: TableView<Lote>
 
 - listaLotes: ObservableList<Lote>
@@ -92,11 +92,11 @@ package "controller" {
 - inventario: Inventario
 
 
-        + ControladorInventario()
+        + InventarioController()
         + initialize(): void
     }
 
-    class ControladorCatalogo {
+    class CatalogoController {
 - tablaProductos: TableView<RegistroCatalogo>
 
 - cmbCategoria: ComboBox<String>
@@ -113,7 +113,7 @@ package "controller" {
         + initialize(): void
     }
 
-    class ControladorConsultaInventario {
+    class ConsultaInventarioController {
 - tablaInventario: TableView<ProductoInventario>
 
 - productos: ObservableList<ProductoInventario>
@@ -128,7 +128,7 @@ package "controller" {
         + initialize(): void
     }
 
-    class "ControladorCatalogo.CategoriaMedicamento" as CategoriaMedicamento <<record auxiliar>> {
+    class "CatalogoController.CategoriaMedicamento" as CategoriaMedicamento <<record auxiliar>> {
         + id: int
         + nombre: String
     }
@@ -139,19 +139,19 @@ package "controller" {
 ' ============================================================
 package "service" {
 
-    class ServicioAutenticacion {
-- usuarioDAO: UsuarioDao
+    class AuthenticationService {
+- usuarioDAO: UsuarioDAO
 
 
-        + ServicioAutenticacion()
+        + AuthenticationService()
         + autenticar(email: String, password: String): Usuario
     }
 
-    class ServicioRegistroLote {
+    class RegistroLoteService {
         + registrarMedicamentoLote(lote: Lote, idUsuario: int, idFarmacia: int): Lote
     }
 
-    class ServicioFarmacovigilancia {
+    class FarmacovigilanciaService {
         + dispensarMedicamento(idLote: int, cantidad: int): void
         + dispensarMedicamento(idLote: int, cantidad: int, idFarmacia: int, idUsuario: int): void
     }
@@ -162,7 +162,7 @@ package "service" {
 ' ============================================================
 package "dao" {
 
-    interface LoteDao {
+    interface LoteDAO {
         + guardar(lote: Lote): void
         + buscarPorId(idLote: int): Lote
         + listarPorMedicamento(idMedicamento: int): List<Lote>
@@ -172,7 +172,7 @@ package "dao" {
         + actualizarEstado(idLote: int, estado: String): void
     }
 
-    class LoteDaoJdbc {
+    class LoteDAOImpl {
         + guardar(lote: Lote): void
         + buscarPorId(idLote: int): Lote
         + listarPorMedicamento(idMedicamento: int): List<Lote>
@@ -182,7 +182,7 @@ package "dao" {
         + actualizarEstado(idLote: int, estado: String): void
     }
 
-    interface MedicamentoDao {
+    interface MedicamentoDAO {
         + guardar(medicamento: Medicamento): void
         + buscarPorId(idMedicamento: int): Medicamento
         + buscarPorCodigoInvima(codigo: String): Medicamento
@@ -192,7 +192,7 @@ package "dao" {
         + actualizarEstado(id: int, estado: String): void
     }
 
-    class MedicamentoDaoJdbc {
+    class MedicamentoDAOImpl {
         + guardar(medicamento: Medicamento): void
         + buscarPorId(idMedicamento: int): Medicamento
         + buscarPorCodigoInvima(codigo: String): Medicamento
@@ -202,22 +202,22 @@ package "dao" {
         + actualizarEstado(id: int, estado: String): void
     }
 
-    interface UsuarioDao {
+    interface UsuarioDAO {
         + buscarPorEmail(email: String): Usuario
     }
 
-    class UsuarioDaoJdbc {
+    class UsuarioDAOImpl {
         + buscarPorEmail(email: String): Usuario
     }
 
-    class MedicamentoCatalogoDao {
+    class MedicamentoCatalogoDAO {
         + listarPorFarmacia(idFarmacia: int): List<Medicamento>
         + actualizar(id: int, producto: Medicamento, idFarmacia: int, idUsuario: int): boolean
         + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
         + {static} validarCampos(producto: Medicamento): void
     }
 
-    abstract class "CatalogoDao<T extends Validable>" as CatalogoDao <<Template Method>> {
+    abstract class "CatalogoDAO<T extends Validable>" as CatalogoDAO <<Template Method>> {
         # {abstract} tabla(): String
         # {abstract} columnaId(): String
         # {abstract} nombreProducto(): String
@@ -234,7 +234,7 @@ package "dao" {
         - mapear(rs: ResultSet): RegistroCatalogo<T>
     }
 
-    class AseoDao {
+    class AseoDAO {
 - {static} FABRICA: FabricaProducto<Aseo>
 
         + guardar(producto: Aseo, idFarmacia: int, idUsuario: int): int
@@ -244,7 +244,7 @@ package "dao" {
         + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
     }
 
-    class MaternidadDao {
+    class MaternidadDAO {
 - {static} FABRICA: FabricaProducto<Maternidad>
 
         + guardar(producto: Maternidad, idFarmacia: int, idUsuario: int): int
@@ -254,7 +254,7 @@ package "dao" {
         + desactivar(id: int, idFarmacia: int, idUsuario: int): boolean
     }
 
-    class ConsultaInventarioBaseDatos <<RealSubject>> {
+    class ConsultaInventarioDAO <<RealSubject>> {
         + listarPorFarmacia(idFarmacia: int): List<ProductoInventario>
     }
 }
@@ -504,21 +504,21 @@ package "facade" {
     class Inventario <<Facade>> {
 - idUsuario: int
 
-- aseoDAO: AseoDao
+- aseoDAO: AseoDAO
 
-- maternidadDAO: MaternidadDao
+- maternidadDAO: MaternidadDAO
 
-- medicamentoDAO: MedicamentoDao
+- medicamentoDAO: MedicamentoDAO
 
-- medicamentoCatalogoDAO: MedicamentoCatalogoDao
+- medicamentoCatalogoDAO: MedicamentoCatalogoDAO
 
-- loteDAO: LoteDao
+- loteDAO: LoteDAO
 
 - consulta: ConsultaInventario
 
-- registroLoteService: ServicioRegistroLote
+- registroLoteService: RegistroLoteService
 
-- farmacovigilanciaService: ServicioFarmacovigilancia
+- farmacovigilanciaService: FarmacovigilanciaService
 
 
         + Inventario(usuario: Usuario)
@@ -698,83 +698,83 @@ package "session" {
 ' ============================================================
 ' 13. RELACIONES DE PERSISTENCIA (UML Estricto)
 ' ============================================================
-CatalogoDao <|-- AseoDao : extiende
-CatalogoDao <|-- MaternidadDao : extiende
+CatalogoDAO <|-- AseoDAO : extiende
+CatalogoDAO <|-- MaternidadDAO : extiende
 
-LoteDao <|.. LoteDaoJdbc
-MedicamentoDao <|.. MedicamentoDaoJdbc
-UsuarioDao <|.. UsuarioDaoJdbc
-ConsultaInventario <|.. ConsultaInventarioBaseDatos
+LoteDAO <|.. LoteDAOImpl
+MedicamentoDAO <|.. MedicamentoDAOImpl
+UsuarioDAO <|.. UsuarioDAOImpl
+ConsultaInventario <|.. ConsultaInventarioDAO
 ConsultaInventario <|.. ConsultaInventarioProxy
 
-CatalogoDao ..> ConexionBaseDatos : JDBC
-CatalogoDao ..> Validable : requiere validacion
-CatalogoDao ..> RegistroCatalogo : crea / retorna
+CatalogoDAO ..> ConexionBD : JDBC
+CatalogoDAO ..> Validable : requiere validacion
+CatalogoDAO ..> RegistroCatalogo : crea / retorna
 
-LoteDaoJdbc ..> ConexionBaseDatos : JDBC
-MedicamentoDaoJdbc ..> ConexionBaseDatos : JDBC
-UsuarioDaoJdbc ..> ConexionBaseDatos : JDBC
-MedicamentoCatalogoDao ..> ConexionBaseDatos : JDBC
-AseoDao ..> ConexionBaseDatos : JDBC
-MaternidadDao ..> ConexionBaseDatos : JDBC
-ConsultaInventarioBaseDatos ..> ConexionBaseDatos : JDBC
+LoteDAOImpl ..> ConexionBD : JDBC
+MedicamentoDAOImpl ..> ConexionBD : JDBC
+UsuarioDAOImpl ..> ConexionBD : JDBC
+MedicamentoCatalogoDAO ..> ConexionBD : JDBC
+AseoDAO ..> ConexionBD : JDBC
+MaternidadDAO ..> ConexionBD : JDBC
+ConsultaInventarioDAO ..> ConexionBD : JDBC
 
-UsuarioDaoJdbc ..> Usuario : mapea
-MedicamentoDaoJdbc ..> Medicamento : mapea
-MedicamentoCatalogoDao ..> Medicamento : mapea
-LoteDaoJdbc ..> Lote : mapea
-AseoDao ..> Aseo : mapea
-MaternidadDao ..> Maternidad : mapea
-ConsultaInventarioBaseDatos ..> ProductoInventario : devuelve
+UsuarioDAOImpl ..> Usuario : mapea
+MedicamentoDAOImpl ..> Medicamento : mapea
+MedicamentoCatalogoDAO ..> Medicamento : mapea
+LoteDAOImpl ..> Lote : mapea
+AseoDAO ..> Aseo : mapea
+MaternidadDAO ..> Maternidad : mapea
+ConsultaInventarioDAO ..> ProductoInventario : devuelve
 
-AseoDao ..> FabricaProducto : utiliza
-AseoDao ..> FabricaAseo : crea / valida
-MaternidadDao ..> FabricaProducto : utiliza
-MaternidadDao ..> FabricaMaternidad : crea / valida
+AseoDAO ..> FabricaProducto : utiliza
+AseoDAO ..> FabricaAseo : crea / valida
+MaternidadDAO ..> FabricaProducto : utiliza
+MaternidadDAO ..> FabricaMaternidad : crea / valida
 
 ' ============================================================
 ' 14. CONTROLADORES / APLICACION
 ' ============================================================
-ControladorInicioSesion --> ServicioAutenticacion : utiliza
-ServicioAutenticacion --> UsuarioDao : consulta
-ControladorInicioSesion ..> SesionUsuario : inicia sesion
+LoginController --> AuthenticationService : utiliza
+AuthenticationService --> UsuarioDAO : consulta
+LoginController ..> SesionUsuario : inicia sesion
 
-ControladorInventario --> Inventario : utiliza
-ControladorCatalogo --> Inventario : utiliza
-ControladorConsultaInventario --> Inventario : utiliza
-ControladorConsultaInventario ..> FiltroProductoInventario : filtra
+InventarioController --> Inventario : utiliza
+CatalogoController --> Inventario : utiliza
+ConsultaInventarioController --> Inventario : utiliza
+ConsultaInventarioController ..> FiltroProductoInventario : filtra
 
-AplicacionCareStock --> ControladorInicioSesion : carga FXML
-AplicacionCareStock --> ControladorInventario : carga FXML
-AplicacionCareStock --> ControladorCatalogo : carga FXML
-AplicacionCareStock --> ControladorConsultaInventario : carga FXML
-AplicacionCareStock ..> SesionUsuario : cierre de sesion
-LanzadorEjemplo ..> AplicacionCareStock : inicia
-PruebaConexion ..> ConexionBaseDatos : verifica
+CareStockApp --> LoginController : carga FXML
+CareStockApp --> InventarioController : carga FXML
+CareStockApp --> CatalogoController : carga FXML
+CareStockApp --> ConsultaInventarioController : carga FXML
+CareStockApp ..> SesionUsuario : cierre de sesion
+Launcher ..> CareStockApp : inicia
+PruebaConexion ..> ConexionBD : verifica
 
-ControladorCatalogo ..> FabricaProducto : delega construccion
-ControladorCatalogo ..> FabricaAseo : crea aseo
-ControladorCatalogo ..> FabricaMaternidad : crea maternidad
-ControladorCatalogo ..> FabricaMedicamento : crea medicamento
+CatalogoController ..> FabricaProducto : delega construccion
+CatalogoController ..> FabricaAseo : crea aseo
+CatalogoController ..> FabricaMaternidad : crea maternidad
+CatalogoController ..> FabricaMedicamento : crea medicamento
 
 ' ============================================================
 ' 15. FACHADA Y SERVICIOS
 ' ============================================================
-Inventario --> AseoDao : gestiona
-Inventario --> MaternidadDao : gestiona
-Inventario --> MedicamentoDao : utiliza
-Inventario --> MedicamentoCatalogoDao : gestiona
-Inventario --> LoteDao : consulta
-Inventario --> ServicioRegistroLote : registra lotes
-Inventario --> ServicioFarmacovigilancia : dispensa
+Inventario --> AseoDAO : gestiona
+Inventario --> MaternidadDAO : gestiona
+Inventario --> MedicamentoDAO : utiliza
+Inventario --> MedicamentoCatalogoDAO : gestiona
+Inventario --> LoteDAO : consulta
+Inventario --> RegistroLoteService : registra lotes
+Inventario --> FarmacovigilanciaService : dispensa
 Inventario --> ConsultaInventario : consulta unificada
 Inventario ..> SesionUsuario : valida contexto
 Inventario ..> InventarioConsultas : invalida cache
 
-ServicioRegistroLote ..> ConexionBaseDatos : JDBC
-ServicioFarmacovigilancia ..> ConexionBaseDatos : JDBC
-ServicioRegistroLote ..> Lote : registra
-ServicioFarmacovigilancia ..> Lote : dispensa
+RegistroLoteService ..> ConexionBD : JDBC
+FarmacovigilanciaService ..> ConexionBD : JDBC
+RegistroLoteService ..> Lote : registra
+FarmacovigilanciaService ..> Lote : dispensa
 
 ' ============================================================
 ' 16. VALIDACIONES Y REGLAS DE NEGOCIO
@@ -829,11 +829,11 @@ ConsultaInventarioProxy *-- ProxyCarga : coordina cargas
 ' ============================================================
 ' 19. NOTAS DE DISENO (Estructura uniforme para patrones GoF)
 ' ============================================================
-note bottom of CatalogoDao
+note bottom of CatalogoDAO
   Patron GoF Template Method:
   Las operaciones CRUD son metodos final que
   fijan el algoritmo de acceso a los datos.
-  AseoDao y MaternidadDao especializan
+  AseoDAO y MaternidadDAO especializan
   tabla, columnas, parametros y mapeo.
   Reutiliza validaciones y JDBC comunes.
 end note
@@ -886,7 +886,7 @@ note bottom of VistasCache
   de catalogo y lotes de manera centralizada.
 end note
 
-note bottom of ControladorConsultaInventario
+note bottom of ConsultaInventarioController
   Observacion reactiva de JavaFX:
   Los listeners de propiedades actualizan
   filtros y seleccion en la vista.

@@ -23,7 +23,7 @@ flowchart LR
 
         INVENTORY["<<component>>
         Consulta de Inventario
-        MedicamentoDao / LoteDao"]
+        MedicamentoDAO / LoteDAO"]
 
         CONFIG["<<component>>
         Acceso a Datos

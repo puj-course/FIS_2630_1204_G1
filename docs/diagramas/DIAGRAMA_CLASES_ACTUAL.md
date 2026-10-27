@@ -1,6 +1,6 @@
 # Diagrama de clases (versión actual) — CareStock
 
-Reemplaza al diagrama de `src/CareStock/src/Diagrama.puml`, que cubre solo 21 de las 41 clases principales. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDao`). Los números de línea corresponden a esa versión.
+Reemplaza al diagrama de `src/CareStock/src/Diagrama.puml`, que cubre solo 21 de las 41 clases principales. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDAO`). Los números de línea corresponden a esa versión.
 
 Cómo leerlo: `-->` es "tiene o crea una instancia de"; `..>` es "usa"; `..|>` es "implementa"; `--|>` es "extiende"; `o--` es "contiene una referencia". Los patrones de diseño van marcados entre `<<...>>`.
 
@@ -9,7 +9,7 @@ Cómo leerlo: `-->` es "tiene o crea una instancia de"; `..>` es "usa"; `..|>` e
 ```mermaid
 classDiagram
     direction LR
-    class AplicacionCareStock {
+    class CareStockApp {
         <<Singleton parcial>>
         +start()
         +mostrarLogin()
@@ -24,20 +24,20 @@ classDiagram
         +actual()
         +usuarioParaFachada()
     }
-    class ControladorInicioSesion {
+    class LoginController {
         +initialize()
     }
-    class ControladorInventario {
+    class InventarioController {
         +initialize()
     }
-    class ControladorCatalogo {
+    class CatalogoController {
         +initialize()
         +abrirDesdeConsulta()
     }
-    class ControladorConsultaInventario {
+    class ConsultaInventarioController {
         +initialize()
     }
-    class ServicioAutenticacion {
+    class AuthenticationService {
         +autenticar()
     }
     class Inventario {
@@ -54,20 +54,20 @@ classDiagram
         +entero()
         +enteroOpcional()
     }
-    ControladorInicioSesion ..> AplicacionCareStock
-    ControladorInicioSesion ..> SesionUsuario
-    ControladorInventario ..> AplicacionCareStock
-    ControladorInventario ..> SesionUsuario
-    ControladorCatalogo ..> AplicacionCareStock
-    ControladorCatalogo ..> SesionUsuario
-    ControladorConsultaInventario ..> AplicacionCareStock
-    ControladorConsultaInventario ..> SesionUsuario
-    ControladorInicioSesion --> ServicioAutenticacion
-    ControladorInventario --> Inventario
-    ControladorCatalogo --> Inventario
-    ControladorConsultaInventario --> Inventario
-    ControladorCatalogo ..> LecturaCampos
-    AplicacionCareStock ..> SesionUsuario
+    LoginController ..> CareStockApp
+    LoginController ..> SesionUsuario
+    InventarioController ..> CareStockApp
+    InventarioController ..> SesionUsuario
+    CatalogoController ..> CareStockApp
+    CatalogoController ..> SesionUsuario
+    ConsultaInventarioController ..> CareStockApp
+    ConsultaInventarioController ..> SesionUsuario
+    LoginController --> AuthenticationService
+    InventarioController --> Inventario
+    CatalogoController --> Inventario
+    ConsultaInventarioController --> Inventario
+    CatalogoController ..> LecturaCampos
+    CareStockApp ..> SesionUsuario
 ```
 
 ## 2. Fachada, servicios, proxy y acceso a datos
@@ -83,13 +83,13 @@ classDiagram
         +dispensarMedicamento()
         +listarInventarioUnificado()
     }
-    class ServicioFarmacovigilancia {
+    class FarmacovigilanciaService {
         +dispensarMedicamento()
     }
-    class ServicioRegistroLote {
+    class RegistroLoteService {
         +registrarMedicamentoLote()
     }
-    class ServicioControlVencimientos {
+    class ControlVencimientosService {
         +sincronizar()
     }
     class InventarioConsultas {
@@ -109,42 +109,42 @@ classDiagram
         +invalidar()
         +aciertos()
     }
-    class ConsultaInventarioBaseDatos {
+    class ConsultaInventarioDAO {
         +listarPorFarmacia()
     }
-    class ServicioAutenticacion {
+    class AuthenticationService {
         +autenticar()
     }
-    class UsuarioDao {
+    class UsuarioDAO {
         <<interface>>
         +buscarPorEmail()
     }
-    class UsuarioDaoJdbc {
+    class UsuarioDAOImpl {
         +buscarPorEmail()
     }
-    class MedicamentoDao {
+    class MedicamentoDAO {
         <<interface>>
         +guardar()
         +buscarPorId()
         +listarTodos()
         +actualizarEstado()
     }
-    class MedicamentoDaoJdbc {
+    class MedicamentoDAOImpl {
         +guardar()
         +buscarPorId()
         +listarTodos()
     }
-    class MedicamentoCatalogoDao {
+    class MedicamentoCatalogoDAO {
         +listarPorFarmacia()
         +actualizar()
         +desactivar()
     }
-    class LoteDaoJdbc {
+    class LoteDAOImpl {
         +guardar()
         +listarPorFarmacia()
         +actualizarCantidad()
     }
-    class CatalogoDao {
+    class CatalogoDAO {
         <<abstract>>
         +guardar()
         +buscarPorId()
@@ -152,57 +152,57 @@ classDiagram
         +actualizar()
         +desactivar()
     }
-    class AseoDao {
+    class AseoDAO {
         #tabla()
         #asignarCampos()
         #construir()
     }
-    class MaternidadDao {
+    class MaternidadDAO {
         #tabla()
         #asignarCampos()
         #construir()
     }
-    class ConexionBaseDatos {
+    class ConexionBD {
         +getConexion()
         +estadoPool()
         +cerrarPool()
     }
-    Inventario --> AseoDao
-    Inventario --> MaternidadDao
-    Inventario --> MedicamentoDaoJdbc
-    Inventario --> MedicamentoCatalogoDao
-    Inventario --> LoteDaoJdbc
-    Inventario --> ServicioRegistroLote
-    Inventario --> ServicioFarmacovigilancia
-    Inventario --> ServicioControlVencimientos
+    Inventario --> AseoDAO
+    Inventario --> MaternidadDAO
+    Inventario --> MedicamentoDAOImpl
+    Inventario --> MedicamentoCatalogoDAO
+    Inventario --> LoteDAOImpl
+    Inventario --> RegistroLoteService
+    Inventario --> FarmacovigilanciaService
+    Inventario --> ControlVencimientosService
     Inventario --> InventarioConsultas
     InventarioConsultas --> ConsultaInventarioProxy
-    InventarioConsultas --> ConsultaInventarioBaseDatos
-    ServicioAutenticacion --> UsuarioDaoJdbc
+    InventarioConsultas --> ConsultaInventarioDAO
+    AuthenticationService --> UsuarioDAOImpl
     ConsultaInventarioProxy ..|> ConsultaInventario
-    ConsultaInventarioBaseDatos ..|> ConsultaInventario
+    ConsultaInventarioDAO ..|> ConsultaInventario
     ConsultaInventarioProxy o-- ConsultaInventario : real
-    UsuarioDaoJdbc ..|> UsuarioDao
-    MedicamentoDaoJdbc ..|> MedicamentoDao
-    AseoDao --|> CatalogoDao
-    MaternidadDao --|> CatalogoDao
-    LoteDaoJdbc ..> ConexionBaseDatos
-    MedicamentoDaoJdbc ..> ConexionBaseDatos
-    MedicamentoCatalogoDao ..> ConexionBaseDatos
-    UsuarioDaoJdbc ..> ConexionBaseDatos
-    CatalogoDao ..> ConexionBaseDatos
-    ConsultaInventarioBaseDatos ..> ConexionBaseDatos
-    ServicioFarmacovigilancia ..> ConexionBaseDatos
-    ServicioRegistroLote ..> ConexionBaseDatos
-    ServicioControlVencimientos ..> ConexionBaseDatos
-    Inventario ..> ConexionBaseDatos
+    UsuarioDAOImpl ..|> UsuarioDAO
+    MedicamentoDAOImpl ..|> MedicamentoDAO
+    AseoDAO --|> CatalogoDAO
+    MaternidadDAO --|> CatalogoDAO
+    LoteDAOImpl ..> ConexionBD
+    MedicamentoDAOImpl ..> ConexionBD
+    MedicamentoCatalogoDAO ..> ConexionBD
+    UsuarioDAOImpl ..> ConexionBD
+    CatalogoDAO ..> ConexionBD
+    ConsultaInventarioDAO ..> ConexionBD
+    FarmacovigilanciaService ..> ConexionBD
+    RegistroLoteService ..> ConexionBD
+    ControlVencimientosService ..> ConexionBD
+    Inventario ..> ConexionBD
     class SesionUsuario {
         +iniciar()
         +estaActiva()
         +esAdministrador()
         +cerrar()
     }
-    SesionUsuario ..> ConexionBaseDatos
+    SesionUsuario ..> ConexionBD
     ConsultaInventarioProxy ..> SesionUsuario
     SesionUsuario ..> InventarioConsultas
 ```
@@ -333,8 +333,8 @@ Estas cuatro clases están en el repositorio, pero ninguna otra clase las usa to
 | Builder con Director | Creacional | `Producto`, los 5 `...Builder` y `ProductoDirector` | Cada constructor implementa `Producto` y hace `new` de su entidad; el director recibe un constructor |
 | Singleton | Creacional | `InventarioConsultas` | Constructor privado (L19) y un único `PROXY` estático creado en la línea 14 |
 | Facade | Estructural | `Inventario` | Las tres pantallas hablan solo con él, y él crea y reparte el trabajo entre DAO y servicios |
-| Proxy | Estructural | `ConsultaInventarioProxy` | Implementa `ConsultaInventario`, igual que `ConsultaInventarioBaseDatos`, y guarda el real en el campo `real` (L51) |
-| Template Method | Comportamiento | `CatalogoDao`, `AseoDao` y `MaternidadDao` | `CatalogoDao` define el flujo común en métodos `final` y las subclases completan los ganchos (`tabla`, `asignarCampos`, `construir`...) |
+| Proxy | Estructural | `ConsultaInventarioProxy` | Implementa `ConsultaInventario`, igual que `ConsultaInventarioDAO`, y guarda el real en el campo `real` (L51) |
+| Template Method | Comportamiento | `CatalogoDAO`, `AseoDAO` y `MaternidadDAO` | `CatalogoDAO` define el flujo común en métodos `final` y las subclases completan los ganchos (`tabla`, `asignarCampos`, `construir`...) |
 
 ## 6. Relaciones y dónde verlas en el código
 
@@ -344,32 +344,32 @@ Ruta base: `src/CareStock/src/main/java/org/example/carestock/`.
 
 | Clase | Archivo | Relación (línea) |
 |---|---|---|
-| `ControladorInicioSesion` | `controller/ControladorInicioSesion.java` | instancia `ServicioAutenticacion` (L23); usa `SesionUsuario` (L75); usa `AplicacionCareStock` (L78) |
-| `ControladorInventario` | `controller/ControladorInventario.java` | instancia `Inventario` (L72); usa `SesionUsuario` (L69); usa `AplicacionCareStock` (L224) |
-| `ControladorCatalogo` | `controller/ControladorCatalogo.java` | instancia `Inventario` (L133); usa `SesionUsuario` (L134); usa `AplicacionCareStock` (L541); instancia `AseoBuilder` (L774); instancia `MaternidadBuilder` (L801); usa `LecturaCampos` (L725) |
-| `ControladorConsultaInventario` | `controller/ControladorConsultaInventario.java` | instancia `Inventario` (L86); usa `InventarioConsultas` (L407); usa `FiltroProductoInventario` (L178); usa `SesionUsuario` (L60); usa `AplicacionCareStock` (L445) |
-| `AplicacionCareStock` | `AplicacionCareStock.java` | usa `SesionUsuario` (L68) |
+| `LoginController` | `controller/LoginController.java` | instancia `AuthenticationService` (L23); usa `SesionUsuario` (L75); usa `CareStockApp` (L78) |
+| `InventarioController` | `controller/InventarioController.java` | instancia `Inventario` (L72); usa `SesionUsuario` (L69); usa `CareStockApp` (L224) |
+| `CatalogoController` | `controller/CatalogoController.java` | instancia `Inventario` (L133); usa `SesionUsuario` (L134); usa `CareStockApp` (L541); instancia `AseoBuilder` (L774); instancia `MaternidadBuilder` (L801); usa `LecturaCampos` (L725) |
+| `ConsultaInventarioController` | `controller/ConsultaInventarioController.java` | instancia `Inventario` (L86); usa `InventarioConsultas` (L407); usa `FiltroProductoInventario` (L178); usa `SesionUsuario` (L60); usa `CareStockApp` (L445) |
+| `CareStockApp` | `CareStockApp.java` | usa `SesionUsuario` (L68) |
 
 ### Fachada, servicios, proxy y DAO
 
 | Clase | Archivo | Relación (línea) |
 |---|---|---|
-| `Inventario` | `facade/Inventario.java` | instancia `AseoDao` (L26); instancia `MaternidadDao` (L27); instancia `MedicamentoDaoJdbc` (L30); instancia `MedicamentoCatalogoDao` (L33); instancia `LoteDaoJdbc` (L35); instancia `ServicioRegistroLote` (L41); instancia `ServicioFarmacovigilancia` (L44); instancia `ServicioControlVencimientos` (L47); usa `InventarioConsultas` (L38); usa `SesionUsuario` (L60); usa `ConexionBaseDatos` (L75) |
-| `InventarioConsultas` | `proxy/InventarioConsultas.java` | instancia `ConsultaInventarioProxy` (L14); instancia `ConsultaInventarioBaseDatos` (L15) |
+| `Inventario` | `facade/Inventario.java` | instancia `AseoDAO` (L26); instancia `MaternidadDAO` (L27); instancia `MedicamentoDAOImpl` (L30); instancia `MedicamentoCatalogoDAO` (L33); instancia `LoteDAOImpl` (L35); instancia `RegistroLoteService` (L41); instancia `FarmacovigilanciaService` (L44); instancia `ControlVencimientosService` (L47); usa `InventarioConsultas` (L38); usa `SesionUsuario` (L60); usa `ConexionBD` (L75) |
+| `InventarioConsultas` | `proxy/InventarioConsultas.java` | instancia `ConsultaInventarioProxy` (L14); instancia `ConsultaInventarioDAO` (L15) |
 | `ConsultaInventarioProxy` | `proxy/ConsultaInventarioProxy.java` | implementa `ConsultaInventario` (L28); usa `SesionUsuario` (L113) |
-| `ConsultaInventarioBaseDatos` | `dao/ConsultaInventarioBaseDatos.java` | implementa `ConsultaInventario` (L18); usa `ConexionBaseDatos` (L70) |
-| `ServicioAutenticacion` | `service/ServicioAutenticacion.java` | instancia `UsuarioDaoJdbc` (L14) |
-| `SesionUsuario` | `session/SesionUsuario.java` | usa `InventarioConsultas` (L47); usa `ConexionBaseDatos` (L68); instancia `Usuario` (L117) |
-| `ServicioFarmacovigilancia` | `service/ServicioFarmacovigilancia.java` | usa `ConexionBaseDatos` (L35) |
-| `ServicioRegistroLote` | `service/ServicioRegistroLote.java` | usa `ConexionBaseDatos` (L23); usa `Lote` (L12) |
-| `ServicioControlVencimientos` | `service/ServicioControlVencimientos.java` | usa `ConexionBaseDatos` (L22) |
-| `UsuarioDaoJdbc` | `dao/UsuarioDaoJdbc.java` | implementa `UsuarioDao` (L10); usa `ConexionBaseDatos` (L17); instancia `Usuario` (L24) |
-| `MedicamentoDaoJdbc` | `dao/MedicamentoDaoJdbc.java` | implementa `MedicamentoDao` (L13); usa `ConexionBaseDatos` (L24); instancia `Medicamento` (L169) |
-| `MedicamentoCatalogoDao` | `dao/MedicamentoCatalogoDao.java` | usa `ConexionBaseDatos` (L22); instancia `Medicamento` (L101) |
-| `LoteDaoJdbc` | `dao/LoteDaoJdbc.java` | usa `ConexionBaseDatos` (L19); instancia `Lote` (L141) |
-| `CatalogoDao` | `dao/CatalogoDao.java` | usa `ConexionBaseDatos` (L43) |
-| `AseoDao` | `dao/AseoDao.java` | extiende `CatalogoDao` (L12); instancia `AseoBuilder` (L45) |
-| `MaternidadDao` | `dao/MaternidadDao.java` | extiende `CatalogoDao` (L13); instancia `MaternidadBuilder` (L49) |
+| `ConsultaInventarioDAO` | `dao/ConsultaInventarioDAO.java` | implementa `ConsultaInventario` (L18); usa `ConexionBD` (L70) |
+| `AuthenticationService` | `service/AuthenticationService.java` | instancia `UsuarioDAOImpl` (L14) |
+| `SesionUsuario` | `session/SesionUsuario.java` | usa `InventarioConsultas` (L47); usa `ConexionBD` (L68); instancia `Usuario` (L117) |
+| `FarmacovigilanciaService` | `service/FarmacovigilanciaService.java` | usa `ConexionBD` (L35) |
+| `RegistroLoteService` | `service/RegistroLoteService.java` | usa `ConexionBD` (L23); usa `Lote` (L12) |
+| `ControlVencimientosService` | `service/ControlVencimientosService.java` | usa `ConexionBD` (L22) |
+| `UsuarioDAOImpl` | `dao/UsuarioDAOImpl.java` | implementa `UsuarioDAO` (L10); usa `ConexionBD` (L17); instancia `Usuario` (L24) |
+| `MedicamentoDAOImpl` | `dao/MedicamentoDAOImpl.java` | implementa `MedicamentoDAO` (L13); usa `ConexionBD` (L24); instancia `Medicamento` (L169) |
+| `MedicamentoCatalogoDAO` | `dao/MedicamentoCatalogoDAO.java` | usa `ConexionBD` (L22); instancia `Medicamento` (L101) |
+| `LoteDAOImpl` | `dao/LoteDAOImpl.java` | usa `ConexionBD` (L19); instancia `Lote` (L141) |
+| `CatalogoDAO` | `dao/CatalogoDAO.java` | usa `ConexionBD` (L43) |
+| `AseoDAO` | `dao/AseoDAO.java` | extiende `CatalogoDAO` (L12); instancia `AseoBuilder` (L45) |
+| `MaternidadDAO` | `dao/MaternidadDAO.java` | extiende `CatalogoDAO` (L13); instancia `MaternidadBuilder` (L49) |
 
 ### Dominio y creación
 
@@ -397,5 +397,5 @@ Ruta base: `src/CareStock/src/main/java/org/example/carestock/`.
 ## 7. Observaciones
 
 - Hay un patrón de comportamiento explícito (Template Method). La rúbrica pide dos por tipo, y falta un segundo de comportamiento.
-- `ReglaNegocioException` y `LoteDao` están en su carpeta del módulo en este zip; no se dibujan en estos diagramas para no recargarlos.
+- `ReglaNegocioException` y `LoteDAO` están en su carpeta del módulo en este zip; no se dibujan en estos diagramas para no recargarlos.
 - `VistasCache` y `CacheFarmacia` aún no tienen llamadores.

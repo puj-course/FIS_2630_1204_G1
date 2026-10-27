@@ -6,7 +6,7 @@ Parte 1 de 3 del diagrama de componentes de presentación y sesión (HU.85). Có
 
 ```mermaid
 flowchart LR
-    NAV["Navegación<br/>AplicacionCareStock"]
+    NAV["Navegación<br/>CareStockApp"]
     SES["Sesión de usuario<br/>SesionUsuario"]
     INAV(["INavegacion<br/>getInstance, mostrarLogin, mostrarDashboard,<br/>mostrarCatalogo, cerrarSesion"])
     ISES(["ISesion<br/>iniciar, estaActiva, actual,<br/>usuarioParaFachada, cerrar"])
@@ -28,12 +28,12 @@ Leyenda: rectángulo = componente; óvalo = interfaz; línea continua = el compo
 
 | Componente | Responsabilidad | Provee | Requiere |
 |---|---|---|---|
-| `AplicacionCareStock` | Arrancar la aplicación JavaFX, guardar el `Stage` principal y cambiar de pantalla con una transición de desvanecimiento | `INavegacion`: `getInstance`, `mostrarLogin`, `mostrarDashboard`, `mostrarCatalogo`, `cerrarSesion` | `ISesion` (`estaActiva` y `cerrar`), las vistas FXML y las clases de JavaFX |
+| `CareStockApp` | Arrancar la aplicación JavaFX, guardar el `Stage` principal y cambiar de pantalla con una transición de desvanecimiento | `INavegacion`: `getInstance`, `mostrarLogin`, `mostrarDashboard`, `mostrarCatalogo`, `cerrarSesion` | `ISesion` (`estaActiva` y `cerrar`), las vistas FXML y las clases de JavaFX |
 | `SesionUsuario` | Guardar los datos del usuario autenticado y de su farmacia mientras la aplicación está abierta | `ISesion`: `iniciar(Usuario)`, `estaActiva()`, `actual()`, `usuarioParaFachada()`, `cerrar()` | `IConexion`: consulta `usuarios` unido con `farmacias` |
 
 ## 3. Cómo se protege cada pantalla
 
-| Operación de `AplicacionCareStock` | Comportamiento |
+| Operación de `CareStockApp` | Comportamiento |
 |---|---|
 | `mostrarLogin()` | Cierra la sesión (`SesionUsuario.cerrar()`) y carga `login-view.fxml` |
 | `mostrarDashboard()` | Si no hay sesión activa vuelve al login; si la hay, carga `inventario-view.fxml` |
@@ -52,6 +52,6 @@ Las tres escenas son de 1100 x 650. Si no se encuentra el archivo FXML, se escri
 
 - El estado de la sesión es **estático** (`private static volatile DatosUsuario actual`) y la clase tiene constructor privado. Es un Singleton por campo estático, no por instancia.
 - El campo `rol` se llena con el texto `"Rol #"` seguido del `id_rol` (por ejemplo `Rol #2`). No contiene el nombre del rol, así que ninguna pantalla puede distinguir roles todavía.
-- `SesionUsuario` ejecuta SQL directamente con `ConexionBaseDatos`, sin pasar por un DAO.
+- `SesionUsuario` ejecuta SQL directamente con `ConexionBD`, sin pasar por un DAO.
 - `usuarioParaFachada()` devuelve un `Usuario` con solo el `id`; la fachada de inventario vuelve a consultar la farmacia del usuario cada vez que la necesita.
-- `LanzadorEjemplo`, `AplicacionEjemplo`, `ControladorEjemplo` y `hello-view.fxml` son la plantilla del asistente de JavaFX y no forman parte del flujo.
+- `Launcher`, `HelloApplication`, `HelloController` y `hello-view.fxml` son la plantilla del asistente de JavaFX y no forman parte del flujo.

@@ -25,7 +25,7 @@ usuario hace clic en "Agregar Medicamento". |
 captura los datos del nuevo lote. |
 | 3 | Construcción del objeto | Se construye un objeto `Medicamento` con 
 los datos ingresados. |
-| 4 | Llamada al DAO | `MedicamentoDao.insertar()` ejecuta el INSERT en 
+| 4 | Llamada al DAO | `MedicamentoDAO.insertar()` ejecuta el INSERT en
 PostgreSQL. |
 | 5 | Conexión a BD | `DatabaseConfig.getConnection()` conecta a NeonDB 
 con JDBC. |
@@ -45,7 +45,7 @@ el movimiento en `LOG_MOVIMIENTOS`. |
 | Interfaz | `MainDashboardFX.java` |
 | Interfaz | `FormularioMedicamentoDialog.java` |
 | Modelo | `Medicamento.java` |
-| Acceso a datos | `MedicamentoDao.java` |
+| Acceso a datos | `MedicamentoDAO.java` |
 | Configuración | `DatabaseConfig.java` |
 | Base de datos | `01_schema_carestock.sql` |
 | Base de datos | `01_sp_ingreso_lotes.sql` |

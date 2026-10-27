@@ -1,6 +1,6 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.session.SesionUsuario;
 
@@ -80,7 +80,7 @@ public final class ServicioMovimientosProducto {
             );
         }
 
-        try (Connection conexion = ConexionBaseDatos.getConexion()) {
+        try (Connection conexion = ConexionBD.getConexion()) {
 
             conexion.setAutoCommit(false);
 

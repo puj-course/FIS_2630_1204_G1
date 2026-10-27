@@ -1,6 +1,6 @@
 package org.example.carestock.sms;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,7 +47,7 @@ public final class RegistrarDestinatarioSms {
             """;
 
         try (Connection con =
-                     ConexionBaseDatos.getConexion();
+                     ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, args[1]);
@@ -67,7 +67,7 @@ public final class RegistrarDestinatarioSms {
             );
 
         } finally {
-            ConexionBaseDatos.cerrarPool();
+            ConexionBD.cerrarPool();
         }
     }
 }

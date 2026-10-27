@@ -53,7 +53,7 @@ manualmente una farmacia.
 Debe obtener el contexto mediante la sesión activa:
 
 ```text
-ControladorInventario
+InventarioController
         ↓
 UserSession.getInstance()
         ↓

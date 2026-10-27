@@ -189,7 +189,7 @@ FIS_2630_1204_G1/
 │       └── test_data/                   # Datos destinados a escenarios de prueba
 │
 ├── .gitignore                           # Reglas para excluir archivos generados y credenciales
-├── .env.example                        # Referencia histórica de variables; no configura ConexionBaseDatos
+├── .env.example                        # Referencia histórica de variables; no configura ConexionBD
 ├── compose.yaml                        # Orquestación de la ejecución opcional mediante Docker Compose
 ├── BOILERPLATE_template.md             # Plantilla de referencia para documentación o estructura
 ├── CHANGELOG.md                        # Registro histórico de modificaciones y versiones
@@ -208,7 +208,7 @@ cd FIS_2630_1204_G1/src/CareStock
 
 ### 2. Crear la configuración local de PostgreSQL/Neon
 
-La clase `ConexionBaseDatos` lee **`config/conexion-local.properties`**, relativa al directorio de ejecución del proyecto. La configuración de la base de datos **no se toma de `DB_URL`, `DB_USER` o `DB_PASSWORD`** en esta implementación.
+La clase `ConexionBD` lee **`config/conexion-local.properties`**, relativa al directorio de ejecución del proyecto. La configuración de la base de datos **no se toma de `DB_URL`, `DB_USER` o `DB_PASSWORD`** en esta implementación.
 
 Desde `src/CareStock`:
 
@@ -273,7 +273,7 @@ Ejecuta los comandos **desde `src/CareStock`**, no desde la raíz del repositori
 2. Configura el **Project SDK = JDK 21**.
 3. Espera a que Maven descargue y sincronice las dependencias.
 4. Comprueba que exista `config/conexion-local.properties`.
-5. Ejecuta el objetivo Maven **`javafx:run`** o el punto de entrada `org.example.carestock.AplicacionCareStock` con su configuración modular correspondiente.
+5. Ejecuta el objetivo Maven **`javafx:run`** o el punto de entrada `org.example.carestock.CareStockApp` con su configuración modular correspondiente.
 
 ## Ejecución con Docker
 
@@ -432,3 +432,48 @@ CareStock es un proyecto académico en desarrollo. Las versiones beta no represe
 La publicación del código fuente no implica que exista un instalador autónomo.
 
 Las integraciones de alertas y mensajería que continúen en desarrollo no se consideran funcionalidades terminadas de esta versión.
+
+---
+
+## Distribucion para Windows
+
+CareStock dispone de un workflow de GitHub Actions que prepara
+una distribucion ejecutable al publicar una Release o Pre-release.
+
+Workflow: `.github/workflows/release-windows.yml`
+
+### Archivos de distribucion
+
+- `CareStock-Setup-<version>.exe`: instalador de Windows.
+- `CareStock-Portable-<version>.zip`: aplicacion portable.
+
+Ambos incluyen un entorno de ejecucion Java, por lo que el
+usuario final no necesita instalar Maven ni configurar el JDK.
+
+### Configuracion de base de datos
+
+La distribucion no incluye credenciales.
+
+Cada instalacion debe disponer del archivo:
+
+`%APPDATA%\CareStock\conexion-local.properties`
+
+Puede utilizarse como referencia:
+
+`src/CareStock/config/conexion-local.properties.example`
+
+### Publicacion de versiones
+
+1. Actualizar la version de Maven.
+2. Integrar los cambios a main.
+3. Crear una nueva etiqueta de version.
+4. Publicar una Release o Pre-release desde GitHub.
+5. GitHub Actions construye el instalador y lo adjunta
+   a la publicacion, siempre que el workflow termine correctamente.
+
+### Limitaciones
+
+- El instalador se distribuye inicialmente sin firma digital.
+- El empaquetado requiere validacion en un equipo Windows limpio.
+- La generacion automatica no implica certificacion para produccion.
+- La distribucion se orienta inicialmente a Windows x64.

@@ -24,8 +24,8 @@ flowchart TD
     E --> F{¿Campos completos?}
     F -->|No| G[Muestra mensaje de error]
     G --> E
-    F -->|Sí| H[ServicioAutenticacion.autenticar]
-    H --> I[UsuarioDao.buscarPorEmail]
+    F -->|Sí| H[AuthenticationService.autenticar]
+    H --> I[UsuarioDAO.buscarPorEmail]
     I --> J{¿Credenciales válidas?}
     J -->|No| K[Muestra error genérico]
     K --> E

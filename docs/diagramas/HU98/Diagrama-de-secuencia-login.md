@@ -7,21 +7,21 @@
 El diagrama muestra el flujo de autenticación:
 
 1. El usuario ingresa email y contraseña.
-2. `ControladorInicioSesion` llama a `ServicioAutenticacion.autenticar()`.
-3. `ServicioAutenticacion` llama a `UsuarioDaoJdbc.buscarPorEmail()`.
-4. `UsuarioDaoJdbc` consulta la base de datos.
+2. `LoginController` llama a `AuthenticationService.autenticar()`.
+3. `AuthenticationService` llama a `UsuarioDAOImpl.buscarPorEmail()`.
+4. `UsuarioDAOImpl` consulta la base de datos.
 5. Si el usuario existe y la contraseña es correcta, se crea la sesión con `SesionUsuario.iniciar()`.
-6. `AplicacionCareStock.mostrarDashboard()` muestra el dashboard.
+6. `CareStockApp.mostrarDashboard()` muestra el dashboard.
 
 ## Clases involucradas
 
 | Clase | Rol |
 |-------|-----|
-| `ControladorInicioSesion` | Controlador de la vista de login |
-| `ServicioAutenticacion` | Servicio de autenticación |
-| `UsuarioDaoJdbc` | Acceso a datos de usuarios |
+| `LoginController` | Controlador de la vista de login |
+| `AuthenticationService` | Servicio de autenticación |
+| `UsuarioDAOImpl` | Acceso a datos de usuarios |
 | `SesionUsuario` | Gestión de la sesión |
-| `AplicacionCareStock` | Navegación entre vistas |
+| `CareStockApp` | Navegación entre vistas |
 | `Base de Datos` | PostgreSQL/Neon |
 
 ## Casos alternativos

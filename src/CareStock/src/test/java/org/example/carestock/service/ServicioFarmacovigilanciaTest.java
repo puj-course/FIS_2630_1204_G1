@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServicioFarmacovigilanciaTest {
 
-    private final ServicioFarmacovigilancia servicio = new ServicioFarmacovigilancia();
+    private final FarmacovigilanciaService servicio = new FarmacovigilanciaService();
 
     private static final String MENSAJE_DATOS =
             "Lote, cantidad, usuario y farmacia deben ser validos";

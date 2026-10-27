@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ServicioRegistroLoteTest {
 
-    private final ServicioRegistroLote servicio = new ServicioRegistroLote();
+    private final RegistroLoteService servicio = new RegistroLoteService();
 
     private static Lote lote(int cantidad, Integer ubicacion) {
         return new Lote("L-001", 1, cantidad, LocalDate.now().plusDays(90),

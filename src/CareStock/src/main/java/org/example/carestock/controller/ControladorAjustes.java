@@ -5,7 +5,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.CareStockApp;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.model.AjusteExistencias.Categoria;
 import org.example.carestock.service.ServicioAjustesInventario;
@@ -468,7 +468,7 @@ public final class ControladorAjustes {
             return;
         }
 
-        AplicacionCareStock.getInstance().mostrarDashboard();
+        CareStockApp.getInstance().mostrarDashboard();
     }
 
     private static void ejecutar(

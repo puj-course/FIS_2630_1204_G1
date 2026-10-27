@@ -1,6 +1,6 @@
 package org.example.carestock.controller;
 
-import org.example.carestock.dto.MovimientoHistorial;
+import org.example.carestock.DataTransferObject.MovimientoHistorial;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

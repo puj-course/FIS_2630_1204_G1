@@ -1,7 +1,7 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.config.ConexionBaseDatos;
-import org.example.carestock.dto.MovimientoHistorial;
+import org.example.carestock.config.ConexionBD;
+import org.example.carestock.DataTransferObject.MovimientoHistorial;
 import org.example.carestock.session.SesionUsuario;
 
 import java.sql.Connection;
@@ -180,7 +180,7 @@ public final class HistorialMovimientosDao {
 
         List<MovimientoHistorial> resultado;
 
-        try (Connection con = ConexionBaseDatos.getConexion()) {
+        try (Connection con = ConexionBD.getConexion()) {
             resultado = consultar(
                     con, farmacia, limite, desplazamiento);
         }

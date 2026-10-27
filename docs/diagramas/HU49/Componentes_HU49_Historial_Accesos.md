@@ -14,11 +14,11 @@ El diagrama muestra la organización modular de CareStock para soportar la consu
 **Componentes.**
 - **Vista:** pantalla HistorialAccesosFX.
 - **Historial:** AccesoDAO, encargado de consultar el historial.
-- **Usuarios:** UsuarioDao, encargado de listar usuarios.
+- **Usuarios:** UsuarioDAO, encargado de listar usuarios.
 - **Configuración BD:** gestiona la conexión con la base de datos.
 
-**Interfaces provistas.** Historial ofrece Historial; Usuarios ofrece UsuarioDao; Configuración BD ofrece Conexion.
+**Interfaces provistas.** Historial ofrece Historial; Usuarios ofrece UsuarioDAO; Configuración BD ofrece Conexion.
 
-**Interfaces requeridas.** Vista requiere Historial y UsuarioDao. Historial y Usuarios requieren Conexion.
+**Interfaces requeridas.** Vista requiere Historial y UsuarioDAO. Historial y Usuarios requieren Conexion.
 
 > La base de datos no se incluye porque es un artefacto de despliegue, y se modela en el Diagrama de Despliegue.

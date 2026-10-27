@@ -575,6 +575,6 @@ public class ControladorMovimientos {
             return;
         }
 
-        org.example.carestock.AplicacionCareStock.getInstance().mostrarDashboard();
+        org.example.carestock.CareStockApp.getInstance().mostrarDashboard();
     }
 }
