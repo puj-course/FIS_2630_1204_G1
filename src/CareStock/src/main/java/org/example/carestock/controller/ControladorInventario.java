@@ -56,6 +56,8 @@ public class ControladorInventario {
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
+    @FXML private Label lblAlertaStock;
+    @FXML private Label lblAlertaVencimiento;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -473,5 +475,16 @@ public class ControladorInventario {
                         "No se pudo guardar el archivo: " + e.getMessage());
             }
         }
+    }
+        @FXML
+    private void onFiltrarStockBajo() {
+        // Lógica en el subissue #870
+        System.out.println("Filtrar stock bajo presionado");
+    }
+
+    @FXML
+    private void onFiltrarProximosVencer() {
+        // Lógica en el subissue #871
+        System.out.println("Filtrar próximos a vencer presionado");
     }
 }
