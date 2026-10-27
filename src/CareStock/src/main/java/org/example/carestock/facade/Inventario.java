@@ -489,43 +489,4 @@ public class Inventario {
 
         return consulta.listarPorFarmacia(farmacia);
     }
-        // ==================================================
-    // ALERTAS PREVENTIVAS
-    // ==================================================
-
-    public Map<String, Integer> obtenerResumenAlertas() throws Exception {
-        int idFarmacia = farmaciaActual();
-        Map<String, Integer> alertas = new HashMap<>();
-
-        String sqlStock = "SELECT COUNT(*) FROM medicamentos WHERE id_farmacia = ? AND stock_total <= stock_minimo AND estado = 'ACTIVO'";
-    
-        String sqlVencimiento = "SELECT COUNT(*) FROM lotes l " +
-                                "INNER JOIN medicamentos m ON m.id_medicamento = l.id_medicamento " +
-                                "WHERE m.id_farmacia = ? AND l.estado_lote = 'DISPONIBLE' " +
-                                "AND l.fecha_vencimiento >= CURRENT_DATE " +
-                                "AND l.fecha_vencimiento <= CURRENT_DATE + INTERVAL '30 days'";
-
-        try (Connection con = ConexionBaseDatos.getConexion()) {
-            
-            try (PreparedStatement ps = con.prepareStatement(sqlStock)) {
-                ps.setInt(1, idFarmacia);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        alertas.put("stockBajo", rs.getInt(1));
-                    }
-                }
-            }
-
-            try (PreparedStatement ps = con.prepareStatement(sqlVencimiento)) {
-                ps.setInt(1, idFarmacia);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        alertas.put("proximosVencer", rs.getInt(1));
-                    }
-                }
-            }
-        }
-
-        return alertas;
-    }
 }
