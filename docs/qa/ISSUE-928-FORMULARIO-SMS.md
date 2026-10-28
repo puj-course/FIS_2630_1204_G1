@@ -185,10 +185,10 @@ versionados en el repositorio.
 - [x] Apertura visual del dashboard.
 - [x] Apertura visual del formulario SMS.
 - [x] Conexion de pruebas diagnosticada y corregida.
-- [ ] Evidencias individuales de UI-01 a UI-12 completas.
-- [ ] Pruebas de dos farmacias documentadas individualmente.
-- [ ] Regresion final posterior a las ultimas correcciones.
-- [ ] Pull Request aprobado e integrado.
+- [x] Evidencias individuales de UI-01 a UI-12 completas.
+- [x] Pruebas de dos farmacias documentadas individualmente.
+- [x] Regresion final posterior a las ultimas correcciones.
+- [x] Pull Request aprobado e integrado.
 
 ### 10.10. Conclusion
 
