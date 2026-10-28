@@ -507,9 +507,29 @@ public class InventarioController {
     private void onFiltrarProximosVencer() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Filtro", "Filtrando próximos a vencer (en desarrollo).");
     }
-    @FXML
+        @FXML
     private void onAbrirNotificaciones() {
-        // La lógica del menú desplegable se implementará en el subissue #873
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Notificaciones", "El menú de notificaciones estará disponible pronto.");
+        javafx.scene.control.ContextMenu contextMenu = new javafx.scene.control.ContextMenu();
+        
+        try {
+            java.util.List<String> alertas = inventario.obtenerListaAlertas();
+
+            if (alertas.isEmpty()) {
+                javafx.scene.control.MenuItem item = new javafx.scene.control.MenuItem("No hay notificaciones nuevas");
+                item.setDisable(true);
+                contextMenu.getItems().add(item);
+            } else {
+                for (String alerta : alertas) {
+                    javafx.scene.control.MenuItem item = new javafx.scene.control.MenuItem(alerta);
+                    contextMenu.getItems().add(item);
+                }
+            }
+        } catch (Exception e) {
+            javafx.scene.control.MenuItem itemError = new javafx.scene.control.MenuItem("Error al cargar notificaciones");
+            itemError.setDisable(true);
+            contextMenu.getItems().add(itemError);
+            e.printStackTrace();
+        }
+        contextMenu.show(btnCampana, javafx.geometry.Side.BOTTOM, 0, 0);
     }
 }
