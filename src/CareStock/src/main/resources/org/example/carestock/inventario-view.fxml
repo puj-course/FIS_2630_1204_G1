@@ -81,7 +81,32 @@
                                 text="Historial de movimientos"
                                 onAction="#onAbrirHistorial"
                                 style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 16;" />
-
+                       <!-- Campana de Notificaciones -->
+                        <StackPane alignment="TOP_RIGHT" style="-fx-padding: 0 10 0 0;">
+                            <children>
+                                <Button fx:id="btnCampana" 
+                                        text="🔔" 
+                                        onAction="#onAbrirNotificaciones"
+                                        style="-fx-background-color: rgba(32,48,47,0.08); -fx-font-size: 16; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 12;" />
+                                
+                                <!-- Badge (Círculo Rojo) -->
+                                <Circle fx:id="badgeNotificaciones" 
+                                        fill="#E53935" 
+                                        radius="8.0" 
+                                        visible="false" 
+                                        translateX="6.0" 
+                                        translateY="-6.0" />
+                                
+                                <!-- Texto del Badge (Número) -->
+                                <Label fx:id="lblContadorNotificaciones" 
+                                       text="0" 
+                                       textFill="white" 
+                                       visible="false" 
+                                       translateX="6.0" 
+                                       translateY="-6.0" 
+                                       style="-fx-font-size: 9; -fx-font-weight: bold;" />
+                            </children>
+                        </StackPane>
                         <Button fx:id="btnCatalogo"
                                 text="Catálogo"
                                 onAction="#onAbrirCatalogo"

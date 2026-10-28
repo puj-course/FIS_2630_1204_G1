@@ -58,6 +58,9 @@ public class InventarioController {
     @FXML private DatePicker dateFin;
     @FXML private Label lblAlertaStock;
     @FXML private Label lblAlertaVencimiento;
+    @FXML private Button btnCampana;
+    @FXML private javafx.scene.shape.Circle badgeNotificaciones;
+    @FXML private Label lblContadorNotificaciones;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -503,5 +506,10 @@ public class InventarioController {
     @FXML
     private void onFiltrarProximosVencer() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Filtro", "Filtrando próximos a vencer (en desarrollo).");
+    }
+    @FXML
+    private void onAbrirNotificaciones() {
+        // La lógica del menú desplegable se implementará en el subissue #873
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Notificaciones", "El menú de notificaciones estará disponible pronto.");
     }
 }
