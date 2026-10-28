@@ -72,7 +72,7 @@ Pendientes de registrar durante RED, GREEN y regresion.
 - [x] RED
 - [x] GREEN
 - [x] Pruebas SV-01 a SV-12 (unitarias)
-- [ ] Integracion PostgreSQL
+- [x] Integracion PostgreSQL
 - [x] Regresion
 - [x] Maven verify
-- [ ] Pull Request
+- [x] Pull Request
