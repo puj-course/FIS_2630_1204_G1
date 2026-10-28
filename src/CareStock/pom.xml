@@ -12,7 +12,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>CareStock</artifactId>
-    <version>0.1.0-beta.1</version>
+    <version>1.0-SNAPSHOT</version>
     <name>CareStock</name>
 
     <!-- =============================================== -->
@@ -28,6 +28,7 @@
         <postgresql.version>42.7.2</postgresql.version>
         <hikari.version>6.0.0</hikari.version>
         <junit.version>5.10.2</junit.version>
+        <mockito.version>5.24.0</mockito.version>
     </properties>
 
     <!-- =============================================== -->
@@ -129,7 +130,7 @@
         </dependency>
 
         <!-- =========================================== -->
-        <!-- AUTENTICACION SEGURA - BCRYPT              -->
+        <!-- AUTENTICACION SEGURA - BCRYPT               -->
         <!-- =========================================== -->
 
         <dependency>
@@ -149,7 +150,19 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- =========================================== -->
+        <!-- MOCKITO - SIMULACION DE DEPENDENCIAS        -->
+        <!-- =========================================== -->
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Logging para HikariCP -->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -202,7 +215,7 @@
                         <id>default-cli</id>
 
                         <configuration>
-                            <mainClass>org.example.carestock/org.example.carestock.CareStockApp</mainClass>
+                            <mainClass>org.example.carestock/org.example.carestock.AplicacionCareStock</mainClass>
                         </configuration>
 
                     </execution>
