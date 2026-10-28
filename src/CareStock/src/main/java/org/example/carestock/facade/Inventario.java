@@ -493,6 +493,38 @@ public class Inventario {
     // ALERTAS PREVENTIVAS (HU.121)
     // ==================================================
 
+
+    public java.util.Set<Integer> obtenerIdsMedicamentosStockBajo()
+            throws Exception {
+
+        int farmacia = farmaciaActual();
+
+        java.util.Set<Integer> ids = new java.util.HashSet<>();
+
+        String sql = """
+            SELECT id_medicamento
+            FROM medicamentos
+            WHERE id_farmacia = ?
+              AND stock_total <= stock_minimo
+              AND estado = 'ACTIVO'
+            """;
+
+        try (java.sql.Connection con = ConexionBD.getConexion();
+             java.sql.PreparedStatement ps =
+                     con.prepareStatement(sql)) {
+
+            ps.setInt(1, farmacia);
+
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("id_medicamento"));
+                }
+            }
+        }
+
+        return ids;
+    }
+
     public Map<String, Integer> obtenerResumenAlertas() throws Exception {
         int idFarmacia = farmaciaActual();
         Map<String, Integer> alertas = new HashMap<>();

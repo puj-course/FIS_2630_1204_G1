@@ -252,6 +252,22 @@ public class CareStockApp extends Application {
                 1200, 760);
     }
 
+    public void mostrarConfiguracionSms() {
+        if (!SesionUsuario.estaActiva()
+                || !SesionUsuario.esAdministrador()
+                || SesionUsuario.actual().idFarmacia() == null) {
+            Alert aviso = new Alert(Alert.AlertType.WARNING,
+                    "Solo administradores con farmacia asignada pueden configurar SMS.");
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
+            return;
+        }
+
+        transicionarEscena(
+                "/org/example/carestock/preferencias-sms-view.fxml",
+                1100, 750);
+    }
+
     public void cerrarSesion() {
 
         SesionUsuario.cerrar();
@@ -325,6 +341,7 @@ public class CareStockApp extends Application {
                     "Error al cargar la pantalla: " + fxmlRuta
             );
             e.printStackTrace();
+            throw new IllegalStateException("No se pudo cargar la vista " + fxmlRuta, e);
         }
     }
 

@@ -36,6 +36,7 @@ public class InventarioController {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private Button btnSms;
     @FXML private Button btnHistorial;
     @FXML private Button btnAjustes;
     @FXML private Button btnExportarCSV;
@@ -112,6 +113,11 @@ public class InventarioController {
         boolean puedeAjustar = puedeConsultarCatalogo
                 && ("ADMINISTRADOR".equalsIgnoreCase(rol)
                     || "SUPER_ADMIN".equalsIgnoreCase(rol));
+        boolean puedeSms = SesionUsuario.esAdministrador()
+                && sesion.idFarmacia() != null;
+        btnSms.setVisible(puedeSms);
+        btnSms.setManaged(puedeSms);
+
         btnAjustes.setVisible(puedeAjustar);
         btnAjustes.setManaged(puedeAjustar);
 
@@ -192,6 +198,7 @@ public class InventarioController {
         LocalDate fin = dateFin.getValue();
 
         Predicate<Lote> filtroFechas = lote -> {
+            if (inicio == null && fin == null) return true;
             if (lote.getFechaIngreso() == null) return false;
             LocalDate fechaLote = lote.getFechaIngreso().toLocalDate();
             
@@ -247,6 +254,59 @@ public class InventarioController {
     @FXML
     private void onFiltrarDisponibles() {
         filtroEstado = Lote::esAptoParaDispensar;
+        aplicarFiltros();
+    }
+
+
+    @FXML
+    private void onFiltrarStockBajo() {
+        try {
+            java.util.Set<Integer> medicamentos =
+                    inventario.obtenerIdsMedicamentosStockBajo();
+
+            txtBuscar.clear();
+            cmbCategoria.getSelectionModel().selectFirst();
+            dateInicio.setValue(null);
+            dateFin.setValue(null);
+
+            filtroEstado = lote ->
+                    medicamentos.contains(lote.getIdMedicamento());
+
+            aplicarFiltros();
+
+            if (datosFiltrados.isEmpty()) {
+                tablaLotes.setPlaceholder(new Label(
+                        "No hay lotes visibles de medicamentos con stock bajo."
+                ));
+            }
+
+        } catch (Exception e) {
+            mostrarAlerta(
+                    Alert.AlertType.ERROR,
+                    "Error al filtrar stock",
+                    "No fue posible consultar los medicamentos con stock bajo."
+            );
+        }
+    }
+
+
+    @FXML
+    private void onFiltrarProximosVencer() {
+        LocalDate hoy = LocalDate.now();
+        LocalDate limite = hoy.plusDays(30);
+
+        txtBuscar.clear();
+        cmbCategoria.getSelectionModel().selectFirst();
+        dateInicio.setValue(null);
+        dateFin.setValue(null);
+
+        filtroEstado = lote ->
+                lote.getFechaVencimiento() != null
+                && !lote.getFechaVencimiento().isBefore(hoy)
+                && !lote.getFechaVencimiento().isAfter(limite)
+                && "DISPONIBLE".equalsIgnoreCase(
+                        lote.getEstadoLote());
+
         aplicarFiltros();
     }
 
@@ -323,6 +383,11 @@ public class InventarioController {
 
 
     @FXML
+    private void onAbrirSms() {
+        CareStockApp.getInstance().mostrarConfiguracionSms();
+    }
+
+    @FXML
     private void onAbrirAjustes() {
         CareStockApp.getInstance().mostrarFormularioAjustes();
     }
@@ -336,6 +401,21 @@ public class InventarioController {
     private void onAbrirCatalogo() {
         CareStockApp.getInstance().mostrarCatalogo();
     }
+
+    @FXML
+    private void onAbrirNotificaciones() {
+        cargarResumenAlertas();
+
+        mostrarAlerta(
+                Alert.AlertType.INFORMATION,
+                "Notificaciones de inventario",
+                "Productos con stock bajo: "
+                        + lblAlertaStock.getText()
+                        + "\nLotes proximos a vencer: "
+                        + lblAlertaVencimiento.getText()
+        );
+    }
+
 
     @FXML
     private void onCerrarSesion() {
