@@ -528,4 +528,38 @@ public class Inventario {
 
         return alertas;
     }
+        public java.util.List<String> obtenerListaAlertas() throws Exception {
+        int idFarmacia = farmaciaActual();
+        java.util.List<String> lista = new java.util.ArrayList<>();
+
+        // Alertas de stock mínimo
+        String sqlStock = "SELECT nombre_comercial FROM medicamentos WHERE id_farmacia = ? AND stock_total <= stock_minimo AND estado = 'ACTIVO' LIMIT 10";
+        try (Connection con = ConexionBaseDatos.getConexion();
+             PreparedStatement ps = con.prepareStatement(sqlStock)) {
+            ps.setInt(1, idFarmacia);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add("⚠️ Stock bajo: " + rs.getString("nombre_comercial"));
+                }
+            }
+        }
+
+        // Alertas de vencimiento próximo
+        String sqlVenc = "SELECT m.nombre_comercial, l.fecha_vencimiento FROM lotes l " +
+                         "INNER JOIN medicamentos m ON m.id_medicamento = l.id_medicamento " +
+                         "WHERE m.id_farmacia = ? AND l.estado_lote = 'DISPONIBLE' " +
+                         "AND l.fecha_vencimiento >= CURRENT_DATE " +
+                         "AND l.fecha_vencimiento <= CURRENT_DATE + INTERVAL '30 days' LIMIT 10";
+        try (Connection con = ConexionBaseDatos.getConexion();
+             PreparedStatement ps = con.prepareStatement(sqlVenc)) {
+            ps.setInt(1, idFarmacia);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add("⏳ Vence pronto (" + rs.getDate("fecha_vencimiento") + "): " + rs.getString("nombre_comercial"));
+                }
+            }
+        }
+
+        return lista;
+    }
 }
