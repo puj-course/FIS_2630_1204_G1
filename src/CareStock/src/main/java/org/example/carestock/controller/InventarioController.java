@@ -413,7 +413,6 @@ public class InventarioController {
             }
             aplicarFiltros();
 
-            // Actualizar contadores KPI
             lblTotalLotes.setText(String.valueOf(lotes.size()));
             long vencidos = lotes.stream()
                     .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(LocalDate.now()))
@@ -481,35 +480,29 @@ public class InventarioController {
             }
         }
     }
-            private void cargarResumenAlertas() {
+                private void cargarResumenAlertas() {
         try {
             Map<String, Integer> alertas = inventario.obtenerResumenAlertas();
             
             int stockBajo = alertas.getOrDefault("stockBajo", 0);
             int proximosVencer = alertas.getOrDefault("proximosVencer", 0);
+            int total = stockBajo + proximosVencer;
 
             lblAlertaStock.setText(stockBajo + (stockBajo == 1 ? " producto" : " productos"));
             lblAlertaVencimiento.setText(proximosVencer + (proximosVencer == 1 ? " lote" : " lotes"));
+            if (total > 0) {
+                badgeNotificaciones.setVisible(true);
+                lblContadorNotificaciones.setText(String.valueOf(total));
+                lblContadorNotificaciones.setVisible(true);
+            } else {
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
             lblAlertaStock.setText("Error");
             lblAlertaVencimiento.setText("Error");
         }
-    }
-
-    @FXML
-    private void onFiltrarStockBajo() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Filtro", "Filtrando productos con stock bajo (en desarrollo).");
-    }
-
-    @FXML
-    private void onFiltrarProximosVencer() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Filtro", "Filtrando próximos a vencer (en desarrollo).");
-    }
-    @FXML
-    private void onAbrirNotificaciones() {
-        // La lógica del menú desplegable se implementará en el subissue #873
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Notificaciones", "El menú de notificaciones estará disponible pronto.");
     }
 }
