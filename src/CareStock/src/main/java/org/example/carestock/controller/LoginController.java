@@ -69,9 +69,6 @@ campo.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-bor
         // Simulamos un leve respiro visual o ejecutamos directo
         try {
             Usuario usuarioValido = authService.autenticar(email, password);
-
-            mostrarMensaje("Acceso concedido. Bienvenido/a " + usuarioValido.getNombre() + "...", false);
-
             SesionUsuario.iniciar(usuarioValido);
 
             // Transición suave al Dashboard
@@ -83,7 +80,7 @@ campo.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-bor
             txtPassword.requestFocus();
             cambiarEstadoCarga(false);
         } catch (Exception e) {
-            mostrarMensaje("Error al conectar con la base de datos: " + e.getMessage(), true);
+            mostrarMensaje("No se pudo completar el ingreso. Consulta el error en Git Bash.", true);
             e.printStackTrace();
             cambiarEstadoCarga(false);
         }

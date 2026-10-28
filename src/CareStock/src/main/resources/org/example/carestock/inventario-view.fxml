@@ -77,6 +77,11 @@
                                 onAction="#onAbrirAjustes"
                                 style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 16;" />
 
+                        <Button fx:id="btnSms"
+                                text="SMS"
+                                onAction="#onAbrirSms"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 12;" />
+
                         <Button fx:id="btnHistorial"
                                 text="Historial de movimientos"
                                 onAction="#onAbrirHistorial"
