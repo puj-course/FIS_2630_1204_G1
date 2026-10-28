@@ -13,6 +13,7 @@ import org.example.carestock.service.RegistroLoteService;
 import org.example.carestock.service.FarmacovigilanciaService;
 import org.example.carestock.service.ControlVencimientosService;
 import org.example.carestock.session.SesionUsuario;
+import org.example.carestock.config.ConexionBaseDatos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
