@@ -13,7 +13,6 @@ import org.example.carestock.service.RegistroLoteService;
 import org.example.carestock.service.FarmacovigilanciaService;
 import org.example.carestock.service.ControlVencimientosService;
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.config.ConexionBaseDatos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -529,13 +528,14 @@ public class Inventario {
 
         return alertas;
     }
-        public java.util.List<String> obtenerListaAlertas() throws Exception {
+            
+    public java.util.List<String> obtenerListaAlertas() throws Exception {
         int idFarmacia = farmaciaActual();
         java.util.List<String> lista = new java.util.ArrayList<>();
 
         // Alertas de stock mínimo
         String sqlStock = "SELECT nombre_comercial FROM medicamentos WHERE id_farmacia = ? AND stock_total <= stock_minimo AND estado = 'ACTIVO' LIMIT 10";
-        try (Connection con = ConexionBaseDatos.getConexion();
+        try (Connection con = ConexionBD.getConexion(); // <-- CAMBIADO AQUÍ
              PreparedStatement ps = con.prepareStatement(sqlStock)) {
             ps.setInt(1, idFarmacia);
             try (ResultSet rs = ps.executeQuery()) {
@@ -551,7 +551,7 @@ public class Inventario {
                          "WHERE m.id_farmacia = ? AND l.estado_lote = 'DISPONIBLE' " +
                          "AND l.fecha_vencimiento >= CURRENT_DATE " +
                          "AND l.fecha_vencimiento <= CURRENT_DATE + INTERVAL '30 days' LIMIT 10";
-        try (Connection con = ConexionBaseDatos.getConexion();
+        try (Connection con = ConexionBD.getConexion(); // <-- CAMBIADO AQUÍ
              PreparedStatement ps = con.prepareStatement(sqlVenc)) {
             ps.setInt(1, idFarmacia);
             try (ResultSet rs = ps.executeQuery()) {
