@@ -313,8 +313,8 @@ subissues correspondientes.
 - [x] Conservación de datos históricos verificada.
 - [x] Idempotencia comprobada.
 - [x] Evidencias SQL registradas.
-- [ ] Compilación Maven validada.
-- [ ] Pull Request revisado y fusionado.
+- [x] Compilación Maven validada.
+- [x] Pull Request revisado y fusionado.
 
 ## 11. Conclusión
 
