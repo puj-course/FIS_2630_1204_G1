@@ -10,6 +10,7 @@ import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
 import org.example.carestock.controller.CatalogoController;
+import org.example.carestock.config.PrecalentadorConexionBD;
 
 import java.net.URL;
 
@@ -40,6 +41,8 @@ public class CareStockApp extends Application {
 
         mostrarLogin();
         stage.show();
+        // Prepara la conexion sin bloquear el hilo de JavaFX.
+        PrecalentadorConexionBD.iniciarAsync();
 
         // Iniciar maximizado, respetando la resolucion del monitor.
         stage.setMaximized(true);

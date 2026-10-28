@@ -199,7 +199,7 @@ public final class ConexionBD {
         config.setPoolName("CareStock-Neon");
 
         int max = entero(p, "db.pool.max", 4);
-        int min = entero(p, "db.pool.min", 0);
+        int min = entero(p, "db.pool.min", 1);
 
         if (max < 1 || max > 10 ||
                 min < 0 || min > max) {
