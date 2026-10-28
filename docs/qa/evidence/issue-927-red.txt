@@ -1,0 +1,128 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< org.example:CareStock >------------------------
+[INFO] Building CareStock 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ CareStock ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 8 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ CareStock ---
+[WARNING] ***************************************************************************************************************************************
+[WARNING] * Required filename-based automodules detected: [jbcrypt-0.4.jar]. Please don't publish this project to a public artifact repository! *
+[WARNING] ***************************************************************************************************************************************
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ CareStock ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\src\test\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ CareStock ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 12 source files with javac [debug release 21 module-path] to target\test-classes
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/service/ServicioFarmacovigilanciaTest.java: C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\src\test\java\org\example\carestock\service\ServicioFarmacovigilanciaTest.java uses or overrides a deprecated API.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/service/ServicioFarmacovigilanciaTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[20,28] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[28,42] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[33,42] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[38,42] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[49,13] cannot find symbol
+  symbol:   class ServicioPreferenciasSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[29,40] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[34,40] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[39,40] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[50,20] cannot find symbol
+  symbol:   class ServicioPreferenciasSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[70,44] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[90,44] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[105,51] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[118,21] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[126,21] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[134,21] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[142,21] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[154,20] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[166,21] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[171,21] cannot find symbol
+  symbol:   variable ReglasNotificacionSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[181,29] cannot find symbol
+  symbol:   class DespachadorProtegidoSms
+  location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[202,48] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[212,50] package ServicioPreferenciasSms does not exist
+[INFO] 22 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.451 s
+[INFO] Finished at: 2026-10-28T11:22:38-05:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:testCompile (default-testCompile) on project CareStock: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[20,28] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[28,42] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[33,42] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[38,42] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[49,13] cannot find symbol
+[ERROR]   symbol:   class ServicioPreferenciasSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[29,40] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[34,40] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[39,40] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[50,20] cannot find symbol
+[ERROR]   symbol:   class ServicioPreferenciasSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[70,44] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[90,44] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[105,51] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[118,21] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[126,21] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[134,21] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[142,21] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[154,20] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[166,21] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[171,21] cannot find symbol
+[ERROR]   symbol:   variable ReglasNotificacionSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[181,29] cannot find symbol
+[ERROR]   symbol:   class DespachadorProtegidoSms
+[ERROR]   location: class org.example.carestock.sms.ServicioPreferenciasSmsTest
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[202,48] package ServicioPreferenciasSms does not exist
+[ERROR] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/sms/ServicioPreferenciasSmsTest.java:[212,50] package ServicioPreferenciasSms does not exist
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

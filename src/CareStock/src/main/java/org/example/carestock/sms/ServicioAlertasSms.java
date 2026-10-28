@@ -65,7 +65,9 @@ public final class ServicioAlertasSms {
     private static final String DESTINATARIOS = """
         SELECT d.id_destinatario,
                d.id_farmacia,
-               f.nombre AS farmacia
+               f.nombre AS farmacia,
+               d.notifica_stock_critico,
+               d.notifica_vencimiento_critico
         FROM sms_destinatarios d
         JOIN usuarios u
           ON u.id_usuario = d.id_usuario
@@ -93,6 +95,7 @@ public final class ServicioAlertasSms {
         WHERE id_destinatario = ?
           AND activa = TRUE
           AND NOT (clave = ANY (?))
+          AND clave NOT LIKE 'AVISO:%'
         """;
 
     private static final String RECLAMAR = """
@@ -114,6 +117,24 @@ public final class ServicioAlertasSms {
               AND d.activo
               AND d.autorizado
               AND d.autorizado_en IS NOT NULL
+              AND (
+                  ((a.clave LIKE 'STOCK:%'
+                     OR a.clave LIKE 'AVISO:STOCK:%')
+                    AND d.notifica_stock_critico)
+                  OR ((a.clave LIKE 'LOTE:%'
+                     OR a.clave LIKE 'AVISO:VENCIMIENTO:%')
+                    AND d.notifica_vencimiento_critico)
+              )
+              AND (
+                  a.clave NOT LIKE 'AVISO:%'
+                  OR d.horario_inicio IS NULL
+                  OR (d.horario_inicio < d.horario_fin
+                      AND (NOW() AT TIME ZONE d.zona_horaria)::time >= d.horario_inicio
+                      AND (NOW() AT TIME ZONE d.zona_horaria)::time < d.horario_fin)
+                  OR (d.horario_inicio > d.horario_fin
+                      AND ((NOW() AT TIME ZONE d.zona_horaria)::time >= d.horario_inicio
+                           OR (NOW() AT TIME ZONE d.zona_horaria)::time < d.horario_fin))
+              )
             ORDER BY a.id_alerta
             FOR UPDATE OF a SKIP LOCKED
             LIMIT 1
@@ -148,6 +169,9 @@ public final class ServicioAlertasSms {
     public void ejecutarCiclo() throws SQLException {
 
         sincronizar();
+        EnvioProtegidoSms protegido =
+                new EnvioProtegidoSms(sms, config);
+        protegido.limpiarPendientes();
 
         try (Connection con =
                      ConexionBD.getConexion();
@@ -174,58 +198,11 @@ public final class ServicioAlertasSms {
             );
         }
 
+
         for (int i = 0; i < maxPorCiclo; i++) {
-
             Envio envio = reclamar();
-
-            if (envio == null) {
-                break;
-            }
-
-            try {
-                String cuerpo = "SI".equalsIgnoreCase(
-                        config.getOrDefault(
-                                "SMS_MODO_TRIAL", "NO"
-                        )
-                )
-                        ? "sms_internal_alerts"
-                        : envio.mensaje();
-
-                ResultadoSms resultado =
-                        sms.enviar(envio.telefono(), cuerpo);
-
-                String estado = resultado.simulado()
-                        ? "SIMULADA"
-                        : resultado.aceptado()
-                                ? "ACEPTADA"
-                                : "FALLIDA";
-
-                actualizar(
-                        envio.id(),
-                        estado,
-                        resultado.referencia(),
-                        null
-                );
-
-                System.out.println(
-                        "SMS " + envio.id()
-                        + " estado=" + estado
-                );
-
-            } catch (RuntimeException e) {
-
-                actualizar(
-                        envio.id(),
-                        "FALLIDA",
-                        null,
-                        e.getClass().getSimpleName()
-                                + ": " + e.getMessage()
-                );
-
-                System.err.println(
-                        "SMS " + envio.id() + " fallido."
-                );
-            }
+            if (envio == null) break;
+            protegido.procesar(envio.id());
         }
     }
 
@@ -283,11 +260,20 @@ public final class ServicioAlertasSms {
                         String nombre =
                                 rs.getString("farmacia");
 
+                        boolean stock =
+                                rs.getBoolean("notifica_stock_critico");
+                        boolean vencimiento =
+                                rs.getBoolean("notifica_vencimiento_critico");
+
                         List<EventoSms> eventos =
                                 porFarmacia.getOrDefault(
-                                        idFarmacia,
-                                        List.of()
-                                );
+                                        idFarmacia, List.of()
+                                )
+                                .stream()
+                                .filter(e -> ReglasNotificacionSms.puedeGenerar(
+                                        true, true, true, true, true,
+                                        e.tipo(), stock, vencimiento))
+                                .toList();
 
                         String[] claves = eventos.stream()
                                 .map(EventoSms::clave)
@@ -367,39 +353,4 @@ public final class ServicioAlertasSms {
         }
     }
 
-    private void actualizar(
-            long id,
-            String estado,
-            String referencia,
-            String error
-    ) throws SQLException {
-
-        try (Connection con =
-                     ConexionBD.getConexion();
-             PreparedStatement ps = con.prepareStatement("""
-                 UPDATE sms_alertas
-                 SET estado = ?,
-                     proveedor_referencia = ?,
-                     error_detalle = ?,
-                     procesado_en = NOW()
-                 WHERE id_alerta = ?
-                 """)) {
-
-            ps.setString(1, estado);
-            ps.setString(2, referencia);
-
-            ps.setString(
-                    3,
-                    error == null
-                            ? null
-                            : error.substring(
-                                    0,
-                                    Math.min(250, error.length())
-                            )
-            );
-
-            ps.setLong(4, id);
-            ps.executeUpdate();
-        }
-    }
 }
