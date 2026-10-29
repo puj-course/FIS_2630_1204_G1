@@ -458,6 +458,7 @@ public class InventarioController {
 
             txtCantidad.clear();
             cargarDatosTabla();
+            cargarResumenAlertas();
 
         } catch (NumberFormatException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Formato", "La cantidad a dispensar debe ser un número entero válido.");
