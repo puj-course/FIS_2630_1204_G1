@@ -12,7 +12,6 @@ on:
 permissions:
   contents: read
 
-# Evita ejecutar varios CI obsoletos del mismo PR.
 concurrency:
   group: carestock-ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -25,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src/CareStock
+        working-directory: FIS_2630_1204_G1/src/CareStock
 
     steps:
       - name: Descargar repositorio
@@ -38,8 +37,8 @@ jobs:
           java-version: '21'
           cache: maven
           cache-dependency-path: |
-            src/CareStock/pom.xml
-            src/CareStock/.mvn/wrapper/maven-wrapper.properties
+            FIS_2630_1204_G1/src/CareStock/pom.xml
+            FIS_2630_1204_G1/src/CareStock/.mvn/wrapper/maven-wrapper.properties
 
       - name: Preparar Maven Wrapper
         run: chmod +x mvnw
@@ -57,12 +56,11 @@ jobs:
           echo "=== Final Maven ==="
           date -u
 
-      # En main, verify ya ha generado el archivo JAR.
       - name: Publicar artefacto CareStock
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: CareStock-build
-          path: src/CareStock/target/*.jar
+          path: FIS_2630_1204_G1/src/CareStock/target/*.jar
           if-no-files-found: error
           retention-days: 7
