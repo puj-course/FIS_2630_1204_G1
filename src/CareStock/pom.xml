@@ -29,6 +29,7 @@
         <hikari.version>6.0.0</hikari.version>
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.24.0</mockito.version>
+        <sonar.organization>puj-course</sonar.organization> 
     </properties>
 
     <!-- =============================================== -->
