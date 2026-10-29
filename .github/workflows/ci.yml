@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: FIS_2630_1204_G1/src/CareStock
+        working-directory: src/CareStock
 
     steps:
       - name: Descargar repositorio
@@ -37,11 +37,13 @@ jobs:
           java-version: '21'
           cache: maven
           cache-dependency-path: |
-            FIS_2630_1204_G1/src/CareStock/pom.xml
-            FIS_2630_1204_G1/src/CareStock/.mvn/wrapper/maven-wrapper.properties
+            src/CareStock/pom.xml
+            src/CareStock/.mvn/wrapper/maven-wrapper.properties
 
       - name: Preparar Maven Wrapper
-        run: chmod +x mvnw
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
 
       - name: Compilar y ejecutar pruebas
         run: |
@@ -61,6 +63,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CareStock-build
-          path: FIS_2630_1204_G1/src/CareStock/target/*.jar
+          path: src/CareStock/target/*.jar
           if-no-files-found: error
           retention-days: 7
