@@ -278,11 +278,7 @@ public final class ServicioMovimientosProducto {
     ) throws Exception {
 
         String sql =
-                "SELECT stock FROM " + categoria.tabla
-                + " WHERE " + categoria.columnaId
-                + " = ? AND id_farmacia = ?"
-                + " AND UPPER(TRIM(estado)) = 'ACTIVO'"
-                + " FOR UPDATE";
+                ConsultasSqlInventario.bloquearMovimiento(categoria);
 
         try (PreparedStatement ps =
                      conexion.prepareStatement(sql)) {
@@ -321,13 +317,7 @@ public final class ServicioMovimientosProducto {
     ) throws SQLException {
 
         String sql =
-                "UPDATE " + categoria.tabla
-                + " SET stock = ?,"
-                + " id_usuario_modificacion = ?,"
-                + " fecha_modificacion = NOW()"
-                + " WHERE " + categoria.columnaId
-                + " = ? AND id_farmacia = ?"
-                + " AND UPPER(TRIM(estado)) = 'ACTIVO'";
+                ConsultasSqlInventario.actualizarMovimiento(categoria);
 
         try (PreparedStatement ps =
                      conexion.prepareStatement(sql)) {

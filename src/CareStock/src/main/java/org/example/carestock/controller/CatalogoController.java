@@ -932,7 +932,7 @@ public class CatalogoController {
             };
 
             if (id <= 0) {
-                throw new Exception("La base de datos no devolvió un ID válido.");
+                throw new IllegalStateException("La base de datos no devolvió un ID válido.");
             }
 
             limpiar();

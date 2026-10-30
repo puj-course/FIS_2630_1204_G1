@@ -297,18 +297,7 @@ public final class ServicioAjustesInventario {
             }
         }
 
-        String tabla = a.categoria() == Categoria.ASEO
-                ? "aseo" : "maternidad";
-
-        String id = a.categoria() == Categoria.ASEO
-                ? "id_aseo" : "id_maternidad";
-
-        String sql =
-                "SELECT stock FROM " + tabla
-                + " WHERE " + id + " = ?"
-                + " AND id_farmacia = ?"
-                + " AND UPPER(BTRIM(estado)) = 'ACTIVO'"
-                + " FOR UPDATE";
+        String sql = ConsultasSqlInventario.bloquearAjuste(a.categoria());
 
         try (PreparedStatement ps =
                      con.prepareStatement(sql)) {
@@ -366,20 +355,7 @@ public final class ServicioAjustesInventario {
 
         } else {
 
-            String tabla = a.categoria() == Categoria.ASEO
-                    ? "aseo" : "maternidad";
-
-            String id = a.categoria() == Categoria.ASEO
-                    ? "id_aseo" : "id_maternidad";
-
-            sql = "UPDATE " + tabla
-                    + " SET stock = ?,"
-                    + " id_usuario_modificacion = ?,"
-                    + " fecha_modificacion = NOW()"
-                    + " WHERE " + id + " = ?"
-                    + " AND id_farmacia = ?"
-                    + " AND stock = ?"
-                    + " AND UPPER(BTRIM(estado)) = 'ACTIVO'";
+            sql = ConsultasSqlInventario.actualizarAjuste(a.categoria());
         }
 
         try (PreparedStatement ps =
