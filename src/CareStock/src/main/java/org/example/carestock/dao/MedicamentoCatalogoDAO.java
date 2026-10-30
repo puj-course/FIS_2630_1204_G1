@@ -2,6 +2,7 @@ package org.example.carestock.dao;
 
 import org.example.carestock.config.ConexionBD;
 import org.example.carestock.model.Medicamento;
+import org.example.carestock.exception.ReglaNegocioException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ public class MedicamentoCatalogoDAO {
     }
 
     public boolean actualizar(int idMedicamento, Medicamento producto,
-                              int idFarmacia, int idUsuario) throws Exception {
+                              int idFarmacia, int idUsuario) throws SQLException, ReglaNegocioException {
         validarId(idMedicamento, "medicamento");
         validarId(idFarmacia, "farmacia");
         validarId(idUsuario, "usuario");
@@ -82,7 +83,7 @@ public class MedicamentoCatalogoDAO {
     }
 
     /** Valida los campos que son obligatorios para registrar/editar el catalogo. */
-    public static void validarCampos(Medicamento m) throws Exception {
+    public static void validarCampos(Medicamento m) throws ReglaNegocioException {
         if (m == null) throw new IllegalArgumentException("Medicamento requerido");
         if (m.getCodigoInvima() == null || m.getCodigoInvima().isBlank())
             throw new IllegalArgumentException("Registro INVIMA obligatorio");

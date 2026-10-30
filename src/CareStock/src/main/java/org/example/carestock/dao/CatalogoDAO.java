@@ -3,6 +3,7 @@ package org.example.carestock.dao;
 import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.config.ConexionBD;
 import org.example.carestock.model.Validable;
+import org.example.carestock.exception.ReglaNegocioException;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -11,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class CatalogoDAO<T extends Validable> {
     protected abstract String tabla();
@@ -21,18 +21,13 @@ public abstract class CatalogoDAO<T extends Validable> {
     protected abstract void asignarCampos(PreparedStatement ps, T producto) throws SQLException;
     protected abstract RegistroCatalogo<T> construir(ResultSet rs) throws SQLException;
 
-    public final int guardar(T producto, int idFarmacia, int idUsuario) throws Exception {
+    public final int guardar(T producto, int idFarmacia, int idUsuario) throws SQLException, ReglaNegocioException {
         validarProducto(producto);
         producto.validar();
         validarContexto(idFarmacia, idUsuario);
 
         int cantidad = columnasEspecificas().size();
-        String sql = "INSERT INTO " + tabla()
-                + " (codigo, nombre, descripcion, precio, stock, "
-                + String.join(", ", columnasEspecificas())
-                + ", id_farmacia, id_usuario_creacion, estado) "
-                + "VALUES (?, ?, ?, ?, ?, " + "?, ".repeat(cantidad)
-                + "?, ?, 'ACTIVO') RETURNING " + columnaId();
+        String sql = ConsultasSqlCatalogo.guardar(tabla());
 
         try (Connection conexion = ConexionBD.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -52,8 +47,7 @@ public abstract class CatalogoDAO<T extends Validable> {
     public final RegistroCatalogo<T> buscarPorId(int id, int idFarmacia) throws SQLException {
         validarId(id);
         validarFarmacia(idFarmacia);
-        String sql = "SELECT * FROM " + tabla() + " WHERE " + columnaId()
-                + " = ? AND id_farmacia = ?";
+        String sql = ConsultasSqlCatalogo.buscarPorId(tabla());
         try (Connection conexion = ConexionBD.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -67,7 +61,7 @@ public abstract class CatalogoDAO<T extends Validable> {
     public final List<RegistroCatalogo<T>> listarPorFarmacia(int idFarmacia) throws SQLException {
         validarFarmacia(idFarmacia);
         List<RegistroCatalogo<T>> productos = new ArrayList<>();
-        String sql = "SELECT * FROM " + tabla() + " WHERE id_farmacia = ? ORDER BY nombre";
+        String sql = ConsultasSqlCatalogo.listarPorFarmacia(tabla());
         try (Connection conexion = ConexionBD.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idFarmacia);
@@ -80,18 +74,14 @@ public abstract class CatalogoDAO<T extends Validable> {
         return productos;
     }
 
-    public final boolean actualizar(int id, T producto, int idFarmacia, int idUsuario) throws Exception {
+    public final boolean actualizar(int id, T producto, int idFarmacia, int idUsuario) throws SQLException, ReglaNegocioException {
         validarId(id);
         validarContexto(idFarmacia, idUsuario);
         validarProducto(producto);
         producto.validar();
 
         int cantidad = columnasEspecificas().size();
-        String sql = "UPDATE " + tabla()
-                + " SET codigo = ?, nombre = ?, descripcion = ?, precio = ?, stock = ?, "
-                + columnasEspecificas().stream().map(c -> c + " = ?").collect(Collectors.joining(", "))
-                + ", id_usuario_modificacion = ?, fecha_modificacion = CURRENT_TIMESTAMP "
-                + "WHERE " + columnaId() + " = ? AND id_farmacia = ? AND estado = 'ACTIVO'";
+        String sql = ConsultasSqlCatalogo.actualizar(tabla());
 
         try (Connection conexion = ConexionBD.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -106,10 +96,7 @@ public abstract class CatalogoDAO<T extends Validable> {
     public final boolean desactivar(int id, int idFarmacia, int idUsuario) throws SQLException {
         validarId(id);
         validarContexto(idFarmacia, idUsuario);
-        String sql = "UPDATE " + tabla() + " SET estado = 'INACTIVO', "
-                + "id_usuario_modificacion = ?, "
-                + "fecha_modificacion = CURRENT_TIMESTAMP "
-                + "WHERE " + columnaId() + " = ? AND id_farmacia = ? AND estado = 'ACTIVO'";
+        String sql = ConsultasSqlCatalogo.desactivar(tabla());
         try (Connection conexion = ConexionBD.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, idUsuario);
