@@ -8,10 +8,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class RefactorizacionProductosTest {
 
     @Test
-    void conservaPropiedadesComunesEnLosTresModelos() {
+    void conservaPropiedadesHeredadasEnDispositivoMedico() {
         ProductoBase[] productos = {
-                new Aseo(),
-                new Maternidad(),
                 new DispositivoMedico()
         };
 
@@ -180,5 +178,31 @@ class RefactorizacionProductosTest {
         dispositivo.setClaseRiesgo("I");
         dispositivo.setStock(0);
         assertFalse(dispositivo.esAptoParaDispensar());
+    }
+
+    @Test
+    void aseoConservaAtributosComunes() {
+        Aseo aseo = aseoValido();
+
+        assertAll(
+                () -> assertEquals("ASE-01", aseo.getCodigo()),
+                () -> assertEquals("Jabon", aseo.getNombre()),
+                () -> assertEquals("Liquido", aseo.getDescripcion()),
+                () -> assertEquals(5000.0, aseo.getPrecio()),
+                () -> assertEquals(4, aseo.getStock())
+        );
+    }
+
+    @Test
+    void maternidadConservaAtributosComunes() {
+        Maternidad maternidad = maternidadValida();
+
+        assertAll(
+                () -> assertEquals("MAT-01", maternidad.getCodigo()),
+                () -> assertEquals("Crema", maternidad.getNombre()),
+                () -> assertEquals("Cuidado", maternidad.getDescripcion()),
+                () -> assertEquals(5000.0, maternidad.getPrecio()),
+                () -> assertEquals(3, maternidad.getStock())
+        );
     }
 }

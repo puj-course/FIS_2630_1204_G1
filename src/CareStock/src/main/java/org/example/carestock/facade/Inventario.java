@@ -2,18 +2,18 @@
 package org.example.carestock.facade;
 
 import org.example.carestock.dto.AlertaInventario;
-import org.example.carestock.dto.ProductoInventario;
-import org.example.carestock.dto.RegistroCatalogo;
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.DataTransferObject.ProductoInventario;
+import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.dao.*;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.*;
 import org.example.carestock.proxy.ConsultaInventario;
 import org.example.carestock.proxy.InventarioConsultas;
-import org.example.carestock.service.ServicioRegistroLote;
-import org.example.carestock.service.ServicioFarmacovigilancia;
+import org.example.carestock.service.RegistroLoteService;
+import org.example.carestock.service.FarmacovigilanciaService;
 import org.example.carestock.service.ServicioAlertasInventario;
-import org.example.carestock.service.ServicioControlVencimientos;
+import org.example.carestock.service.ControlVencimientosService;
 import org.example.carestock.session.SesionUsuario;
 
 import java.sql.Connection;
@@ -68,28 +68,28 @@ public class Inventario {
 
     private final int idUsuario;
 
-    private final AseoDao aseoDAO = new AseoDao();
-    private final MaternidadDao maternidadDAO = new MaternidadDao();
+    private final AseoDAO aseoDAO = new AseoDAO();
+    private final MaternidadDAO maternidadDAO = new MaternidadDAO();
 
-    private final MedicamentoDao medicamentoDAO =
-            new MedicamentoDaoJdbc();
+    private final MedicamentoDAO medicamentoDAO =
+            new MedicamentoDAOImpl();
 
-    private final MedicamentoCatalogoDao medicamentoCatalogoDAO =
-            new MedicamentoCatalogoDao();
+    private final MedicamentoCatalogoDAO medicamentoCatalogoDAO =
+            new MedicamentoCatalogoDAO();
 
-    private final LoteDao loteDAO = new LoteDaoJdbc();
+    private final LoteDAO loteDAO = new LoteDAOImpl();
 
     private final ConsultaInventario consulta =
             InventarioConsultas.compartida();
 
-    private final ServicioRegistroLote registroLoteService =
-            new ServicioRegistroLote();
+    private final RegistroLoteService registroLoteService =
+            new RegistroLoteService();
 
-    private final ServicioFarmacovigilancia farmacovigilanciaService =
-            new ServicioFarmacovigilancia();
+    private final FarmacovigilanciaService farmacovigilanciaService =
+            new FarmacovigilanciaService();
 
-    private final ServicioControlVencimientos controlVencimientosService =
-            new ServicioControlVencimientos();
+    private final ControlVencimientosService controlVencimientosService =
+            new ControlVencimientosService();
 
     private final ServicioAlertasInventario alertasService =
             new ServicioAlertasInventario();
@@ -120,7 +120,7 @@ public class Inventario {
               AND UPPER(TRIM(f.estado)) = 'ACTIVA'
             """;
 
-        try (Connection con = ConexionBaseDatos.getConexion();
+        try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
@@ -302,7 +302,7 @@ public class Inventario {
                 );
             }
 
-            MedicamentoCatalogoDao.validarCampos(producto);
+            MedicamentoCatalogoDAO.validarCampos(producto);
 
             medicamentoDAO.guardar(producto);
 
@@ -501,5 +501,111 @@ public class Inventario {
         InventarioConsultas.invalidarFarmacia(farmacia);
 
         return consulta.listarPorFarmacia(farmacia);
+    }
+
+    /**
+     * Identifica medicamentos con alerta de stock minimo
+     * en la farmacia activa.
+     */
+    public Set<Integer> obtenerIdsMedicamentosStockBajo()
+            throws Exception {
+
+        Set<Integer> ids = new HashSet<>();
+
+        var servicio =
+                new org.example.carestock.service.ServicioAlertasInventario();
+
+        for (var alerta : servicio.listar(farmaciaActual())) {
+            if (alerta.categoria() ==
+                    org.example.carestock.dto.AlertaInventario.Categoria.MEDICAMENTO
+                    && alerta.tipoAlerta() ==
+                    org.example.carestock.dto.AlertaInventario.TipoAlerta.STOCK_MINIMO) {
+                ids.add(alerta.idReferencia());
+            }
+        }
+
+        return ids;
+    }
+
+    /**
+     * Adapta el resumen de alertas al contrato
+     * utilizado por InventarioController.
+     */
+    public Map<String, Integer> obtenerResumenAlertas()
+            throws Exception {
+
+        var servicio =
+                new org.example.carestock.service.ServicioAlertasInventario();
+
+        var resumen = org.example.carestock.service
+                .ServicioAlertasInventario.resumir(
+                        servicio.listar(farmaciaActual()));
+
+        return Map.of(
+                "stockBajo", resumen.stockMinimo(),
+                "proximosVencer", resumen.vencimiento()
+        );
+    }
+
+    /**
+     * Obtiene las alertas preventivas de la farmacia activa.
+     * Incluye stock minimo y vencimientos proximos.
+     */
+    public java.util.List<String> obtenerListaAlertas()
+            throws Exception {
+
+        int idFarmacia = farmaciaActual();
+        java.util.List<String> lista = new java.util.ArrayList<>();
+
+        String sqlStock = """
+                SELECT nombre_comercial
+                FROM medicamentos
+                WHERE id_farmacia = ?
+                  AND stock_total <= stock_minimo
+                  AND estado = 'ACTIVO'
+                LIMIT 10
+                """;
+
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sqlStock)) {
+
+            ps.setInt(1, idFarmacia);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add("Stock bajo: "
+                            + rs.getString("nombre_comercial"));
+                }
+            }
+        }
+
+        String sqlVenc = """
+                SELECT m.nombre_comercial, l.fecha_vencimiento
+                FROM lotes l
+                INNER JOIN medicamentos m
+                    ON m.id_medicamento = l.id_medicamento
+                WHERE m.id_farmacia = ?
+                  AND l.estado_lote = 'DISPONIBLE'
+                  AND l.fecha_vencimiento >= CURRENT_DATE
+                  AND l.fecha_vencimiento <= CURRENT_DATE + INTERVAL '30 days'
+                LIMIT 10
+                """;
+
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sqlVenc)) {
+
+            ps.setInt(1, idFarmacia);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add("Vence pronto ("
+                            + rs.getDate("fecha_vencimiento")
+                            + "): "
+                            + rs.getString("nombre_comercial"));
+                }
+            }
+        }
+
+        return lista;
     }
 }

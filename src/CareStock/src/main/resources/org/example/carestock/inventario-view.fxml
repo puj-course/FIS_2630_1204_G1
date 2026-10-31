@@ -74,7 +74,7 @@
                         <Region HBox.hgrow="ALWAYS" />
 
                         <Button fx:id="btnAlertas" text="Alertas"
-                                onAction="#onAbrirAlertas"
+                                onAction="#onAbrirNotificaciones"
                                 style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
                         <Button fx:id="btnAjustes" text="Ajustes de inventario"

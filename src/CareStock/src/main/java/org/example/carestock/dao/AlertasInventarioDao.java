@@ -1,6 +1,6 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.dto.AlertaInventario;
 
 import java.sql.Connection;
@@ -34,7 +34,7 @@ public class AlertasInventarioDao {
 
         List<AlertaInventario> alertas = new ArrayList<>();
 
-        try (Connection con = ConexionBaseDatos.getConexion();
+        try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(SQL)) {
             ps.setInt(1, idFarmacia);
 
