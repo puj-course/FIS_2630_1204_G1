@@ -9,7 +9,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.carestock.controller.CatalogoController"
+            fx:controller="org.example.carestock.controller.ControladorCatalogo"
             prefWidth="1150.0"
             prefHeight="760.0"
             style="-fx-background-color: #FDFBF7; -fx-accent: #B7A6E0; -fx-focus-color: #B7A6E0; -fx-faint-focus-color: rgba(183,166,224,0.25);">
@@ -210,6 +210,13 @@
                                                            prefHeight="40.0"
                                                            style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0; -fx-padding: 0 12;" />
 
+                                                <Label text="Stock mínimo (genera alerta)" textFill="#20302F"
+                                                       style="-fx-font-size: 12; -fx-font-weight: bold;" />
+                                                <TextField fx:id="txtStockMinimoAseo"
+                                                           prefHeight="40.0"
+                                                           promptText="0"
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0; -fx-padding: 0 12;" />
+
                                                 <CheckBox fx:id="chkBiodegradable" text="Biodegradable" textFill="#6D8683" />
                                             </children>
                                         </VBox>
@@ -232,6 +239,13 @@
                                                 <TextField fx:id="txtEdadGestacional"
                                                            prefHeight="40.0"
                                                            promptText="Semanas"
+                                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0; -fx-padding: 0 12;" />
+
+                                                <Label text="Stock mínimo (genera alerta)" textFill="#20302F"
+                                                       style="-fx-font-size: 12; -fx-font-weight: bold;" />
+                                                <TextField fx:id="txtStockMinimoMaternidad"
+                                                           prefHeight="40.0"
+                                                           promptText="0"
                                                            style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0; -fx-padding: 0 12;" />
 
                                                 <CheckBox fx:id="chkHipoalergenico" text="Hipoalergénico" textFill="#6D8683" />

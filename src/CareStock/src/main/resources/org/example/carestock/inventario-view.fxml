@@ -9,7 +9,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.carestock.controller.InventarioController"
+            fx:controller="org.example.carestock.controller.ControladorInventario"
             prefWidth="1100.0"
             prefHeight="750.0"
             style="-fx-background-color: #FDFBF7; -fx-accent: #B7A6E0; -fx-focus-color: #B7A6E0; -fx-faint-focus-color: rgba(183,166,224,0.25);">
@@ -73,45 +73,19 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
+                        <Button fx:id="btnAlertas" text="Alertas"
+                                onAction="#onAbrirAlertas"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+
                         <Button fx:id="btnAjustes" text="Ajustes de inventario"
                                 onAction="#onAbrirAjustes"
                                 style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 16;" />
-
-                        <Button fx:id="btnSms"
-                                text="SMS"
-                                onAction="#onAbrirSms"
-                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 12;" />
 
                         <Button fx:id="btnHistorial"
                                 text="Historial de movimientos"
                                 onAction="#onAbrirHistorial"
                                 style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 16;" />
-                       <!-- Campana de Notificaciones -->
-                        <StackPane alignment="TOP_RIGHT" style="-fx-padding: 0 10 0 0;">
-                            <children>
-                                <Button fx:id="btnCampana" 
-                                        text="🔔" 
-                                        onAction="#onAbrirNotificaciones"
-                                        style="-fx-background-color: rgba(32,48,47,0.08); -fx-font-size: 16; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 8 12;" />
-                                
-                                <!-- Badge (Círculo Rojo) -->
-                                <Circle fx:id="badgeNotificaciones" 
-                                        fill="#E53935" 
-                                        radius="8.0" 
-                                        visible="false" 
-                                        translateX="6.0" 
-                                        translateY="-6.0" />
-                                
-                                <!-- Texto del Badge (Número) -->
-                                <Label fx:id="lblContadorNotificaciones" 
-                                       text="0" 
-                                       textFill="white" 
-                                       visible="false" 
-                                       translateX="6.0" 
-                                       translateY="-6.0" 
-                                       style="-fx-font-size: 9; -fx-font-weight: bold;" />
-                            </children>
-                        </StackPane>
+
                         <Button fx:id="btnCatalogo"
                                 text="Catálogo"
                                 onAction="#onAbrirCatalogo"
@@ -342,48 +316,6 @@
                             </children>
                         </VBox>
 
-                    </children>
-                </HBox>
-                <!-- ================================== -->
-                <!-- PANEL DE ALERTAS PREVENTIVAS       -->
-                <!-- ================================== -->
-                <HBox spacing="16.0" alignment="CENTER_LEFT">
-                    <children>
-                        <!-- Tarjeta de Stock Mínimo -->
-                        <VBox spacing="6.0"
-                              prefWidth="280.0"
-                              style="-fx-background-color: #FFF3E0; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #FFB74D; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(255,183,77,0.18), 14, 0, 0, 5); -fx-padding: 18;">
-                            <children>
-                                <Label text="STOCK MÍNIMO"
-                                       textFill="#E65100"
-                                       style="-fx-font-size: 11; -fx-font-weight: bold;" />
-                                <Label fx:id="lblAlertaStock"
-                                       text="0 productos"
-                                       textFill="#E65100"
-                                       style="-fx-font-size: 20; -fx-font-weight: bold;" />
-                                <Button text="Filtrar stock bajo →"
-                                        onAction="#onFiltrarStockBajo"
-                                        style="-fx-background-color: transparent; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0;" />
-                            </children>
-                        </VBox>
-
-                        <!-- Tarjeta de Próximos a Vencer -->
-                        <VBox spacing="6.0"
-                              prefWidth="280.0"
-                              style="-fx-background-color: #FFEBEE; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #EF9A9A; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(239,154,154,0.18), 14, 0, 0, 5); -fx-padding: 18;">
-                            <children>
-                                <Label text="PRÓXIMOS A VENCER (30 DÍAS)"
-                                       textFill="#B71C1C"
-                                       style="-fx-font-size: 11; -fx-font-weight: bold;" />
-                                <Label fx:id="lblAlertaVencimiento"
-                                       text="0 lotes"
-                                       textFill="#B71C1C"
-                                       style="-fx-font-size: 20; -fx-font-weight: bold;" />
-                                <Button text="Ver próximos a vencer →"
-                                        onAction="#onFiltrarProximosVencer"
-                                        style="-fx-background-color: transparent; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0;" />
-                            </children>
-                        </VBox>
                     </children>
                 </HBox>
 

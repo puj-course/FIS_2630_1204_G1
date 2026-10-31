@@ -1,6 +1,6 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.example.carestock.dto.RegistroCatalogo;
 import org.example.carestock.model.Aseo;
 import org.example.carestock.factory.FabricaAseo;
 import org.example.carestock.factory.FabricaProducto;
@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class AseoDAO extends CatalogoDAO<Aseo> {
+public class AseoDao extends CatalogoDao<Aseo> {
     private static final FabricaProducto<Aseo> FABRICA =
             new FabricaAseo();
 
@@ -31,7 +31,7 @@ public class AseoDAO extends CatalogoDAO<Aseo> {
 
     @Override
     protected List<String> columnasEspecificas() {
-        return List.of("tipo_aseo", "biodegradable", "componentes_activos");
+        return List.of("tipo_aseo", "biodegradable", "componentes_activos", "stock_minimo");
     }
 
     @Override
@@ -41,6 +41,7 @@ public class AseoDAO extends CatalogoDAO<Aseo> {
         ps.setString(6, producto.getTipoAseo());
         ps.setBoolean(7, producto.isBiodegradable());
         ps.setString(8, producto.getComponentesActivos());
+        ps.setInt(9, producto.getStockMinimo());
     }
 
     @Override
@@ -53,6 +54,7 @@ public class AseoDAO extends CatalogoDAO<Aseo> {
         String tipo = rs.getString("tipo_aseo");
         boolean biodegradable = rs.getBoolean("biodegradable");
         String componentes = rs.getString("componentes_activos");
+        int stockMinimo = rs.getInt("stock_minimo");
 
         Aseo producto = FABRICA.crear(p -> {
             p.setCodigo(codigo);
@@ -63,6 +65,7 @@ public class AseoDAO extends CatalogoDAO<Aseo> {
             p.setTipoAseo(tipo);
             p.setBiodegradable(biodegradable);
             p.setComponentesActivos(componentes);
+            p.setStockMinimo(stockMinimo);
         });
 
         return new RegistroCatalogo<>(
