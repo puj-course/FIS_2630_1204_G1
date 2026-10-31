@@ -9,7 +9,6 @@ import org.example.carestock.model.*;
 import org.example.carestock.proxy.ConsultaInventarioProxy;
 import org.example.carestock.proxy.InventarioConsultas;
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.service.ServicioAlertasInventario;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +60,7 @@ class InventarioFachadaCoberturaTest {
         when(psSesion.executeQuery())
                 .thenReturn(rsSesion);
 
-        when(rsSesion.next()).thenReturn(true, false);
+        when(rsSesion.next()).thenReturn(true);
         when(rsSesion.getInt("id_farmacia"))
                 .thenReturn(7);
 
@@ -70,7 +69,6 @@ class InventarioFachadaCoberturaTest {
                 .thenReturn(con);
 
         sesion = mockStatic(SesionUsuario.class);
-        sesion.when(SesionUsuario::estaActiva).thenReturn(true);
 
         sesion.when(SesionUsuario::actual)
                 .thenReturn(new SesionUsuario.DatosUsuario(
@@ -404,101 +402,74 @@ class InventarioFachadaCoberturaTest {
         verify(consulta).listarPorFarmacia(7);
     }
 
-    private org.example.carestock.dto.AlertaInventario crearAlerta(
-            org.example.carestock.dto.AlertaInventario.TipoAlerta tipo,
-            int id) {
+    @Test
+    void consultaMedicamentosConStockBajo()
+            throws Exception {
 
-        var alerta = mock(
-                org.example.carestock.dto.AlertaInventario.class);
+        PreparedStatement psAlertas =
+                mock(PreparedStatement.class);
 
-        when(alerta.categoria()).thenReturn(
-                org.example.carestock.dto.AlertaInventario
-                        .Categoria.MEDICAMENTO);
-        when(alerta.tipoAlerta()).thenReturn(tipo);
-        when(alerta.idReferencia()).thenReturn(id);
+        ResultSet rsAlertas = mock(ResultSet.class);
 
-        return alerta;
+        when(con.prepareStatement(
+                contains("SELECT id_medicamento")))
+                .thenReturn(psAlertas);
+
+        when(psAlertas.executeQuery())
+                .thenReturn(rsAlertas);
+
+        when(rsAlertas.next())
+                .thenReturn(true, true, false);
+
+        when(rsAlertas.getInt("id_medicamento"))
+                .thenReturn(15, 20);
+
+        Set<Integer> ids = inventario()
+                .obtenerIdsMedicamentosStockBajo();
+
+        assertEquals(Set.of(15, 20), ids);
+        verify(psAlertas).setInt(1, 7);
     }
 
     @Test
-    void consultaMedicamentosConStockBajo() throws Exception {
+    void obtieneResumenDeAlertasPorFarmacia()
+            throws Exception {
 
-        var tipo = org.example.carestock.dto.AlertaInventario
-                .TipoAlerta.STOCK_MINIMO;
+        PreparedStatement psStock =
+                mock(PreparedStatement.class);
 
-        var alertas = List.of(
-                crearAlerta(tipo, 15),
-                crearAlerta(tipo, 20)
-        );
+        PreparedStatement psVencimiento =
+                mock(PreparedStatement.class);
 
-        try (MockedConstruction<ServicioAlertasInventario> mocks =
-                     mockConstruction(
-                             ServicioAlertasInventario.class,
-                             (mock, context) ->
-                                     when(mock.listar(7))
-                                             .thenReturn(alertas))) {
+        ResultSet rsStock = mock(ResultSet.class);
+        ResultSet rsVencimiento = mock(ResultSet.class);
 
-            Set<Integer> ids = inventario()
-                    .obtenerIdsMedicamentosStockBajo();
+        when(con.prepareStatement(
+                contains("SELECT COUNT(*) FROM medicamentos")))
+                .thenReturn(psStock);
 
-            assertEquals(Set.of(15, 20), ids);
+        when(con.prepareStatement(
+                contains("SELECT COUNT(*) FROM lotes l")))
+                .thenReturn(psVencimiento);
 
-            assertFalse(mocks.constructed().isEmpty());
-            assertTrue(mocks.constructed().stream().anyMatch(servicio ->
-                    mockingDetails(servicio).getInvocations().stream()
-                            .anyMatch(invocacion ->
-                                    invocacion.getMethod().getName().equals("listar")
-                                    && invocacion.getArguments().length == 1
-                                    && Integer.valueOf(7).equals(invocacion.getArgument(0))
-                            )
-            ));
-        }
-    }
+        when(psStock.executeQuery()).thenReturn(rsStock);
+        when(psVencimiento.executeQuery())
+                .thenReturn(rsVencimiento);
 
-    @Test
-    void obtieneResumenDeAlertasPorFarmacia() throws Exception {
+        when(rsStock.next()).thenReturn(true);
+        when(rsVencimiento.next()).thenReturn(true);
 
-        var stock = org.example.carestock.dto.AlertaInventario
-                .TipoAlerta.STOCK_MINIMO;
+        when(rsStock.getInt(1)).thenReturn(3);
+        when(rsVencimiento.getInt(1)).thenReturn(2);
 
-        var vencimiento = java.util.Arrays.stream(
-                org.example.carestock.dto.AlertaInventario
-                        .TipoAlerta.values())
-                .filter(tipo -> tipo.name().contains("VENC"))
-                .findFirst()
-                .orElseThrow();
+        Map<String, Integer> resumen =
+                inventario().obtenerResumenAlertas();
 
-        var alertas = List.of(
-                crearAlerta(stock, 15),
-                crearAlerta(stock, 20),
-                crearAlerta(stock, 25),
-                crearAlerta(vencimiento, 30),
-                crearAlerta(vencimiento, 31)
-        );
+        assertEquals(3, resumen.get("stockBajo"));
+        assertEquals(2, resumen.get("proximosVencer"));
 
-        try (MockedConstruction<ServicioAlertasInventario> mocks =
-                     mockConstruction(
-                             ServicioAlertasInventario.class,
-                             (mock, context) ->
-                                     when(mock.listar(7))
-                                             .thenReturn(alertas))) {
-
-            Map<String, Integer> resumen =
-                    inventario().obtenerResumenAlertas();
-
-            assertEquals(3, resumen.get("stockBajo"));
-            assertEquals(2, resumen.get("proximosVencer"));
-
-            assertFalse(mocks.constructed().isEmpty());
-            assertTrue(mocks.constructed().stream().anyMatch(servicio ->
-                    mockingDetails(servicio).getInvocations().stream()
-                            .anyMatch(invocacion ->
-                                    invocacion.getMethod().getName().equals("listar")
-                                    && invocacion.getArguments().length == 1
-                                    && Integer.valueOf(7).equals(invocacion.getArgument(0))
-                            )
-            ));
-        }
+        verify(psStock).setInt(1, 7);
+        verify(psVencimiento).setInt(1, 7);
     }
 
     @Test
@@ -515,7 +486,7 @@ class InventarioFachadaCoberturaTest {
         ResultSet rsVenc = mock(ResultSet.class);
 
         when(con.prepareStatement(
-                contains("SELECT nombre_comercial")))
+                contains("SELECT nombre_comercial FROM medicamentos")))
                 .thenReturn(psStock);
 
         when(con.prepareStatement(
