@@ -302,7 +302,7 @@ public class CareStockApp extends Application {
     // TRANSICION ENTRE VISTAS
     // ========================================
 
-    private void transicionarEscena(
+    void transicionarEscena(
             String fxmlRuta,
             double ancho,
             double alto

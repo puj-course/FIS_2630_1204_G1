@@ -130,3 +130,24 @@ la validacion automatizada del proyecto.
 
 El cumplimiento final de las metricas de duplicacion
 y cobertura depende del siguiente analisis de SonarCloud.
+
+## 7. Pruebas adicionales para Quality Gate
+
+SonarCloud reporto 43.6 % de cobertura sobre codigo nuevo
+en el Pull Request #961, frente al minimo requerido de 80 %.
+
+Se agregaron pruebas JUnit 5 y Mockito orientadas a:
+
+- Navegacion entre catalogo, inventario y alertas.
+- Delegacion correcta de eventos de los controladores.
+- Redireccion a login cuando no existe sesion.
+- Acceso autorizado a la pantalla de alertas.
+- Rechazo de acceso sin farmacia valida.
+- Validacion de identificadores en AlertasInventarioDao.
+- Consulta JDBC y cierre de recursos.
+
+Las pruebas usan simulaciones para evitar conexiones
+reales a PostgreSQL y apertura de ventanas JavaFX.
+
+El resultado definitivo de la cobertura del codigo nuevo
+queda sujeto al siguiente analisis de SonarCloud.
