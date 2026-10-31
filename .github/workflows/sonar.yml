@@ -63,9 +63,14 @@ jobs:
             echo "Se usara SonarQube Cloud"
           fi
 
+      - name: Instalar pantalla virtual para JavaFX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
       - name: Compilar, probar y generar cobertura
         run: |
-          ./mvnw -B clean \
+          xvfb-run -a -s "-screen 0 1920x1080x24" ./mvnw -B clean \
             org.jacoco:jacoco-maven-plugin:0.8.15:prepare-agent \
             verify \
             org.jacoco:jacoco-maven-plugin:0.8.15:report
