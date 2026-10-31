@@ -10,6 +10,7 @@ jobs:
   package:
     name: Generar artefacto CareStock
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
 
     steps:
       - name: Descargar repositorio
@@ -27,9 +28,16 @@ jobs:
         working-directory: src/CareStock
         run: chmod +x mvnw
 
+      - name: Instalar entorno grafico virtual JavaFX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth libgtk-3-0
+
       - name: Compilar aplicacion
         working-directory: src/CareStock
-        run: ./mvnw -B clean package
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" \
+            ./mvnw -B -ntp clean package
 
       - name: Publicar artefacto
         uses: actions/upload-artifact@v4
