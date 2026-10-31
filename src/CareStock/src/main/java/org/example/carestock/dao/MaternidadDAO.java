@@ -1,6 +1,6 @@
 package org.example.carestock.dao;
 
-import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.example.carestock.dto.RegistroCatalogo;
 import org.example.carestock.model.Maternidad;
 import org.example.carestock.factory.FabricaMaternidad;
 import org.example.carestock.factory.FabricaProducto;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 
-public class MaternidadDAO extends CatalogoDAO<Maternidad> {
+public class MaternidadDao extends CatalogoDao<Maternidad> {
     private static final FabricaProducto<Maternidad> FABRICA =
             new FabricaMaternidad();
 
@@ -32,7 +32,7 @@ public class MaternidadDAO extends CatalogoDAO<Maternidad> {
 
     @Override
     protected List<String> columnasEspecificas() {
-        return List.of("etapa_recomendada", "hipoalergenico", "edad_gestacional_sugerida");
+        return List.of("etapa_recomendada", "hipoalergenico", "edad_gestacional_sugerida", "stock_minimo");
     }
 
     @Override
@@ -42,6 +42,7 @@ public class MaternidadDAO extends CatalogoDAO<Maternidad> {
         ps.setString(6, producto.getEtapaRecomendada());
         ps.setBoolean(7, producto.isHipoalergenico());
         establecerEdad(ps, 8, producto.getEdadGestacionalSugerida());
+        ps.setInt(9, producto.getStockMinimo());
     }
 
     @Override
@@ -57,6 +58,7 @@ public class MaternidadDAO extends CatalogoDAO<Maternidad> {
         int stock = rs.getInt("stock");
         String etapa = rs.getString("etapa_recomendada");
         boolean hipoalergenico = rs.getBoolean("hipoalergenico");
+        int stockMinimo = rs.getInt("stock_minimo");
 
         Maternidad producto = FABRICA.crear(p -> {
             p.setCodigo(codigo);
@@ -67,6 +69,7 @@ public class MaternidadDAO extends CatalogoDAO<Maternidad> {
             p.setEtapaRecomendada(etapa);
             p.setHipoalergenico(hipoalergenico);
             p.setEdadGestacionalSugerida(edadFinal);
+            p.setStockMinimo(stockMinimo);
         });
 
         return new RegistroCatalogo<>(

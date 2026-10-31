@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.carestock.controller.ControladorAlertas"
+            prefWidth="1240" prefHeight="760">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="14"
+              style="-fx-background-color: #0E7C7B; -fx-padding: 20;">
+
+            <Label text="CareStock | Alertas de inventario"
+                   textFill="WHITE"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="Volver al inventario"
+                    onAction="#onVolver"/>
+
+            <Button text="Cerrar sesion"
+                    onAction="#onCerrarSesion"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="12" style="-fx-padding: 24;">
+
+            <Label fx:id="lblFarmacia"
+                   text="Farmacia"/>
+
+            <HBox alignment="CENTER_LEFT" spacing="24">
+                <Label fx:id="lblCriticas"
+                       text="Críticas: --"
+                       style="-fx-text-fill: #B3261E; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                <Label fx:id="lblAdvertencias"
+                       text="Advertencias: --"
+                       style="-fx-text-fill: #9A6700; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                <Label fx:id="lblTotal"
+                       text="Total: --"
+                       style="-fx-font-weight: bold; -fx-font-size: 15;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblActualizado"
+                       text="Sin actualizar"/>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Tipo"/>
+                <ComboBox fx:id="cmbTipo" prefWidth="160"/>
+                <Label text="Categoria"/>
+                <ComboBox fx:id="cmbCategoria" prefWidth="150"/>
+                <Label text="Severidad"/>
+                <ComboBox fx:id="cmbSeveridad" prefWidth="150"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnActualizar"
+                        text="Actualizar ahora"
+                        onAction="#onActualizar"/>
+            </HBox>
+
+            <TableView fx:id="tablaAlertas"
+                       VBox.vgrow="ALWAYS"
+                       prefHeight="460">
+                <columns>
+                    <TableColumn fx:id="colSeveridad"
+                                 text="Severidad" prefWidth="100"/>
+                    <TableColumn fx:id="colTipo"
+                                 text="Tipo" prefWidth="105"/>
+                    <TableColumn fx:id="colCategoria"
+                                 text="Categoria" prefWidth="105"/>
+                    <TableColumn fx:id="colProducto"
+                                 text="Producto" prefWidth="150"/>
+                    <TableColumn fx:id="colReferencia"
+                                 text="Referencia" prefWidth="90"/>
+                    <TableColumn fx:id="colExistencias"
+                                 text="Existencias" prefWidth="90"/>
+                    <TableColumn fx:id="colDetalle"
+                                 text="Detalle" prefWidth="290"/>
+                    <TableColumn fx:id="colUltimoMovimiento"
+                                 text="Ultimo movimiento" prefWidth="250"/>
+                </columns>
+            </TableView>
+
+            <Label fx:id="lblEstado"
+                   text="Consultando..."/>
+        </VBox>
+    </center>
+</BorderPane>
