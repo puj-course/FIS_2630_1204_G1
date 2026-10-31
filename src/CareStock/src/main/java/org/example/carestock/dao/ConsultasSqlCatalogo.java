@@ -24,9 +24,9 @@ final class ConsultasSqlCatalogo {
         """
         INSERT INTO aseo
         (codigo, nombre, descripcion, precio, stock,
-         tipo_aseo, biodegradable, componentes_activos,
+         tipo_aseo, biodegradable, componentes_activos, stock_minimo,
          id_farmacia, id_usuario_creacion, estado)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO')
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO')
         RETURNING id_aseo
         """,
         """
@@ -43,7 +43,7 @@ final class ConsultasSqlCatalogo {
         SET codigo = ?, nombre = ?, descripcion = ?,
             precio = ?, stock = ?,
             tipo_aseo = ?, biodegradable = ?,
-            componentes_activos = ?,
+            componentes_activos = ?, stock_minimo = ?,
             id_usuario_modificacion = ?,
             fecha_modificacion = CURRENT_TIMESTAMP
         WHERE id_aseo = ? AND id_farmacia = ?
@@ -64,9 +64,9 @@ final class ConsultasSqlCatalogo {
         INSERT INTO maternidad
         (codigo, nombre, descripcion, precio, stock,
          etapa_recomendada, hipoalergenico,
-         edad_gestacional_sugerida,
+         edad_gestacional_sugerida, stock_minimo,
          id_farmacia, id_usuario_creacion, estado)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO')
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO')
         RETURNING id_maternidad
         """,
         """
@@ -83,7 +83,7 @@ final class ConsultasSqlCatalogo {
         SET codigo = ?, nombre = ?, descripcion = ?,
             precio = ?, stock = ?,
             etapa_recomendada = ?, hipoalergenico = ?,
-            edad_gestacional_sugerida = ?,
+            edad_gestacional_sugerida = ?, stock_minimo = ?,
             id_usuario_modificacion = ?,
             fecha_modificacion = CURRENT_TIMESTAMP
         WHERE id_maternidad = ? AND id_farmacia = ?

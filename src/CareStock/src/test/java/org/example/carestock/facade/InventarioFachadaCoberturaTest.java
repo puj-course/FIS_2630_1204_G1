@@ -4,6 +4,7 @@ import org.example.carestock.DataTransferObject.ProductoInventario;
 import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.config.ConexionBD;
 import org.example.carestock.dao.*;
+import org.example.carestock.dto.AlertaInventario;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.*;
 import org.example.carestock.proxy.ConsultaInventarioProxy;
@@ -69,6 +70,7 @@ class InventarioFachadaCoberturaTest {
                 .thenReturn(con);
 
         sesion = mockStatic(SesionUsuario.class);
+        sesion.when(SesionUsuario::estaActiva).thenReturn(true);
 
         sesion.when(SesionUsuario::actual)
                 .thenReturn(new SesionUsuario.DatosUsuario(
@@ -402,121 +404,118 @@ class InventarioFachadaCoberturaTest {
         verify(consulta).listarPorFarmacia(7);
     }
 
-    @Test
-    void consultaMedicamentosConStockBajo()
-            throws Exception {
 
-        PreparedStatement psAlertas =
-                mock(PreparedStatement.class);
+    private static AlertaInventario stock(
+            int id, String nombre, AlertaInventario.Categoria categoria) {
+        return new AlertaInventario(
+                AlertaInventario.TipoAlerta.STOCK_MINIMO,
+                categoria, id, "P-" + id, nombre, null,
+                2, 5, null, null,
+                AlertaInventario.Severidad.ADVERTENCIA,
+                null, null, null);
+    }
 
-        ResultSet rsAlertas = mock(ResultSet.class);
-
-        when(con.prepareStatement(
-                contains("SELECT id_medicamento")))
-                .thenReturn(psAlertas);
-
-        when(psAlertas.executeQuery())
-                .thenReturn(rsAlertas);
-
-        when(rsAlertas.next())
-                .thenReturn(true, true, false);
-
-        when(rsAlertas.getInt("id_medicamento"))
-                .thenReturn(15, 20);
-
-        Set<Integer> ids = inventario()
-                .obtenerIdsMedicamentosStockBajo();
-
-        assertEquals(Set.of(15, 20), ids);
-        verify(psAlertas).setInt(1, 7);
+    private static AlertaInventario vencimiento(int id, String nombre) {
+        return new AlertaInventario(
+                AlertaInventario.TipoAlerta.VENCIMIENTO,
+                AlertaInventario.Categoria.MEDICAMENTO,
+                id, "P-" + id, nombre, "L-" + id,
+                3, null, LocalDate.of(2026, 11, 10), 10,
+                AlertaInventario.Severidad.CRITICA,
+                null, null, null);
     }
 
     @Test
-    void obtieneResumenDeAlertasPorFarmacia()
-            throws Exception {
+    void consultaMedicamentosConStockBajo() throws Exception {
+        try (MockedConstruction<AlertasInventarioDao> creados =
+                     mockConstruction(AlertasInventarioDao.class)) {
+            Inventario fachada = inventario();
+            AlertasInventarioDao dao = creados.constructed().get(0);
 
-        PreparedStatement psStock =
-                mock(PreparedStatement.class);
+            when(dao.listarPorFarmacia(7)).thenReturn(List.of(
+                    stock(15, "Acetaminofen",
+                            AlertaInventario.Categoria.MEDICAMENTO),
+                    stock(20, "Ibuprofeno",
+                            AlertaInventario.Categoria.MEDICAMENTO),
+                    stock(25, "Jabon",
+                            AlertaInventario.Categoria.ASEO),
+                    vencimiento(30, "Loratadina")));
 
-        PreparedStatement psVencimiento =
-                mock(PreparedStatement.class);
+            Set<Integer> ids =
+                    org.example.carestock.service.ServicioAlertasInventario
+                    .filtrar(
+                            fachada.listarAlertas(),
+                            AlertaInventario.TipoAlerta.STOCK_MINIMO,
+                            AlertaInventario.Categoria.MEDICAMENTO,
+                            null)
+                    .stream()
+                    .map(AlertaInventario::idReferencia)
+                    .collect(java.util.stream.Collectors.toSet());
 
-        ResultSet rsStock = mock(ResultSet.class);
-        ResultSet rsVencimiento = mock(ResultSet.class);
+            assertEquals(Set.of(15, 20), ids);
+            verify(dao).listarPorFarmacia(7);
+        }
+    }
 
-        when(con.prepareStatement(
-                contains("SELECT COUNT(*) FROM medicamentos")))
-                .thenReturn(psStock);
+    @Test
+    void obtieneResumenDeAlertasPorFarmacia() throws Exception {
+        try (MockedConstruction<AlertasInventarioDao> creados =
+                     mockConstruction(AlertasInventarioDao.class)) {
+            Inventario fachada = inventario();
+            AlertasInventarioDao dao = creados.constructed().get(0);
 
-        when(con.prepareStatement(
-                contains("SELECT COUNT(*) FROM lotes l")))
-                .thenReturn(psVencimiento);
+            when(dao.listarPorFarmacia(7)).thenReturn(List.of(
+                    stock(1, "M1",
+                            AlertaInventario.Categoria.MEDICAMENTO),
+                    stock(2, "A1",
+                            AlertaInventario.Categoria.ASEO),
+                    stock(3, "T1",
+                            AlertaInventario.Categoria.MATERNIDAD),
+                    vencimiento(4, "M2"),
+                    vencimiento(5, "M3")));
 
-        when(psStock.executeQuery()).thenReturn(rsStock);
-        when(psVencimiento.executeQuery())
-                .thenReturn(rsVencimiento);
+            var resumen = fachada.resumenAlertas();
 
-        when(rsStock.next()).thenReturn(true);
-        when(rsVencimiento.next()).thenReturn(true);
+            assertEquals(3, resumen.stockMinimo());
+            assertEquals(2, resumen.vencimiento());
+            assertEquals(2, resumen.criticas());
+            assertEquals(3, resumen.advertencias());
+            assertEquals(5, resumen.total());
 
-        when(rsStock.getInt(1)).thenReturn(3);
-        when(rsVencimiento.getInt(1)).thenReturn(2);
-
-        Map<String, Integer> resumen =
-                inventario().obtenerResumenAlertas();
-
-        assertEquals(3, resumen.get("stockBajo"));
-        assertEquals(2, resumen.get("proximosVencer"));
-
-        verify(psStock).setInt(1, 7);
-        verify(psVencimiento).setInt(1, 7);
+            verify(dao).listarPorFarmacia(7);
+        }
     }
 
     @Test
     void obtieneListaDeAlertasDeStockYVencimiento()
             throws Exception {
+        try (MockedConstruction<AlertasInventarioDao> creados =
+                     mockConstruction(AlertasInventarioDao.class)) {
+            Inventario fachada = inventario();
+            AlertasInventarioDao dao = creados.constructed().get(0);
 
-        PreparedStatement psStock =
-                mock(PreparedStatement.class);
+            when(dao.listarPorFarmacia(7)).thenReturn(List.of(
+                    stock(15, "Acetaminofen",
+                            AlertaInventario.Categoria.MEDICAMENTO),
+                    vencimiento(20, "Ibuprofeno")));
 
-        PreparedStatement psVenc =
-                mock(PreparedStatement.class);
+            List<AlertaInventario> alertas =
+                    fachada.listarAlertas();
 
-        ResultSet rsStock = mock(ResultSet.class);
-        ResultSet rsVenc = mock(ResultSet.class);
+            assertEquals(2, alertas.size());
+            assertEquals("Acetaminofen",
+                    alertas.get(0).producto());
+            assertEquals("Ibuprofeno",
+                    alertas.get(1).producto());
 
-        when(con.prepareStatement(
-                contains("SELECT nombre_comercial FROM medicamentos")))
-                .thenReturn(psStock);
+            assertEquals(
+                    AlertaInventario.TipoAlerta.STOCK_MINIMO,
+                    alertas.get(0).tipoAlerta());
+            assertEquals(
+                    AlertaInventario.TipoAlerta.VENCIMIENTO,
+                    alertas.get(1).tipoAlerta());
 
-        when(con.prepareStatement(
-                contains("SELECT m.nombre_comercial, l.fecha_vencimiento")))
-                .thenReturn(psVenc);
-
-        when(psStock.executeQuery()).thenReturn(rsStock);
-        when(psVenc.executeQuery()).thenReturn(rsVenc);
-
-        when(rsStock.next()).thenReturn(true, false);
-        when(rsVenc.next()).thenReturn(true, false);
-
-        when(rsStock.getString("nombre_comercial"))
-                .thenReturn("Acetaminofen");
-
-        when(rsVenc.getString("nombre_comercial"))
-                .thenReturn("Ibuprofeno");
-
-        when(rsVenc.getDate("fecha_vencimiento"))
-                .thenReturn(Date.valueOf(
-                        LocalDate.of(2026, 11, 10)));
-
-        List<String> alertas =
-                inventario().obtenerListaAlertas();
-
-        assertEquals(2, alertas.size());
-        assertTrue(alertas.get(0).contains("Acetaminofen"));
-        assertTrue(alertas.get(1).contains("Ibuprofeno"));
-
-        verify(psStock).setInt(1, 7);
-        verify(psVenc).setInt(1, 7);
+            verify(dao).listarPorFarmacia(7);
+        }
     }
 }

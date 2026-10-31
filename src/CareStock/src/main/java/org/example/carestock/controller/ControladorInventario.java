@@ -5,7 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.CareStockApp;
 import org.example.carestock.session.SesionUsuario;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -314,7 +314,7 @@ public class ControladorInventario {
 
     @FXML
     private void onAbrirMovimientos() {
-        org.example.carestock.AplicacionCareStock.getInstance()
+        org.example.carestock.CareStockApp.getInstance()
                 .mostrarFormularioMovimientos();
     }
 
@@ -322,22 +322,22 @@ public class ControladorInventario {
 
     @FXML
     private void onAbrirAjustes() {
-        AplicacionCareStock.getInstance().mostrarFormularioAjustes();
+        CareStockApp.getInstance().mostrarFormularioAjustes();
     }
 
     @FXML
     private void onAbrirHistorial() {
-        AplicacionCareStock.getInstance().mostrarHistorialMovimientos();
+        CareStockApp.getInstance().mostrarHistorialMovimientos();
     }
 
     @FXML
     private void onAbrirCatalogo() {
-        AplicacionCareStock.getInstance().mostrarCatalogo();
+        CareStockApp.getInstance().mostrarCatalogo();
     }
 
     @FXML
     private void onCerrarSesion() {
-        AplicacionCareStock.getInstance().cerrarSesion();
+        CareStockApp.getInstance().cerrarSesion();
     }
 
     @FXML
@@ -381,7 +381,7 @@ public class ControladorInventario {
 
     @FXML
     private void onAbrirAlertas() {
-        AplicacionCareStock.getInstance().mostrarAlertas();
+        CareStockApp.getInstance().mostrarAlertas();
     }
 
     @FXML

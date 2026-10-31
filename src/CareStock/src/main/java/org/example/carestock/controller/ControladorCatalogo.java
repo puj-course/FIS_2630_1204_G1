@@ -7,9 +7,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-import org.example.carestock.AplicacionCareStock;
-import org.example.carestock.dto.LecturaCampos;
-import org.example.carestock.dto.RegistroCatalogo;
+import org.example.carestock.CareStockApp;
+import org.example.carestock.DataTransferObject.LecturaCampos;
+import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.facade.Inventario;
 
 import org.example.carestock.model.Aseo;
@@ -606,21 +606,21 @@ public class ControladorCatalogo {
     @FXML
     private void onConsultaUnificada() {
 
-        AplicacionCareStock.getInstance()
+        CareStockApp.getInstance()
                 .mostrarConsultaUnificada();
     }
 
     @FXML
     private void onVolver() {
 
-        AplicacionCareStock.getInstance()
+        CareStockApp.getInstance()
                 .mostrarDashboard();
     }
 
     @FXML
     private void onCerrarSesion() {
 
-        AplicacionCareStock.getInstance()
+        CareStockApp.getInstance()
                 .cerrarSesion();
     }
 

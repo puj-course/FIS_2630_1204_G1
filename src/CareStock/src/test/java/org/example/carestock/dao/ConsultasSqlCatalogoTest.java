@@ -17,14 +17,15 @@ class ConsultasSqlCatalogoTest {
     }
 
     @Test
-    void insercionesTienenDiezParametros() {
+    void insercionesTienenOnceParametros() {
         for (String tabla : TABLAS) {
             String sql = ConsultasSqlCatalogo.guardar(tabla);
 
             assertTrue(sql.contains("INSERT INTO " + tabla));
             assertTrue(sql.contains("id_farmacia"));
             assertTrue(sql.contains("id_usuario_creacion"));
-            assertEquals(10, contarParametros(sql));
+            assertTrue(sql.contains("stock_minimo"));
+            assertEquals(11, contarParametros(sql));
 
             String id = tabla.equals("aseo")
                     ? "id_aseo" : "id_maternidad";
@@ -62,7 +63,7 @@ class ConsultasSqlCatalogoTest {
     }
 
     @Test
-    void actualizacionesMantienenOnceParametros() {
+    void actualizacionesMantienenDoceParametros() {
         for (String tabla : TABLAS) {
             String sql = ConsultasSqlCatalogo.actualizar(tabla);
 
@@ -71,13 +72,14 @@ class ConsultasSqlCatalogoTest {
 
             assertTrue(sql.contains("UPDATE " + tabla));
             assertTrue(sql.contains("stock = ?"));
+            assertTrue(sql.contains("stock_minimo = ?"));
             assertTrue(sql.contains(id + " = ?"));
             assertTrue(sql.contains("id_farmacia = ?"));
             assertTrue(sql.contains("estado = 'ACTIVO'"));
             assertTrue(sql.contains(
                     "id_usuario_modificacion = ?"));
 
-            assertEquals(11, contarParametros(sql));
+            assertEquals(12, contarParametros(sql));
         }
     }
 

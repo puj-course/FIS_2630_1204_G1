@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.controller.CatalogoController;
+import org.example.carestock.controller.ControladorCatalogo;
 import org.example.carestock.config.PrecalentadorConexionBD;
 
 import java.net.URL;
@@ -271,6 +271,26 @@ public class CareStockApp extends Application {
                 1100, 750);
     }
 
+    public void mostrarAlertas() {
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        Integer farmacia = SesionUsuario.actual().idFarmacia();
+        if (farmacia == null || farmacia <= 0) {
+            Alert aviso = new Alert(Alert.AlertType.WARNING,
+                    "Se requiere una farmacia asignada para consultar las alertas.");
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
+            return;
+        }
+
+        transicionarEscena(
+                "/org/example/carestock/alertas-view.fxml",
+                1240, 760);
+    }
+
     public void cerrarSesion() {
 
         SesionUsuario.cerrar();
@@ -306,7 +326,7 @@ public class CareStockApp extends Application {
                 DestinoCatalogo destino = destinoCatalogo;
                 destinoCatalogo = null;
 
-                CatalogoController controlador =
+                ControladorCatalogo controlador =
                         loader.getController();
 
                 controlador.abrirDesdeConsulta(

@@ -14,7 +14,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.util.Duration;
-import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.CareStockApp;
 import org.example.carestock.dto.AlertaInventario;
 import org.example.carestock.dto.AlertaInventario.Categoria;
 import org.example.carestock.dto.AlertaInventario.Severidad;
@@ -266,11 +266,11 @@ public class ControladorAlertas {
 
     @FXML
     private void onVolver() {
-        AplicacionCareStock.getInstance().mostrarDashboard();
+        CareStockApp.getInstance().mostrarDashboard();
     }
 
     @FXML
     private void onCerrarSesion() {
-        AplicacionCareStock.getInstance().cerrarSesion();
+        CareStockApp.getInstance().cerrarSesion();
     }
 }
