@@ -30,7 +30,7 @@ class DashboardFxmlHandlersTest {
             );
 
             Set<String> metodos = Arrays.stream(
-                    InventarioController.class.getDeclaredMethods()
+                    ControladorInventario.class.getDeclaredMethods()
             ).map(Method::getName).collect(Collectors.toSet());
 
             var patron = Pattern.compile(

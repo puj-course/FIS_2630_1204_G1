@@ -2,13 +2,8 @@ package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
-public class Maternidad implements Validable {
+public class Maternidad extends ProductoBase {
 
-    private String codigo;
-    private String nombre;
-    private String descripcion;
-    private double precio;
-    private int stock;
     private int stockMinimo;
 
     // Atributos específicos de maternidad
@@ -25,35 +20,8 @@ public class Maternidad implements Validable {
     @Override
     public void validar() throws ReglaNegocioException {
 
-        if (codigo == null || codigo.isBlank()) {
-            throw new ReglaNegocioException(
-                    "El codigo del producto de maternidad es obligatorio."
-            );
-        }
-
-        if (nombre == null || nombre.isBlank()) {
-            throw new ReglaNegocioException(
-                    "El nombre del producto de maternidad es obligatorio."
-            );
-        }
-
-        if (descripcion == null || descripcion.isBlank()) {
-            throw new ReglaNegocioException(
-                    "La descripcion del producto de maternidad es obligatoria."
-            );
-        }
-
-        if (!Double.isFinite(precio) || precio < 0) {
-            throw new ReglaNegocioException(
-                    "El precio del producto de maternidad debe ser valido y no negativo."
-            );
-        }
-
-        if (stock < 0) {
-            throw new ReglaNegocioException(
-                    "El stock del producto de maternidad no puede ser negativo."
-            );
-        }
+        validarCamposComunes("maternidad");
+        validarStockNoNegativo("maternidad");
         if (stockMinimo < 0) {
             throw new ReglaNegocioException(
                     "El stock mínimo del producto de maternidad no puede ser negativo."
@@ -71,7 +39,7 @@ public class Maternidad implements Validable {
     public boolean esAptoParaDispensar() {
         try {
             validar();
-            return stock > 0;
+            return getStock() > 0;
         } catch (ReglaNegocioException e) {
             return false;
         }
@@ -81,49 +49,15 @@ public class Maternidad implements Validable {
     // GETTERS Y SETTERS
     // =========================================
 
-    public String getCodigo() {
-        return codigo;
-    }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
+    @Override
     public void setDescripcion(String descripcion) {
         if (descripcion == null || descripcion.isBlank()) {
             throw new IllegalArgumentException(
-                    "La descripcion del producto de maternidad es obligatoria."
+                "La descripcion del producto de maternidad es obligatoria."
             );
         }
-        this.descripcion = descripcion.trim();
-    }
-
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public void setStock(int stock) {
-        this.stock = stock;
+        super.setDescripcion(descripcion.trim());
     }
 
     public int getStockMinimo() {

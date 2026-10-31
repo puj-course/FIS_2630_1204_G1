@@ -22,6 +22,7 @@ class CatalogoDaoJdbcTest {
         p.setDescripcion("Jabon liquido");
         p.setPrecio(12000);
         p.setStock(8);
+        p.setStockMinimo(4);
         p.setTipoAseo("Higiene");
         p.setBiodegradable(true);
         p.setComponentesActivos("Glicerina");
@@ -35,6 +36,7 @@ class CatalogoDaoJdbcTest {
         p.setDescripcion("Kit de cuidado");
         p.setPrecio(45000);
         p.setStock(3);
+        p.setStockMinimo(2);
         p.setEtapaRecomendada("Prenatal");
         p.setHipoalergenico(true);
         p.setEdadGestacionalSugerida(0);
@@ -64,8 +66,10 @@ class CatalogoDaoJdbcTest {
             int id = new AseoDAO().guardar(aseo(), 7, 9);
 
             assertEquals(101, id);
-            verify(ps).setInt(9, 7);
-            verify(ps).setInt(10, 9);
+            verify(ps).setInt(9, 4);
+            verify(ps).setInt(10, 7);
+            verify(ps).setInt(11, 9);
+            verify(con).prepareStatement(argThat(sql -> sql.contains("stock_minimo")));
             verify(ps).setString(1, "ASE-001");
             verify(ps).setBoolean(7, true);
         }
@@ -86,8 +90,10 @@ class CatalogoDaoJdbcTest {
 
             assertEquals(202, id);
             verify(ps).setNull(8, Types.INTEGER);
-            verify(ps).setInt(9, 7);
-            verify(ps).setInt(10, 9);
+            verify(ps).setInt(9, 2);
+            verify(ps).setInt(10, 7);
+            verify(ps).setInt(11, 9);
+            verify(con).prepareStatement(argThat(sql -> sql.contains("stock_minimo")));
         }
     }
 
