@@ -437,4 +437,227 @@ class ControladorCatalogoFormularioFxTest {
             return null;
         });
     }
+
+    private static void escribirCampo(
+            ControladorCatalogo controlador,
+            String nombre,
+            String valor) throws Exception {
+        TextField campoTexto = campo(controlador, nombre);
+        campoTexto.setText(valor);
+    }
+
+    private static <T> T construirProducto(
+            ControladorCatalogo controlador,
+            String nombreMetodo,
+            Class<T> tipo) throws Exception {
+        Method metodo = ControladorCatalogo.class
+                .getDeclaredMethod(nombreMetodo);
+        metodo.setAccessible(true);
+        return tipo.cast(metodo.invoke(controlador));
+    }
+
+    @Test
+    void construyeAseoDesdeFormulario() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            escribirCampo(c, "txtCodigo", "ASE-100");
+            escribirCampo(c, "txtNombre", "Jabon liquido");
+            escribirCampo(c, "txtDescripcion", "Higiene");
+            escribirCampo(c, "txtPrecio", "12500.50");
+            escribirCampo(c, "txtStock", "12");
+            escribirCampo(c, "txtStockMinimoAseo", "4");
+            escribirCampo(c, "txtTipoAseo", "Personal");
+            escribirCampo(c, "txtComponentesActivos", "Glicerina");
+
+            CheckBox biodegradable = campo(c, "chkBiodegradable");
+            biodegradable.setSelected(true);
+
+            Aseo producto = construirProducto(
+                    c, "construirAseo", Aseo.class);
+
+            assertAll(
+                    () -> assertEquals("ASE-100",
+                            producto.getCodigo()),
+                    () -> assertEquals("Jabon liquido",
+                            producto.getNombre()),
+                    () -> assertEquals(12500.50,
+                            producto.getPrecio()),
+                    () -> assertEquals(12,
+                            producto.getStock()),
+                    () -> assertEquals(4,
+                            producto.getStockMinimo()),
+                    () -> assertEquals("Personal",
+                            producto.getTipoAseo()),
+                    () -> assertTrue(producto.isBiodegradable())
+            );
+
+            return null;
+        });
+    }
+
+    @Test
+    void construyeMaternidadDesdeFormulario() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            escribirCampo(c, "txtCodigo", "MAT-100");
+            escribirCampo(c, "txtNombre", "Kit prenatal");
+            escribirCampo(c, "txtDescripcion", "Cuidado maternal");
+            escribirCampo(c, "txtPrecio", "45000");
+            escribirCampo(c, "txtStock", "7");
+            escribirCampo(c, "txtStockMinimoMaternidad", "2");
+            escribirCampo(c, "txtEdadGestacional", "28");
+            escribirCampo(c, "txtEtapa", "Gestacion");
+
+            CheckBox hipoalergenico =
+                    campo(c, "chkHipoalergenico");
+            hipoalergenico.setSelected(true);
+
+            Maternidad producto = construirProducto(
+                    c, "construirMaternidad", Maternidad.class);
+
+            assertAll(
+                    () -> assertEquals("MAT-100",
+                            producto.getCodigo()),
+                    () -> assertEquals(7,
+                            producto.getStock()),
+                    () -> assertEquals(2,
+                            producto.getStockMinimo()),
+                    () -> assertEquals(28,
+                            producto.getEdadGestacionalSugerida()),
+                    () -> assertEquals("Gestacion",
+                            producto.getEtapaRecomendada()),
+                    () -> assertTrue(producto.isHipoalergenico())
+            );
+
+            return null;
+        });
+    }
+
+    @Test
+    void construyeMedicamentoDesdeFormulario() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            escribirCampo(c, "txtCodigo", "INV-100");
+            escribirCampo(c, "txtNombre", "Acetaminofen");
+            escribirCampo(c, "txtPrincipioActivo", "Paracetamol");
+            escribirCampo(c, "txtConcentracion", "500 mg");
+            escribirCampo(c, "txtFormaFarmaceutica", "Tableta");
+            escribirCampo(c, "txtPresentacion", "Caja");
+            escribirCampo(c, "txtStockMinimo", "5");
+            escribirCampo(c, "txtPrecioMedicamento", "2500.50");
+
+            ComboBox<ControladorCatalogo.CategoriaMedicamento>
+                    categoria = campo(
+                            c, "cmbCategoriaMedicamento");
+            categoria.getSelectionModel().selectFirst();
+
+            Medicamento producto = construirProducto(
+                    c, "construirMedicamento", Medicamento.class);
+
+            assertAll(
+                    () -> assertEquals("INV-100",
+                            producto.getCodigoInvima()),
+                    () -> assertEquals("Acetaminofen",
+                            producto.getNombreComercial()),
+                    () -> assertEquals("Paracetamol",
+                            producto.getPrincipioActivo()),
+                    () -> assertEquals(5,
+                            producto.getStockMinimo()),
+                    () -> assertEquals(
+                            new BigDecimal("2500.50"),
+                            producto.getPrecio()),
+                    () -> assertEquals(0,
+                            producto.getStockTotal()),
+                    () -> assertEquals("ACTIVO",
+                            producto.getEstado())
+            );
+
+            return null;
+        });
+    }
+
+    @Test
+    void rechazaMedicamentoSinCategoria() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            java.lang.reflect.InvocationTargetException error =
+                    assertThrows(
+                        java.lang.reflect.InvocationTargetException.class,
+                        () -> construirProducto(
+                                c, "construirMedicamento",
+                                Medicamento.class)
+                    );
+
+            assertInstanceOf(
+                    IllegalArgumentException.class,
+                    error.getCause());
+
+            return null;
+        });
+    }
+
+    @Test
+    void rechazaMedicamentoConPrecioInvalido()
+            throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            escribirCampo(c, "txtCodigo", "INV-200");
+            escribirCampo(c, "txtNombre", "Loratadina");
+            escribirCampo(c, "txtStockMinimo", "2");
+            escribirCampo(c, "txtPrecioMedicamento", "-500");
+
+            ComboBox<ControladorCatalogo.CategoriaMedicamento>
+                    categoria = campo(
+                            c, "cmbCategoriaMedicamento");
+            categoria.getSelectionModel().selectFirst();
+
+            java.lang.reflect.InvocationTargetException error =
+                    assertThrows(
+                        java.lang.reflect.InvocationTargetException.class,
+                        () -> construirProducto(
+                                c, "construirMedicamento",
+                                Medicamento.class)
+                    );
+
+            assertInstanceOf(
+                    IllegalArgumentException.class,
+                    error.getCause());
+
+            return null;
+        });
+    }
+
+    @Test
+    void rechazaAseoConStockMinimoNegativo()
+            throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            escribirCampo(c, "txtCodigo", "ASE-200");
+            escribirCampo(c, "txtNombre", "Desinfectante");
+            escribirCampo(c, "txtDescripcion", "Limpieza");
+            escribirCampo(c, "txtPrecio", "5000");
+            escribirCampo(c, "txtStock", "10");
+            escribirCampo(c, "txtStockMinimoAseo", "-1");
+
+            java.lang.reflect.InvocationTargetException error =
+                    assertThrows(
+                        java.lang.reflect.InvocationTargetException.class,
+                        () -> construirProducto(
+                                c, "construirAseo", Aseo.class)
+                    );
+
+            assertInstanceOf(
+                    IllegalStateException.class,
+                    error.getCause());
+
+            return null;
+        });
+    }
+
 }
