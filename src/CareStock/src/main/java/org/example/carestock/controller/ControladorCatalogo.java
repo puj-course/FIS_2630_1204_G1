@@ -11,6 +11,7 @@ import org.example.carestock.CareStockApp;
 import org.example.carestock.DataTransferObject.LecturaCampos;
 import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.facade.Inventario;
+import org.example.carestock.service.ValidadorPrecioMedicamento;
 
 import org.example.carestock.model.Aseo;
 import org.example.carestock.factory.FabricaAseo;
@@ -804,39 +805,9 @@ public class ControladorCatalogo {
     }
 
     private BigDecimal leerPrecioMedicamento() {
-
-        String texto = txtPrecioMedicamento.getText();
-
-        // Medicamentos historicos sin precio.
-        if (texto == null || texto.isBlank()) {
-            return null;
-        }
-
-        try {
-
-            BigDecimal valor = new BigDecimal(
-                    texto.trim()
-            );
-
-            if (valor.signum() < 0
-                    || valor.scale() > 2
-                    || valor.precision() - valor.scale() > 10) {
-
-                throw new IllegalArgumentException(
-                        "El precio debe ser no negativo, "
-                                + "con maximo dos decimales "
-                                + "y 10 digitos enteros."
-                );
-            }
-
-            return valor;
-
-        } catch (NumberFormatException e) {
-
-            throw new IllegalArgumentException(
-                    "Precio invalido. Use: 15000.00"
-            );
-        }
+        return ValidadorPrecioMedicamento.convertir(
+                txtPrecioMedicamento.getText()
+        );
     }
 
     private int leerStock() {

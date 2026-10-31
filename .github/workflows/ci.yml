@@ -45,6 +45,11 @@ jobs:
           sed -i 's/\r$//' mvnw
           chmod +x mvnw
 
+      - name: Instalar pantalla virtual para pruebas JavaFX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
       - name: Compilar y ejecutar pruebas
         run: |
           echo "=== Entorno Java ==="
@@ -53,7 +58,7 @@ jobs:
           echo "=== Inicio Maven ==="
           date -u
 
-          time ./mvnw -B -ntp clean verify
+          time xvfb-run -a -s "-screen 0 1920x1080x24" ./mvnw -B -ntp clean verify
 
           echo "=== Final Maven ==="
           date -u
