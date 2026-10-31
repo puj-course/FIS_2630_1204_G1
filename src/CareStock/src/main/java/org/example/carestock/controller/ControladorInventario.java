@@ -24,6 +24,10 @@ import org.example.carestock.proxy.InventarioConsultas;
 
 public class ControladorInventario {
 
+    private static final System.Logger LOGGER =
+            System.getLogger(ControladorInventario.class.getName());
+
+
     @FXML private TableView<Lote> tablaLotes;
     @FXML private TableColumn<Lote, Integer> colIdLote;
     @FXML private TableColumn<Lote, String> colNumeroLote;
@@ -430,7 +434,11 @@ public class ControladorInventario {
         lblTotalAseo.setText(String.valueOf(conteo.getOrDefault("Aseo", 0)));
         lblTotalMaternidad.setText(String.valueOf(conteo.getOrDefault("Maternidad", 0)));
     } catch (Exception e) {
-        e.printStackTrace();
+        LOGGER.log(
+                System.Logger.Level.WARNING,
+                "No fue posible cargar los contadores del inventario.",
+                e
+        );
     }
 }
 
