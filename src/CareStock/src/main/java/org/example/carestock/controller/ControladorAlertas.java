@@ -1,5 +1,6 @@
 package org.example.carestock.controller;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -25,12 +26,14 @@ import org.example.carestock.session.SesionUsuario;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorAlertas {
 
+    private static final ZoneId ZONA_HORARIA = ZoneId.of("America/Bogota");
     private static final String TODOS = "Todos";
     private static final Duration INTERVALO_REFRESCO = Duration.seconds(60);
     private static final DateTimeFormatter FORMATO_FECHA =
@@ -138,7 +141,7 @@ public class ControladorAlertas {
 
     private void configurarRefresco() {
         refresco = new Timeline(new KeyFrame(INTERVALO_REFRESCO, e -> cargar()));
-        refresco.setCycleCount(Timeline.INDEFINITE);
+        refresco.setCycleCount(Animation.INDEFINITE);
         refresco.play();
 
         tablaAlertas.sceneProperty().addListener((obs, anterior, actual) -> {
@@ -168,7 +171,7 @@ public class ControladorAlertas {
             btnActualizar.setDisable(false);
             todas = tarea.getValue();
             aplicarFiltros();
-            lblActualizado.setText("Actualizado: " + LocalTime.now().format(FORMATO_HORA));
+            lblActualizado.setText("Actualizado: " + LocalTime.now(ZONA_HORARIA).format(FORMATO_HORA));
             actualizarResumen();
         });
 

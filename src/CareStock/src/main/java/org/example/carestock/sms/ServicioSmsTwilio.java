@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 public final class ServicioSmsTwilio implements ServicioSms {
 
-    private static final Pattern CUENTA =
+    private static final Pattern PATRON_CUENTA_SID =
             Pattern.compile("AC[0-9a-fA-F]{32}");
 
     private static final Pattern SID_MENSAJE =
@@ -55,7 +55,7 @@ public final class ServicioSmsTwilio implements ServicioSms {
             DestinatariosPermitidosSms autorizados,
             Transporte transporte) {
 
-        if (cuenta == null || !CUENTA.matcher(cuenta).matches()) {
+        if (cuenta == null || !PATRON_CUENTA_SID.matcher(cuenta).matches()) {
             throw new IllegalArgumentException(
                     "TWILIO_ACCOUNT_SID invalido."
             );
