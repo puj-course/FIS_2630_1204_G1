@@ -502,4 +502,27 @@ public class Inventario {
 
         return consulta.listarPorFarmacia(farmacia);
     }
+    // ==================================================
+    // MARCAR ALERTAS COMO LEÍDAS 
+    // ==================================================
+
+    public void marcarAlertaComoLeida(String tipoAlerta, int referenciaId) throws Exception {
+        int idFarmacia = farmaciaActual();
+        
+        String sql = """
+            INSERT INTO ALERTAS_LEIDAS (id_usuario, id_farmacia, tipo_alerta, referencia_id)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (id_usuario, tipo_alerta, referencia_id) DO NOTHING
+            """;
+            
+        try (Connection con = org.example.carestock.config.ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+             
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idFarmacia);
+            ps.setString(3, tipoAlerta);
+            ps.setInt(4, referenciaId);
+            ps.executeUpdate();
+        }
+    }
 }
