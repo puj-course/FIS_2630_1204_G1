@@ -105,31 +105,31 @@ public class ControladorAlertas {
         colUltimoMovimiento.setCellValueFactory(
                 c -> celda(textoUltimoMovimiento(c.getValue())));
     }
-private void configurarFilas() {
-    tablaAlertas.setRowFactory(tabla -> new TableRow<>() {
-        {
-            selectedProperty().addListener((obs, antes, ahora) -> pintar());
-        }
 
-        private void pintar() {
-            AlertaInventario alerta = getItem();
-            if (alerta == null || isEmpty()) {
-                setStyle("");
-            } else {
-                // Aquí usas tu clase EstiloAlertas pasando la severidad y si está seleccionada
-                setStyle(EstiloAlertas.estiloFila(
-                        EstiloAlertas.nivel(alerta.severidad()), isSelected()));
+    private void configurarFilas() {
+        tablaAlertas.setRowFactory(tabla -> new TableRow<>() {
+            {
+                selectedProperty().addListener((obs, antes, ahora) -> pintar());
             }
-        }
 
-        @Override
-        protected void updateItem(AlertaInventario alerta, boolean vacia) {
-            super.updateItem(alerta, vacia);
-            // IMPORTANTE: Llamamos a pintar() aquí para que se actualice al reciclar la celda
-            pintar(); 
-        }
-    });
-}
+            private void pintar() {
+                AlertaInventario alerta = getItem();
+                if (alerta == null || isEmpty()) {
+                    setStyle("");
+                } else {
+                    setStyle(EstiloAlertas.estiloFila(
+                            EstiloAlertas.nivel(alerta.severidad()), isSelected()));
+                }
+            }
+
+            @Override
+            protected void updateItem(AlertaInventario alerta, boolean vacia) {
+                super.updateItem(alerta, vacia);
+                pintar();
+            }
+        });
+    }
+
     private void configurarFiltros() {
         cmbTipo.setItems(FXCollections.observableArrayList(
                 opciones(TODOS, TipoAlerta.STOCK_MINIMO.etiqueta(),
