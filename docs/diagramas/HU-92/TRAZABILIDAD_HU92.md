@@ -8,8 +8,8 @@ Estado de cada criterio de la historia *Registrar un producto desde un único fo
 
 | Criterio | Estado | Evidencia |
 |---|---|---|
-| Formulario único con selector de categoría | **Cumplido** | `ControladorCatalogo` y `catalogo-view.fxml`: el selector tiene Medicamentos, Aseo y Maternidad, y los campos propios cambian según la categoría |
-| Disponible solo para el rol `ADMINISTRADOR` | **Pendiente** | `AplicacionCareStock.mostrarCatalogo` solo comprueba que haya una sesión activa; ningún control del formulario consulta el rol (issue #720) |
+| Formulario único con selector de categoría | **Cumplido** | `CatalogoController` y `catalogo-view.fxml`: el selector tiene Medicamentos, Aseo y Maternidad, y los campos propios cambian según la categoría |
+| Disponible solo para el rol `ADMINISTRADOR` | **Pendiente** | `CareStockApp.mostrarCatalogo` solo comprueba que haya una sesión activa; ningún control del formulario consulta el rol (issue #720) |
 | Campos obligatorios: el mensaje indica cuáles faltan | **Parcial** | Los datos de texto se validan con mensajes que nombran el dato. Si el precio, el stock o el stock mínimo están vacíos o no son numéricos, el usuario ve el texto técnico de Java, por ejemplo `empty String` (issue #720) |
 | Código único | **Sin verificar** | El código no revisa duplicados ni traduce el error de la base de datos. Medicamentos tiene un índice único por farmacia y registro INVIMA (`uq_medicamentos_farmacia_invima`). Para aseo y maternidad ningún script del repositorio crea las tablas, por lo que no se puede confirmar que tengan esa restricción |
 | Farmacia asignada | **Cumplido** | `Inventario.farmaciaActual()` toma la farmacia del usuario autenticado y el producto se guarda en ella; el formulario no la pide |

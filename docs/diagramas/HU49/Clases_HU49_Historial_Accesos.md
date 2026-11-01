@@ -15,15 +15,15 @@ El diagrama modela las clases que participan en la consulta del historial de acc
 
 **AccesoDAO.** Es el control que accede a la base de datos. Su método listarHistorial consulta la vista vw_historial_accesos y devuelve una lista de AccesoLog.
 
-**UsuarioDao.** Es el control que obtiene la lista de usuarios para el filtro. Su método listarTodos devuelve todos los usuarios.
+**UsuarioDAO.** Es el control que obtiene la lista de usuarios para el filtro. Su método listarTodos devuelve todos los usuarios.
 
 **AccesoLog.** Es la entidad que representa un registro del historial. Contiene el ID del acceso, el ID del usuario, su nombre, email, resultado y fecha/hora.
 
 **Usuario.** Es la entidad que representa al usuario para el filtro del ComboBox.
 
 **Principios SOLID aplicados:**
-- **SRP (Single Responsibility):** AccesoDAO solo se encarga del acceso a datos de accesos; UsuarioDao solo de usuarios; HistorialAccesosFX solo de la interfaz. Cada clase tiene una única responsabilidad.
+- **SRP (Single Responsibility):** AccesoDAO solo se encarga del acceso a datos de accesos; UsuarioDAO solo de usuarios; HistorialAccesosFX solo de la interfaz. Cada clase tiene una única responsabilidad.
 - **OCP (Open/Closed):** Las clases están abiertas a extensión pero cerradas a modificación. Por ejemplo, si se quisiera añadir un nuevo tipo de filtro, se podría hacer sin modificar la lógica existente.
 - **LSP (Liskov Substitution):** No aplica directamente porque no hay jerarquía de herencia, pero las clases podrían implementar interfaces comunes sin romper el sistema.
 - **ISP (Interface Segregation):** Las interfaces están segregadas por responsabilidad. Por ejemplo, `AccesoDAO` solo expone métodos de accesos, no de usuarios.
-- **DIP (Dependency Inversion):** `HistorialAccesosFX` depende de abstracciones (DAOs) en lugar de implementaciones concretas. Se podría mejorar extrayendo interfaces para `AccesoDAO` y `UsuarioDao`.
+- **DIP (Dependency Inversion):** `HistorialAccesosFX` depende de abstracciones (DAOs) en lugar de implementaciones concretas. Se podría mejorar extrayendo interfaces para `AccesoDAO` y `UsuarioDAO`.

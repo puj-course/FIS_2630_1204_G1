@@ -7,10 +7,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-import org.example.carestock.AplicacionCareStock;
-import org.example.carestock.dto.LecturaCampos;
-import org.example.carestock.dto.RegistroCatalogo;
+import org.example.carestock.CareStockApp;
+import org.example.carestock.DataTransferObject.LecturaCampos;
+import org.example.carestock.DataTransferObject.RegistroCatalogo;
 import org.example.carestock.facade.Inventario;
+import org.example.carestock.service.ValidadorPrecioMedicamento;
 
 import org.example.carestock.model.Aseo;
 import org.example.carestock.factory.FabricaAseo;
@@ -76,6 +77,8 @@ public class ControladorCatalogo {
 
     @FXML private TextField txtEtapa;
     @FXML private TextField txtEdadGestacional;
+    @FXML private TextField txtStockMinimoAseo;
+    @FXML private TextField txtStockMinimoMaternidad;
     @FXML private CheckBox chkHipoalergenico;
     @FXML private VBox panelMaternidad;
 
@@ -251,9 +254,10 @@ public class ControladorCatalogo {
                     setText(item);
                     
                     RegistroCatalogo<?> registro = getTableRow().getItem();
-                    if (registro != null && registro.producto() instanceof Medicamento) {
-                        Medicamento m = (Medicamento) registro.producto();
-                        if (m.getStockTotal() <= m.getStockMinimo()) {
+                    Integer minimoProducto = registro == null
+                            ? null : stockMinimoDe(registro.producto());
+                    if (registro != null && minimoProducto != null) {
+                        if (stock(registro.producto()) <= minimoProducto) {
                             Tooltip tooltip = new Tooltip("¡Alerta de stock mínimo!");
                             tooltip.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold;");
                             setTooltip(tooltip);
@@ -278,14 +282,9 @@ public class ControladorCatalogo {
                     setStyle("");
                 } else {
                     int stockActual = stock(item.producto());
-                    int stockMinimo = 0;
-                    boolean esMedicamento = item.producto() instanceof Medicamento;
-                    
-                    if (esMedicamento) {
-                        stockMinimo = ((Medicamento) item.producto()).getStockMinimo();
-                    }
+                    Integer stockMinimo = stockMinimoDe(item.producto());
 
-                    if (esMedicamento && stockActual <= stockMinimo) {
+                    if (stockMinimo != null && stockActual <= stockMinimo) {
                         setStyle("-fx-background-color: #FFE5E5; -fx-text-fill: #C0392B;");
                     } else {
                         setStyle(""); 
@@ -293,6 +292,19 @@ public class ControladorCatalogo {
                 }
             }
         });
+    }
+
+    private static Integer stockMinimoDe(Object producto) {
+        if (producto instanceof Medicamento m) {
+            return m.getStockMinimo();
+        }
+        if (producto instanceof Aseo a) {
+            return a.getStockMinimo();
+        }
+        if (producto instanceof Maternidad m) {
+            return m.getStockMinimo();
+        }
+        return null;
     }
 
     private ReadOnlyStringWrapper str(Object valor) {
@@ -595,21 +607,21 @@ public class ControladorCatalogo {
     @FXML
     private void onConsultaUnificada() {
 
-        AplicacionCareStock.getInstance()
+        CareStockApp.getInstance()
                 .mostrarConsultaUnificada();
     }
 
     @FXML
     private void onVolver() {
 
-        AplicacionCareStock.getInstance()
+        CareStockApp.getInstance()
                 .mostrarDashboard();
     }
 
     @FXML
     private void onCerrarSesion() {
 
-        AplicacionCareStock.getInstance()
+        CareStockApp.getInstance()
                 .cerrarSesion();
     }
 
@@ -642,6 +654,8 @@ public class ControladorCatalogo {
 
         txtEtapa.clear();
         txtEdadGestacional.clear();
+        txtStockMinimoAseo.clear();
+        txtStockMinimoMaternidad.clear();
 
         chkBiodegradable.setSelected(false);
         chkHipoalergenico.setSelected(false);
@@ -692,6 +706,10 @@ public class ControladorCatalogo {
                     nulo(a.getComponentesActivos())
             );
 
+            txtStockMinimoAseo.setText(
+                    Integer.toString(a.getStockMinimo())
+            );
+
             chkBiodegradable.setSelected(
                     a.isBiodegradable()
             );
@@ -710,6 +728,10 @@ public class ControladorCatalogo {
 
             txtEtapa.setText(
                     nulo(m.getEtapaRecomendada())
+            );
+
+            txtStockMinimoMaternidad.setText(
+                    Integer.toString(m.getStockMinimo())
             );
 
             txtEdadGestacional.setText(
@@ -783,39 +805,9 @@ public class ControladorCatalogo {
     }
 
     private BigDecimal leerPrecioMedicamento() {
-
-        String texto = txtPrecioMedicamento.getText();
-
-        // Medicamentos historicos sin precio.
-        if (texto == null || texto.isBlank()) {
-            return null;
-        }
-
-        try {
-
-            BigDecimal valor = new BigDecimal(
-                    texto.trim()
-            );
-
-            if (valor.signum() < 0
-                    || valor.scale() > 2
-                    || valor.precision() - valor.scale() > 10) {
-
-                throw new IllegalArgumentException(
-                        "El precio debe ser no negativo, "
-                                + "con maximo dos decimales "
-                                + "y 10 digitos enteros."
-                );
-            }
-
-            return valor;
-
-        } catch (NumberFormatException e) {
-
-            throw new IllegalArgumentException(
-                    "Precio invalido. Use: 15000.00"
-            );
-        }
+        return ValidadorPrecioMedicamento.convertir(
+                txtPrecioMedicamento.getText()
+        );
     }
 
     private int leerStock() {
@@ -827,12 +819,17 @@ public class ControladorCatalogo {
     // ========================================
 
     private Aseo construirAseo() {
+        int minimo = LecturaCampos.enteroOpcional(
+                txtStockMinimoAseo.getText(),
+                "El stock mínimo");
+
         return FABRICA_ASEO.crear(p -> {
             p.setCodigo(txtCodigo.getText());
             p.setNombre(txtNombre.getText());
             p.setDescripcion(txtDescripcion.getText());
             p.setPrecio(leerPrecio());
             p.setStock(leerStock());
+            p.setStockMinimo(minimo);
             p.setTipoAseo(txtTipoAseo.getText());
             p.setComponentesActivos(
                     txtComponentesActivos.getText());
@@ -849,6 +846,9 @@ public class ControladorCatalogo {
         int edad = LecturaCampos.enteroOpcional(
                 txtEdadGestacional.getText(),
                 "La edad gestacional");
+        int minimo = LecturaCampos.enteroOpcional(
+                txtStockMinimoMaternidad.getText(),
+                "El stock mínimo");
 
         return FABRICA_MATERNIDAD.crear(p -> {
             p.setCodigo(txtCodigo.getText());
@@ -856,6 +856,7 @@ public class ControladorCatalogo {
             p.setDescripcion(txtDescripcion.getText());
             p.setPrecio(leerPrecio());
             p.setStock(leerStock());
+            p.setStockMinimo(minimo);
             p.setEtapaRecomendada(txtEtapa.getText());
             p.setHipoalergenico(
                     chkHipoalergenico.isSelected());

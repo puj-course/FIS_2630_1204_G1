@@ -9,7 +9,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.carestock.controller.InventarioController"
+            fx:controller="org.example.carestock.controller.ControladorInventario"
             prefWidth="1100.0"
             prefHeight="750.0"
             style="-fx-background-color: #FDFBF7; -fx-accent: #B7A6E0; -fx-focus-color: #B7A6E0; -fx-faint-focus-color: rgba(183,166,224,0.25);">
@@ -72,6 +72,19 @@
                         </VBox>
 
                         <Region HBox.hgrow="ALWAYS" />
+
+                        <Button fx:id="btnAlertas" text="Alertas"
+                                onAction="#onAbrirAlertas"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+
+                        <Button fx:id="btnAjustes" text="Ajustes de inventario"
+                                onAction="#onAbrirAjustes"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 16;" />
+
+                        <Button fx:id="btnHistorial"
+                                text="Historial de movimientos"
+                                onAction="#onAbrirHistorial"
+                                style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 16;" />
 
                         <Button fx:id="btnCatalogo"
                                 text="Catálogo"
@@ -199,6 +212,25 @@
                         </Label>
 
                         <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnNuevoLote"
+                                text="+ Crear lote"
+                                onAction="#onCrearLote"
+                                style="-fx-background-color: #0E7C7B; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+
+                        <Button fx:id="btnEditarLote"
+                                text="Editar lote"
+                                onAction="#onEditarLote"
+                                style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+
+                        <Button fx:id="btnRetirarLote"
+                                text="Retirar lote"
+                                onAction="#onRetirarLote"
+                                style="-fx-background-color: #FCE8E8; -fx-text-fill: #A93232; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+
+                        <Button fx:id="btnExportarCSV"
+                                text="Exportar CSV"
+                                onAction="#onExportarCSV"
+                                style="-fx-background-color: #FDFBF7; -fx-text-fill: #6B5B95; -fx-border-color: #B7A6E0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 18;" />
 
                         <Button text="Actualizar tabla"
                                 onAction="#onRefrescar"
@@ -347,6 +379,24 @@
                                   prefWidth="220.0"
                                   promptText="Seleccionar categoría"
                                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;" />
+        
+                        <Label text="Desde:"
+                               textFill="#20302F"
+                               style="-fx-font-weight: bold; -fx-font-size: 12;" />
+                        
+                        <DatePicker fx:id="dateInicio"
+                                    prefHeight="42.0"
+                                    promptText="Fecha Inicio"
+                                    style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;" />
+
+                        <Label text="Hasta:"
+                               textFill="#20302F"
+                               style="-fx-font-weight: bold; -fx-font-size: 12;" />
+                        
+                        <DatePicker fx:id="dateFin"
+                                    prefHeight="42.0"
+                                    promptText="Fecha Fin"
+                                    style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;" />
 
                     </children>
                 </HBox>

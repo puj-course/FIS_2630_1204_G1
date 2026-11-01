@@ -1,17 +1,19 @@
 
 package org.example.carestock.facade;
 
-import org.example.carestock.dto.ProductoInventario;
-import org.example.carestock.dto.RegistroCatalogo;
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.dto.AlertaInventario;
+import org.example.carestock.DataTransferObject.ProductoInventario;
+import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.dao.*;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.*;
 import org.example.carestock.proxy.ConsultaInventario;
 import org.example.carestock.proxy.InventarioConsultas;
-import org.example.carestock.service.ServicioRegistroLote;
-import org.example.carestock.service.ServicioFarmacovigilancia;
-import org.example.carestock.service.ServicioControlVencimientos;
+import org.example.carestock.service.RegistroLoteService;
+import org.example.carestock.service.FarmacovigilanciaService;
+import org.example.carestock.service.ServicioAlertasInventario;
+import org.example.carestock.service.ControlVencimientosService;
 import org.example.carestock.session.SesionUsuario;
 
 import java.sql.Connection;
@@ -66,28 +68,31 @@ public class Inventario {
 
     private final int idUsuario;
 
-    private final AseoDao aseoDAO = new AseoDao();
-    private final MaternidadDao maternidadDAO = new MaternidadDao();
+    private final AseoDAO aseoDAO = new AseoDAO();
+    private final MaternidadDAO maternidadDAO = new MaternidadDAO();
 
-    private final MedicamentoDao medicamentoDAO =
-            new MedicamentoDaoJdbc();
+    private final MedicamentoDAO medicamentoDAO =
+            new MedicamentoDAOImpl();
 
-    private final MedicamentoCatalogoDao medicamentoCatalogoDAO =
-            new MedicamentoCatalogoDao();
+    private final MedicamentoCatalogoDAO medicamentoCatalogoDAO =
+            new MedicamentoCatalogoDAO();
 
-    private final LoteDao loteDAO = new LoteDaoJdbc();
+    private final LoteDAO loteDAO = new LoteDAOImpl();
 
     private final ConsultaInventario consulta =
             InventarioConsultas.compartida();
 
-    private final ServicioRegistroLote registroLoteService =
-            new ServicioRegistroLote();
+    private final RegistroLoteService registroLoteService =
+            new RegistroLoteService();
 
-    private final ServicioFarmacovigilancia farmacovigilanciaService =
-            new ServicioFarmacovigilancia();
+    private final FarmacovigilanciaService farmacovigilanciaService =
+            new FarmacovigilanciaService();
 
-    private final ServicioControlVencimientos controlVencimientosService =
-            new ServicioControlVencimientos();
+    private final ControlVencimientosService controlVencimientosService =
+            new ControlVencimientosService();
+
+    private final ServicioAlertasInventario alertasService =
+            new ServicioAlertasInventario();
 
     public Inventario(Usuario usuario) {
         if (usuario == null || usuario.getIdUsuario() <= 0) {
@@ -115,7 +120,7 @@ public class Inventario {
               AND UPPER(TRIM(f.estado)) = 'ACTIVA'
             """;
 
-        try (Connection con = ConexionBaseDatos.getConexion();
+        try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
@@ -297,7 +302,7 @@ public class Inventario {
                 );
             }
 
-            MedicamentoCatalogoDao.validarCampos(producto);
+            MedicamentoCatalogoDAO.validarCampos(producto);
 
             medicamentoDAO.guardar(producto);
 
@@ -396,6 +401,14 @@ public class Inventario {
         return loteDAO.listarPorFarmacia(idFarmacia);
     }
 
+    public List<AlertaInventario> listarAlertas() throws Exception {
+        return alertasService.listar(farmaciaActual());
+    }
+
+    public ServicioAlertasInventario.Resumen resumenAlertas() throws Exception {
+        return ServicioAlertasInventario.resumir(listarAlertas());
+    }
+
     public Lote registrarLote(Lote lote) throws Exception {
 
         return escribir(f ->
@@ -488,5 +501,28 @@ public class Inventario {
         InventarioConsultas.invalidarFarmacia(farmacia);
 
         return consulta.listarPorFarmacia(farmacia);
+    }
+    // ==================================================
+    // MARCAR ALERTAS COMO LEÍDAS 
+    // ==================================================
+
+    public void marcarAlertaComoLeida(String tipoAlerta, int referenciaId) throws Exception {
+        int idFarmacia = farmaciaActual();
+        
+        String sql = """
+            INSERT INTO ALERTAS_LEIDAS (id_usuario, id_farmacia, tipo_alerta, referencia_id)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (id_usuario, tipo_alerta, referencia_id) DO NOTHING
+            """;
+            
+        try (Connection con = org.example.carestock.config.ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+             
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idFarmacia);
+            ps.setString(3, tipoAlerta);
+            ps.setInt(4, referenciaId);
+            ps.executeUpdate();
+        }
     }
 }

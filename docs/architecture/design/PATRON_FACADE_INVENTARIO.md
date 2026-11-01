@@ -1,6 +1,6 @@
 # Patrón Facade: la fachada `Inventario`
 
-Patrón **estructural** de la gestión de productos de CareStock. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDao`). Los números de línea corresponden a esa versión.
+Patrón **estructural** de la gestión de productos de CareStock. Código: `src/CareStock/src/main/java/org/example/carestock/` en `main`, con el cambio de la HU.94 (`CatalogoDAO`). Los números de línea corresponden a esa versión.
 
 ## 1. Qué problema resuelve
 
@@ -23,37 +23,37 @@ classDiagram
         +dispensarMedicamento()
         +listarInventarioUnificado()
     }
-    class ControladorCatalogo
-    class ControladorInventario
-    class ControladorConsultaInventario
-    class AseoDao
-    class MaternidadDao
-    class MedicamentoDaoJdbc
-    class MedicamentoCatalogoDao
-    class LoteDaoJdbc
-    class ServicioRegistroLote
-    class ServicioFarmacovigilancia
-    class ServicioControlVencimientos
+    class CatalogoController
+    class InventarioController
+    class ConsultaInventarioController
+    class AseoDAO
+    class MaternidadDAO
+    class MedicamentoDAOImpl
+    class MedicamentoCatalogoDAO
+    class LoteDAOImpl
+    class RegistroLoteService
+    class FarmacovigilanciaService
+    class ControlVencimientosService
     class InventarioConsultas
 
-    ControladorCatalogo --> Inventario
-    ControladorInventario --> Inventario
-    ControladorConsultaInventario --> Inventario
-    Inventario --> AseoDao
-    Inventario --> MaternidadDao
-    Inventario --> MedicamentoDaoJdbc
-    Inventario --> MedicamentoCatalogoDao
-    Inventario --> LoteDaoJdbc
-    Inventario --> ServicioRegistroLote
-    Inventario --> ServicioFarmacovigilancia
-    Inventario --> ServicioControlVencimientos
+    CatalogoController --> Inventario
+    InventarioController --> Inventario
+    ConsultaInventarioController --> Inventario
+    Inventario --> AseoDAO
+    Inventario --> MaternidadDAO
+    Inventario --> MedicamentoDAOImpl
+    Inventario --> MedicamentoCatalogoDAO
+    Inventario --> LoteDAOImpl
+    Inventario --> RegistroLoteService
+    Inventario --> FarmacovigilanciaService
+    Inventario --> ControlVencimientosService
     Inventario --> InventarioConsultas
 ```
 
 | Papel del patrón | Clase |
 |---|---|
 | Fachada | `Inventario` |
-| Clientes | `ControladorCatalogo`, `ControladorInventario` y `ControladorConsultaInventario` |
+| Clientes | `CatalogoController`, `InventarioController` y `ConsultaInventarioController` |
 | Subsistema | Los DAO, los servicios y el acceso a la consulta unificada |
 
 ## 3. Qué hace la fachada con cada pedido
@@ -62,23 +62,23 @@ Cada método de `Inventario` recibe el pedido de una pantalla y lo delega en la 
 
 | La pantalla pide (`Inventario.java`) | La fachada delega en | Línea |
 |---|---|---|
-| `registrarAseo` (L113) | `AseoDao.guardar` | 115 |
-| `buscarAseo` | `AseoDao.buscarPorId` | 121 |
-| `listarAseo` | `AseoDao.listarPorFarmacia` | 127 |
-| `actualizarAseo` | `AseoDao.actualizar` | 134 |
-| `desactivarAseo` | `AseoDao.desactivar` | 152 |
-| `registrarMaternidad` | `MaternidadDao.guardar` | 164 |
-| `buscarMaternidad` | `MaternidadDao.buscarPorId` | 170 |
-| `listarMaternidad` | `MaternidadDao.listarPorFarmacia` | 176 |
-| `actualizarMaternidad` | `MaternidadDao.actualizar` | 187 |
-| `desactivarMaternidad` | `MaternidadDao.desactivar` | 209 |
-| `registrarMedicamento` | `MedicamentoDaoJdbc.guardar` | 259 |
-| `listarMedicamentos` | `MedicamentoCatalogoDao.listarPorFarmacia` | 272 |
-| `actualizarMedicamento` | `MedicamentoCatalogoDao.actualizar` | 292 |
-| `desactivarMedicamento` | `MedicamentoCatalogoDao.desactivar` | 301 |
-| `listarLotes` (L343) | Primero `ServicioControlVencimientos.sincronizar` y luego `LoteDaoJdbc.listarPorFarmacia` | 346 y 353 |
-| `registrarLote` | `ServicioRegistroLote.registrarMedicamentoLote` | 359 |
-| `dispensarMedicamento` | `ServicioFarmacovigilancia.dispensarMedicamento` | 371 |
+| `registrarAseo` (L113) | `AseoDAO.guardar` | 115 |
+| `buscarAseo` | `AseoDAO.buscarPorId` | 121 |
+| `listarAseo` | `AseoDAO.listarPorFarmacia` | 127 |
+| `actualizarAseo` | `AseoDAO.actualizar` | 134 |
+| `desactivarAseo` | `AseoDAO.desactivar` | 152 |
+| `registrarMaternidad` | `MaternidadDAO.guardar` | 164 |
+| `buscarMaternidad` | `MaternidadDAO.buscarPorId` | 170 |
+| `listarMaternidad` | `MaternidadDAO.listarPorFarmacia` | 176 |
+| `actualizarMaternidad` | `MaternidadDAO.actualizar` | 187 |
+| `desactivarMaternidad` | `MaternidadDAO.desactivar` | 209 |
+| `registrarMedicamento` | `MedicamentoDAOImpl.guardar` | 259 |
+| `listarMedicamentos` | `MedicamentoCatalogoDAO.listarPorFarmacia` | 272 |
+| `actualizarMedicamento` | `MedicamentoCatalogoDAO.actualizar` | 292 |
+| `desactivarMedicamento` | `MedicamentoCatalogoDAO.desactivar` | 301 |
+| `listarLotes` (L343) | Primero `ControlVencimientosService.sincronizar` y luego `LoteDAOImpl.listarPorFarmacia` | 346 y 353 |
+| `registrarLote` | `RegistroLoteService.registrarMedicamentoLote` | 359 |
+| `dispensarMedicamento` | `FarmacovigilanciaService.dispensarMedicamento` | 371 |
 | `listarInventarioUnificado` (L428) | `ConsultaInventario.listarPorFarmacia` (el proxy) | 431 |
 
 Los objetos del subsistema se crean en las líneas 26, 27, 30, 33, 35, 41, 44 y 47; el acceso a la consulta unificada, en la línea 38.
@@ -95,7 +95,7 @@ Los objetos del subsistema se crean en las líneas 26, 27, 30, 33, 35, 41, 44 y 
 |---|---|
 | Diagrama de clases | `DIAGRAMA_CLASES_ACTUAL.md`, diagramas 1 y 2: `Inventario` con la marca `<<Facade>>` |
 | Diagrama de componentes | `DIAGRAMA_COMPONENTES_GENERAL.md`: flechas 5, 8 y 12 (pantallas hacia la fachada) y 17 a 26 (fachada hacia el subsistema) |
-| Código de los clientes | `ControladorInventario` L72, `ControladorCatalogo` L133 y `ControladorConsultaInventario` L86: `new Inventario(...)` |
+| Código de los clientes | `InventarioController` L72, `CatalogoController` L133 y `ConsultaInventarioController` L86: `new Inventario(...)` |
 
 ## 6. Ventajas y límites
 

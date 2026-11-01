@@ -3,7 +3,7 @@ package org.example.carestock.dao;
 import org.example.carestock.model.Lote;
 import java.util.List;
 
-public interface LoteDao {
+public interface LoteDAO {
     void guardar(Lote lote) throws Exception;
     Lote buscarPorId(int idLote) throws Exception;
     List<Lote> listarPorMedicamento(int idMedicamento) throws Exception;

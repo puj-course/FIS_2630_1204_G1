@@ -1,6 +1,6 @@
 package org.example.carestock.service;
 
-import org.example.carestock.config.ConexionBaseDatos;
+import org.example.carestock.config.ConexionBD;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.session.SesionUsuario;
 
@@ -80,7 +80,7 @@ public final class ServicioMovimientosProducto {
             );
         }
 
-        try (Connection conexion = ConexionBaseDatos.getConexion()) {
+        try (Connection conexion = ConexionBD.getConexion()) {
 
             conexion.setAutoCommit(false);
 
@@ -278,11 +278,7 @@ public final class ServicioMovimientosProducto {
     ) throws Exception {
 
         String sql =
-                "SELECT stock FROM " + categoria.tabla
-                + " WHERE " + categoria.columnaId
-                + " = ? AND id_farmacia = ?"
-                + " AND UPPER(TRIM(estado)) = 'ACTIVO'"
-                + " FOR UPDATE";
+                ConsultasSqlInventario.bloquearMovimiento(categoria);
 
         try (PreparedStatement ps =
                      conexion.prepareStatement(sql)) {
@@ -321,13 +317,7 @@ public final class ServicioMovimientosProducto {
     ) throws SQLException {
 
         String sql =
-                "UPDATE " + categoria.tabla
-                + " SET stock = ?,"
-                + " id_usuario_modificacion = ?,"
-                + " fecha_modificacion = NOW()"
-                + " WHERE " + categoria.columnaId
-                + " = ? AND id_farmacia = ?"
-                + " AND UPPER(TRIM(estado)) = 'ACTIVO'";
+                ConsultasSqlInventario.actualizarMovimiento(categoria);
 
         try (PreparedStatement ps =
                      conexion.prepareStatement(sql)) {

@@ -84,7 +84,7 @@ El registro se realiza mediante `fn_crear_usuario_jerarquico()`, que:
 |------------|---------|---------|
 | `CrearUsuarioFX` | `view/CrearUsuarioFX.java` | Interfaz del formulario |
 | `UsuarioService` | `service/UsuarioService.java` | Lógica de creación |
-| `UsuarioDao` | `dao/UsuarioDao.java` | Acceso a la base de datos |
+| `UsuarioDAO` | `dao/UsuarioDAO.java` | Acceso a la base de datos |
 | `FarmaciaDAO` | `dao/FarmaciaDAO.java` | Consulta de farmacias |
 | `fn_crear_usuario_jerarquico` | PostgreSQL | Función de creación segura |
 

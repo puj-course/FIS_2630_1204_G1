@@ -1,0 +1,18 @@
+psql binary not found on PATH; falling back to embedded TypeScript psql
+Connecting to the database; launching embedded psql (TypeScript)...
+BEGIN
+SET
+ALTER TABLE
+DO
+DO
+CREATE INDEX
+DO
+CREATE FUNCTION
+DROP TRIGGER
+CREATE TRIGGER
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMIT

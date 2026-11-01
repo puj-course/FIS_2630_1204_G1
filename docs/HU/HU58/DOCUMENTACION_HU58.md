@@ -50,13 +50,13 @@ classDiagram
 
     class CambioPasswordView
     class PasswordChangeService
-    class UsuarioDao
+    class UsuarioDAO
     class UserSession
     class DatabaseConfig
 
     CambioPasswordView --> PasswordChangeService
     CambioPasswordView --> UserSession
 
-    PasswordChangeService --> UsuarioDao
+    PasswordChangeService --> UsuarioDAO
 
-    UsuarioDao --> DatabaseConfig
+    UsuarioDAO --> DatabaseConfig

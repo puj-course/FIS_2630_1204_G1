@@ -43,7 +43,7 @@ Interfaz que define el contrato de consulta:
 
 Es implementada tanto por el Proxy como por el DAO.
 
-### ConsultaInventarioBaseDatos
+### ConsultaInventarioDAO
 
 Actúa como RealSubject.
 
@@ -131,7 +131,7 @@ classDiagram
         +invalidar()
     }
 
-    class ConsultaInventarioBaseDatos {
+    class ConsultaInventarioDAO {
         +listarPorFarmacia(int)
     }
 
@@ -142,9 +142,9 @@ classDiagram
     }
 
     ConsultaInventario <|.. ConsultaInventarioProxy
-    ConsultaInventario <|.. ConsultaInventarioBaseDatos
+    ConsultaInventario <|.. ConsultaInventarioDAO
     InventarioConsultas --> ConsultaInventarioProxy
-    ConsultaInventarioProxy --> ConsultaInventarioBaseDatos
+    ConsultaInventarioProxy --> ConsultaInventarioDAO
 ```
 
 ## 6. Validación de la implementación

@@ -1,0 +1,10 @@
+psql binary not found on PATH; falling back to embedded TypeScript psql
+Connecting to the database; launching embedded psql (TypeScript)...
+BEGIN
+DO
+     resultado     
+-------------------
+ BD-01 a BD-12: OK
+(1 row)
+
+ROLLBACK

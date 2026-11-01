@@ -4,7 +4,7 @@
 
 CareStock es una aplicación académica de escritorio desarrollada en **Java 21 y JavaFX 21** para administrar productos e inventario en farmacias. Utiliza **PostgreSQL (Neon)** mediante **JDBC**, con un pool de conexiones **HikariCP**, autenticación de usuarios, contexto de sesión y consultas de inventario segregadas por farmacia.
 
-El catálogo contempla **medicamentos, productos de aseo y productos de maternidad**. El proyecto incorpora componentes de los patrones de diseño **Builder, Facade y Proxy**, además de mecanismos de caché para consultas.
+El catálogo contempla **medicamentos, productos de aseo y productos de maternidad**. El proyecto incorpora componentes de los patrones de diseño **Factory Method, Facade, Proxy y Template Method**, además de mecanismos de caché para consultas.
 
 > **Estado del proyecto:** prototipo académico en evolución. La compilación Maven se ha verificado localmente; no todas las funcionalidades, flujos ni pruebas están certificados para uso productivo hospitalario. El `.jar` generado es un artefacto de compilación y no se presenta como instalador autónomo.
 
@@ -37,7 +37,7 @@ El catálogo contempla **medicamentos, productos de aseo y productos de maternid
 - Consulta y registro de **medicamentos**, **aseo** y **maternidad** mediante formularios JavaFX.
 - Campos y validaciones específicos según el tipo de producto.
 - Organización del catálogo por categorías y presentación.
-- Modelos y constructores (*builders*) para representar productos con diferentes atributos.
+- Creación de productos mediante fábricas especializadas con Factory Method.
 
 ### Inventario y lotes
 
@@ -68,7 +68,7 @@ El catálogo contempla **medicamentos, productos de aseo y productos de maternid
 | Pool de conexiones | HikariCP |
 | Autenticación | BCrypt |
 | Registro de eventos | SLF4J |
-| Patrones utilizados en el código | Builder, Facade, Proxy |
+| Patrones utilizados en el código | Factory Method, Facade, Proxy, Template Method |
 | Pruebas (dependencias) | JUnit 5 / Maven Surefire |
 | CI/CD | GitHub Actions |
 | Contenerización opcional | Docker / Docker Compose |
@@ -87,8 +87,7 @@ FIS_2630_1204_G1/
 ├── .github/                              # Configuración de GitHub y automatización del proyecto
 │   ├── ISSUE_TEMPLATE/                   # Plantillas para historias de usuario, bugs y tareas
 │   └── workflows/                        # Pipelines de integración y entrega continua
-│       ├── ci.yml                        # Compilación y verificación automática con Maven y Java 21
-│       └── cd.yml                        # Empaquetado y publicación de artefactos mediante GitHub Actions
+│       └── ci.yml                        # Compilación y verificación automática con Maven y Java 21
 │
 ├── conf/                                 # Archivos de configuración general y auxiliares del repositorio
 │
@@ -155,7 +154,7 @@ FIS_2630_1204_G1/
 │   │   │   │   │               ├── model/
 │   │   │   │   │               │   # Entidades y objetos del dominio hospitalario
 │   │   │   │   │               │   # Medicamentos, productos de aseo, maternidad y lotes
-│   │   │   │   │               │   # Incluye validaciones y constructores Builder
+│   │   │   │   │               │   # Incluye entidades y validaciones del dominio
 │   │   │   │   │               │
 │   │   │   │   │               ├── proxy/
 │   │   │   │   │               │   # Implementaciones del patrón Proxy y almacenamiento en caché
@@ -190,7 +189,7 @@ FIS_2630_1204_G1/
 │       └── test_data/                   # Datos destinados a escenarios de prueba
 │
 ├── .gitignore                           # Reglas para excluir archivos generados y credenciales
-├── .env.example                        # Referencia histórica de variables; no configura ConexionBaseDatos
+├── .env.example                        # Referencia histórica de variables; no configura ConexionBD
 ├── compose.yaml                        # Orquestación de la ejecución opcional mediante Docker Compose
 ├── BOILERPLATE_template.md             # Plantilla de referencia para documentación o estructura
 ├── CHANGELOG.md                        # Registro histórico de modificaciones y versiones
@@ -209,7 +208,7 @@ cd FIS_2630_1204_G1/src/CareStock
 
 ### 2. Crear la configuración local de PostgreSQL/Neon
 
-La clase `ConexionBaseDatos` lee **`config/conexion-local.properties`**, relativa al directorio de ejecución del proyecto. La configuración de la base de datos **no se toma de `DB_URL`, `DB_USER` o `DB_PASSWORD`** en esta implementación.
+La clase `ConexionBD` lee **`config/conexion-local.properties`**, relativa al directorio de ejecución del proyecto. La configuración de la base de datos **no se toma de `DB_URL`, `DB_USER` o `DB_PASSWORD`** en esta implementación.
 
 Desde `src/CareStock`:
 
@@ -274,7 +273,7 @@ Ejecuta los comandos **desde `src/CareStock`**, no desde la raíz del repositori
 2. Configura el **Project SDK = JDK 21**.
 3. Espera a que Maven descargue y sincronice las dependencias.
 4. Comprueba que exista `config/conexion-local.properties`.
-5. Ejecuta el objetivo Maven **`javafx:run`** o el punto de entrada `org.example.carestock.AplicacionCareStock` con su configuración modular correspondiente.
+5. Ejecuta el objetivo Maven **`javafx:run`** o el punto de entrada `org.example.carestock.CareStockApp` con su configuración modular correspondiente.
 
 ## Ejecución con Docker
 
@@ -354,10 +353,9 @@ Antes de abrir un Pull Request, revisa los criterios de aceptación de la histor
 
 ## Integración y entrega continuas
 
-Los flujos de GitHub Actions se encuentran en `.github/workflows/`:
+El flujo de integración continua se encuentra en `.github/workflows/`:
 
 - **`ci.yml`:** prepara Java 21 y ejecuta `./mvnw -B clean verify` desde `src/CareStock` en los eventos configurados.
-- **`cd.yml`:** ejecuta `./mvnw -B clean package` y publica los JAR construidos como artefactos de GitHub Actions.
 
 La publicación de un JAR como artefacto **no equivale a desplegar la aplicación en un servidor**, ni garantiza que el JAR pueda ejecutarse sin el entorno JavaFX correspondiente.
 
@@ -399,3 +397,83 @@ La publicación de un JAR como artefacto **no equivale a desplegar la aplicació
 ---
 
 **CareStock** — Desarrollo académico orientado a gestionar inventarios por farmacia con trazabilidad, modularidad y evolución incremental.
+
+---
+
+## Versiones y Releases
+
+CareStock utiliza versionado semántico para identificar sus entregas.
+
+### Convenciones
+
+- `MAJOR`: cambios importantes o incompatibles.
+- `MINOR`: incorporación de funcionalidades compatibles.
+- `PATCH`: correcciones de errores.
+- `beta`: versiones preliminares para pruebas.
+
+### Primera versión
+
+**CareStock v0.1.0-beta.1**
+
+Primera versión preliminar del sistema de gestión y trazabilidad de inventario hospitalario.
+
+### Publicación
+
+Las versiones oficiales se encuentran disponibles en:
+
+https://github.com/puj-course/FIS_2630_1204_G1/releases
+
+Cada Release permite consultar los cambios y descargar el código fuente correspondiente a su etiqueta.
+
+### Consideraciones
+
+CareStock es un proyecto académico en desarrollo. Las versiones beta no representan una certificación para su utilización en entornos hospitalarios de producción.
+
+La publicación del código fuente no implica que exista un instalador autónomo.
+
+Las integraciones de alertas y mensajería que continúen en desarrollo no se consideran funcionalidades terminadas de esta versión.
+
+---
+
+## Distribucion para Windows
+
+CareStock dispone de un workflow de GitHub Actions que prepara
+una distribucion ejecutable al publicar una Release o Pre-release.
+
+Workflow: `.github/workflows/release-windows.yml`
+
+### Archivos de distribucion
+
+- `CareStock-Setup-<version>.exe`: instalador de Windows.
+- `CareStock-Portable-<version>.zip`: aplicacion portable.
+
+Ambos incluyen un entorno de ejecucion Java, por lo que el
+usuario final no necesita instalar Maven ni configurar el JDK.
+
+### Configuracion de base de datos
+
+La distribucion no incluye credenciales.
+
+Cada instalacion debe disponer del archivo:
+
+`%APPDATA%\CareStock\conexion-local.properties`
+
+Puede utilizarse como referencia:
+
+`src/CareStock/config/conexion-local.properties.example`
+
+### Publicacion de versiones
+
+1. Actualizar la version de Maven.
+2. Integrar los cambios a main.
+3. Crear una nueva etiqueta de version.
+4. Publicar una Release o Pre-release desde GitHub.
+5. GitHub Actions construye el instalador y lo adjunta
+   a la publicacion, siempre que el workflow termine correctamente.
+
+### Limitaciones
+
+- El instalador se distribuye inicialmente sin firma digital.
+- El empaquetado requiere validacion en un equipo Windows limpio.
+- La generacion automatica no implica certificacion para produccion.
+- La distribucion se orienta inicialmente a Windows x64.

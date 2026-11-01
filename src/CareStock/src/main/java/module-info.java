@@ -4,6 +4,7 @@ module org.example.carestock {
     requires javafx.swing;
     requires javafx.media;
     requires java.sql;
+    requires java.net.http;
     requires jbcrypt;
     requires com.zaxxer.hikari;
 
@@ -23,10 +24,11 @@ module org.example.carestock {
     exports org.example.carestock.config;
     exports org.example.carestock.dao;
     exports org.example.carestock.service;
+    exports org.example.carestock.sms;
     exports org.example.carestock.controller;
     exports org.example.carestock.facade;
     exports org.example.carestock.factory;
-    exports org.example.carestock.dto;
+    exports org.example.carestock.DataTransferObject;
     exports org.example.carestock.session;
     requires org.slf4j.simple;
 }

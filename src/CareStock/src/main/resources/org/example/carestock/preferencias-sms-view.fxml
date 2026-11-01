@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.carestock.controller.ControladorPreferenciasSms"
+            prefWidth="1100" prefHeight="750"
+            style="-fx-background-color: #FDFBF7;">
+
+    <top>
+        <VBox spacing="12"
+              style="-fx-background-color: #A7D8D8; -fx-padding: 22;">
+            <Label text="CareStock | Preferencias SMS"
+                   style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #20302F;"/>
+            <Label fx:id="lblFarmacia"
+                   style="-fx-font-size: 14; -fx-text-fill: #20302F;"/>
+            <Label text="Configura solo destinatarios de tu farmacia."
+                   style="-fx-text-fill: #2E4A48;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.47"
+                   style="-fx-background-color: #FDFBF7;">
+            <items>
+                <VBox spacing="12" style="-fx-padding: 20;">
+                    <Label text="Destinatarios"
+                           style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <TableView fx:id="tablaDestinatarios"
+                               VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colUsuario"
+                                         text="Usuario" prefWidth="190"/>
+                            <TableColumn fx:id="colTelefono"
+                                         text="Teléfono" prefWidth="140"/>
+                            <TableColumn fx:id="colEstado"
+                                         text="Estado" prefWidth="130"/>
+                        </columns>
+                    </TableView>
+                    <Button text="Actualizar lista"
+                            onAction="#onActualizar"
+                            style="-fx-background-color: #B7A6E0; -fx-text-fill: white;"/>
+                </VBox>
+
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background: #FDFBF7;">
+                    <content>
+                        <VBox spacing="12" style="-fx-padding: 20;">
+                            <Label fx:id="lblSeleccion"
+                                   text="Selecciona un destinatario"
+                                   wrapText="true"
+                                   style="-fx-font-size: 17; -fx-font-weight: bold;"/>
+
+                            <Label text="Teléfono internacional (E.164)"/>
+                            <TextField fx:id="txtTelefono"
+                                       promptText="+573001234567"/>
+
+                            <Separator/>
+
+                            <CheckBox fx:id="chkAutorizado"
+                                      text="Destinatario autorizado para SMS"/>
+
+                            <CheckBox fx:id="chkConfirmacion"
+                                      wrapText="true"
+                                      text="Confirmo que el destinatario otorgó consentimiento explícito verificable."/>
+
+                            <Separator/>
+
+                            <Label text="Preferencias de notificación"
+                                   style="-fx-font-weight: bold;"/>
+
+                            <CheckBox fx:id="chkStock"
+                                      text="Alertas de stock crítico"/>
+
+                            <CheckBox fx:id="chkVencimientos"
+                                      text="Alertas de vencimientos críticos"/>
+
+                            <Separator/>
+
+                            <Label text="Horario de notificaciones no urgentes"
+                                   style="-fx-font-weight: bold;"/>
+
+                            <HBox spacing="10">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Inicio"/>
+                                    <TextField fx:id="txtInicio"
+                                               promptText="08:00"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Fin"/>
+                                    <TextField fx:id="txtFin"
+                                               promptText="20:00"/>
+                                </VBox>
+                            </HBox>
+
+                            <Label text="Zona horaria"/>
+                            <ComboBox fx:id="cmbZona"
+                                      maxWidth="Infinity"/>
+
+                            <Label text="Las alertas críticas autorizadas pueden enviarse fuera del horario."
+                                   wrapText="true"
+                                   style="-fx-text-fill: #526562;"/>
+
+                            <HBox spacing="12">
+                                <Button fx:id="btnGuardar"
+                                        text="Guardar"
+                                        onAction="#onGuardar"
+                                        style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                                <Button fx:id="btnDeshabilitar"
+                                        text="Deshabilitar"
+                                        onAction="#onDeshabilitar"
+                                        style="-fx-background-color: #B7A6E0; -fx-text-fill: white;"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="14" alignment="CENTER_LEFT"
+              style="-fx-padding: 14 20; -fx-background-color: #EAF3F1;">
+            <Button text="Volver al dashboard"
+                    onAction="#onVolver"/>
+            <Label fx:id="lblEstado"
+                   text="Cargando destinatarios..."
+                   wrapText="true"
+                   style="-fx-text-fill: #20302F;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

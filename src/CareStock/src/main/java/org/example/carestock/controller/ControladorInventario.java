@@ -5,11 +5,12 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import org.example.carestock.AplicacionCareStock;
+import org.example.carestock.CareStockApp;
 import org.example.carestock.session.SesionUsuario;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.carestock.facade.Inventario;
+import org.example.carestock.service.ServicioAlertasInventario;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Lote;
 
@@ -22,6 +23,10 @@ import javafx.concurrent.Task;
 import org.example.carestock.proxy.InventarioConsultas;
 
 public class ControladorInventario {
+
+    private static final System.Logger LOGGER =
+            System.getLogger(ControladorInventario.class.getName());
+
 
     @FXML private TableView<Lote> tablaLotes;
     @FXML private TableColumn<Lote, Integer> colIdLote;
@@ -36,6 +41,13 @@ public class ControladorInventario {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private Button btnHistorial;
+    @FXML private Button btnAjustes;
+    @FXML private Button btnAlertas;
+    @FXML private Button btnExportarCSV;
+    @FXML private Button btnNuevoLote;
+    @FXML private Button btnEditarLote;
+    @FXML private Button btnRetirarLote;
 
     @FXML private Label lblTotalLotes;
     @FXML private Label lblLotesVencidos;
@@ -48,6 +60,8 @@ public class ControladorInventario {
     @FXML private TextField txtBuscar;
     @FXML private TextField txtCantidad;
     @FXML private ComboBox<String> cmbCategoria;
+    @FXML private DatePicker dateInicio;
+    @FXML private DatePicker dateFin;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -80,6 +94,29 @@ public class ControladorInventario {
         boolean puedeConsultarCatalogo = sesion.idFarmacia() != null;
         btnCatalogo.setVisible(puedeConsultarCatalogo);
         btnCatalogo.setManaged(puedeConsultarCatalogo);
+        boolean puedeGestionarLotes = SesionUsuario.esAdministrador()
+                || "SUPER_ADMIN".equalsIgnoreCase(sesion.rol())
+                || "FARMACEUTICO".equalsIgnoreCase(sesion.rol());
+        puedeGestionarLotes = puedeGestionarLotes
+                && sesion.idFarmacia() != null;
+        for (Button boton : List.of(btnNuevoLote, btnEditarLote, btnRetirarLote)) {
+            boton.setVisible(puedeGestionarLotes);
+            boton.setManaged(puedeGestionarLotes);
+        }
+        String rolHistorial = sesion.rol() == null ? "" : sesion.rol().trim();
+        boolean puedeVerHistorial = puedeConsultarCatalogo
+                && ("ADMINISTRADOR".equalsIgnoreCase(rolHistorial)
+                    || "FARMACEUTICO".equalsIgnoreCase(rolHistorial));
+        btnHistorial.setVisible(puedeVerHistorial);
+        btnHistorial.setManaged(puedeVerHistorial);
+        String rol = sesion.rol() == null ? "" : sesion.rol().trim();
+        boolean puedeAjustar = puedeConsultarCatalogo
+                && ("ADMINISTRADOR".equalsIgnoreCase(rol)
+                    || "SUPER_ADMIN".equalsIgnoreCase(rol));
+        btnAjustes.setVisible(puedeAjustar);
+        btnAjustes.setManaged(puedeAjustar);
+        btnAlertas.setVisible(puedeConsultarCatalogo);
+        btnAlertas.setManaged(puedeConsultarCatalogo);
 
         colIdLote.setCellValueFactory(new PropertyValueFactory<>("idLote"));
         colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
@@ -118,6 +155,9 @@ public class ControladorInventario {
 
         configurarEstiloFilas();
         configurarFiltroBusqueda();
+                // #809: Configurar los DatePickers para el filtro
+        dateInicio.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
 
         // Selección intuitiva de fila
         tablaLotes.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -148,17 +188,36 @@ public class ControladorInventario {
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
 
-    private void aplicarFiltros() {
-        datosFiltrados.setPredicate(filtroTexto.and(filtroEstado).and(filtroCategoria));
-    }
+        private void aplicarFiltros() {
 
-    private void aplicarFiltroTexto(String texto) {
+        LocalDate inicio = dateInicio.getValue();
+        LocalDate fin = dateFin.getValue();
+
+        Predicate<Lote> filtroFechas = lote -> {
+            if (lote.getFechaIngreso() == null) return false;
+            LocalDate fechaLote = lote.getFechaIngreso().toLocalDate();
+            
+            boolean cumpleInicio = (inicio == null) || !fechaLote.isBefore(inicio);
+            boolean cumpleFin = (fin == null) || !fechaLote.isAfter(fin);
+            
+            return cumpleInicio && cumpleFin;
+        };
+
+        datosFiltrados.setPredicate(filtroTexto.and(filtroEstado).and(filtroCategoria).and(filtroFechas));
+
+        if (datosFiltrados.isEmpty()) {
+            tablaLotes.setPlaceholder(new Label("No hay movimientos en este rango de fechas."));
+        } else {
+            tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
+        }
+    }
+    
+        private void aplicarFiltroTexto(String texto) {
         String filtro = texto == null ? "" : texto.toLowerCase().trim();
         filtroTexto = lote -> filtro.isEmpty()
                 || (lote.getNumeroLote() != null && lote.getNumeroLote().toLowerCase().contains(filtro))
                 || String.valueOf(lote.getIdMedicamento()).contains(filtro)
-                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro))
-                || estadoMostrado(lote).toLowerCase().contains(filtro);
+                || (lote.getEstadoLote() != null && lote.getEstadoLote().toLowerCase().contains(filtro));
         aplicarFiltros();
     }
 
@@ -176,6 +235,8 @@ public class ControladorInventario {
         filtroEstado = lote -> true;
         txtBuscar.clear();
         cmbCategoria.getSelectionModel().selectFirst();
+        dateInicio.setValue(null); 
+        dateFin.setValue(null);   
         aplicarFiltros();
     }
 
@@ -192,6 +253,9 @@ public class ControladorInventario {
     }
 
     private String estadoMostrado(Lote lote) {
+        if ("RETENIDO".equalsIgnoreCase(lote.getEstadoLote())) {
+            return "RETENIDO";
+        }
         if (lote.getFechaVencimiento() != null
                 && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
             return "DESHABILITADO";
@@ -220,27 +284,108 @@ public class ControladorInventario {
     }
 
     @FXML
+    private void onCrearLote() {
+        GestorLotesDialogo gestor = new GestorLotesDialogo(
+                tablaLotes.getScene().getWindow());
+        if (gestor.crear()) onRefrescar();
+    }
+
+    @FXML
+    private void onEditarLote() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING,
+                    "Seleccion requerida",
+                    "Selecciona primero un lote de la tabla.");
+            return;
+        }
+        GestorLotesDialogo gestor = new GestorLotesDialogo(
+                tablaLotes.getScene().getWindow());
+        if (gestor.editar(loteSeleccionado)) onRefrescar();
+    }
+
+    @FXML
+    private void onRetirarLote() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING,
+                    "Seleccion requerida",
+                    "Selecciona primero un lote de la tabla.");
+            return;
+        }
+        GestorLotesDialogo gestor = new GestorLotesDialogo(
+                tablaLotes.getScene().getWindow());
+        if (gestor.retirar(loteSeleccionado)) onRefrescar();
+    }
+
+    @FXML
     private void onAbrirMovimientos() {
-        org.example.carestock.AplicacionCareStock.getInstance()
+        org.example.carestock.CareStockApp.getInstance()
                 .mostrarFormularioMovimientos();
     }
 
 
 
     @FXML
+    private void onAbrirAjustes() {
+        CareStockApp.getInstance().mostrarFormularioAjustes();
+    }
+
+    @FXML
+    private void onAbrirHistorial() {
+        CareStockApp.getInstance().mostrarHistorialMovimientos();
+    }
+
+    @FXML
     private void onAbrirCatalogo() {
-        AplicacionCareStock.getInstance().mostrarCatalogo();
+        CareStockApp.getInstance().mostrarCatalogo();
     }
 
     @FXML
     private void onCerrarSesion() {
-        AplicacionCareStock.getInstance().cerrarSesion();
+        CareStockApp.getInstance().cerrarSesion();
     }
 
     @FXML
     private void onRefrescar() {
         cargarDatosTabla();
         cargarContadoresPorCategoria();
+    }
+
+    private void cargarResumenAlertas() {
+        if (!btnAlertas.isVisible()) {
+            return;
+        }
+
+        Task<ServicioAlertasInventario.Resumen> tarea = new Task<>() {
+            @Override
+            protected ServicioAlertasInventario.Resumen call() throws Exception {
+                return inventario.resumenAlertas();
+            }
+        };
+
+        tarea.setOnSucceeded(e -> mostrarResumenAlertas(tarea.getValue()));
+        tarea.setOnFailed(e -> btnAlertas.setText("Alertas"));
+
+        Thread hilo = new Thread(tarea, "resumen-alertas");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
+    private void mostrarResumenAlertas(ServicioAlertasInventario.Resumen resumen) {
+        String color = resumen.criticas() > 0
+                ? "#B3261E"
+                : resumen.advertencias() > 0 ? "#C77700" : "#0E7C7B";
+
+        btnAlertas.setText(resumen.total() == 0
+                ? "Alertas"
+                : "Alertas (" + resumen.total() + ")");
+        btnAlertas.setStyle("-fx-background-color: " + color
+                + "; -fx-text-fill: white; -fx-font-weight: bold;"
+                + " -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;");
+    }
+
+    @FXML
+    private void onAbrirAlertas() {
+        CareStockApp.getInstance().mostrarAlertas();
     }
 
     @FXML
@@ -289,7 +434,11 @@ public class ControladorInventario {
         lblTotalAseo.setText(String.valueOf(conteo.getOrDefault("Aseo", 0)));
         lblTotalMaternidad.setText(String.valueOf(conteo.getOrDefault("Maternidad", 0)));
     } catch (Exception e) {
-        e.printStackTrace();
+        LOGGER.log(
+                System.Logger.Level.WARNING,
+                "No fue posible cargar los contadores del inventario.",
+                e
+        );
     }
 }
 
@@ -313,6 +462,7 @@ public class ControladorInventario {
                     .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(LocalDate.now()))
                     .count();
             lblLotesVencidos.setText(String.valueOf(vencidos));
+            cargarResumenAlertas();
 
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexión", "No se pudieron obtener los datos de Neon DB: " + e.getMessage());
@@ -333,5 +483,46 @@ public class ControladorInventario {
         alert.setHeaderText(titulo);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+               @FXML
+    private void onExportarCSV() {
+        if (tablaLotes.getItems() == null || tablaLotes.getItems().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Sin datos para exportar", 
+                    "No hay lotes visibles en la tabla. Si aplicaste filtros, intenta limpiarlos antes de exportar.");
+            return;
+        }
+
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        fileChooser.setTitle("Guardar Historial de Lotes");
+        fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("Archivos CSV (*.csv)", "*.csv")
+        );
+        
+        java.io.File archivo = fileChooser.showSaveDialog(tablaLotes.getScene().getWindow());
+
+        if (archivo != null) {
+            try (java.io.PrintWriter writer = new java.io.PrintWriter(archivo, "UTF-8")) {
+                
+                writer.println("ID Lote;Numero Lote;ID Medicamento;Cantidad;Fecha Vencimiento;Estado");
+
+                for (Lote lote : tablaLotes.getItems()) {
+                    writer.println(
+                            lote.getIdLote() + ";" +
+                            lote.getNumeroLote() + ";" +
+                            lote.getIdMedicamento() + ";" +
+                            lote.getCantidadActual() + ";" +
+                            lote.getFechaVencimiento() + ";" +
+                            lote.getEstadoLote()
+                    );
+                }
+
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Exportación Exitosa", 
+                        "El archivo CSV se guardó correctamente con " + tablaLotes.getItems().size() + " registros.\n\nRuta:\n" + archivo.getAbsolutePath());
+
+            } catch (java.io.IOException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de Exportación", 
+                        "No se pudo guardar el archivo: " + e.getMessage());
+            }
+        }
     }
 }

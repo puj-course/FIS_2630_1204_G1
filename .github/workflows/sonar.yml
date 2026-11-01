@@ -1,0 +1,110 @@
+name: SonarQube - Analisis de calidad
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: carestock-sonar-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sonar:
+    name: Analizar CareStock
+    runs-on: ubuntu-24.04
+
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       vars.SONAR_ORGANIZATION != '')
+
+    defaults:
+      run:
+        working-directory: src/CareStock
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+
+    steps:
+      - name: Checkout completo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: src/CareStock/pom.xml
+
+      - name: Preparar Maven Wrapper
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
+
+      - name: Validar configuracion SonarQube
+        run: |
+          test -n "$SONAR_TOKEN" || {
+            echo "::error::Falta SONAR_TOKEN"
+            exit 1
+          }
+          test -n "$SONAR_PROJECT_KEY" || {
+            echo "::error::Falta SONAR_PROJECT_KEY"
+            exit 1
+          }
+          if [ -z "$SONAR_HOST_URL" ]; then
+            echo "Se usara SonarQube Cloud"
+          fi
+
+      - name: Verificar pantalla virtual JavaFX
+        run: |
+          if command -v xvfb-run >/dev/null 2>&1 && command -v xauth >/dev/null 2>&1; then
+            echo "Xvfb y xauth disponibles. No se requiere apt-get."
+          else
+            echo "Faltan dependencias. Instalando como respaldo..."
+            sudo apt-get update -o Acquire::Retries=1
+            sudo apt-get install -y --no-install-recommends xvfb xauth
+          fi
+
+      - name: Compilar, probar y generar cobertura
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" ./mvnw -B clean \
+            org.jacoco:jacoco-maven-plugin:0.8.15:prepare-agent \
+            verify \
+            org.jacoco:jacoco-maven-plugin:0.8.15:report
+
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            echo "Reporte JaCoCo generado."
+          else
+            echo "::warning::No se genero el XML de JaCoCo. Revisar pruebas y configuracion Surefire."
+          fi
+
+      - name: Analizar con SonarQube
+        run: |
+          HOST="${SONAR_HOST_URL:-https://sonarcloud.io}"
+
+          ARGS=(
+            "-Dsonar.host.url=$HOST"
+            "-Dsonar.projectKey=$SONAR_PROJECT_KEY"
+            "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+            "-Dsonar.qualitygate.wait=true"
+          )
+
+          if [ -n "$SONAR_ORGANIZATION" ]; then
+            ARGS+=("-Dsonar.organization=$SONAR_ORGANIZATION")
+          fi
+
+          ./mvnw -B \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar \
+            "${ARGS[@]}"
