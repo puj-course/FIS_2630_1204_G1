@@ -1010,20 +1010,19 @@ class ControladorCatalogoFormularioFxTest {
                     new ServicioAlertasInventario.Resumen(
                             2, 1, 2, 1));
             assertEquals("Alertas (3)", boton.getText());
-            assertTrue(boton.getStyle().contains("#B3261E"));
+                      assertTrue(boton.getStyle().contains("#F0A8A8"));
 
             resumen.invoke(c,
                     new ServicioAlertasInventario.Resumen(
                             0, 2, 1, 1));
             assertEquals("Alertas (2)", boton.getText());
-            assertTrue(boton.getStyle().contains("#C77700"));
+                       assertTrue(boton.getStyle().contains("#F6CE8E"));
 
             resumen.invoke(c,
                     new ServicioAlertasInventario.Resumen(
                             0, 0, 0, 0));
             assertEquals("Alertas", boton.getText());
-            assertTrue(boton.getStyle().contains("#0E7C7B"));
-
+                      assertTrue(boton.getStyle().contains("#EDE7F7"));
             return null;
         });
     }
