@@ -68,31 +68,4 @@ public class AlertasInventarioDao {
                 rs.getString("ultimo_movimiento_tipo"),
                 rs.getString("ultimo_movimiento_usuario"));
     }
-    public void marcarComoLeida(int idUsuario, int idFarmacia, String tipoAlerta, int referenciaId) throws Exception {
-        
-        String sqlValidar = "SELECT 1 FROM vw_alertas_inventario WHERE id_farmacia = ? AND tipo_alerta = ? AND id_referencia = ?";
-        try (java.sql.Connection con = org.example.carestock.config.ConexionBD.getConexion();
-             java.sql.PreparedStatement ps = con.prepareStatement(sqlValidar)) {
-            ps.setInt(1, idFarmacia);
-            ps.setString(2, tipoAlerta);
-            ps.setInt(3, referenciaId);
-            try (java.sql.ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    throw new org.example.carestock.exception.ReglaNegocioException("La alerta que intenta marcar no existe o ya fue resuelta.");
-                }
-            }
-        }
-
-        String sqlInsert = "INSERT INTO ALERTAS_LEIDAS (id_usuario, id_farmacia, tipo_alerta, referencia_id) VALUES (?, ?, ?, ?)";
-            
-        try (java.sql.Connection con = org.example.carestock.config.ConexionBD.getConexion();
-             java.sql.PreparedStatement ps = con.prepareStatement(sqlInsert)) {
-            ps.setInt(1, idUsuario);
-            ps.setInt(2, idFarmacia);
-            ps.setString(3, tipoAlerta);
-            ps.setInt(4, referenciaId);
-            ps.executeUpdate();
-        }
-    }
-
 }
