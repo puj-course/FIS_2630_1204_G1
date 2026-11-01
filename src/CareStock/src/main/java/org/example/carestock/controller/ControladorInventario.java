@@ -605,7 +605,7 @@ public class ControladorInventario {
             javafx.scene.control.MenuItem itemError = new javafx.scene.control.MenuItem("Error al cargar notificaciones");
             itemError.setDisable(true);
             contextMenu.getItems().add(itemError);
-            e.printStackTrace();
+            LOGGER.log(System.Logger.Level.ERROR, "No fue posible cargar las notificaciones.", e);
         }
         contextMenu.show(btnCampana, javafx.geometry.Side.BOTTOM, 0, 0);
     }
