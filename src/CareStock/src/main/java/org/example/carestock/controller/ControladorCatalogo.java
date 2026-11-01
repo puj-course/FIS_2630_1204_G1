@@ -259,7 +259,7 @@ public class ControladorCatalogo {
                     if (registro != null && minimoProducto != null) {
                         if (stock(registro.producto()) <= minimoProducto) {
                             Tooltip tooltip = new Tooltip("¡Alerta de stock mínimo!");
-                            tooltip.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold;");
+                            tooltip.setStyle(EstiloAlertas.ESTILO_TOOLTIP_ALERTA);
                             setTooltip(tooltip);
                         } else {
                             setTooltip(null);
@@ -285,7 +285,8 @@ public class ControladorCatalogo {
                     Integer stockMinimo = stockMinimoDe(item.producto());
 
                     if (stockMinimo != null && stockActual <= stockMinimo) {
-                        setStyle("-fx-background-color: #FFE5E5; -fx-text-fill: #C0392B;");
+                        setStyle(EstiloAlertas.estiloFila(
+                                EstiloAlertas.nivelPorExistencias(stockActual), false));
                     } else {
                         setStyle(""); 
                     }

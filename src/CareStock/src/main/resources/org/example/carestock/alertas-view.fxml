@@ -5,62 +5,74 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.carestock.controller.ControladorAlertas"
-            prefWidth="1240" prefHeight="760">
+            prefWidth="1240" prefHeight="760"
+            style="-fx-background-color: #FDFBF7; -fx-accent: #B7A6E0; -fx-focus-color: #B7A6E0; -fx-faint-focus-color: rgba(183,166,224,0.25);">
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="14"
-              style="-fx-background-color: #0E7C7B; -fx-padding: 20;">
+              style="-fx-background-color: #A7D8D8; -fx-padding: 20;">
 
             <Label text="CareStock | Alertas de inventario"
-                   textFill="WHITE"/>
+                   textFill="#20302F"
+                   style="-fx-font-size: 18; -fx-font-weight: bold;"/>
 
             <Region HBox.hgrow="ALWAYS"/>
 
             <Button text="Volver al inventario"
-                    onAction="#onVolver"/>
+                    onAction="#onVolver"
+                    style="-fx-background-color: rgba(32,48,47,0.08); -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;"/>
 
             <Button text="Cerrar sesion"
-                    onAction="#onCerrarSesion"/>
+                    onAction="#onCerrarSesion"
+                    style="-fx-background-color: rgba(32,48,47,0.08); -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: rgba(32,48,47,0.25); -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 20;"/>
         </HBox>
     </top>
 
     <center>
-        <VBox spacing="12" style="-fx-padding: 24;">
+        <VBox spacing="12" style="-fx-background-color: #FDFBF7; -fx-padding: 24;">
 
             <Label fx:id="lblFarmacia"
-                   text="Farmacia"/>
+                   text="Farmacia"
+                   textFill="#20302F"
+                   style="-fx-font-size: 16; -fx-font-weight: bold;"/>
 
             <HBox alignment="CENTER_LEFT" spacing="24">
                 <Label fx:id="lblCriticas"
                        text="Críticas: --"
-                       style="-fx-text-fill: #B3261E; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                       style="-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; -fx-font-weight: bold; -fx-font-size: 15; -fx-background-radius: 8; -fx-padding: 6 14;"/>
                 <Label fx:id="lblAdvertencias"
                        text="Advertencias: --"
-                       style="-fx-text-fill: #9A6700; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                       style="-fx-background-color: #F6CE8E; -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-font-size: 15; -fx-background-radius: 8; -fx-padding: 6 14;"/>
                 <Label fx:id="lblTotal"
                        text="Total: --"
-                       style="-fx-font-weight: bold; -fx-font-size: 15;"/>
+                       style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-font-size: 15; -fx-background-radius: 8; -fx-padding: 6 14;"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="lblActualizado"
-                       text="Sin actualizar"/>
+                       text="Sin actualizar"
+                       textFill="#5B6663"/>
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Tipo"/>
-                <ComboBox fx:id="cmbTipo" prefWidth="160"/>
-                <Label text="Categoria"/>
-                <ComboBox fx:id="cmbCategoria" prefWidth="150"/>
-                <Label text="Severidad"/>
-                <ComboBox fx:id="cmbSeveridad" prefWidth="150"/>
+                <Label text="Tipo" textFill="#20302F" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="cmbTipo" prefWidth="160"
+                          style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;"/>
+                <Label text="Categoria" textFill="#20302F" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="cmbCategoria" prefWidth="150"
+                          style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;"/>
+                <Label text="Severidad" textFill="#20302F" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="cmbSeveridad" prefWidth="150"
+                          style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="btnActualizar"
                         text="Actualizar ahora"
-                        onAction="#onActualizar"/>
+                        onAction="#onActualizar"
+                        style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;"/>
             </HBox>
 
             <TableView fx:id="tablaAlertas"
                        VBox.vgrow="ALWAYS"
-                       prefHeight="460">
+                       prefHeight="460"
+                       style="-fx-background-color: #FFFFFF; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #E3D9F5; -fx-border-width: 1;">
                 <columns>
                     <TableColumn fx:id="colSeveridad"
                                  text="Severidad" prefWidth="100"/>
@@ -82,7 +94,8 @@
             </TableView>
 
             <Label fx:id="lblEstado"
-                   text="Consultando..."/>
+                   text="Consultando..."
+                   textFill="#5B6663"/>
         </VBox>
     </center>
 </BorderPane>

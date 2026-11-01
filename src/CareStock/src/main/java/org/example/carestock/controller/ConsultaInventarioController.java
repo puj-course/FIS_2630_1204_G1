@@ -160,7 +160,7 @@ public class ConsultaInventarioController {
                 if (vacio || producto == null) {
                     setStyle("");
                 } else if (producto.existencia() == 0) {
-                    setStyle("-fx-background-color: #FFF3E0;");
+                    setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.CRITICO, false));
                 } else {
                     setStyle("");
                 }

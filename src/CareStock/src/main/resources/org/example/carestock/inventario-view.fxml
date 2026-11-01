@@ -75,11 +75,11 @@
 
                         <Button fx:id="btnAlertas" text="Alertas"
                                 onAction="#onAbrirAlertas"
-                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+                                style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
                         <Button fx:id="btnAjustes" text="Ajustes de inventario"
                                 onAction="#onAbrirAjustes"
-                                style="-fx-background-color: #0E7C7B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 16;" />
+                                style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
                         <Button fx:id="btnHistorial"
                                 text="Historial de movimientos"
@@ -215,7 +215,7 @@
                         <Button fx:id="btnNuevoLote"
                                 text="+ Crear lote"
                                 onAction="#onCrearLote"
-                                style="-fx-background-color: #0E7C7B; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+                                style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
 
                         <Button fx:id="btnEditarLote"
                                 text="Editar lote"
@@ -225,7 +225,7 @@
                         <Button fx:id="btnRetirarLote"
                                 text="Retirar lote"
                                 onAction="#onRetirarLote"
-                                style="-fx-background-color: #FCE8E8; -fx-text-fill: #A93232; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
+                                style="-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;" />
 
                         <Button fx:id="btnExportarCSV"
                                 text="Exportar CSV"

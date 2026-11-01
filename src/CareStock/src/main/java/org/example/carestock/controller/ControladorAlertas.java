@@ -108,16 +108,24 @@ public class ControladorAlertas {
 
     private void configurarFilas() {
         tablaAlertas.setRowFactory(tabla -> new TableRow<>() {
+            {
+                selectedProperty().addListener((obs, antes, ahora) -> pintar());
+            }
+
+            private void pintar() {
+                AlertaInventario alerta = getItem();
+                if (alerta == null || isEmpty()) {
+                    setStyle("");
+                } else {
+                    setStyle(EstiloAlertas.estiloFila(
+                            EstiloAlertas.nivel(alerta.severidad()), isSelected()));
+                }
+            }
+
             @Override
             protected void updateItem(AlertaInventario alerta, boolean vacia) {
                 super.updateItem(alerta, vacia);
-                if (alerta == null || vacia) {
-                    setStyle("");
-                } else if (alerta.severidad() == Severidad.CRITICA) {
-                    setStyle("-fx-background-color: #FDECEA;");
-                } else {
-                    setStyle("-fx-background-color: #FFF6E0;");
-                }
+                pintar();
             }
         });
     }

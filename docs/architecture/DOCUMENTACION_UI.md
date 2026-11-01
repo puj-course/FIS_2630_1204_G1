@@ -304,3 +304,29 @@ La consulta unificada (`consulta-inventario-view.fxml`) casi no tenía estilos (
 **Observación de accesibilidad (pendiente de decisión del equipo):** la sección 5 define el botón primario con texto blanco sobre Lavanda `#B7A6E0`. Ese par tiene un contraste de 2.2:1, por debajo del mínimo de 4.5:1 de WCAG 2.1 AA para texto normal. Si el equipo decide corregirlo, bastaría usar texto `#20302F` (contraste 6.3:1) en los botones primarios de todas las pantallas.
 
 ![Consulta unificada con la paleta oficial](HU120-consulta-paleta.png)
+
+
+## 17. Migración de la Paleta Oficial a la Pantalla de Alertas (HU-133)
+
+La pantalla de alertas (`alertas-view.fxml`) se creó en HU.124 con el esquema anterior (encabezado `#0E7C7B` con texto blanco y controles sin estilo). Se migró a la paleta oficial editando el FXML:
+
+| Elemento | Color anterior | Color oficial aplicado |
+| :--- | :--- | :--- |
+| Fondo general | sin estilo | Marfil `#FDFBF7` |
+| Encabezado | `#0E7C7B` | Menta `#A7D8D8` |
+| Título del encabezado | texto blanco | `#20302F` |
+| Botones "Volver al inventario" y "Cerrar sesion" | sin estilo | `#20302F` translúcido (igual que el catálogo) |
+| Indicador "Críticas" | texto `#B3261E` | fondo Coral `#F0A8A8` con texto `#7A2E2E` |
+| Indicador "Advertencias" | texto `#9A6700` | fondo Durazno `#F6CE8E` con texto `#20302F` |
+| Indicador "Total" | sin estilo | fondo Lavanda claro `#EDE7F7` con texto `#6B5B95` |
+| Nombre de la farmacia | sin estilo | `#20302F` |
+| Textos "Actualizado" y de estado | sin estilo | `#5B6663` |
+| Filtros Tipo, Categoría y Severidad | sin estilo | fondo blanco y borde `#D0D0D0` |
+| Botón "Actualizar ahora" | sin estilo | Lavanda claro `#EDE7F7` / `#6B5B95` |
+| Tabla | sin estilo | borde `#E3D9F5` |
+| Color de foco y selección de filas (raíz del FXML) | azul por defecto | Lavanda `#B7A6E0` |
+
+**Accesibilidad:** cada indicador conserva su texto ("Críticas: N", "Advertencias: N", "Total: N") y la columna "Severidad" de la tabla dice "Crítica" o "Advertencia", así que el color no es la única señal (WCAG 2.1 AA). Los textos sobre Coral y Durazno son oscuros, nunca blancos. Contrastes: `#7A2E2E` sobre Coral 4.8:1, `#20302F` sobre Durazno 9.3:1, `#6B5B95` sobre Lavanda claro 4.9:1 y `#20302F` sobre Marfil 13.3:1.
+
+**Fuera de alcance (código):** `ControladorAlertas` pinta por código el color de cada fila según la severidad (`#FDECEA` y `#FFF6E0`). Ese color no se puede cambiar desde el FXML y se migra en HU-134 (sección 18).
+
