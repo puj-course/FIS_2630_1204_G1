@@ -165,10 +165,10 @@ public class ControladorInventario {
             if (newSel != null) {
                 lblLoteSeleccionadoInfo.setText("ID " + newSel.getIdLote() + " | " + newSel.getNumeroLote() +
                         " (Med #" + newSel.getIdMedicamento() + ") - Stock: " + newSel.getCantidadActual());
-                lblLoteSeleccionadoInfo.setStyle("-fx-text-fill: #1A365D; -fx-font-weight: bold;");
+                lblLoteSeleccionadoInfo.setStyle("-fx-text-fill: #20302F; -fx-font-weight: bold;");
             } else {
                 lblLoteSeleccionadoInfo.setText("Ninguno (Haga clic en una fila de la tabla)");
-                lblLoteSeleccionadoInfo.setStyle("-fx-text-fill: #4A5568; -fx-font-style: italic;");
+                lblLoteSeleccionadoInfo.setStyle("-fx-text-fill: #5B6663; -fx-font-style: italic;");
             }
         });
 
@@ -267,18 +267,28 @@ public class ControladorInventario {
 
     private void configurarEstiloFilas() {
         tablaLotes.setRowFactory(tv -> new TableRow<Lote>() {
-            @Override
-            protected void updateItem(Lote item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
+            {
+                selectedProperty().addListener((obs, antes, ahora) -> pintar());
+            }
+
+            private void pintar() {
+                Lote lote = getItem();
+                if (lote == null || isEmpty()) {
                     setStyle("");
-                } else if (item.getFechaVencimiento() != null && !item.getFechaVencimiento().isAfter(LocalDate.now())) {
-                    setStyle("-fx-background-color: #FED7D7; -fx-text-fill: #742A2A; -fx-font-weight: bold;");
-                } else if (!"DISPONIBLE".equalsIgnoreCase(item.getEstadoLote())) {
-                    setStyle("-fx-background-color: #FEEBC8; -fx-text-fill: #7B341E;");
+                } else if (lote.getFechaVencimiento() != null
+                        && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                    setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.CRITICO, isSelected()));
+                } else if (!"DISPONIBLE".equalsIgnoreCase(lote.getEstadoLote())) {
+                    setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.ADVERTENCIA, isSelected()));
                 } else {
                     setStyle("");
                 }
+            }
+
+            @Override
+            protected void updateItem(Lote item, boolean empty) {
+                super.updateItem(item, empty);
+                pintar();
             }
         });
     }
@@ -371,16 +381,11 @@ public class ControladorInventario {
     }
 
     private void mostrarResumenAlertas(ServicioAlertasInventario.Resumen resumen) {
-        String color = resumen.criticas() > 0
-                ? "#B3261E"
-                : resumen.advertencias() > 0 ? "#C77700" : "#0E7C7B";
-
         btnAlertas.setText(resumen.total() == 0
                 ? "Alertas"
                 : "Alertas (" + resumen.total() + ")");
-        btnAlertas.setStyle("-fx-background-color: " + color
-                + "; -fx-text-fill: white; -fx-font-weight: bold;"
-                + " -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;");
+        btnAlertas.setStyle(EstiloAlertas.estiloInsignia(
+                resumen.criticas(), resumen.advertencias()));
     }
 
     @FXML
