@@ -45,3 +45,40 @@ de cobertura publicado por SonarCloud.
 - Security Rating A.
 - Duplicación de código nuevo <= 3%.
 - Pruebas automatizadas exitosas.
+
+## Ampliación de cobertura - 01/11/2026
+
+### Línea base
+
+- Coverage on New Code: 78.1%.
+- Pruebas automatizadas reportadas: 445.
+- Objetivo: Coverage >= 80%.
+
+### Nuevos casos propuestos
+
+Se incorporaron:
+
+- 20 pruebas para escenarios del ControladorInventario.
+- 15 pruebas para validaciones del ServicioMovimientosProducto.
+
+### Áreas evaluadas
+
+- Resumen de alertas.
+- Contadores de inventario.
+- Excepciones de dispensación.
+- Notificaciones y marcado como leído.
+- Exportación CSV.
+- Validación de movimientos y límites de stock.
+
+### Herramientas
+
+JUnit 5, Mockito, JavaFX, JaCoCo y Maven.
+
+### Resultados pendientes
+
+Registrar después de la ejecución:
+
+- Total de pruebas ejecutadas.
+- Pruebas exitosas y fallidas.
+- Coverage on New Code de SonarCloud.
+- Estado del Quality Gate.

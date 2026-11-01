@@ -2869,4 +2869,755 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
+
+    // ===== QUALITY GATE: COBERTURA INVENTARIO =====
+
+    @Test
+    void qaGateResumenDeNotificaciones() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario fachada = obtener(c, "inventario");
+
+            insertar(c, "lblAlertaStock", new Label());
+            insertar(c, "lblAlertaVencimiento", new Label());
+            insertar(c, "badgeNotificaciones",
+                    new javafx.scene.shape.Circle(5));
+            insertar(c, "lblContadorNotificaciones",
+                    new Label());
+
+            when(fachada.resumenAlertas()).thenReturn(
+                    null,
+                    new ServicioAlertasInventario.Resumen(
+                            0, 0, 0, 0),
+                    new ServicioAlertasInventario.Resumen(
+                            1, 0, 1, 0),
+                    new ServicioAlertasInventario.Resumen(
+                            2, 1, 2, 3));
+
+            Label stock = obtener(c, "lblAlertaStock");
+            Label vencimiento =
+                    obtener(c, "lblAlertaVencimiento");
+            Label contador =
+                    obtener(c, "lblContadorNotificaciones");
+            javafx.scene.shape.Circle badge =
+                    obtener(c, "badgeNotificaciones");
+
+            // Resumen nulo.
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("0 productos", stock.getText());
+            assertFalse(badge.isVisible());
+
+            // Sin alertas.
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("0 lotes", vencimiento.getText());
+            assertFalse(contador.isVisible());
+
+            // Una alerta de stock.
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("1 producto", stock.getText());
+            assertEquals("0 lotes", vencimiento.getText());
+            assertEquals("1", contador.getText());
+            assertTrue(badge.isVisible());
+
+            // Multiples alertas.
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("2 productos", stock.getText());
+            assertEquals("3 lotes", vencimiento.getText());
+            assertEquals("5", contador.getText());
+            assertTrue(contador.isVisible());
+
+            verify(fachada, times(4)).resumenAlertas();
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenControlaErrorDeServicio()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario fachada = obtener(c, "inventario");
+
+            insertar(c, "lblAlertaStock", new Label());
+            insertar(c, "lblAlertaVencimiento", new Label());
+            insertar(c, "badgeNotificaciones",
+                    new javafx.scene.shape.Circle(5));
+            insertar(c, "lblContadorNotificaciones",
+                    new Label());
+
+            when(fachada.resumenAlertas())
+                    .thenThrow(new IllegalStateException(
+                            "Fallo de pruebas"));
+
+            llamar(c, "cargarResumenAlertas");
+
+            Label stock = obtener(c, "lblAlertaStock");
+            Label vencimiento =
+                    obtener(c, "lblAlertaVencimiento");
+            Label contador =
+                    obtener(c, "lblContadorNotificaciones");
+
+            assertEquals("0 productos", stock.getText());
+            assertEquals("0 lotes", vencimiento.getText());
+            assertFalse(contador.isVisible());
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateMenuNotificacionesYMarcadoLeida()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario fachada = obtener(c, "inventario");
+
+            insertar(c, "btnCampana", new Button());
+
+            when(fachada.listarAlertas()).thenReturn(
+                    List.of(
+                            alertaStock(),
+                            alertaVencimiento()));
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.ContextMenu> menus =
+                    mockConstruction(
+                            javafx.scene.control.ContextMenu.class,
+                            (menu, contexto) -> when(menu.getItems())
+                                    .thenReturn(
+                                            javafx.collections.FXCollections
+                                                    .observableArrayList()))) {
+
+                llamar(c, "onAbrirNotificaciones");
+
+                assertEquals(1, menus.constructed().size());
+
+                javafx.scene.control.ContextMenu menu =
+                        menus.constructed().get(0);
+
+                assertEquals(2, menu.getItems().size());
+
+                javafx.scene.control.CustomMenuItem primero =
+                        (javafx.scene.control.CustomMenuItem)
+                                menu.getItems().get(0);
+
+                javafx.scene.layout.HBox contenido =
+                        (javafx.scene.layout.HBox)
+                                primero.getContent();
+
+                Label texto =
+                        (Label) contenido.getChildren().get(0);
+                Button marcarLeida =
+                        (Button) contenido.getChildren().get(1);
+
+                assertTrue(texto.getText().contains("Jabon"));
+
+                marcarLeida.fire();
+
+                verify(fachada).marcarAlertaComoLeida(
+                        "STOCK_MINIMO", 1);
+                verify(menu).hide();
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateMenuVacioYErrorDeConsulta()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario fachada = obtener(c, "inventario");
+
+            insertar(c, "btnCampana", new Button());
+
+            when(fachada.listarAlertas())
+                    .thenReturn(List.of())
+                    .thenThrow(new IllegalStateException(
+                            "Fallo de consulta simulado"));
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.ContextMenu> menus =
+                    mockConstruction(
+                            javafx.scene.control.ContextMenu.class,
+                            (menu, contexto) -> when(menu.getItems())
+                                    .thenReturn(
+                                            javafx.collections.FXCollections
+                                                    .observableArrayList()))) {
+
+                llamar(c, "onAbrirNotificaciones");
+
+                var menuVacio = menus.constructed().get(0);
+                assertEquals(1, menuVacio.getItems().size());
+                assertEquals(
+                        "No hay notificaciones nuevas",
+                        menuVacio.getItems().get(0).getText());
+
+                llamar(c, "onAbrirNotificaciones");
+
+                var menuError = menus.constructed().get(1);
+                assertEquals(1, menuError.getItems().size());
+                assertEquals(
+                        "Error al cargar notificaciones",
+                        menuError.getItems().get(0).getText());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateExportaCsvConDatosRealesDePrueba()
+            throws Exception {
+        java.nio.file.Path csv =
+                java.nio.file.Files.createTempFile(
+                        "carestock-quality-gate-", ".csv");
+
+        try {
+            enFx(() -> {
+                ControladorInventario c =
+                        inventarioFormulario();
+
+                TableView<Lote> tabla =
+                        obtener(c, "tablaLotes");
+
+                tabla.getItems().add(
+                        lotePrueba(12, "LOT-QA-12",
+                                "DISPONIBLE", -1, 20));
+
+                new javafx.scene.Scene(
+                        new javafx.scene.layout.StackPane(tabla));
+
+                try (
+                    org.mockito.MockedConstruction<
+                            javafx.stage.FileChooser> selectores =
+                            mockConstruction(
+                                javafx.stage.FileChooser.class,
+                                (selector, contexto) -> {
+                                    when(selector.getExtensionFilters())
+                                            .thenReturn(
+                                                javafx.collections
+                                                        .FXCollections
+                                                        .observableArrayList());
+
+                                    when(selector.showSaveDialog(
+                                            org.mockito.ArgumentMatchers
+                                                    .nullable(
+                                                            javafx.stage
+                                                                    .Window.class)))
+                                            .thenReturn(csv.toFile());
+                                });
+
+                    org.mockito.MockedConstruction<Alert> mensajes =
+                            mockConstruction(Alert.class)
+                ) {
+                    llamar(c, "onExportarCSV");
+
+                    assertEquals(1, selectores.constructed().size());
+                    assertEquals(1, mensajes.constructed().size());
+                }
+
+                return null;
+            });
+
+            List<String> lineas =
+                    java.nio.file.Files.readAllLines(csv);
+
+            assertEquals(2, lineas.size());
+            assertTrue(lineas.get(0).contains("ID Lote"));
+            assertTrue(lineas.get(1).contains("LOT-QA-12"));
+        } finally {
+            java.nio.file.Files.deleteIfExists(csv);
+        }
+    }
+
+
+    // ===== Quality Gate: escenarios pendientes de inventario =====
+
+    private static void qaIndicadores(ControladorInventario c)
+            throws Exception {
+        insertar(c, "lblAlertaStock", new Label());
+        insertar(c, "lblAlertaVencimiento", new Label());
+        insertar(c, "badgeNotificaciones",
+                new javafx.scene.shape.Circle(5));
+        insertar(c, "lblContadorNotificaciones", new Label());
+    }
+
+    @Test
+    void qaGateResumenSinControlesFXML() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenReturn(
+                    new ServicioAlertasInventario.Resumen(1, 1, 1, 1));
+            llamar(c, "cargarResumenAlertas");
+            verify(servicio).resumenAlertas();
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenNulo() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            qaIndicadores(c);
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("0 productos",
+                    ((Label) obtener(c, "lblAlertaStock")).getText());
+            assertEquals("0 lotes",
+                    ((Label) obtener(c, "lblAlertaVencimiento")).getText());
+            assertFalse(((javafx.scene.shape.Circle)
+                    obtener(c, "badgeNotificaciones")).isVisible());
+            assertFalse(((Label)
+                    obtener(c, "lblContadorNotificaciones")).isVisible());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenVacio() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            qaIndicadores(c);
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenReturn(
+                    new ServicioAlertasInventario.Resumen(0, 0, 0, 0));
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("0 productos",
+                    ((Label) obtener(c, "lblAlertaStock")).getText());
+            assertFalse(((Label)
+                    obtener(c, "lblContadorNotificaciones")).isVisible());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenUnProducto() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            qaIndicadores(c);
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenReturn(
+                    new ServicioAlertasInventario.Resumen(1, 0, 1, 0));
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("1 producto",
+                    ((Label) obtener(c, "lblAlertaStock")).getText());
+            assertEquals("1",
+                    ((Label) obtener(c, "lblContadorNotificaciones"))
+                            .getText());
+            assertTrue(((javafx.scene.shape.Circle)
+                    obtener(c, "badgeNotificaciones")).isVisible());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenUnLote() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            qaIndicadores(c);
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenReturn(
+                    new ServicioAlertasInventario.Resumen(0, 1, 0, 1));
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("1 lote",
+                    ((Label) obtener(c, "lblAlertaVencimiento"))
+                            .getText());
+            assertEquals("1",
+                    ((Label) obtener(c, "lblContadorNotificaciones"))
+                            .getText());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenMixto() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            qaIndicadores(c);
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenReturn(
+                    new ServicioAlertasInventario.Resumen(2, 3, 2, 3));
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("2 productos",
+                    ((Label) obtener(c, "lblAlertaStock")).getText());
+            assertEquals("3 lotes",
+                    ((Label) obtener(c, "lblAlertaVencimiento")).getText());
+            assertEquals("5",
+                    ((Label) obtener(c, "lblContadorNotificaciones"))
+                            .getText());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenErrorServicio() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            qaIndicadores(c);
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenThrow(
+                    new IllegalStateException("Error simulado"));
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("0 productos",
+                    ((Label) obtener(c, "lblAlertaStock")).getText());
+            assertEquals("0 lotes",
+                    ((Label) obtener(c, "lblAlertaVencimiento")).getText());
+            assertFalse(((javafx.scene.shape.Circle)
+                    obtener(c, "badgeNotificaciones")).isVisible());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateResumenErrorConCamposNulos() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            insertar(c, "lblAlertaStock", new Label());
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.resumenAlertas()).thenThrow(
+                    new IllegalStateException("Error simulado"));
+            llamar(c, "cargarResumenAlertas");
+            assertEquals("0 productos",
+                    ((Label) obtener(c, "lblAlertaStock")).getText());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateContadoresConResultados() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.contarPorCategoria()).thenReturn(
+                    Map.of("Medicamento", 12, "Aseo", 5, "Maternidad", 3));
+            llamar(c, "cargarContadoresPorCategoria");
+            assertEquals("12",
+                    ((Label) obtener(c, "lblTotalMedicamentos"))
+                            .getText());
+            assertEquals("5",
+                    ((Label) obtener(c, "lblTotalAseo")).getText());
+            assertEquals("3",
+                    ((Label) obtener(c, "lblTotalMaternidad"))
+                            .getText());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateContadoresSinResultados() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.contarPorCategoria()).thenReturn(Map.of());
+            llamar(c, "cargarContadoresPorCategoria");
+            assertEquals("0",
+                    ((Label) obtener(c, "lblTotalMedicamentos"))
+                            .getText());
+            assertEquals("0",
+                    ((Label) obtener(c, "lblTotalAseo")).getText());
+            assertEquals("0",
+                    ((Label) obtener(c, "lblTotalMaternidad"))
+                            .getText());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateContadoresConError() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Label medicamentos = obtener(c, "lblTotalMedicamentos");
+            medicamentos.setText("sin actualizar");
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.contarPorCategoria()).thenThrow(
+                    new IllegalStateException("Fallo simulado"));
+            llamar(c, "cargarContadoresPorCategoria");
+            assertEquals("sin actualizar", medicamentos.getText());
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateDispensacionFallaPorRegla() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario servicio = obtener(c, "inventario");
+            insertar(c, "loteSeleccionado",
+                    lotePrueba(7, "LOTE-7", "DISPONIBLE", -1, 20));
+            ((TextField) obtener(c, "txtCantidad")).setText("2");
+            doThrow(new org.example.carestock.exception
+                    .ReglaNegocioException("Sin permisos"))
+                    .when(servicio).dispensarMedicamento(7, 2);
+
+            try (MockedConstruction<Alert> ventanas =
+                         mockConstruction(Alert.class)) {
+                llamar(c, "onDispensar");
+                assertEquals(1, ventanas.constructed().size());
+                verify(servicio).dispensarMedicamento(7, 2);
+                verify(servicio, never()).listarLotes();
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateDispensacionFallaInesperada() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario servicio = obtener(c, "inventario");
+            insertar(c, "loteSeleccionado",
+                    lotePrueba(8, "LOTE-8", "DISPONIBLE", -1, 20));
+            ((TextField) obtener(c, "txtCantidad")).setText("3");
+            doThrow(new IllegalStateException("Servicio fuera de linea"))
+                    .when(servicio).dispensarMedicamento(8, 3);
+
+            try (MockedConstruction<Alert> ventanas =
+                         mockConstruction(Alert.class)) {
+                llamar(c, "onDispensar");
+                assertEquals(1, ventanas.constructed().size());
+                verify(servicio).dispensarMedicamento(8, 3);
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateNotificacionesSinAlertas() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            insertar(c, "btnCampana", new Button());
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.listarAlertas()).thenReturn(List.of());
+
+            try (MockedConstruction<javafx.scene.control.ContextMenu>
+                         menus = mockConstruction(
+                            javafx.scene.control.ContextMenu.class,
+                            (menu, contexto) ->
+                                    when(menu.getItems()).thenReturn(
+                                        javafx.collections.FXCollections
+                                                .observableArrayList()))) {
+                llamar(c, "onAbrirNotificaciones");
+                var menu = menus.constructed().get(0);
+                assertEquals(1, menu.getItems().size());
+                assertEquals("No hay notificaciones nuevas",
+                        menu.getItems().get(0).getText());
+                assertTrue(menu.getItems().get(0).isDisable());
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateNotificacionesFallaConsulta() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            insertar(c, "btnCampana", new Button());
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.listarAlertas()).thenThrow(
+                    new IllegalStateException("Fallo controlado"));
+
+            try (MockedConstruction<javafx.scene.control.ContextMenu>
+                         menus = mockConstruction(
+                            javafx.scene.control.ContextMenu.class,
+                            (menu, contexto) ->
+                                    when(menu.getItems()).thenReturn(
+                                        javafx.collections.FXCollections
+                                                .observableArrayList()))) {
+                llamar(c, "onAbrirNotificaciones");
+                var menu = menus.constructed().get(0);
+                assertEquals("Error al cargar notificaciones",
+                        menu.getItems().get(0).getText());
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateNotificacionesMarcaLeida() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            insertar(c, "btnCampana", new Button());
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.listarAlertas()).thenReturn(
+                    List.of(alertaStock(), alertaVencimiento()));
+
+            try (MockedConstruction<javafx.scene.control.ContextMenu>
+                         menus = mockConstruction(
+                            javafx.scene.control.ContextMenu.class,
+                            (menu, contexto) ->
+                                    when(menu.getItems()).thenReturn(
+                                        javafx.collections.FXCollections
+                                                .observableArrayList()))) {
+                llamar(c, "onAbrirNotificaciones");
+                var menu = menus.constructed().get(0);
+                assertEquals(2, menu.getItems().size());
+                var item = (javafx.scene.control.CustomMenuItem)
+                        menu.getItems().get(0);
+                var fila = (javafx.scene.layout.HBox) item.getContent();
+                assertTrue(((Label) fila.getChildren().get(0))
+                        .getText().contains("Jabon"));
+                ((Button) fila.getChildren().get(1)).fire();
+                verify(servicio).marcarAlertaComoLeida("STOCK_MINIMO", 1);
+                verify(menu).hide();
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateNotificacionesControlaErrorAlMarcar()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            insertar(c, "btnCampana", new Button());
+            Inventario servicio = obtener(c, "inventario");
+            when(servicio.listarAlertas()).thenReturn(
+                    List.of(alertaStock()));
+            doThrow(new IllegalStateException("No autorizado"))
+                    .when(servicio)
+                    .marcarAlertaComoLeida("STOCK_MINIMO", 1);
+
+            try (MockedConstruction<javafx.scene.control.ContextMenu>
+                         menus = mockConstruction(
+                            javafx.scene.control.ContextMenu.class,
+                            (menu, contexto) ->
+                                    when(menu.getItems()).thenReturn(
+                                        javafx.collections.FXCollections
+                                                .observableArrayList()));
+                 MockedConstruction<Alert> mensajes =
+                         mockConstruction(Alert.class)) {
+                llamar(c, "onAbrirNotificaciones");
+                var menu = menus.constructed().get(0);
+                var item = (javafx.scene.control.CustomMenuItem)
+                        menu.getItems().get(0);
+                var fila = (javafx.scene.layout.HBox) item.getContent();
+                ((Button) fila.getChildren().get(1)).fire();
+                assertEquals(1, mensajes.constructed().size());
+                verify(menu, never()).hide();
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateExportacionCancelada() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
+            tabla.getItems().add(
+                    lotePrueba(9, "LOTE-9", "DISPONIBLE", -1, 20));
+            new javafx.scene.Scene(
+                    new javafx.scene.layout.StackPane(tabla));
+
+            try (MockedConstruction<javafx.stage.FileChooser>
+                         selectores = mockConstruction(
+                            javafx.stage.FileChooser.class,
+                            (selector, contexto) ->
+                                    when(selector.getExtensionFilters())
+                                            .thenReturn(
+                                                javafx.collections
+                                                        .FXCollections
+                                                        .observableArrayList()))) {
+                llamar(c, "onExportarCSV");
+                assertEquals(1, selectores.constructed().size());
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaGateExportacionCorrecta() throws Exception {
+        java.nio.file.Path ruta =
+                java.nio.file.Files.createTempFile(
+                        "carestock-qa-", ".csv");
+
+        try {
+            enFx(() -> {
+                ControladorInventario c = inventarioFormulario();
+                TableView<Lote> tabla = obtener(c, "tablaLotes");
+                tabla.getItems().add(
+                        lotePrueba(10, "LOTE-10", "DISPONIBLE", -1, 20));
+                new javafx.scene.Scene(
+                        new javafx.scene.layout.StackPane(tabla));
+
+                try (MockedConstruction<javafx.stage.FileChooser>
+                             selectores = mockConstruction(
+                                javafx.stage.FileChooser.class,
+                                (selector, contexto) -> {
+                                    when(selector.getExtensionFilters())
+                                            .thenReturn(
+                                                javafx.collections
+                                                        .FXCollections
+                                                        .observableArrayList());
+                                    when(selector.showSaveDialog(
+                                            org.mockito.ArgumentMatchers
+                                                    .nullable(
+                                                        javafx.stage
+                                                                .Window.class)))
+                                            .thenReturn(ruta.toFile());
+                                });
+                     MockedConstruction<Alert> mensajes =
+                             mockConstruction(Alert.class)) {
+                    llamar(c, "onExportarCSV");
+                    assertEquals(1, selectores.constructed().size());
+                    assertEquals(1, mensajes.constructed().size());
+                }
+                return null;
+            });
+
+            List<String> lineas =
+                    java.nio.file.Files.readAllLines(ruta);
+            assertEquals(2, lineas.size());
+            assertTrue(lineas.get(0).contains("ID Lote"));
+            assertTrue(lineas.get(1).contains("LOTE-10"));
+        } finally {
+            java.nio.file.Files.deleteIfExists(ruta);
+        }
+    }
+
+    @Test
+    void qaGateExportacionErrorArchivo() throws Exception {
+        java.nio.file.Path carpeta =
+                java.nio.file.Files.createTempDirectory(
+                        "carestock-qa-csv-");
+
+        try {
+            enFx(() -> {
+                ControladorInventario c = inventarioFormulario();
+                TableView<Lote> tabla = obtener(c, "tablaLotes");
+                tabla.getItems().add(
+                        lotePrueba(11, "LOTE-11", "DISPONIBLE", -1, 20));
+                new javafx.scene.Scene(
+                        new javafx.scene.layout.StackPane(tabla));
+
+                try (MockedConstruction<javafx.stage.FileChooser>
+                             selectores = mockConstruction(
+                                javafx.stage.FileChooser.class,
+                                (selector, contexto) -> {
+                                    when(selector.getExtensionFilters())
+                                            .thenReturn(
+                                                javafx.collections
+                                                        .FXCollections
+                                                        .observableArrayList());
+                                    when(selector.showSaveDialog(
+                                            org.mockito.ArgumentMatchers
+                                                    .nullable(
+                                                        javafx.stage
+                                                                .Window.class)))
+                                            .thenReturn(carpeta.toFile());
+                                });
+                     MockedConstruction<Alert> mensajes =
+                             mockConstruction(Alert.class)) {
+                    llamar(c, "onExportarCSV");
+                    assertEquals(1, mensajes.constructed().size());
+                }
+                return null;
+            });
+        } finally {
+            java.nio.file.Files.deleteIfExists(carpeta);
+        }
+    }
+
 }
