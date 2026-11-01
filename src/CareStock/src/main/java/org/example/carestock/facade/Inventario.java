@@ -406,6 +406,22 @@ public class Inventario {
     public List<AlertaInventario> listarAlertas() throws Exception {
         return alertasService.listar(farmaciaActual());
     }
+        public List<String> obtenerListaAlertas() throws Exception {
+        List<String> lista = new ArrayList<>();
+        for (AlertaInventario alerta : listarAlertas()) {
+            if (alerta.tipoAlerta() == AlertaInventario.TipoAlerta.STOCK_MINIMO) {
+                lista.add("⚠️ Stock bajo: " + alerta.producto());
+            } else {
+                lista.add("⏳ Vence pronto: " + alerta.producto());
+            }
+        }
+        return lista;
+    }
+
+    public void marcarAlertaComoLeida(String tipoAlerta, int referenciaId) throws Exception {
+        int idFarmacia = farmaciaActual();
+        alertasDao.marcarComoLeida(idUsuario, idFarmacia, tipoAlerta, referenciaId);
+    }
 
     public ServicioAlertasInventario.Resumen resumenAlertas() throws Exception {
         return ServicioAlertasInventario.resumir(listarAlertas());
