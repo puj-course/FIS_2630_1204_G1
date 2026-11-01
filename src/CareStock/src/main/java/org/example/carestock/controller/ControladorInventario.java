@@ -350,12 +350,12 @@ public class ControladorInventario {
         cargarContadoresPorCategoria();
     }
 
-       private void cargarResumenAlertas() {
+           private void cargarResumenAlertas() {
         try {
             var resumen = inventario.resumenAlertas();
             
             int stockBajo = resumen.stockMinimo();
-            int proximosVencer = resumen.vencimientos();
+            int proximosVencer = resumen.vencimiento();
             int total = stockBajo + proximosVencer;
 
             lblAlertaStock.setText(stockBajo + (stockBajo == 1 ? " producto" : " productos"));
