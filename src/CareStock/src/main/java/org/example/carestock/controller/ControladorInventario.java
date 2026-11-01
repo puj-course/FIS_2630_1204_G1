@@ -551,4 +551,57 @@ public class ControladorInventario {
             }
         }
     }
+    @FXML
+    private void onAbrirNotificaciones() {
+        javafx.scene.control.ContextMenu contextMenu = new javafx.scene.control.ContextMenu();
+        
+        try {
+            var alertas = inventario.listarAlertas();
+
+            if (alertas.isEmpty()) {
+                javafx.scene.control.MenuItem item = new javafx.scene.control.MenuItem("No hay notificaciones nuevas");
+                item.setDisable(true);
+                contextMenu.getItems().add(item);
+            } else {
+                for (var alerta : alertas) {
+                    String texto = (alerta.tipoAlerta() == org.example.carestock.dto.AlertaInventario.TipoAlerta.STOCK_MINIMO) 
+                            ? "⚠️ Stock bajo: " + alerta.producto()
+                            : "⏳ Vence pronto: " + alerta.producto();
+
+                    javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox(10);
+                    hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    hbox.setStyle("-fx-padding: 5;");
+                    
+                    javafx.scene.control.Label label = new javafx.scene.control.Label(texto);
+                    label.setStyle("-fx-font-size: 12px;");
+                    
+                    javafx.scene.control.Button btnLeida = new javafx.scene.control.Button("X");
+                    btnLeida.setStyle("-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 2 6;");
+                    
+                    btnLeida.setOnAction(e -> {
+                        try {
+                            inventario.marcarAlertaComoLeida(alerta.tipoAlerta().name(), alerta.idReferencia());
+                            
+                            cargarResumenAlertas();
+                            contextMenu.hide();
+                            
+                        } catch (Exception ex) {
+                            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo marcar la alerta: " + ex.getMessage());
+                        }
+                    });
+
+                    hbox.getChildren().addAll(label, btnLeida);
+                    
+                    javafx.scene.control.CustomMenuItem menuItem = new javafx.scene.control.CustomMenuItem(hbox);
+                    contextMenu.getItems().add(menuItem);
+                }
+            }
+        } catch (Exception e) {
+            javafx.scene.control.MenuItem itemError = new javafx.scene.control.MenuItem("Error al cargar notificaciones");
+            itemError.setDisable(true);
+            contextMenu.getItems().add(itemError);
+            e.printStackTrace();
+        }
+        contextMenu.show(btnCampana, javafx.geometry.Side.BOTTOM, 0, 0);
+    }
 }
