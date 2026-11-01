@@ -518,4 +518,238 @@ class InventarioFachadaCoberturaTest {
             verify(dao).listarPorFarmacia(7);
         }
     }
+
+    // ===== QUALITY GATE: COBERTURA ADICIONAL =====
+
+    @Test
+    void listaYActualizaAseoDeFarmaciaActiva() throws Exception {
+        try (MockedConstruction<AseoDAO> creados =
+                     mockConstruction(AseoDAO.class)) {
+
+            Inventario fachada = inventario();
+            AseoDAO dao = creados.constructed().get(0);
+            Aseo producto = new Aseo();
+            RegistroCatalogo<Aseo> registro =
+                    new RegistroCatalogo<>(41, producto, "ACTIVO");
+
+            when(dao.listarPorFarmacia(7))
+                    .thenReturn(List.of(registro));
+            when(dao.actualizar(41, producto, 7, 9))
+                    .thenReturn(true);
+
+            assertEquals(List.of(registro), fachada.listarAseo());
+            assertTrue(fachada.actualizarAseo(41, producto));
+
+            verify(dao).actualizar(41, producto, 7, 9);
+            cache.verify(() ->
+                    InventarioConsultas.invalidarFarmacia(7));
+        }
+    }
+
+    @Test
+    void desactivaAseoSinStock() throws Exception {
+        try (MockedConstruction<AseoDAO> creados =
+                     mockConstruction(AseoDAO.class)) {
+
+            Inventario fachada = inventario();
+            AseoDAO dao = creados.constructed().get(0);
+            Aseo producto = new Aseo();
+            producto.setStock(0);
+
+            when(dao.buscarPorId(41, 7))
+                    .thenReturn(new RegistroCatalogo<>(
+                            41, producto, "ACTIVO"));
+            when(dao.desactivar(41, 7, 9))
+                    .thenReturn(true);
+
+            assertTrue(fachada.desactivarAseo(41));
+
+            verify(dao).desactivar(41, 7, 9);
+        }
+    }
+
+    @Test
+    void desactivarAseoInexistenteRetornaFalse()
+            throws Exception {
+        try (MockedConstruction<AseoDAO> creados =
+                     mockConstruction(AseoDAO.class)) {
+
+            Inventario fachada = inventario();
+            AseoDAO dao = creados.constructed().get(0);
+
+            assertFalse(fachada.desactivarAseo(999));
+
+            verify(dao, never()).desactivar(
+                    anyInt(), anyInt(), anyInt());
+        }
+    }
+
+    @Test
+    void completaOperacionesCrudDeMaternidad()
+            throws Exception {
+        try (MockedConstruction<MaternidadDAO> creados =
+                     mockConstruction(MaternidadDAO.class)) {
+
+            Inventario fachada = inventario();
+            MaternidadDAO dao = creados.constructed().get(0);
+            Maternidad producto = new Maternidad();
+            producto.setStock(0);
+
+            RegistroCatalogo<Maternidad> registro =
+                    new RegistroCatalogo<>(
+                            52, producto, "ACTIVO");
+
+            when(dao.guardar(producto, 7, 9))
+                    .thenReturn(52);
+            when(dao.buscarPorId(52, 7))
+                    .thenReturn(registro);
+            when(dao.listarPorFarmacia(7))
+                    .thenReturn(List.of(registro));
+            when(dao.actualizar(52, producto, 7, 9))
+                    .thenReturn(true);
+            when(dao.desactivar(52, 7, 9))
+                    .thenReturn(true);
+
+            assertEquals(52, fachada.registrarMaternidad(producto));
+            assertSame(registro, fachada.buscarMaternidad(52));
+            assertEquals(1, fachada.listarMaternidad().size());
+            assertTrue(fachada.actualizarMaternidad(52, producto));
+            assertTrue(fachada.desactivarMaternidad(52));
+
+            cache.verify(
+                    () -> InventarioConsultas.invalidarFarmacia(7),
+                    times(3));
+        }
+    }
+
+    @Test
+    void desactivarMaternidadInexistenteRetornaFalse()
+            throws Exception {
+        try (MockedConstruction<MaternidadDAO> creados =
+                     mockConstruction(MaternidadDAO.class)) {
+
+            Inventario fachada = inventario();
+            MaternidadDAO dao = creados.constructed().get(0);
+
+            assertFalse(fachada.desactivarMaternidad(999));
+
+            verify(dao, never()).desactivar(
+                    anyInt(), anyInt(), anyInt());
+        }
+    }
+
+    @Test
+    void rechazaMedicamentoNuloYSinPrincipioActivo()
+            throws Exception {
+        Inventario fachada = inventario();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> fachada.registrarMedicamento(null));
+
+        Medicamento medicamento = new Medicamento();
+        medicamento.setIdCategoria(2);
+        medicamento.setNombreComercial("Prueba");
+        medicamento.setCodigoInvima("INV-123");
+
+        assertThrows(
+                ReglaNegocioException.class,
+                () -> fachada.registrarMedicamento(medicamento));
+
+        cache.verify(
+                () -> InventarioConsultas.invalidarFarmacia(7),
+                never());
+    }
+
+    @Test
+    void registraMedicamentoValidoConFarmaciaYUsuario()
+            throws Exception {
+        try (MockedConstruction<MedicamentoDAOImpl> creados =
+                     mockConstruction(MedicamentoDAOImpl.class)) {
+
+            Inventario fachada = inventario();
+            Medicamento medicamento = new Medicamento();
+            medicamento.setCodigoInvima("INV-2026");
+            medicamento.setNombreComercial("Acetaminofen");
+            medicamento.setPrincipioActivo("Paracetamol");
+            medicamento.setIdCategoria(2);
+            medicamento.setStockTotal(10);
+
+            assertSame(
+                    medicamento,
+                    fachada.registrarMedicamento(medicamento));
+
+            assertEquals(7, medicamento.getIdFarmacia());
+            assertEquals(9, medicamento.getIdUsuarioCreacion());
+            assertEquals(0, medicamento.getStockTotal());
+            assertEquals("ACTIVO", medicamento.getEstado());
+
+            verify(creados.constructed().get(0))
+                    .guardar(medicamento);
+
+            cache.verify(() ->
+                    InventarioConsultas.invalidarFarmacia(7));
+        }
+    }
+
+    @Test
+    void actualizaYDesactivaMedicamento()
+            throws Exception {
+        try (MockedConstruction<MedicamentoCatalogoDAO> creados =
+                     mockConstruction(MedicamentoCatalogoDAO.class)) {
+
+            Inventario fachada = inventario();
+            MedicamentoCatalogoDAO dao =
+                    creados.constructed().get(0);
+
+            Medicamento producto = new Medicamento();
+
+            when(dao.actualizar(25, producto, 7, 9))
+                    .thenReturn(true);
+            when(dao.desactivar(25, 7, 9))
+                    .thenReturn(true);
+
+            assertTrue(fachada.actualizarMedicamento(
+                    25, producto));
+            assertTrue(fachada.desactivarMedicamento(25));
+
+            cache.verify(
+                    () -> InventarioConsultas.invalidarFarmacia(7),
+                    times(2));
+        }
+    }
+
+    @Test
+    void construyeMapaDeCategoriasDeMedicamentos()
+            throws Exception {
+        try (MockedConstruction<MedicamentoDAOImpl> medicamentos =
+                     mockConstruction(MedicamentoDAOImpl.class);
+             MockedConstruction<MedicamentoCatalogoDAO> catalogos =
+                     mockConstruction(MedicamentoCatalogoDAO.class)) {
+
+            Inventario fachada = inventario();
+
+            Medicamento producto = new Medicamento();
+            producto.setIdMedicamento(21);
+            producto.setIdCategoria(3);
+            producto.setEstado("ACTIVO");
+
+            when(medicamentos.constructed().get(0)
+                    .listarCategorias())
+                    .thenReturn(Map.of(3, "Analgesicos"));
+
+            when(catalogos.constructed().get(0)
+                    .listarPorFarmacia(7))
+                    .thenReturn(List.of(producto));
+
+            assertEquals(
+                    Map.of(3, "Analgesicos"),
+                    fachada.listarCategoriasMedicamento());
+
+            assertEquals(
+                    Map.of(21, "Analgesicos"),
+                    fachada.categoriaPorMedicamento());
+        }
+    }
+
 }
