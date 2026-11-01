@@ -139,4 +139,60 @@ class ServicioSmsTest {
                 () -> servicio.enviar(TELEFONO, "Aviso")
         );
     }
+
+    // ===== QUALITY GATE: RESPUESTAS TWILIO =====
+
+    @Test
+    void twilioRechazaRespuestasSinSidValido() {
+        for (String contenido : new String[]{
+                null, "{\"sid\":\"INVALIDO\"}"}) {
+
+            ServicioSmsTwilio servicio = new ServicioSmsTwilio(
+                    CUENTA, "token-de-prueba", "+15005550006",
+                    destinatarios,
+                    solicitud -> new ServicioSmsTwilio.RespuestaHttp(
+                            201, contenido));
+
+            assertThrows(
+                    ExcepcionSms.class,
+                    () -> servicio.enviar(TELEFONO, "Prueba"));
+        }
+    }
+
+    @Test
+    void twilioRechazaCodigosHttpFueraDelRangoExitoso() {
+        for (int codigo : new int[]{199, 300}) {
+            ServicioSmsTwilio servicio = new ServicioSmsTwilio(
+                    CUENTA, "token-de-prueba", "+15005550006",
+                    destinatarios,
+                    solicitud -> new ServicioSmsTwilio.RespuestaHttp(
+                            codigo, "Respuesta de prueba"));
+
+            assertThrows(
+                    ExcepcionSms.class,
+                    () -> servicio.enviar(TELEFONO, "Prueba"));
+        }
+    }
+
+    @Test
+    void twilioConservaEstadoDeInterrupcion() {
+        ServicioSmsTwilio servicio = new ServicioSmsTwilio(
+                CUENTA, "token-de-prueba", "+15005550006",
+                destinatarios,
+                solicitud -> {
+                    throw new InterruptedException(
+                            "Interrupcion simulada");
+                });
+
+        try {
+            assertThrows(
+                    ExcepcionSms.class,
+                    () -> servicio.enviar(TELEFONO, "Prueba"));
+
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
 }

@@ -2820,4 +2820,53 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
+
+    // ===== QUALITY GATE: COLUMNAS DE ALERTAS =====
+
+    @Test
+    void alertasEjecutanTodasLasFuncionesDeColumnas()
+            throws Exception {
+        enFx(() -> {
+            ControladorAlertas controlador =
+                    alertasFormulario();
+
+            llamar(controlador, "configurarColumnas");
+
+            TableView<AlertaInventario> tabla =
+                    obtener(controlador, "tablaAlertas");
+
+            AlertaInventario alerta = alertaStock();
+
+            Map<String, String> esperados = Map.of(
+                    "colSeveridad", "Crítica",
+                    "colTipo", "Stock mínimo",
+                    "colCategoria", "Aseo",
+                    "colProducto", "Jabon",
+                    "colReferencia", "ASE-1",
+                    "colExistencias", "0",
+                    "colDetalle", "Sin existencias (mínimo 5)",
+                    "colUltimoMovimiento",
+                    "Sin movimientos registrados"
+            );
+
+            for (var entrada : esperados.entrySet()) {
+                TableColumn<AlertaInventario, String> columna =
+                        obtener(controlador, entrada.getKey());
+
+                var datos = new TableColumn.CellDataFeatures<>(
+                        tabla, columna, alerta);
+
+                var valor = columna.getCellValueFactory()
+                        .call(datos);
+
+                assertEquals(
+                        entrada.getValue(),
+                        valor.getValue(),
+                        entrada.getKey());
+            }
+
+            return null;
+        });
+    }
+
 }
