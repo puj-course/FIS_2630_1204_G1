@@ -67,10 +67,15 @@ jobs:
             echo "Se usara SonarQube Cloud"
           fi
 
-      - name: Instalar pantalla virtual para JavaFX
+      - name: Verificar pantalla virtual JavaFX
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
+          if command -v xvfb-run >/dev/null 2>&1 && command -v xauth >/dev/null 2>&1; then
+            echo "Xvfb y xauth disponibles. No se requiere apt-get."
+          else
+            echo "Faltan dependencias. Instalando como respaldo..."
+            sudo apt-get update -o Acquire::Retries=1
+            sudo apt-get install -y --no-install-recommends xvfb xauth
+          fi
 
       - name: Compilar, probar y generar cobertura
         run: |

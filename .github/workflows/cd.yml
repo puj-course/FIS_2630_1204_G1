@@ -28,10 +28,15 @@ jobs:
         working-directory: src/CareStock
         run: chmod +x mvnw
 
-      - name: Instalar entorno grafico virtual JavaFX
+      - name: Verificar entorno grafico virtual JavaFX
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb xauth libgtk-3-0
+          if command -v xvfb-run >/dev/null 2>&1 && command -v xauth >/dev/null 2>&1 && ldconfig -p | grep -q 'libgtk-3.so.0'; then
+            echo "Entorno grafico disponible. No se requiere apt-get."
+          else
+            echo "Faltan dependencias. Instalando como respaldo..."
+            sudo apt-get update -o Acquire::Retries=1
+            sudo apt-get install -y --no-install-recommends xvfb xauth libgtk-3-0
+          fi
 
       - name: Compilar aplicacion
         working-directory: src/CareStock
