@@ -62,6 +62,12 @@ public class ControladorInventario {
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
+    
+    @FXML private Label lblAlertaStock;
+    @FXML private Label lblAlertaVencimiento;
+    @FXML private Button btnCampana;
+    @FXML private javafx.scene.shape.Circle badgeNotificaciones;
+    @FXML private Label lblContadorNotificaciones;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -350,7 +356,7 @@ public class ControladorInventario {
         cargarContadoresPorCategoria();
     }
 
-           private void cargarResumenAlertas() {
+              private void cargarResumenAlertas() {
         try {
             var resumen = inventario.resumenAlertas();
             
