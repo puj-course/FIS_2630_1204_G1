@@ -1,6 +1,18 @@
 package org.example.carestock.controller;
 
 import javafx.application.Platform;
+
+import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableColumn;
+import org.example.carestock.facade.Inventario;
+import org.example.carestock.DataTransferObject.RegistroCatalogo;
+import org.mockito.MockedConstruction;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import java.util.Map;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -1236,6 +1248,894 @@ class ControladorCatalogoFormularioFxTest {
                         IllegalStateException.class,
                         c::initialize);
             }
+            return null;
+        });
+    }
+
+
+    // ===== QA: cobertura de flujos del catalogo =====
+
+    private static ControladorCatalogo catalogoPreparado(
+            String categoria, Inventario fachada) throws Exception {
+        ControladorCatalogo c = formulario();
+        campo(c, "inventario", fachada);
+
+        ComboBox<String> combo = campo(c, "cmbCategoria");
+        combo.setValue(categoria);
+
+        escribirCampo(c, "txtCodigo", "COD-001");
+        escribirCampo(c, "txtNombre", "Producto QA");
+        escribirCampo(c, "txtDescripcion", "Descripcion QA");
+        escribirCampo(c, "txtPrecio", "12000");
+        escribirCampo(c, "txtStock", "10");
+        escribirCampo(c, "txtStockMinimoAseo", "2");
+        escribirCampo(c, "txtStockMinimoMaternidad", "2");
+        escribirCampo(c, "txtEdadGestacional", "28");
+        escribirCampo(c, "txtStockMinimo", "2");
+        escribirCampo(c, "txtPrecioMedicamento", "2500");
+        escribirCampo(c, "txtPrincipioActivo", "Activo QA");
+
+        ComboBox<ControladorCatalogo.CategoriaMedicamento> cat =
+                campo(c, "cmbCategoriaMedicamento");
+        cat.getSelectionModel().selectFirst();
+
+        return c;
+    }
+
+    private static void ejecutarSinArgumentos(
+            ControladorCatalogo c, String nombre) throws Exception {
+        ejecutar(c, nombre, new Class<?>[]{});
+    }
+
+    private static void prepararColumnasCatalogo(
+            ControladorCatalogo c) throws Exception {
+        for (String nombre : new String[]{
+                "colId", "colCodigo", "colNombre",
+                "colDescripcion", "colPrecio",
+                "colStock", "colEstado"}) {
+            campo(c, nombre, new TableColumn<>());
+        }
+    }
+
+    @Test
+    void catalogoCoberturaCargaTresCategorias() throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+
+            Aseo aseo = mock(Aseo.class);
+            Maternidad maternidad = mock(Maternidad.class);
+            Medicamento medicamento = mock(Medicamento.class);
+
+            when(fachada.listarAseo()).thenReturn(
+                    List.of(new RegistroCatalogo<>(
+                            1, aseo, "ACTIVO")));
+            when(fachada.listarMaternidad()).thenReturn(
+                    List.of(new RegistroCatalogo<>(
+                            2, maternidad, "ACTIVO")));
+            when(fachada.listarMedicamentos()).thenReturn(
+                    List.of(new RegistroCatalogo<>(
+                            3, medicamento, "ACTIVO")));
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            TableView<RegistroCatalogo<?>> tabla =
+                    campo(c, "tablaProductos");
+            ComboBox<String> categorias =
+                    campo(c, "cmbCategoria");
+            Label estado = campo(c, "lblEstado");
+
+            ejecutarSinArgumentos(c, "cargarTabla");
+            assertEquals(1, tabla.getItems().get(0).id());
+            assertTrue(estado.getText().contains("Aseo"));
+
+            categorias.setValue("Maternidad");
+            ejecutarSinArgumentos(c, "cargarTabla");
+            assertEquals(2, tabla.getItems().get(0).id());
+
+            categorias.setValue("Medicamentos");
+            ejecutarSinArgumentos(c, "onRefrescar");
+            assertEquals(3, tabla.getItems().get(0).id());
+
+            verify(fachada).listarAseo();
+            verify(fachada).listarMaternidad();
+            verify(fachada).listarMedicamentos();
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaCategoriasConservanSeleccion()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            when(fachada.listarCategoriasMedicamento())
+                    .thenReturn(Map.of(
+                            5, "Analgesicos",
+                            7, "Antibioticos"));
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Medicamentos", fachada);
+
+            ComboBox<ControladorCatalogo.CategoriaMedicamento>
+                    combo = campo(c, "cmbCategoriaMedicamento");
+
+            ejecutarSinArgumentos(
+                    c, "cargarCategoriasMedicamento");
+
+            assertEquals(2, combo.getItems().size());
+            assertEquals(5, combo.getValue().id());
+
+            combo.getSelectionModel().clearSelection();
+            ejecutarSinArgumentos(
+                    c, "cargarCategoriasMedicamento");
+
+            assertNull(combo.getValue());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaSeleccionActualizaFormulario()
+            throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Aseo", mock(Inventario.class));
+
+            Aseo aseo = mock(Aseo.class);
+            when(aseo.getCodigo()).thenReturn("ASE-045");
+            when(aseo.getNombre()).thenReturn("Jabon QA");
+            when(aseo.getStock()).thenReturn(12);
+
+            TableView<RegistroCatalogo<?>> tabla =
+                    campo(c, "tablaProductos");
+
+            ejecutarSinArgumentos(c, "configurarSeleccion");
+
+            RegistroCatalogo<Aseo> registro =
+                    new RegistroCatalogo<>(
+                            45, aseo, "ACTIVO");
+
+            tabla.getItems().add(registro);
+            tabla.getSelectionModel().select(registro);
+
+            assertEquals("ASE-045", texto(c, "txtCodigo"));
+            assertEquals("Jabon QA", texto(c, "txtNombre"));
+
+            Label seleccion = campo(c, "lblSeleccion");
+            assertTrue(seleccion.getText().contains("45"));
+
+            tabla.getSelectionModel().clearSelection();
+            assertEquals("Nuevo producto",
+                    seleccion.getText());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaAlternaPanelesYCategorias()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            when(fachada.listarCategoriasMedicamento())
+                    .thenReturn(Map.of(5, "Analgesicos"));
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            for (String nombre : new String[]{
+                    "panelAseo", "panelMaternidad",
+                    "panelMedicamentos", "panelDescripcion",
+                    "panelPrecioStock"}) {
+                campo(c, nombre, new VBox());
+            }
+
+            campo(c, "lblCodigoCampo", new Label());
+            campo(c, "lblNombreCampo", new Label());
+
+            ejecutarSinArgumentos(c, "configurarCategorias");
+
+            ComboBox<String> categorias =
+                    campo(c, "cmbCategoria");
+
+            categorias.setValue("Maternidad");
+            VBox panelMaternidad =
+                    campo(c, "panelMaternidad");
+            assertTrue(panelMaternidad.isVisible());
+
+            categorias.setValue("Medicamentos");
+            VBox panelMedicamentos =
+                    campo(c, "panelMedicamentos");
+            assertTrue(panelMedicamentos.isVisible());
+            assertFalse(panelMaternidad.isVisible());
+
+            Label codigo = campo(c, "lblCodigoCampo");
+            assertEquals("Registro INVIMA", codigo.getText());
+
+            categorias.setValue("Aseo");
+            VBox panelAseo = campo(c, "panelAseo");
+            assertTrue(panelAseo.isVisible());
+            assertFalse(panelMedicamentos.isVisible());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaConfiguraColumnasYValores()
+            throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c =
+                    catalogoPreparado(
+                            "Aseo", mock(Inventario.class));
+            prepararColumnasCatalogo(c);
+
+            ejecutarSinArgumentos(c, "configurarTabla");
+
+            Aseo producto = mock(Aseo.class);
+            when(producto.getCodigo()).thenReturn("ASE-010");
+            when(producto.getNombre()).thenReturn("Jabon");
+            when(producto.getDescripcion())
+                    .thenReturn("Higiene");
+            when(producto.getPrecio()).thenReturn(1500.0);
+
+            RegistroCatalogo<Aseo> fila =
+                    new RegistroCatalogo<>(
+                            10, producto, "ACTIVO");
+
+            TableColumn<RegistroCatalogo<?>, String> codigo =
+                    campo(c, "colCodigo");
+            TableColumn<RegistroCatalogo<?>, String> nombre =
+                    campo(c, "colNombre");
+            TableColumn<RegistroCatalogo<?>, String> precio =
+                    campo(c, "colPrecio");
+
+            // Asociar columnas y fila a la tabla antes de leer valores.
+            TableView<RegistroCatalogo<?>> tabla =
+                    campo(c, "tablaProductos");
+
+            tabla.getColumns().setAll(
+                    codigo, nombre, precio);
+            tabla.getItems().add(fila);
+
+            assertEquals(
+                    "ASE-010",
+                    codigo.getCellObservableValue(fila).getValue());
+            assertEquals(
+                    "Jabon",
+                    nombre.getCellObservableValue(fila).getValue());
+            assertEquals(
+                    "1500.0",
+                    precio.getCellObservableValue(fila).getValue());
+
+            assertNotNull(tabla.getRowFactory());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaRegistraTresTiposDeProducto()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            when(fachada.registrarAseo(any(Aseo.class)))
+                    .thenReturn(11);
+            when(fachada.registrarMaternidad(
+                    any(Maternidad.class))).thenReturn(12);
+
+            Medicamento registrado = mock(Medicamento.class);
+            when(registrado.getIdMedicamento()).thenReturn(13);
+            when(fachada.registrarMedicamento(
+                    any(Medicamento.class))).thenReturn(registrado);
+
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class);
+                 MockedConstruction<Alert> dialogos =
+                         mockConstruction(Alert.class)) {
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                for (String categoria : new String[]{
+                        "Aseo", "Maternidad", "Medicamentos"}) {
+                    ControladorCatalogo c =
+                            catalogoPreparado(categoria, fachada);
+
+                    ejecutarSinArgumentos(c, "onGuardar");
+
+                    Label seleccion = campo(c, "lblSeleccion");
+                    assertEquals(
+                            "Nuevo producto", seleccion.getText());
+                }
+
+                verify(fachada).registrarAseo(any(Aseo.class));
+                verify(fachada).registrarMaternidad(
+                        any(Maternidad.class));
+                verify(fachada).registrarMedicamento(
+                        any(Medicamento.class));
+
+                assertEquals(3, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaActualizaTresTiposDeProducto()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+
+            when(fachada.actualizarAseo(
+                    eq(45), any(Aseo.class))).thenReturn(true);
+            when(fachada.actualizarMaternidad(
+                    eq(45), any(Maternidad.class)))
+                    .thenReturn(true);
+            when(fachada.actualizarMedicamento(
+                    eq(45), any(Medicamento.class)))
+                    .thenReturn(true);
+
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class);
+                 MockedConstruction<Alert> dialogos =
+                         mockConstruction(Alert.class)) {
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                for (String categoria : new String[]{
+                        "Aseo", "Maternidad", "Medicamentos"}) {
+                    ControladorCatalogo c =
+                            catalogoPreparado(categoria, fachada);
+
+                    campo(c, "seleccionado",
+                            new RegistroCatalogo<>(
+                                    45, mock(Aseo.class), "ACTIVO"));
+
+                    ejecutarSinArgumentos(c, "onActualizar");
+                }
+
+                verify(fachada).actualizarAseo(
+                        eq(45), any(Aseo.class));
+                verify(fachada).actualizarMaternidad(
+                        eq(45), any(Maternidad.class));
+                verify(fachada).actualizarMedicamento(
+                        eq(45), any(Medicamento.class));
+
+                assertEquals(3, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaDesactivaTresCategorias()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+
+            when(fachada.desactivarAseo(45)).thenReturn(true);
+            when(fachada.desactivarMaternidad(45)).thenReturn(true);
+            when(fachada.desactivarMedicamento(45))
+                    .thenReturn(true);
+
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class);
+                 MockedConstruction<Alert> dialogos =
+                         mockConstruction(
+                                 Alert.class,
+                                 (alerta, contexto) ->
+                                         when(alerta.showAndWait())
+                                                 .thenReturn(Optional.of(
+                                                         ButtonType.YES)))) {
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                for (String categoria : new String[]{
+                        "Aseo", "Maternidad", "Medicamentos"}) {
+                    ControladorCatalogo c =
+                            catalogoPreparado(categoria, fachada);
+
+                    campo(c, "seleccionado",
+                            new RegistroCatalogo<>(
+                                    45, mock(Aseo.class), "ACTIVO"));
+
+                    ejecutarSinArgumentos(c, "onDesactivar");
+
+                    Label estado = campo(c, "lblEstado");
+                    assertEquals(
+                            "Producto desactivado.",
+                            estado.getText());
+                }
+
+                verify(fachada).desactivarAseo(45);
+                verify(fachada).desactivarMaternidad(45);
+                verify(fachada).desactivarMedicamento(45);
+
+                assertEquals(3, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaCancelacionNoDesactiva()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            campo(c, "seleccionado",
+                    new RegistroCatalogo<>(
+                            45, mock(Aseo.class), "ACTIVO"));
+
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class);
+                 MockedConstruction<Alert> dialogos =
+                         mockConstruction(
+                                 Alert.class,
+                                 (alerta, contexto) ->
+                                         when(alerta.showAndWait())
+                                                 .thenReturn(Optional.of(
+                                                         ButtonType.NO)))) {
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                ejecutarSinArgumentos(c, "onDesactivar");
+
+                verify(fachada, never()).desactivarAseo(anyInt());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaGestionaErroresDeConsulta()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            when(fachada.listarAseo())
+                    .thenThrow(new IllegalStateException(
+                            "Error de consulta simulado"));
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            try (MockedConstruction<Alert> dialogos =
+                         mockConstruction(Alert.class)) {
+                ejecutarSinArgumentos(c, "cargarTabla");
+
+                Label estado = campo(c, "lblEstado");
+                TableView<?> tabla = campo(c, "tablaProductos");
+
+                assertEquals(
+                        "No se pudo cargar el catalogo",
+                        estado.getText());
+                assertTrue(tabla.getItems().isEmpty());
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaRechazaModificacionesSinPermiso()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class);
+                 MockedConstruction<Alert> dialogos =
+                         mockConstruction(Alert.class)) {
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(false);
+
+                ejecutarSinArgumentos(c, "onGuardar");
+                ejecutarSinArgumentos(c, "onActualizar");
+                ejecutarSinArgumentos(c, "onDesactivar");
+
+                verifyNoInteractions(fachada);
+                assertEquals(3, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoCoberturaRechazaIdDeRegistroInvalido()
+            throws Exception {
+        enFx(() -> {
+            Inventario fachada = mock(Inventario.class);
+            when(fachada.registrarAseo(any(Aseo.class)))
+                    .thenReturn(0);
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class);
+                 MockedConstruction<Alert> dialogos =
+                         mockConstruction(Alert.class)) {
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                ejecutarSinArgumentos(c, "onGuardar");
+
+                Label estado = campo(c, "lblEstado");
+                assertEquals(
+                        "No se pudo registrar", estado.getText());
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+
+
+    // ===== QA: segundo lote de cobertura Catalogo/Inventario =====
+
+    private static Object invocarQa(
+            Object destino, String metodo, Class<?>[] tipos,
+            Object... argumentos) throws Exception {
+        java.lang.reflect.Method m =
+                destino.getClass().getDeclaredMethod(metodo, tipos);
+        m.setAccessible(true);
+        return m.invoke(destino, argumentos);
+    }
+
+    private static Object invocarQa(
+            Object destino, String metodo) throws Exception {
+        return invocarQa(destino, metodo, new Class<?>[0]);
+    }
+
+    @Test
+    void catalogoQaPreciosValidos() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Medicamentos",
+                    mock(Inventario.class));
+
+            javafx.scene.control.TextField precio =
+                    campo(c, "txtPrecioMedicamento");
+
+            precio.clear();
+            assertNull(invocarQa(c, "leerPrecioMedicamento"));
+
+            precio.setText("  ");
+            assertNull(invocarQa(c, "leerPrecioMedicamento"));
+
+            precio.setText("0");
+            assertEquals(
+                    new java.math.BigDecimal("0"),
+                    invocarQa(c, "leerPrecioMedicamento"));
+
+            precio.setText("15000.50");
+            assertEquals(
+                    new java.math.BigDecimal("15000.50"),
+                    invocarQa(c, "leerPrecioMedicamento"));
+
+            precio.setText("9999999999.99");
+            assertEquals(
+                    new java.math.BigDecimal("9999999999.99"),
+                    invocarQa(c, "leerPrecioMedicamento"));
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoQaPreciosInvalidos() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Medicamentos",
+                    mock(Inventario.class));
+
+            javafx.scene.control.TextField precio =
+                    campo(c, "txtPrecioMedicamento");
+
+            for (String invalido : new String[]{
+                    "-1", "12.345", "10000000000",
+                    "no-es-numero", "18,50"}) {
+
+                precio.setText(invalido);
+
+                java.lang.reflect.InvocationTargetException error =
+                        assertThrows(
+                                java.lang.reflect.InvocationTargetException.class,
+                                () -> invocarQa(
+                                        c, "leerPrecioMedicamento"));
+
+                assertInstanceOf(
+                        IllegalArgumentException.class,
+                        error.getCause(),
+                        "Precio invalido: " + invalido);
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoQaLlenaFormularioAseo() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Aseo", mock(Inventario.class));
+
+            Aseo p = new Aseo();
+            p.setCodigo("ASE-QA");
+            p.setNombre("Jabon antibacterial");
+            p.setDescripcion("Producto de higiene");
+            p.setPrecio(3500);
+            p.setStock(12);
+            p.setStockMinimo(3);
+            p.setTipoAseo("Jabon");
+            p.setComponentesActivos("Glicerina");
+            p.setBiodegradable(true);
+
+            invocarQa(
+                    c, "llenarFormulario",
+                    new Class<?>[]{Object.class}, p);
+
+            javafx.scene.control.TextField codigo =
+                    campo(c, "txtCodigo");
+            javafx.scene.control.TextField nombre =
+                    campo(c, "txtNombre");
+            javafx.scene.control.TextField minimo =
+                    campo(c, "txtStockMinimoAseo");
+            javafx.scene.control.TextField tipo =
+                    campo(c, "txtTipoAseo");
+            javafx.scene.control.CheckBox biodegradable =
+                    campo(c, "chkBiodegradable");
+
+            assertEquals("ASE-QA", codigo.getText());
+            assertEquals("Jabon antibacterial", nombre.getText());
+            assertEquals("3", minimo.getText());
+            assertEquals("Jabon", tipo.getText());
+            assertTrue(biodegradable.isSelected());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoQaLlenaFormularioMaternidad() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Maternidad", mock(Inventario.class));
+
+            Maternidad p = new Maternidad();
+            p.setCodigo("MAT-QA");
+            p.setNombre("Producto prenatal");
+            p.setDescripcion("Cuidado materno");
+            p.setPrecio(25000);
+            p.setStock(7);
+            p.setStockMinimo(2);
+            p.setEtapaRecomendada("Prenatal");
+            p.setEdadGestacionalSugerida(28);
+            p.setHipoalergenico(true);
+
+            invocarQa(
+                    c, "llenarFormulario",
+                    new Class<?>[]{Object.class}, p);
+
+            javafx.scene.control.TextField etapa =
+                    campo(c, "txtEtapa");
+            javafx.scene.control.TextField edad =
+                    campo(c, "txtEdadGestacional");
+            javafx.scene.control.TextField minimo =
+                    campo(c, "txtStockMinimoMaternidad");
+            javafx.scene.control.CheckBox hipoalergenico =
+                    campo(c, "chkHipoalergenico");
+
+            assertEquals("Prenatal", etapa.getText());
+            assertEquals("28", edad.getText());
+            assertEquals("2", minimo.getText());
+            assertTrue(hipoalergenico.isSelected());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoQaLlenaFormularioMedicamento() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Medicamentos",
+                    mock(Inventario.class));
+
+            Medicamento p = new Medicamento();
+            p.setCodigoInvima("INVIMA-QA");
+            p.setNombreComercial("Medicamento QA");
+            p.setPrincipioActivo("Acetaminofen");
+            p.setConcentracion("500 mg");
+            p.setFormaFarmaceutica("Tableta");
+            p.setPresentacion("Caja");
+            p.setStockMinimo(5);
+            p.setStockTotal(80);
+            p.setIdCategoria(5);
+            p.setPrecio(
+                    new java.math.BigDecimal("1750.50"));
+
+            javafx.scene.control.ComboBox<
+                    ControladorCatalogo.CategoriaMedicamento> combo =
+                    campo(c, "cmbCategoriaMedicamento");
+
+            combo.getItems().add(
+                    new ControladorCatalogo.CategoriaMedicamento(
+                            5, "Analgesicos"));
+
+            invocarQa(
+                    c, "llenarFormulario",
+                    new Class<?>[]{Object.class}, p);
+
+            javafx.scene.control.TextField precio =
+                    campo(c, "txtPrecioMedicamento");
+            javafx.scene.control.TextField activo =
+                    campo(c, "txtPrincipioActivo");
+            javafx.scene.control.Label stock =
+                    campo(c, "lblStockMedicamento");
+
+            assertEquals("1750.50", precio.getText());
+            assertEquals("Acetaminofen", activo.getText());
+            assertTrue(stock.getText().contains("80"));
+            assertEquals(5, combo.getValue().id());
+
+            return null;
+        });
+    }
+
+    @Test
+    void catalogoQaValidaAccesoDesdeConsulta() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = catalogoPreparado(
+                    "Aseo", mock(Inventario.class));
+
+            javafx.scene.control.Label estado =
+                    campo(c, "lblEstado");
+
+            try (org.mockito.MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class)) {
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(false);
+
+                c.abrirDesdeConsulta("Aseo", null);
+
+                assertTrue(
+                        estado.getText().contains("Sin permisos"));
+
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> c.abrirDesdeConsulta(
+                                "Categoria desconocida", null));
+
+                c.abrirDesdeConsulta("Maternidad", 99999);
+
+                assertTrue(
+                        estado.getText().contains(
+                                "Producto no disponible"));
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaRechazaDispensacionesInvalidas()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c =
+                    inventarioFormulario();
+
+            Inventario fachada = obtener(c, "inventario");
+            javafx.scene.control.TextField cantidad =
+                    obtener(c, "txtCantidad");
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> alertas =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                // Sin seleccion.
+                llamar(c, "onDispensar");
+
+                // Lote no disponible.
+                insertar(c, "loteSeleccionado",
+                        lotePrueba(
+                                1, "RET-1", "RETENIDO", -2, 10));
+                cantidad.setText("2");
+                llamar(c, "onDispensar");
+
+                // Lote disponible, cantidad vacia.
+                insertar(c, "loteSeleccionado",
+                        lotePrueba(
+                                2, "DIS-2", "DISPONIBLE", -2, 10));
+
+                cantidad.clear();
+                llamar(c, "onDispensar");
+
+                // Cantidad no numerica.
+                cantidad.setText("cantidad-invalida");
+                llamar(c, "onDispensar");
+
+                verifyNoInteractions(fachada);
+
+                assertEquals(
+                        4, alertas.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaDispensacionExitosaSinNeon()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c =
+                    inventarioFormulario();
+
+            llamar(c, "configurarFiltroBusqueda");
+
+            Inventario fachada = obtener(c, "inventario");
+
+            Lote lote = lotePrueba(
+                    7, "QA-007", "DISPONIBLE", -1, 20);
+
+            insertar(c, "loteSeleccionado", lote);
+
+            javafx.scene.control.TextField cantidad =
+                    obtener(c, "txtCantidad");
+            cantidad.setText("3");
+
+            javafx.scene.control.Button botonAlertas =
+                    obtener(c, "btnAlertas");
+            botonAlertas.setVisible(false);
+
+            when(fachada.listarLotes())
+                    .thenReturn(java.util.List.of(lote));
+
+            when(fachada.categoriaPorMedicamento())
+                    .thenReturn(java.util.Map.of());
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> alertas =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "onDispensar");
+
+                verify(fachada)
+                        .dispensarMedicamento(7, 3);
+
+                assertEquals("", cantidad.getText());
+
+                verify(fachada).listarLotes();
+                assertEquals(
+                        1, alertas.constructed().size());
+            }
+
             return null;
         });
     }
