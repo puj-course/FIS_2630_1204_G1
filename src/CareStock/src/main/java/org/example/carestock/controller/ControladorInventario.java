@@ -62,6 +62,12 @@ public class ControladorInventario {
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
+    
+    @FXML private Label lblAlertaStock;
+    @FXML private Label lblAlertaVencimiento;
+    @FXML private Button btnCampana;
+    @FXML private javafx.scene.shape.Circle badgeNotificaciones;
+    @FXML private Label lblContadorNotificaciones;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -351,23 +357,43 @@ public class ControladorInventario {
     }
 
     private void cargarResumenAlertas() {
-        if (!btnAlertas.isVisible()) {
-            return;
-        }
-
-        Task<ServicioAlertasInventario.Resumen> tarea = new Task<>() {
-            @Override
-            protected ServicioAlertasInventario.Resumen call() throws Exception {
-                return inventario.resumenAlertas();
+        try {
+            var resumen = inventario.resumenAlertas();
+            if (lblAlertaStock == null || lblAlertaVencimiento == null || badgeNotificaciones == null || lblContadorNotificaciones == null) {
+                return; 
             }
-        };
 
-        tarea.setOnSucceeded(e -> mostrarResumenAlertas(tarea.getValue()));
-        tarea.setOnFailed(e -> btnAlertas.setText("Alertas"));
+            if (resumen == null) {
+                lblAlertaStock.setText("0 productos");
+                lblAlertaVencimiento.setText("0 lotes");
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
+                return;
+            }
 
-        Thread hilo = new Thread(tarea, "resumen-alertas");
-        hilo.setDaemon(true);
-        hilo.start();
+            int stockBajo = resumen.stockMinimo();
+            int proximosVencer = resumen.vencimiento();
+            int total = stockBajo + proximosVencer;
+
+            lblAlertaStock.setText(stockBajo + (stockBajo == 1 ? " producto" : " productos"));
+            lblAlertaVencimiento.setText(proximosVencer + (proximosVencer == 1 ? " lote" : " lotes"));
+
+            if (total > 0) {
+                badgeNotificaciones.setVisible(true);
+                lblContadorNotificaciones.setText(String.valueOf(total));
+                lblContadorNotificaciones.setVisible(true);
+            } else {
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al cargar alertas: " + e.getMessage());
+            if (lblAlertaStock != null) lblAlertaStock.setText("0 productos");
+            if (lblAlertaVencimiento != null) lblAlertaVencimiento.setText("0 lotes");
+            if (badgeNotificaciones != null) badgeNotificaciones.setVisible(false);
+            if (lblContadorNotificaciones != null) lblContadorNotificaciones.setVisible(false);
+        }
     }
 
     private void mostrarResumenAlertas(ServicioAlertasInventario.Resumen resumen) {
