@@ -350,24 +350,31 @@ public class ControladorInventario {
         cargarContadoresPorCategoria();
     }
 
-    private void cargarResumenAlertas() {
-        if (!btnAlertas.isVisible()) {
-            return;
-        }
+       private void cargarResumenAlertas() {
+        try {
+            var resumen = inventario.resumenAlertas();
+            
+            int stockBajo = resumen.stockMinimo();
+            int proximosVencer = resumen.vencimientos();
+            int total = stockBajo + proximosVencer;
 
-        Task<ServicioAlertasInventario.Resumen> tarea = new Task<>() {
-            @Override
-            protected ServicioAlertasInventario.Resumen call() throws Exception {
-                return inventario.resumenAlertas();
+            lblAlertaStock.setText(stockBajo + (stockBajo == 1 ? " producto" : " productos"));
+            lblAlertaVencimiento.setText(proximosVencer + (proximosVencer == 1 ? " lote" : " lotes"));
+
+            if (total > 0) {
+                badgeNotificaciones.setVisible(true);
+                lblContadorNotificaciones.setText(String.valueOf(total));
+                lblContadorNotificaciones.setVisible(true);
+            } else {
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
             }
-        };
 
-        tarea.setOnSucceeded(e -> mostrarResumenAlertas(tarea.getValue()));
-        tarea.setOnFailed(e -> btnAlertas.setText("Alertas"));
-
-        Thread hilo = new Thread(tarea, "resumen-alertas");
-        hilo.setDaemon(true);
-        hilo.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            lblAlertaStock.setText("Error");
+            lblAlertaVencimiento.setText("Error");
+        }
     }
 
     private void mostrarResumenAlertas(ServicioAlertasInventario.Resumen resumen) {
