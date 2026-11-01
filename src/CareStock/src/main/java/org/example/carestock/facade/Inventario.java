@@ -418,11 +418,6 @@ public class Inventario {
         return lista;
     }
 
-    public void marcarAlertaComoLeida(String tipoAlerta, int referenciaId) throws Exception {
-        int idFarmacia = farmaciaActual();
-        alertasDao.marcarComoLeida(idUsuario, idFarmacia, tipoAlerta, referenciaId);
-    }
-
     public ServicioAlertasInventario.Resumen resumenAlertas() throws Exception {
         return ServicioAlertasInventario.resumir(listarAlertas());
     }
