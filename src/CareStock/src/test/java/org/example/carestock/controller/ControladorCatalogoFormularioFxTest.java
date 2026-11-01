@@ -2140,4 +2140,685 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
+
+
+    // ===== QA: rutas adicionales del inventario =====
+
+    @Test
+    void inventarioQaRechazaEdicionSinSeleccion() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> dialogos =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "onEditarLote");
+
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaRechazaRetiroSinSeleccion() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> dialogos =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "onRetirarLote");
+
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaRechazaExportacionSinRegistros()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> dialogos =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "onExportarCSV");
+
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaControlaErrorAlConsultarLotes()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario fachada = obtener(c, "inventario");
+
+            when(fachada.listarLotes())
+                    .thenThrow(new IllegalStateException(
+                            "Error de consulta simulado"));
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> dialogos =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "cargarDatosTabla");
+
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            verify(fachada).listarLotes();
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaConsultaCategoriasYControlaErrores()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Inventario fachada = obtener(c, "inventario");
+
+            when(fachada.listarCategoriasMedicamento())
+                    .thenReturn(java.util.Map.of(
+                            1, "Analgesicos",
+                            2, "Antibioticos"))
+                    .thenThrow(new IllegalStateException(
+                            "Error de categorias simulado"));
+
+            llamar(c, "cargarCategorias");
+
+            javafx.scene.control.ComboBox<String> combo =
+                    obtener(c, "cmbCategoria");
+
+            assertTrue(combo.getItems().contains("Analgesicos"));
+            assertTrue(combo.getItems().contains("Antibioticos"));
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> dialogos =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "cargarCategorias");
+
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            verify(fachada, times(2))
+                    .listarCategoriasMedicamento();
+
+            return null;
+        });
+    }
+
+
+
+    // ===== Lote 4: controladores, permisos y alertas =====
+
+    private static Object qa4Invocar(
+            ControladorCatalogo controlador,
+            String nombre, Object producto) throws Exception {
+        java.lang.reflect.Method metodo =
+                ControladorCatalogo.class.getDeclaredMethod(
+                        nombre, Object.class);
+        metodo.setAccessible(true);
+        return metodo.invoke(controlador, producto);
+    }
+
+    private static ControladorCatalogo qa4FormularioCompleto()
+            throws Exception {
+        ControladorCatalogo c = formulario();
+
+        for (String nombre : new String[]{
+                "panelAseo", "panelMaternidad",
+                "panelMedicamentos", "panelDescripcion",
+                "panelPrecioStock", "panelFormulario"}) {
+            campo(c, nombre, new javafx.scene.layout.VBox());
+        }
+
+        for (String nombre : new String[]{
+                "colId", "colCodigo", "colNombre",
+                "colDescripcion", "colPrecio",
+                "colStock", "colEstado"}) {
+            campo(c, nombre,
+                    new javafx.scene.control.TableColumn<>());
+        }
+
+        campo(c, "lblCodigoCampo",
+                new javafx.scene.control.Label());
+        campo(c, "lblNombreCampo",
+                new javafx.scene.control.Label());
+
+        return c;
+    }
+
+    @Test
+    void qaLote4InicializacionCatalogo() throws Exception {
+        enFx(() -> {
+            for (boolean administrador : new boolean[]{
+                    true, false}) {
+                try (
+                    org.mockito.MockedStatic<SesionUsuario> sesion =
+                            mockStatic(SesionUsuario.class);
+                    org.mockito.MockedConstruction<
+                            org.example.carestock.facade.Inventario>
+                            fachadas = mockConstruction(
+                                org.example.carestock.facade.Inventario.class,
+                                (mock, contexto) -> {
+                                    when(mock.listarCategoriasMedicamento())
+                                            .thenReturn(
+                                                    java.util.Map.of(
+                                                            5, "Analgesicos"));
+                                    when(mock.listarMedicamentos())
+                                            .thenReturn(
+                                                    java.util.List.of());
+                                })
+                ) {
+                    sesion.when(SesionUsuario::esAdministrador)
+                            .thenReturn(administrador);
+
+                    ControladorCatalogo c =
+                            qa4FormularioCompleto();
+
+                    c.initialize();
+
+                    javafx.scene.control.ComboBox<String> categorias =
+                            campo(c, "cmbCategoria");
+
+                    javafx.scene.layout.VBox formulario =
+                            campo(c, "panelFormulario");
+
+                    javafx.scene.control.TableView<?> tabla =
+                            campo(c, "tablaProductos");
+
+                    assertEquals("Medicamentos",
+                            categorias.getValue());
+                    assertEquals(!administrador,
+                            formulario.isDisabled());
+                    assertNotNull(tabla.getRowFactory());
+                    assertEquals(1, fachadas.constructed().size());
+
+                    if (!administrador) {
+                        javafx.scene.control.Label estado =
+                                campo(c, "lblEstado");
+                        assertTrue(
+                                estado.getText().contains(
+                                        "Modo consulta"));
+                    }
+                }
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4DetectaFxmlIncompleto() throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            IllegalStateException error = assertThrows(
+                    IllegalStateException.class,
+                    c::initialize
+            );
+
+            assertTrue(error.getMessage().contains("FXML"));
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4AtributosDeTodasLasCategorias()
+            throws Exception {
+        enFx(() -> {
+            ControladorCatalogo c = formulario();
+
+            Aseo aseo = mock(Aseo.class);
+            when(aseo.getCodigo()).thenReturn("ASE-01");
+            when(aseo.getNombre()).thenReturn("Jabon");
+            when(aseo.getDescripcion()).thenReturn("Higiene");
+            when(aseo.getPrecio()).thenReturn(1500.0);
+            when(aseo.getStock()).thenReturn(8);
+            when(aseo.getStockMinimo()).thenReturn(2);
+
+            Maternidad maternidad = mock(Maternidad.class);
+            when(maternidad.getCodigo()).thenReturn("MAT-02");
+            when(maternidad.getNombre())
+                    .thenReturn("Producto prenatal");
+            when(maternidad.getDescripcion())
+                    .thenReturn("Cuidado materno");
+            when(maternidad.getPrecio()).thenReturn(2300.0);
+            when(maternidad.getStock()).thenReturn(6);
+            when(maternidad.getStockMinimo()).thenReturn(3);
+
+            Medicamento medicamento = mock(Medicamento.class);
+            when(medicamento.getCodigoInvima())
+                    .thenReturn("INV-03");
+            when(medicamento.getNombreComercial())
+                    .thenReturn("Medicamento QA");
+            when(medicamento.getStockTotal()).thenReturn(12);
+            when(medicamento.getStockMinimo()).thenReturn(4);
+
+            assertEquals("ASE-01",
+                    qa4Invocar(c, "codigo", aseo));
+            assertEquals("MAT-02",
+                    qa4Invocar(c, "codigo", maternidad));
+            assertEquals("INV-03",
+                    qa4Invocar(c, "codigo", medicamento));
+
+            assertEquals("Jabon",
+                    qa4Invocar(c, "nombre", aseo));
+            assertEquals("Producto prenatal",
+                    qa4Invocar(c, "nombre", maternidad));
+            assertEquals("Medicamento QA",
+                    qa4Invocar(c, "nombre", medicamento));
+
+            assertEquals("Higiene",
+                    qa4Invocar(c, "descripcion", aseo));
+            assertEquals("Cuidado materno",
+                    qa4Invocar(c, "descripcion", maternidad));
+            assertEquals("",
+                    qa4Invocar(c, "descripcion", medicamento));
+
+            when(medicamento.getPrincipioActivo())
+                    .thenReturn("Acetaminofen");
+
+            assertEquals("Principio activo: Acetaminofen",
+                    qa4Invocar(c, "descripcion", medicamento));
+
+            assertEquals("1500.0",
+                    qa4Invocar(c, "precioTexto", aseo));
+            assertEquals("2300.0",
+                    qa4Invocar(c, "precioTexto", maternidad));
+            assertEquals("Sin precio",
+                    qa4Invocar(c, "precioTexto", medicamento));
+
+            when(medicamento.getPrecio())
+                    .thenReturn(
+                            new java.math.BigDecimal("1250.50"));
+
+            assertEquals("1250.50",
+                    qa4Invocar(c, "precioTexto", medicamento));
+
+            assertEquals(8, qa4Invocar(c, "stock", aseo));
+            assertEquals(6, qa4Invocar(c, "stock", maternidad));
+            assertEquals(12,
+                    qa4Invocar(c, "stock", medicamento));
+
+            assertEquals(2,
+                    qa4Invocar(c, "stockMinimoDe", aseo));
+            assertEquals(3,
+                    qa4Invocar(c, "stockMinimoDe", maternidad));
+            assertEquals(4,
+                    qa4Invocar(c, "stockMinimoDe", medicamento));
+            assertNull(
+                    qa4Invocar(c, "stockMinimoDe", new Object()));
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4ActualizacionSinSeleccion()
+            throws Exception {
+        enFx(() -> {
+            org.example.carestock.facade.Inventario fachada =
+                    mock(org.example.carestock.facade.Inventario.class);
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            try (
+                org.mockito.MockedStatic<SesionUsuario> sesion =
+                        mockStatic(SesionUsuario.class);
+                org.mockito.MockedConstruction<
+                        javafx.scene.control.Alert> dialogos =
+                        mockConstruction(
+                                javafx.scene.control.Alert.class)
+            ) {
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                java.lang.reflect.Method metodo =
+                        ControladorCatalogo.class
+                                .getDeclaredMethod("onActualizar");
+                metodo.setAccessible(true);
+                metodo.invoke(c);
+
+                verifyNoInteractions(fachada);
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4DesactivacionRechazadaPorFachada()
+            throws Exception {
+        enFx(() -> {
+            org.example.carestock.facade.Inventario fachada =
+                    mock(org.example.carestock.facade.Inventario.class);
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            campo(c, "seleccionado",
+                    new RegistroCatalogo<>(
+                            45, mock(Aseo.class), "ACTIVO"));
+
+            when(fachada.desactivarAseo(45)).thenReturn(false);
+
+            try (
+                org.mockito.MockedStatic<SesionUsuario> sesion =
+                        mockStatic(SesionUsuario.class);
+                org.mockito.MockedConstruction<
+                        javafx.scene.control.Alert> dialogos =
+                        mockConstruction(
+                                javafx.scene.control.Alert.class,
+                                (alerta, contexto) ->
+                                        when(alerta.showAndWait())
+                                                .thenReturn(
+                                                    java.util.Optional.of(
+                                                        javafx.scene.control
+                                                            .ButtonType.YES)))
+            ) {
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                java.lang.reflect.Method metodo =
+                        ControladorCatalogo.class
+                                .getDeclaredMethod("onDesactivar");
+                metodo.setAccessible(true);
+                metodo.invoke(c);
+
+                verify(fachada).desactivarAseo(45);
+                assertTrue(dialogos.constructed().size() >= 2);
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4RegistroRechazaCategoriaDesconocida()
+            throws Exception {
+        enFx(() -> {
+            org.example.carestock.facade.Inventario fachada =
+                    mock(org.example.carestock.facade.Inventario.class);
+
+            ControladorCatalogo c =
+                    catalogoPreparado("Aseo", fachada);
+
+            javafx.scene.control.ComboBox<String> categorias =
+                    campo(c, "cmbCategoria");
+            categorias.setValue("CATEGORIA_QA_DESCONOCIDA");
+
+            try (
+                org.mockito.MockedStatic<SesionUsuario> sesion =
+                        mockStatic(SesionUsuario.class);
+                org.mockito.MockedConstruction<
+                        javafx.scene.control.Alert> dialogos =
+                        mockConstruction(
+                                javafx.scene.control.Alert.class)
+            ) {
+                sesion.when(SesionUsuario::esAdministrador)
+                        .thenReturn(true);
+
+                java.lang.reflect.Method metodo =
+                        ControladorCatalogo.class
+                                .getDeclaredMethod("onGuardar");
+                metodo.setAccessible(true);
+                metodo.invoke(c);
+
+                javafx.scene.control.Label estado =
+                        campo(c, "lblEstado");
+
+                assertEquals("No se pudo registrar",
+                        estado.getText());
+                verifyNoInteractions(fachada);
+                assertEquals(1, dialogos.constructed().size());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4CargaAlertasAsincronaExitosa()
+            throws Exception {
+        java.util.concurrent.CountDownLatch terminado =
+                new java.util.concurrent.CountDownLatch(1);
+
+        ControladorAlertas c = enFx(() -> {
+            ControladorAlertas controlador = alertasFormulario();
+
+            llamar(controlador, "configurarFiltros");
+
+            org.example.carestock.facade.Inventario fachada =
+                    obtener(controlador, "inventario");
+
+            when(fachada.listarAlertas()).thenReturn(
+                    java.util.List.of(
+                            alertaStock(), alertaVencimiento()));
+
+            javafx.scene.control.Button boton =
+                    obtener(controlador, "btnActualizar");
+
+            boton.disabledProperty().addListener(
+                    (obs, antes, ahora) -> {
+                        if (!ahora) terminado.countDown();
+                    });
+
+            llamar(controlador, "onActualizar");
+            assertTrue(boton.isDisabled());
+
+            return controlador;
+        });
+
+        assertTrue(
+                terminado.await(
+                        15, java.util.concurrent.TimeUnit.SECONDS),
+                "La consulta asincrona no finalizo"
+        );
+
+        enFx(() -> {
+            javafx.scene.control.TableView<?> tabla =
+                    obtener(c, "tablaAlertas");
+            javafx.scene.control.Label total =
+                    obtener(c, "lblTotal");
+            javafx.scene.control.Label actualizado =
+                    obtener(c, "lblActualizado");
+            javafx.scene.control.Button boton =
+                    obtener(c, "btnActualizar");
+
+            assertEquals(2, tabla.getItems().size());
+            assertEquals("Total: 2", total.getText());
+            assertTrue(actualizado.getText()
+                    .startsWith("Actualizado:"));
+            assertFalse(boton.isDisabled());
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4CargaAlertasAsincronaFallida()
+            throws Exception {
+        java.util.concurrent.CountDownLatch terminado =
+                new java.util.concurrent.CountDownLatch(1);
+
+        ControladorAlertas c = enFx(() -> {
+            ControladorAlertas controlador = alertasFormulario();
+
+            llamar(controlador, "configurarFiltros");
+
+            org.example.carestock.facade.Inventario fachada =
+                    obtener(controlador, "inventario");
+
+            when(fachada.listarAlertas()).thenThrow(
+                    new IllegalStateException(
+                            "Fallo de consulta QA"));
+
+            javafx.scene.control.Button boton =
+                    obtener(controlador, "btnActualizar");
+
+            boton.disabledProperty().addListener(
+                    (obs, antes, ahora) -> {
+                        if (!ahora) terminado.countDown();
+                    });
+
+            llamar(controlador, "onActualizar");
+            return controlador;
+        });
+
+        assertTrue(
+                terminado.await(
+                        15, java.util.concurrent.TimeUnit.SECONDS),
+                "La consulta de error no finalizo"
+        );
+
+        enFx(() -> {
+            javafx.scene.control.Label estado =
+                    obtener(c, "lblEstado");
+            javafx.scene.control.Button boton =
+                    obtener(c, "btnActualizar");
+
+            assertTrue(estado.getText()
+                    .contains("Fallo de consulta QA"));
+            assertFalse(boton.isDisabled());
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4EvitaConsultasSimultaneas()
+            throws Exception {
+        enFx(() -> {
+            ControladorAlertas c = alertasFormulario();
+
+            insertar(c, "cargando", true);
+            llamar(c, "onActualizar");
+
+            org.example.carestock.facade.Inventario fachada =
+                    obtener(c, "inventario");
+
+            verifyNoInteractions(fachada);
+            return null;
+        });
+    }
+
+    @Test
+    void qaLote4RolesYFarmaciaEnInventario()
+            throws Exception {
+        enFx(() -> {
+            record Escenario(
+                    String rol, Integer farmacia,
+                    boolean lotes, boolean historial,
+                    boolean ajustes, boolean catalogo) {}
+
+            java.util.List<Escenario> escenarios =
+                    java.util.List.of(
+                        new Escenario(
+                                "ADMINISTRADOR", 7,
+                                true, true, true, true),
+                        new Escenario(
+                                "FARMACEUTICO", 7,
+                                true, true, false, true),
+                        new Escenario(
+                                "AUXILIAR", 7,
+                                false, false, false, true),
+                        new Escenario(
+                                "SUPER_ADMIN", null,
+                                false, false, false, false)
+                    );
+
+            for (Escenario escenario : escenarios) {
+                try (
+                    org.mockito.MockedStatic<SesionUsuario> sesion =
+                            mockStatic(SesionUsuario.class);
+                    org.mockito.MockedConstruction<
+                            org.example.carestock.facade.Inventario>
+                            fachadas = mockConstruction(
+                                org.example.carestock.facade.Inventario.class,
+                                (mock, contexto) -> {
+                                    when(mock.listarCategoriasMedicamento())
+                                            .thenReturn(java.util.Map.of());
+                                    when(mock.listarLotes())
+                                            .thenReturn(java.util.List.of());
+                                    when(mock.categoriaPorMedicamento())
+                                            .thenReturn(java.util.Map.of());
+                                    when(mock.contarPorCategoria())
+                                            .thenReturn(java.util.Map.of());
+                                    when(mock.resumenAlertas())
+                                            .thenReturn(
+                                                new org.example.carestock
+                                                    .service
+                                                    .ServicioAlertasInventario
+                                                    .Resumen(0, 0, 0, 0));
+                                })
+                ) {
+                    sesion.when(SesionUsuario::estaActiva)
+                            .thenReturn(true);
+                    sesion.when(SesionUsuario::actual)
+                            .thenReturn(
+                                new SesionUsuario.DatosUsuario(
+                                    7, "Usuario QA", "qa@local",
+                                    escenario.rol(),
+                                    escenario.farmacia(),
+                                    escenario.farmacia() == null
+                                        ? null : "Farmacia QA"));
+                    sesion.when(SesionUsuario::esAdministrador)
+                            .thenReturn(
+                                "ADMINISTRADOR".equals(escenario.rol()));
+
+                    ControladorInventario controlador =
+                            inventarioFormulario();
+
+                    controlador.initialize();
+
+                    javafx.scene.control.Button catalogo =
+                            obtener(controlador, "btnCatalogo");
+                    javafx.scene.control.Button lotes =
+                            obtener(controlador, "btnNuevoLote");
+                    javafx.scene.control.Button historial =
+                            obtener(controlador, "btnHistorial");
+                    javafx.scene.control.Button ajustes =
+                            obtener(controlador, "btnAjustes");
+
+                    assertEquals(
+                            escenario.catalogo(),
+                            catalogo.isVisible());
+                    assertEquals(
+                            escenario.lotes(), lotes.isVisible());
+                    assertEquals(
+                            escenario.historial(),
+                            historial.isVisible());
+                    assertEquals(
+                            escenario.ajustes(),
+                            ajustes.isVisible());
+
+                    assertEquals(1, fachadas.constructed().size());
+                }
+            }
+
+            return null;
+        });
+    }
+
 }
