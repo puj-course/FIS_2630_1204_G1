@@ -1,6 +1,17 @@
 package org.example.carestock.controller;
 
 import javafx.application.Platform;
+import java.util.Map;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import org.example.carestock.service.ServicioAlertasInventario;
+import org.example.carestock.dto.AlertaInventario;
+import org.example.carestock.model.Lote;
+import org.example.carestock.facade.Inventario;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -656,6 +667,575 @@ class ControladorCatalogoFormularioFxTest {
                     IllegalStateException.class,
                     error.getCause());
 
+            return null;
+        });
+    }
+
+
+    // === Cobertura de Inventario y Alertas ===
+
+    private static void insertar(Object objeto, String nombre, Object valor)
+            throws Exception {
+        Field campo = objeto.getClass().getDeclaredField(nombre);
+        campo.setAccessible(true);
+        campo.set(objeto, valor);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T obtener(Object objeto, String nombre)
+            throws Exception {
+        Field campo = objeto.getClass().getDeclaredField(nombre);
+        campo.setAccessible(true);
+        return (T) campo.get(objeto);
+    }
+
+    private static Object llamar(Object objeto, String metodo)
+            throws Exception {
+        Method m = objeto.getClass().getDeclaredMethod(metodo);
+        m.setAccessible(true);
+        return m.invoke(objeto);
+    }
+
+    private static ControladorInventario inventarioFormulario()
+            throws Exception {
+        ControladorInventario c = new ControladorInventario();
+
+        for (String nombre : new String[]{
+                "lblUsuarioSesion", "lblEmailSesion",
+                "lblRolSesion", "lblFarmaciaSesion",
+                "lblTotalLotes", "lblLotesVencidos",
+                "lblLoteSeleccionadoInfo", "lblTotalMedicamentos",
+                "lblTotalAseo", "lblTotalMaternidad"}) {
+            insertar(c, nombre, new Label());
+        }
+
+        for (String nombre : new String[]{
+                "btnCatalogo", "btnHistorial", "btnAjustes",
+                "btnAlertas", "btnExportarCSV", "btnNuevoLote",
+                "btnEditarLote", "btnRetirarLote"}) {
+            insertar(c, nombre, new Button());
+        }
+
+        for (String nombre : new String[]{
+                "colIdLote", "colNumeroLote",
+                "colIdMedicamento", "colCantidad",
+                "colFechaVencimiento", "colEstado"}) {
+            insertar(c, nombre, new TableColumn<>());
+        }
+
+        insertar(c, "tablaLotes", new TableView<Lote>());
+        insertar(c, "txtBuscar", new TextField());
+        insertar(c, "txtCantidad", new TextField());
+        insertar(c, "dateInicio", new DatePicker());
+        insertar(c, "dateFin", new DatePicker());
+
+        ComboBox<String> categorias = new ComboBox<>();
+        categorias.getItems().addAll(
+                "Todas", "Analgesicos", "Antibioticos");
+        categorias.getSelectionModel().selectFirst();
+
+        insertar(c, "cmbCategoria", categorias);
+        insertar(c, "inventario", mock(Inventario.class));
+
+        return c;
+    }
+
+    private static Lote lotePrueba(
+            int id, String numero, String estado,
+            int diasIngreso, int diasVencimiento) {
+        Lote lote = new Lote();
+        lote.setIdLote(id);
+        lote.setIdMedicamento(id);
+        lote.setNumeroLote(numero);
+        lote.setEstadoLote(estado);
+        lote.setCantidadActual(10);
+        lote.setFechaIngreso(
+                LocalDate.now().plusDays(diasIngreso).atStartOfDay());
+        lote.setFechaVencimiento(
+                LocalDate.now().plusDays(diasVencimiento));
+        return lote;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void prepararInventario(ControladorInventario c)
+            throws Exception {
+        llamar(c, "configurarFiltroBusqueda");
+
+        javafx.collections.ObservableList<Lote> lista =
+                obtener(c, "listaLotes");
+
+        lista.setAll(
+                lotePrueba(1, "LOT-A", "DISPONIBLE", -4, 15),
+                lotePrueba(2, "LOT-B", "DISPONIBLE", -1, -2),
+                lotePrueba(3, "LOT-C", "RETENIDO", -2, 8)
+        );
+
+        insertar(c, "categoriaPorMedicamento",
+                Map.of(1, "Analgesicos",
+                       2, "Antibioticos",
+                       3, "Analgesicos"));
+
+        llamar(c, "aplicarFiltros");
+    }
+
+    @Test
+    void inventarioFiltraPorTextoYCategoria() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            prepararInventario(c);
+
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
+            TextField buscar = obtener(c, "txtBuscar");
+            ComboBox<String> categorias = obtener(c, "cmbCategoria");
+
+            assertEquals(3, tabla.getItems().size());
+
+            buscar.setText("LOT-A");
+            assertEquals(1, tabla.getItems().size());
+            assertEquals("LOT-A",
+                    tabla.getItems().get(0).getNumeroLote());
+
+            buscar.setText("RETENIDO");
+            assertEquals(1, tabla.getItems().size());
+
+            buscar.clear();
+            categorias.setValue("Analgesicos");
+            assertEquals(2, tabla.getItems().size());
+
+            categorias.setValue("Antibioticos");
+            assertEquals(1, tabla.getItems().size());
+
+            categorias.setValue("Todas");
+            assertEquals(3, tabla.getItems().size());
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioFiltraPorRangoDeIngreso() throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            prepararInventario(c);
+
+            DatePicker inicio = obtener(c, "dateInicio");
+            DatePicker fin = obtener(c, "dateFin");
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
+
+            inicio.setValue(LocalDate.now().minusDays(2));
+            fin.setValue(LocalDate.now());
+            llamar(c, "aplicarFiltros");
+
+            assertEquals(2, tabla.getItems().size());
+
+            inicio.setValue(LocalDate.now().plusDays(1));
+            llamar(c, "aplicarFiltros");
+
+            assertTrue(tabla.getItems().isEmpty());
+
+            inicio.setValue(null);
+            fin.setValue(null);
+            llamar(c, "aplicarFiltros");
+            assertEquals(3, tabla.getItems().size());
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioFiltraVencidosDisponiblesYTodos()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            prepararInventario(c);
+
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
+
+            llamar(c, "onFiltrarVencidos");
+            assertEquals(1, tabla.getItems().size());
+            assertEquals("LOT-B",
+                    tabla.getItems().get(0).getNumeroLote());
+
+            llamar(c, "onFiltrarDisponibles");
+            assertEquals(1, tabla.getItems().size());
+            assertEquals("LOT-A",
+                    tabla.getItems().get(0).getNumeroLote());
+
+            llamar(c, "onFiltrarTodos");
+            assertEquals(3, tabla.getItems().size());
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioPresentaCorrectamenteEstadosSanitarios()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+
+            Method metodo = ControladorInventario.class
+                    .getDeclaredMethod("estadoMostrado", Lote.class);
+            metodo.setAccessible(true);
+
+            Lote retenido = lotePrueba(
+                    1, "R", "RETENIDO", -1, 10);
+            Lote vencido = lotePrueba(
+                    2, "V", "DISPONIBLE", -1, -1);
+            Lote disponible = lotePrueba(
+                    3, "D", "DISPONIBLE", -1, 10);
+            Lote sinEstado = lotePrueba(
+                    4, "S", null, -1, 10);
+
+            assertEquals("RETENIDO", metodo.invoke(c, retenido));
+            assertEquals("DESHABILITADO",
+                    metodo.invoke(c, vencido));
+            assertEquals("DISPONIBLE",
+                    metodo.invoke(c, disponible));
+            assertEquals("SIN ESTADO",
+                    metodo.invoke(c, sinEstado));
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioCargaLotesYContadoresSinBaseDeDatos()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            llamar(c, "configurarFiltroBusqueda");
+
+            Inventario fachada = obtener(c, "inventario");
+            List<Lote> lotes = List.of(
+                    lotePrueba(1, "OK", "DISPONIBLE", -1, 20),
+                    lotePrueba(2, "VENCIDO", "DISPONIBLE", -2, -1)
+            );
+
+            when(fachada.listarLotes()).thenReturn(lotes);
+            when(fachada.categoriaPorMedicamento())
+                    .thenReturn(Map.of(1, "Analgesicos"));
+            when(fachada.contarPorCategoria())
+                    .thenReturn(Map.of(
+                            "Medicamento", 2,
+                            "Aseo", 4,
+                            "Maternidad", 1));
+
+            Button alertas = obtener(c, "btnAlertas");
+            alertas.setVisible(false);
+
+            llamar(c, "cargarDatosTabla");
+            llamar(c, "cargarContadoresPorCategoria");
+
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
+            Label total = obtener(c, "lblTotalLotes");
+            Label vencidos = obtener(c, "lblLotesVencidos");
+            Label medicamentos = obtener(c, "lblTotalMedicamentos");
+            Label aseo = obtener(c, "lblTotalAseo");
+            Label maternidad = obtener(c, "lblTotalMaternidad");
+
+            assertEquals(2, tabla.getItems().size());
+            assertEquals("2", total.getText());
+            assertEquals("1", vencidos.getText());
+            assertEquals("2", medicamentos.getText());
+            assertEquals("4", aseo.getText());
+            assertEquals("1", maternidad.getText());
+
+            verify(fachada).listarLotes();
+            verify(fachada).contarPorCategoria();
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioContinuaSiFallanLasCategorias()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            llamar(c, "configurarFiltroBusqueda");
+
+            Inventario fachada = obtener(c, "inventario");
+            when(fachada.listarLotes()).thenReturn(
+                    List.of(lotePrueba(
+                            1, "L1", "DISPONIBLE", -1, 20)));
+            when(fachada.categoriaPorMedicamento())
+                    .thenThrow(new IllegalStateException(
+                            "Fallo simulado de categorias"));
+
+            Button alertas = obtener(c, "btnAlertas");
+            alertas.setVisible(false);
+
+            llamar(c, "cargarDatosTabla");
+
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
+            Map<?, ?> categorias =
+                    obtener(c, "categoriaPorMedicamento");
+
+            assertEquals(1, tabla.getItems().size());
+            assertTrue(categorias.isEmpty());
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioResumenAlertasCubreTresSeveridades()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c = inventarioFormulario();
+            Button boton = obtener(c, "btnAlertas");
+
+            insertar(c, "btnAlertas", boton);
+
+            Method resumen = ControladorInventario.class
+                    .getDeclaredMethod(
+                            "mostrarResumenAlertas",
+                            ServicioAlertasInventario.Resumen.class);
+            resumen.setAccessible(true);
+
+            resumen.invoke(c,
+                    new ServicioAlertasInventario.Resumen(
+                            2, 1, 2, 1));
+            assertEquals("Alertas (3)", boton.getText());
+            assertTrue(boton.getStyle().contains("#B3261E"));
+
+            resumen.invoke(c,
+                    new ServicioAlertasInventario.Resumen(
+                            0, 2, 1, 1));
+            assertEquals("Alertas (2)", boton.getText());
+            assertTrue(boton.getStyle().contains("#C77700"));
+
+            resumen.invoke(c,
+                    new ServicioAlertasInventario.Resumen(
+                            0, 0, 0, 0));
+            assertEquals("Alertas", boton.getText());
+            assertTrue(boton.getStyle().contains("#0E7C7B"));
+
+            return null;
+        });
+    }
+
+    private static ControladorAlertas alertasFormulario()
+            throws Exception {
+        ControladorAlertas c = new ControladorAlertas();
+
+        for (String nombre : new String[]{
+                "lblFarmacia", "lblCriticas", "lblAdvertencias",
+                "lblTotal", "lblActualizado", "lblEstado"}) {
+            insertar(c, nombre, new Label());
+        }
+
+        for (String nombre : new String[]{
+                "cmbTipo", "cmbCategoria", "cmbSeveridad"}) {
+            insertar(c, nombre, new ComboBox<String>());
+        }
+
+        insertar(c, "btnActualizar", new Button());
+        insertar(c, "tablaAlertas",
+                new TableView<AlertaInventario>());
+
+        for (String nombre : new String[]{
+                "colSeveridad", "colTipo", "colCategoria",
+                "colProducto", "colReferencia",
+                "colExistencias", "colDetalle",
+                "colUltimoMovimiento"}) {
+            insertar(c, nombre, new TableColumn<>());
+        }
+
+        insertar(c, "inventario", mock(Inventario.class));
+        return c;
+    }
+
+    private static AlertaInventario alertaStock() {
+        return new AlertaInventario(
+                AlertaInventario.TipoAlerta.STOCK_MINIMO,
+                AlertaInventario.Categoria.ASEO,
+                1, "ASE-1", "Jabon", null,
+                0, 5, null, null,
+                AlertaInventario.Severidad.CRITICA,
+                null, null, null
+        );
+    }
+
+    private static AlertaInventario alertaVencimiento() {
+        return new AlertaInventario(
+                AlertaInventario.TipoAlerta.VENCIMIENTO,
+                AlertaInventario.Categoria.MEDICAMENTO,
+                2, "MED-2", "Acetaminofen", "LOT-2",
+                8, null, LocalDate.now().plusDays(10), 10,
+                AlertaInventario.Severidad.ADVERTENCIA,
+                LocalDateTime.of(2026, 10, 25, 10, 30),
+                "ENTRADA", "Administrador"
+        );
+    }
+
+    @Test
+    void alertasFiltranPorTipoCategoriaYSeveridad()
+            throws Exception {
+        enFx(() -> {
+            ControladorAlertas c = alertasFormulario();
+            llamar(c, "configurarFiltros");
+
+            insertar(c, "todas",
+                    List.of(alertaStock(), alertaVencimiento()));
+
+            llamar(c, "aplicarFiltros");
+
+            TableView<AlertaInventario> tabla =
+                    obtener(c, "tablaAlertas");
+            assertEquals(2, tabla.getItems().size());
+
+            ComboBox<String> tipo = obtener(c, "cmbTipo");
+            tipo.setValue(
+                    AlertaInventario.TipoAlerta.STOCK_MINIMO.etiqueta());
+
+            assertEquals(1, tabla.getItems().size());
+            assertEquals("Jabon",
+                    tabla.getItems().get(0).producto());
+
+            ComboBox<String> categoria =
+                    obtener(c, "cmbCategoria");
+            categoria.setValue(
+                    AlertaInventario.Categoria.MATERNIDAD.etiqueta());
+            assertEquals(0, tabla.getItems().size());
+
+            tipo.setValue("Todos");
+            categoria.setValue("Todos");
+
+            ComboBox<String> severidad =
+                    obtener(c, "cmbSeveridad");
+            severidad.setValue(
+                    AlertaInventario.Severidad.ADVERTENCIA.etiqueta());
+
+            assertEquals(1, tabla.getItems().size());
+            assertEquals("Acetaminofen",
+                    tabla.getItems().get(0).producto());
+
+            return null;
+        });
+    }
+
+    @Test
+    void alertasMuestranResumenYEstadoSinAlertas()
+            throws Exception {
+        enFx(() -> {
+            ControladorAlertas c = alertasFormulario();
+            llamar(c, "configurarFiltros");
+
+            llamar(c, "aplicarFiltros");
+
+            Label estado = obtener(c, "lblEstado");
+            assertTrue(estado.getText().contains("No hay alertas"));
+
+            insertar(c, "todas",
+                    List.of(alertaStock(), alertaVencimiento()));
+
+            llamar(c, "actualizarResumen");
+            llamar(c, "aplicarFiltros");
+
+            Label criticas = obtener(c, "lblCriticas");
+            Label advertencias = obtener(c, "lblAdvertencias");
+            Label total = obtener(c, "lblTotal");
+
+            assertEquals("Críticas: 1", criticas.getText());
+            assertEquals("Advertencias: 1",
+                    advertencias.getText());
+            assertEquals("Total: 2", total.getText());
+            assertTrue(estado.getText().contains("Mostrando 2 de 2"));
+
+            return null;
+        });
+    }
+
+    @Test
+    void alertasConfiguranColumnasDeLaTabla()
+            throws Exception {
+        enFx(() -> {
+            ControladorAlertas c = alertasFormulario();
+            llamar(c, "configurarColumnas");
+            llamar(c, "configurarFilas");
+
+            TableView<AlertaInventario> tabla =
+                    obtener(c, "tablaAlertas");
+
+            assertNotNull(tabla.getRowFactory());
+
+            for (String nombre : new String[]{
+                    "colSeveridad", "colTipo", "colCategoria",
+                    "colProducto", "colReferencia",
+                    "colExistencias", "colDetalle",
+                    "colUltimoMovimiento"}) {
+                TableColumn<?, ?> columna = obtener(c, nombre);
+                assertNotNull(columna.getCellValueFactory(), nombre);
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void alertasFormateanMovimientosConYSinFecha()
+            throws Exception {
+        Method metodo = ControladorAlertas.class
+                .getDeclaredMethod(
+                        "textoUltimoMovimiento",
+                        AlertaInventario.class);
+        metodo.setAccessible(true);
+
+        assertEquals(
+                "Sin movimientos registrados",
+                metodo.invoke(null, alertaStock())
+        );
+
+        String resultado = (String) metodo.invoke(
+                null, alertaVencimiento());
+
+        assertTrue(resultado.contains("ENTRADA"));
+        assertTrue(resultado.contains("Administrador"));
+        assertTrue(resultado.contains("25/10/2026"));
+    }
+
+    @Test
+    void inventarioRechazaInicializacionSinSesion()
+            throws Exception {
+        enFx(() -> {
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class)) {
+                sesion.when(SesionUsuario::estaActiva)
+                        .thenReturn(false);
+
+                ControladorInventario c =
+                        new ControladorInventario();
+
+                assertThrows(
+                        IllegalStateException.class,
+                        c::initialize);
+            }
+            return null;
+        });
+    }
+
+    @Test
+    void alertasRechazanSesionSinFarmacia()
+            throws Exception {
+        enFx(() -> {
+            try (MockedStatic<SesionUsuario> sesion =
+                         mockStatic(SesionUsuario.class)) {
+                sesion.when(SesionUsuario::estaActiva)
+                        .thenReturn(true);
+                sesion.when(SesionUsuario::actual)
+                        .thenReturn(
+                                new SesionUsuario.DatosUsuario(
+                                        1, "Prueba", "test@local",
+                                        "AUXILIAR", null, null));
+
+                ControladorAlertas c = new ControladorAlertas();
+
+                assertThrows(
+                        IllegalStateException.class,
+                        c::initialize);
+            }
             return null;
         });
     }
