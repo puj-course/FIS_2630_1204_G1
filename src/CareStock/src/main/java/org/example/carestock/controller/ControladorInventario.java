@@ -356,10 +356,21 @@ public class ControladorInventario {
         cargarContadoresPorCategoria();
     }
 
-              private void cargarResumenAlertas() {
+    private void cargarResumenAlertas() {
         try {
             var resumen = inventario.resumenAlertas();
-            
+            if (lblAlertaStock == null || lblAlertaVencimiento == null || badgeNotificaciones == null || lblContadorNotificaciones == null) {
+                return; 
+            }
+
+            if (resumen == null) {
+                lblAlertaStock.setText("0 productos");
+                lblAlertaVencimiento.setText("0 lotes");
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
+                return;
+            }
+
             int stockBajo = resumen.stockMinimo();
             int proximosVencer = resumen.vencimiento();
             int total = stockBajo + proximosVencer;
@@ -377,9 +388,11 @@ public class ControladorInventario {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            lblAlertaStock.setText("Error");
-            lblAlertaVencimiento.setText("Error");
+            System.out.println("Error al cargar alertas: " + e.getMessage());
+            if (lblAlertaStock != null) lblAlertaStock.setText("0 productos");
+            if (lblAlertaVencimiento != null) lblAlertaVencimiento.setText("0 lotes");
+            if (badgeNotificaciones != null) badgeNotificaciones.setVisible(false);
+            if (lblContadorNotificaciones != null) lblContadorNotificaciones.setVisible(false);
         }
     }
 
