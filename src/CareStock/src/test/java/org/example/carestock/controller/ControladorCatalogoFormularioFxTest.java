@@ -3421,7 +3421,7 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
-    @Test
+       @Test
     void qaGateDispensacionFallaPorRegla() throws Exception {
         enFx(() -> {
             ControladorInventario c = inventarioFormulario();
@@ -3433,10 +3433,14 @@ class ControladorCatalogoFormularioFxTest {
                     .ReglaNegocioException("Sin permisos"))
                     .when(servicio).dispensarMedicamento(7, 2);
 
+            // El usuario acepta la confirmacion (boton OK).
             try (MockedConstruction<Alert> ventanas =
-                         mockConstruction(Alert.class)) {
+                         mockConstruction(Alert.class,
+                                 (alerta, contexto) -> when(alerta.showAndWait())
+                                         .thenReturn(Optional.of(ButtonType.OK)))) {
                 llamar(c, "onDispensar");
-                assertEquals(1, ventanas.constructed().size());
+                // Confirmacion + aviso de farmacovigilancia.
+                assertEquals(2, ventanas.constructed().size());
                 verify(servicio).dispensarMedicamento(7, 2);
                 verify(servicio, never()).listarLotes();
             }
