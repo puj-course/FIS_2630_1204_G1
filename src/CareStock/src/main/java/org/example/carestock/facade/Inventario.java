@@ -404,6 +404,17 @@ public class Inventario {
     public List<AlertaInventario> listarAlertas() throws Exception {
         return alertasService.listar(farmaciaActual());
     }
+        public List<String> obtenerListaAlertas() throws Exception {
+        List<String> lista = new ArrayList<>();
+        for (AlertaInventario alerta : listarAlertas()) {
+            if (alerta.tipoAlerta() == AlertaInventario.TipoAlerta.STOCK_MINIMO) {
+                lista.add("⚠️ Stock bajo: " + alerta.producto());
+            } else {
+                lista.add("⏳ Vence pronto: " + alerta.producto());
+            }
+        }
+        return lista;
+    }
 
     public ServicioAlertasInventario.Resumen resumenAlertas() throws Exception {
         return ServicioAlertasInventario.resumir(listarAlertas());

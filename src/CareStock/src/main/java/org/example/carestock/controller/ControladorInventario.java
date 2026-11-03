@@ -62,6 +62,12 @@ public class ControladorInventario {
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
+    
+    @FXML private Label lblAlertaStock;
+    @FXML private Label lblAlertaVencimiento;
+    @FXML private Button btnCampana;
+    @FXML private javafx.scene.shape.Circle badgeNotificaciones;
+    @FXML private Label lblContadorNotificaciones;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -361,23 +367,43 @@ public class ControladorInventario {
     }
 
     private void cargarResumenAlertas() {
-        if (!btnAlertas.isVisible()) {
-            return;
-        }
-
-        Task<ServicioAlertasInventario.Resumen> tarea = new Task<>() {
-            @Override
-            protected ServicioAlertasInventario.Resumen call() throws Exception {
-                return inventario.resumenAlertas();
+        try {
+            var resumen = inventario.resumenAlertas();
+            if (lblAlertaStock == null || lblAlertaVencimiento == null || badgeNotificaciones == null || lblContadorNotificaciones == null) {
+                return; 
             }
-        };
 
-        tarea.setOnSucceeded(e -> mostrarResumenAlertas(tarea.getValue()));
-        tarea.setOnFailed(e -> btnAlertas.setText("Alertas"));
+            if (resumen == null) {
+                lblAlertaStock.setText("0 productos");
+                lblAlertaVencimiento.setText("0 lotes");
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
+                return;
+            }
 
-        Thread hilo = new Thread(tarea, "resumen-alertas");
-        hilo.setDaemon(true);
-        hilo.start();
+            int stockBajo = resumen.stockMinimo();
+            int proximosVencer = resumen.vencimiento();
+            int total = stockBajo + proximosVencer;
+
+            lblAlertaStock.setText(stockBajo + (stockBajo == 1 ? " producto" : " productos"));
+            lblAlertaVencimiento.setText(proximosVencer + (proximosVencer == 1 ? " lote" : " lotes"));
+
+            if (total > 0) {
+                badgeNotificaciones.setVisible(true);
+                lblContadorNotificaciones.setText(String.valueOf(total));
+                lblContadorNotificaciones.setVisible(true);
+            } else {
+                badgeNotificaciones.setVisible(false);
+                lblContadorNotificaciones.setVisible(false);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al cargar alertas: " + e.getMessage());
+            if (lblAlertaStock != null) lblAlertaStock.setText("0 productos");
+            if (lblAlertaVencimiento != null) lblAlertaVencimiento.setText("0 lotes");
+            if (badgeNotificaciones != null) badgeNotificaciones.setVisible(false);
+            if (lblContadorNotificaciones != null) lblContadorNotificaciones.setVisible(false);
+        }
     }
 
     private void mostrarResumenAlertas(ServicioAlertasInventario.Resumen resumen) {
@@ -529,5 +555,58 @@ public class ControladorInventario {
                         "No se pudo guardar el archivo: " + e.getMessage());
             }
         }
+    }
+    @FXML
+    private void onAbrirNotificaciones() {
+        javafx.scene.control.ContextMenu contextMenu = new javafx.scene.control.ContextMenu();
+        
+        try {
+            var alertas = inventario.listarAlertas();
+
+            if (alertas.isEmpty()) {
+                javafx.scene.control.MenuItem item = new javafx.scene.control.MenuItem("No hay notificaciones nuevas");
+                item.setDisable(true);
+                contextMenu.getItems().add(item);
+            } else {
+                for (var alerta : alertas) {
+                    String texto = (alerta.tipoAlerta() == org.example.carestock.dto.AlertaInventario.TipoAlerta.STOCK_MINIMO) 
+                            ? "⚠️ Stock bajo: " + alerta.producto()
+                            : "⏳ Vence pronto: " + alerta.producto();
+
+                    javafx.scene.layout.HBox hbox = new javafx.scene.layout.HBox(10);
+                    hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    hbox.setStyle("-fx-padding: 5;");
+                    
+                    javafx.scene.control.Label label = new javafx.scene.control.Label(texto);
+                    label.setStyle("-fx-font-size: 12px;");
+                    
+                    javafx.scene.control.Button btnLeida = new javafx.scene.control.Button("X");
+                    btnLeida.setStyle("-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 4; -fx-padding: 2 6;");
+                    
+                    btnLeida.setOnAction(e -> {
+                        try {
+                            inventario.marcarAlertaComoLeida(alerta.tipoAlerta().name(), alerta.idReferencia());
+                            
+                            cargarResumenAlertas();
+                            contextMenu.hide();
+                            
+                        } catch (Exception ex) {
+                            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo marcar la alerta: " + ex.getMessage());
+                        }
+                    });
+
+                    hbox.getChildren().addAll(label, btnLeida);
+                    
+                    javafx.scene.control.CustomMenuItem menuItem = new javafx.scene.control.CustomMenuItem(hbox);
+                    contextMenu.getItems().add(menuItem);
+                }
+            }
+        } catch (Exception e) {
+            javafx.scene.control.MenuItem itemError = new javafx.scene.control.MenuItem("Error al cargar notificaciones");
+            itemError.setDisable(true);
+            contextMenu.getItems().add(itemError);
+            LOGGER.log(System.Logger.Level.ERROR, "No fue posible cargar las notificaciones.", e);
+        }
+        contextMenu.show(btnCampana, javafx.geometry.Side.BOTTOM, 0, 0);
     }
 }
