@@ -63,6 +63,10 @@
                 <ComboBox fx:id="cmbSeveridad" prefWidth="150"
                           style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnExportarCsv"
+                        text="Exportar CSV"
+                        onAction="#onExportarCsv"
+                        style="-fx-background-color: #FDFBF7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #B7A6E0; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;"/>
                 <Button fx:id="btnActualizar"
                         text="Actualizar ahora"
                         onAction="#onActualizar"
