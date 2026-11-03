@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import org.example.carestock.CareStockApp;
 import org.example.carestock.dto.AlertaInventario;
@@ -21,9 +22,13 @@ import org.example.carestock.dto.AlertaInventario.Categoria;
 import org.example.carestock.dto.AlertaInventario.Severidad;
 import org.example.carestock.dto.AlertaInventario.TipoAlerta;
 import org.example.carestock.facade.Inventario;
+import org.example.carestock.service.ExportadorAlertasCsv;
 import org.example.carestock.service.ServicioAlertasInventario;
 import org.example.carestock.session.SesionUsuario;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -40,6 +45,8 @@ public class ControladorAlertas {
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter FORMATO_HORA =
             DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final DateTimeFormatter FORMATO_ARCHIVO =
+            DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @FXML private Label lblFarmacia;
     @FXML private Label lblCriticas;
@@ -51,6 +58,7 @@ public class ControladorAlertas {
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private ComboBox<String> cmbSeveridad;
     @FXML private Button btnActualizar;
+    @FXML private Button btnExportarCsv;
     @FXML private TableView<AlertaInventario> tablaAlertas;
     @FXML private TableColumn<AlertaInventario, String> colSeveridad;
     @FXML private TableColumn<AlertaInventario, String> colTipo;
@@ -273,6 +281,36 @@ public class ControladorAlertas {
     @FXML
     private void onActualizar() {
         cargar();
+    }
+
+    @FXML
+    private void onExportarCsv() {
+        List<AlertaInventario> visibles = List.copyOf(tablaAlertas.getItems());
+        if (visibles.isEmpty()) {
+            lblEstado.setText("No hay alertas para exportar.");
+            return;
+        }
+
+        FileChooser selector = new FileChooser();
+        selector.setTitle("Exportar alertas a CSV");
+        selector.setInitialFileName("alertas-inventario-"
+                + LocalDate.now(ZONA_HORARIA).format(FORMATO_ARCHIVO) + ".csv");
+        selector.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivo CSV (*.csv)", "*.csv"));
+
+        File destino = selector.showSaveDialog(tablaAlertas.getScene().getWindow());
+        if (destino == null) {
+            return;
+        }
+
+        try {
+            ExportadorAlertasCsv.guardar(destino.toPath(), visibles);
+            lblEstado.setText("Se exportaron " + visibles.size() + " alertas a "
+                    + destino.getName() + ".");
+        } catch (IOException e) {
+            lblEstado.setText("No se pudo guardar el archivo: "
+                    + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+        }
     }
 
     @FXML
