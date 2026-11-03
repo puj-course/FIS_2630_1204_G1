@@ -24,6 +24,7 @@ import org.example.carestock.dto.AlertaInventario.TipoAlerta;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.service.ExportadorAlertasCsv;
 import org.example.carestock.service.ServicioAlertasInventario;
+import org.example.carestock.service.SugerenciaReposicion;
 import org.example.carestock.session.SesionUsuario;
 
 import java.io.File;
@@ -66,6 +67,7 @@ public class ControladorAlertas {
     @FXML private TableColumn<AlertaInventario, String> colProducto;
     @FXML private TableColumn<AlertaInventario, String> colReferencia;
     @FXML private TableColumn<AlertaInventario, String> colExistencias;
+    @FXML private TableColumn<AlertaInventario, String> colReposicion;
     @FXML private TableColumn<AlertaInventario, String> colDetalle;
     @FXML private TableColumn<AlertaInventario, String> colUltimoMovimiento;
 
@@ -109,6 +111,10 @@ public class ControladorAlertas {
         colReferencia.setCellValueFactory(c -> celda(c.getValue().referencia()));
         colExistencias.setCellValueFactory(
                 c -> celda(Integer.toString(c.getValue().existencias())));
+        if (colReposicion != null) {
+            colReposicion.setCellValueFactory(
+                    c -> celda(SugerenciaReposicion.texto(c.getValue())));
+        }
         colDetalle.setCellValueFactory(c -> celda(c.getValue().mensaje()));
         colUltimoMovimiento.setCellValueFactory(
                 c -> celda(textoUltimoMovimiento(c.getValue())));
