@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.service.ServicioAlertasInventario;
+import org.example.carestock.service.ValidadorDispensacion;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Lote;
 
@@ -438,24 +439,50 @@ public class ControladorInventario {
             return;
         }
 
+        int cantidad;
         try {
-            int cantidad = Integer.parseInt(strCantidad.trim());
+            cantidad = ValidadorDispensacion.validarCantidad(
+                    strCantidad, loteSeleccionado.getCantidadActual());
+        } catch (NumberFormatException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Formato", e.getMessage());
+            return;
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Cantidad no válida", e.getMessage());
+            return;
+        }
 
-            inventario.dispensarMedicamento(loteSeleccionado.getIdLote(), cantidad);
+        Lote lote = loteSeleccionado;
+        int existencias = lote.getCantidadActual();
+
+        if (!confirmarDispensacion(lote.getNumeroLote(), cantidad, existencias)) {
+            return;
+        }
+
+        try {
+            inventario.dispensarMedicamento(lote.getIdLote(), cantidad);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Dispensación Exitosa",
-                    "Se dispensaron " + cantidad + " unidades del lote " + loteSeleccionado.getNumeroLote() + " correctamente.");
+                    ValidadorDispensacion.mensajeExito(lote.getNumeroLote(), cantidad, existencias));
 
             txtCantidad.clear();
             cargarDatosTabla();
 
-        } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Formato", "La cantidad a dispensar debe ser un número entero válido.");
         } catch (ReglaNegocioException e) {
             mostrarAlerta(Alert.AlertType.WARNING, "ALERTA DE FARMACOVIGILANCIA", e.getMessage());
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error del Sistema", "Ocurrió un error inesperado: " + e.getMessage());
         }
+    }
+
+    private boolean confirmarDispensacion(String numeroLote, int cantidad, int existencias) {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("CareStock - Confirmar dispensación");
+        confirmacion.setHeaderText("¿Confirmar la dispensación?");
+        confirmacion.setContentText(
+                ValidadorDispensacion.mensajeConfirmacion(numeroLote, cantidad, existencias));
+        return confirmacion.showAndWait()
+                .filter(boton -> boton == ButtonType.OK)
+                .isPresent();
     }
 
     private void cargarContadoresPorCategoria() {

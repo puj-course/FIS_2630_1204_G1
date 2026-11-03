@@ -2118,10 +2118,13 @@ class ControladorCatalogoFormularioFxTest {
             when(fachada.categoriaPorMedicamento())
                     .thenReturn(java.util.Map.of());
 
+            // El usuario acepta la confirmacion (boton OK).
             try (org.mockito.MockedConstruction<
                     javafx.scene.control.Alert> alertas =
                          mockConstruction(
-                                 javafx.scene.control.Alert.class)) {
+                                 javafx.scene.control.Alert.class,
+                                 (alerta, contexto) -> when(alerta.showAndWait())
+                                         .thenReturn(Optional.of(ButtonType.OK)))) {
 
                 llamar(c, "onDispensar");
 
@@ -2131,14 +2134,93 @@ class ControladorCatalogoFormularioFxTest {
                 assertEquals("", cantidad.getText());
 
                 verify(fachada).listarLotes();
+
+                // Una ventana de confirmacion y una de exito.
                 assertEquals(
-                        1, alertas.constructed().size());
+                        2, alertas.constructed().size());
             }
 
             return null;
         });
     }
 
+    @Test
+    void inventarioQaDispensacionCanceladaNoDescuentaStock()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c =
+                    inventarioFormulario();
+
+            Inventario fachada = obtener(c, "inventario");
+
+            insertar(c, "loteSeleccionado",
+                    lotePrueba(7, "QA-007", "DISPONIBLE", -1, 20));
+
+            javafx.scene.control.TextField cantidad =
+                    obtener(c, "txtCantidad");
+            cantidad.setText("3");
+
+            // Sin stub: showAndWait() devuelve Optional.empty (cancelar).
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> alertas =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                llamar(c, "onDispensar");
+
+                verify(fachada, never())
+                        .dispensarMedicamento(anyInt(), anyInt());
+
+                // Solo la ventana de confirmacion.
+                assertEquals(
+                        1, alertas.constructed().size());
+
+                // La cantidad escrita se conserva para corregirla.
+                assertEquals("3", cantidad.getText());
+            }
+
+            return null;
+        });
+    }
+
+    @Test
+    void inventarioQaDispensacionRechazaCantidadMayorQueElLote()
+            throws Exception {
+        enFx(() -> {
+            ControladorInventario c =
+                    inventarioFormulario();
+
+            Inventario fachada = obtener(c, "inventario");
+
+            insertar(c, "loteSeleccionado",
+                    lotePrueba(7, "QA-007", "DISPONIBLE", -1, 20));
+
+            javafx.scene.control.TextField cantidad =
+                    obtener(c, "txtCantidad");
+
+            try (org.mockito.MockedConstruction<
+                    javafx.scene.control.Alert> alertas =
+                         mockConstruction(
+                                 javafx.scene.control.Alert.class)) {
+
+                // El lote de prueba tiene 10 unidades.
+                cantidad.setText("11");
+                llamar(c, "onDispensar");
+
+                cantidad.setText("0");
+                llamar(c, "onDispensar");
+
+                verify(fachada, never())
+                        .dispensarMedicamento(anyInt(), anyInt());
+
+                // Un aviso por cada cantidad no valida.
+                assertEquals(
+                        2, alertas.constructed().size());
+            }
+
+            return null;
+        });
+    }
 
 
     // ===== QA: rutas adicionales del inventario =====
@@ -3339,7 +3421,7 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
-    @Test
+       @Test
     void qaGateDispensacionFallaPorRegla() throws Exception {
         enFx(() -> {
             ControladorInventario c = inventarioFormulario();
@@ -3351,10 +3433,14 @@ class ControladorCatalogoFormularioFxTest {
                     .ReglaNegocioException("Sin permisos"))
                     .when(servicio).dispensarMedicamento(7, 2);
 
+            // El usuario acepta la confirmacion (boton OK).
             try (MockedConstruction<Alert> ventanas =
-                         mockConstruction(Alert.class)) {
+                         mockConstruction(Alert.class,
+                                 (alerta, contexto) -> when(alerta.showAndWait())
+                                         .thenReturn(Optional.of(ButtonType.OK)))) {
                 llamar(c, "onDispensar");
-                assertEquals(1, ventanas.constructed().size());
+                // Confirmacion + aviso de farmacovigilancia.
+                assertEquals(2, ventanas.constructed().size());
                 verify(servicio).dispensarMedicamento(7, 2);
                 verify(servicio, never()).listarLotes();
             }
@@ -3362,7 +3448,7 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
-    @Test
+      @Test
     void qaGateDispensacionFallaInesperada() throws Exception {
         enFx(() -> {
             ControladorInventario c = inventarioFormulario();
@@ -3373,10 +3459,14 @@ class ControladorCatalogoFormularioFxTest {
             doThrow(new IllegalStateException("Servicio fuera de linea"))
                     .when(servicio).dispensarMedicamento(8, 3);
 
+            // El usuario acepta la confirmacion (boton OK).
             try (MockedConstruction<Alert> ventanas =
-                         mockConstruction(Alert.class)) {
+                         mockConstruction(Alert.class,
+                                 (alerta, contexto) -> when(alerta.showAndWait())
+                                         .thenReturn(Optional.of(ButtonType.OK)))) {
                 llamar(c, "onDispensar");
-                assertEquals(1, ventanas.constructed().size());
+                // Confirmacion + aviso de error del sistema.
+                assertEquals(2, ventanas.constructed().size());
                 verify(servicio).dispensarMedicamento(8, 3);
             }
             return null;
