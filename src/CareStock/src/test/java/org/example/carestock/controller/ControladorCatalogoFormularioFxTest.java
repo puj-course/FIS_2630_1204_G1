@@ -3444,7 +3444,7 @@ class ControladorCatalogoFormularioFxTest {
                 verify(servicio).dispensarMedicamento(7, 2);
                 verify(servicio, never()).listarLotes();
             }
-            return null;
+            return null:
         });
     }
 
