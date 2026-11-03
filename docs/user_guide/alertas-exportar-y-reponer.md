@@ -15,7 +15,6 @@ Sirve para llevar el listado de alertas a Excel, imprimirlo o enviarlo a quien h
 5. Pulsa **Guardar**. Abajo de la tabla aparece: *Se exportaron N alertas a alertas-inventario-AAAAMMDD.csv.*
 
 
-
 ### Qué trae el archivo
 
 | Columna | Contenido |
@@ -39,3 +38,30 @@ Sirve para llevar el listado de alertas a Excel, imprimirlo o enviarlo a quien h
 | La tabla está vacía | Aparece *No hay alertas para exportar.* y no se abre el selector |
 | Cierras el selector sin guardar | No pasa nada, no se crea archivo |
 | No se puede escribir en la carpeta | Aparece *No se pudo guardar el archivo* con el motivo |
+
+## 2. Cantidad sugerida a reponer (HU-143)
+
+La tabla de alertas tiene una columna **Reponer** que sugiere cuántas unidades pedir.
+
+### Regla
+
+> Cantidad sugerida = **2 × stock mínimo − existencias** (nunca menos de 0)
+
+Se repone hasta el **doble del stock mínimo**, para no quedar otra vez en el límite.
+
+| Existencias | Mínimo | Reponer |
+|---|---|---|
+| 2 | 5 | 8 |
+| 0 | 5 | 10 |
+| 5 | 5 | 5 |
+| 20 | 5 | 0 |
+
+### Cuándo aparece "—"
+
+Las alertas de **vencimiento** muestran **—**: un lote por vencer no se resuelve pidiendo más unidades, sino usando o retirando ese lote.
+
+### Importante
+
+- Es una **sugerencia**: no crea pedidos ni cambia el inventario.
+- La columna **Reponer** no se incluye en el CSV; el archivo conserva las 7 columnas de la sección 1.
+
