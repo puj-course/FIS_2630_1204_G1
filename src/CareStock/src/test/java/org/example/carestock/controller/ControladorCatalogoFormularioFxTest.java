@@ -3448,7 +3448,7 @@ class ControladorCatalogoFormularioFxTest {
         });
     }
 
-    @Test
+      @Test
     void qaGateDispensacionFallaInesperada() throws Exception {
         enFx(() -> {
             ControladorInventario c = inventarioFormulario();
@@ -3459,10 +3459,14 @@ class ControladorCatalogoFormularioFxTest {
             doThrow(new IllegalStateException("Servicio fuera de linea"))
                     .when(servicio).dispensarMedicamento(8, 3);
 
+            // El usuario acepta la confirmacion (boton OK).
             try (MockedConstruction<Alert> ventanas =
-                         mockConstruction(Alert.class)) {
+                         mockConstruction(Alert.class,
+                                 (alerta, contexto) -> when(alerta.showAndWait())
+                                         .thenReturn(Optional.of(ButtonType.OK)))) {
                 llamar(c, "onDispensar");
-                assertEquals(1, ventanas.constructed().size());
+                // Confirmacion + aviso de error del sistema.
+                assertEquals(2, ventanas.constructed().size());
                 verify(servicio).dispensarMedicamento(8, 3);
             }
             return null;
