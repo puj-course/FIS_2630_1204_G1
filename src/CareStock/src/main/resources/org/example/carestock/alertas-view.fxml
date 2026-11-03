@@ -90,10 +90,12 @@
                                  text="Referencia" prefWidth="90"/>
                     <TableColumn fx:id="colExistencias"
                                  text="Existencias" prefWidth="90"/>
+                    <TableColumn fx:id="colReposicion"
+                                 text="Reponer" prefWidth="80"/>
                     <TableColumn fx:id="colDetalle"
-                                 text="Detalle" prefWidth="290"/>
+                                 text="Detalle" prefWidth="260"/>
                     <TableColumn fx:id="colUltimoMovimiento"
-                                 text="Ultimo movimiento" prefWidth="250"/>
+                                 text="Ultimo movimiento" prefWidth="240"/>
                 </columns>
             </TableView>
 
