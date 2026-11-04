@@ -67,7 +67,7 @@ class ControladorCatalogoFormularioFxTest {
 
     @AfterAll
     static void cerrarJavaFx() {
-        Platform.exit();
+        // Se conserva JavaFX para las demas pruebas del mismo proceso.
     }
 
     private static <T> T enFx(Callable<T> accion)

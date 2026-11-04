@@ -114,7 +114,7 @@ public final class ControladorHistorialMovimientos {
         tablaHistorial.setEditable(false);
 
         colFecha.setSortType(TableColumn.SortType.DESCENDING);
-        tablaHistorial.getSortOrder().setAll(colFecha);
+        tablaHistorial.getSortOrder().setAll(List.of(colFecha));
 
         tablaHistorial.setPlaceholder(
                 new Label("No existen movimientos registrados."));

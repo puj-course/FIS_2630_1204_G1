@@ -10,6 +10,12 @@ import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
 import org.example.carestock.controller.ControladorCatalogo;
+import org.example.carestock.controller.ControladorInventario;
+import org.example.carestock.controller.ConsultaInventarioController;
+import org.example.carestock.dto.AlertaInventario;
+import org.example.carestock.dto.AlertaInventario.TipoAlerta;
+import org.example.carestock.service.ResolucionNavegacionAlertas;
+import java.util.function.Consumer;
 import org.example.carestock.config.PrecalentadorConexionBD;
 
 import java.net.URL;
@@ -185,6 +191,33 @@ public class CareStockApp extends Application {
         );
     }
     
+    public void mostrarDetalleAlerta(
+            AlertaInventario alerta, Integer farmaciaOrigen) {
+
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        var destino = ResolucionNavegacionAlertas.resolver(
+                alerta, farmaciaOrigen,
+                SesionUsuario.actual().idFarmacia());
+
+        if (destino.tipo() == TipoAlerta.STOCK_MINIMO) {
+            transicionarEscena(
+                    "/org/example/carestock/consulta-inventario-view.fxml",
+                    1120, 720,
+                    controlador -> ((ConsultaInventarioController) controlador)
+                            .abrirDesdeAlerta(destino));
+        } else {
+            transicionarEscena(
+                    "/org/example/carestock/inventario-view.fxml",
+                    1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirDesdeAlerta(destino));
+        }
+    }
+
     public void mostrarFormularioMovimientos() {
 
         if (!SesionUsuario.estaActiva()) {
@@ -302,11 +335,13 @@ public class CareStockApp extends Application {
     // TRANSICION ENTRE VISTAS
     // ========================================
 
-    void transicionarEscena(
-            String fxmlRuta,
-            double ancho,
-            double alto
-    ) {
+    void transicionarEscena(String fxmlRuta, double ancho, double alto) {
+        transicionarEscena(fxmlRuta, ancho, alto, null);
+    }
+
+    private void transicionarEscena(
+            String fxmlRuta, double ancho, double alto,
+            Consumer<Object> configuracion) {
         try {
             URL fxmlUrl = getClass().getResource(fxmlRuta);
 
@@ -333,6 +368,10 @@ public class CareStockApp extends Application {
                         destino.categoria(),
                         destino.id()
                 );
+            }
+
+            if (configuracion != null) {
+                configuracion.accept(loader.getController());
             }
 
             root.setOpacity(0);

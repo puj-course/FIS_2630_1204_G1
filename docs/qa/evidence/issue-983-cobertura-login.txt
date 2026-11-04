@@ -1,0 +1,23 @@
+CARESTOCK - COBERTURA DE AUTENTICACION
+Issue #983 / Mejoras de Login
+
+LoginController
+  BRANCH: 73.91% (34/46)
+  LINE: 85.19% (138/162)
+  METHOD: 70.37% (19/27)
+
+SesionUsuario
+  BRANCH: 100.00% (16/16)
+  LINE: 100.00% (35/35)
+  METHOD: 100.00% (6/6)
+
+AuthenticationService
+  BRANCH: 94.44% (17/18)
+  LINE: 100.00% (19/19)
+  METHOD: 100.00% (2/2)
+
+ValidacionFormularioLogin
+  BRANCH: 100.00% (10/10)
+  LINE: 100.00% (9/9)
+  METHOD: 100.00% (3/3)
+

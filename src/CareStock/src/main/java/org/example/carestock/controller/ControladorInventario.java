@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.service.ServicioAlertasInventario;
+import org.example.carestock.service.ResolucionNavegacionAlertas;
+import org.example.carestock.service.ResolucionNavegacionAlertas.Destino;
 import org.example.carestock.service.ValidadorDispensacion;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Lote;
@@ -181,6 +183,35 @@ public class ControladorInventario {
 
         cargarDatosTabla();
         cargarContadoresPorCategoria();
+    }
+
+    public void abrirDesdeAlerta(Destino destino) {
+        if (destino == null || !SesionUsuario.estaActiva()
+                || !java.util.Objects.equals(
+                        destino.idFarmacia(),
+                        SesionUsuario.actual().idFarmacia())) {
+
+            lblLoteSeleccionadoInfo.setText(
+                    "La farmacia activa ha cambiado. No es posible abrir el lote.");
+            return;
+        }
+
+        onFiltrarTodos();
+
+        var encontrado = ResolucionNavegacionAlertas.buscarLote(
+                destino, listaLotes);
+
+        if (encontrado.isPresent()) {
+            datosFiltrados.setPredicate(
+                    lote -> lote.getIdLote() == destino.idReferencia());
+
+            tablaLotes.getSelectionModel().select(encontrado.get());
+            tablaLotes.scrollTo(encontrado.get());
+        } else {
+            tablaLotes.getSelectionModel().clearSelection();
+            lblLoteSeleccionadoInfo.setText(
+                    "El lote ya no existe o no esta disponible en la farmacia activa.");
+        }
     }
 
     private void configurarFiltroBusqueda() {

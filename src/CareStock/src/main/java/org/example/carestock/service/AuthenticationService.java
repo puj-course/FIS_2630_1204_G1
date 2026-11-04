@@ -26,10 +26,10 @@ public class AuthenticationService {
 
         String hash = usuario.getPassword();
         boolean valido = false;
-        if (hash != null && hash.matches("\\$2[aby]\\$\\d{2}\\$.+")) {
+        if (hash != null && hash.length() == 60 && hash.matches("\\$2[aby]\\$\\d{2}\\$.+")) {
             try {
                 valido = BCrypt.checkpw(password, hash);
-            } catch (IllegalArgumentException ex) {
+            } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
                 valido = false;
             }
         }

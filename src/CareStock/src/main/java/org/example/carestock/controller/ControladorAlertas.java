@@ -60,6 +60,7 @@ public class ControladorAlertas {
     @FXML private ComboBox<String> cmbSeveridad;
     @FXML private Button btnActualizar;
     @FXML private Button btnExportarCsv;
+    @FXML private Button btnVerDetalle;
     @FXML private TableView<AlertaInventario> tablaAlertas;
     @FXML private TableColumn<AlertaInventario, String> colSeveridad;
     @FXML private TableColumn<AlertaInventario, String> colTipo;
@@ -75,6 +76,7 @@ public class ControladorAlertas {
     private Inventario inventario;
     private Timeline refresco;
     private boolean cargando;
+    private SesionUsuario.DatosUsuario sesionVista;
 
     @FXML
     public void initialize() {
@@ -82,7 +84,8 @@ public class ControladorAlertas {
             throw new IllegalStateException("No hay sesion autenticada");
         }
 
-        var sesion = SesionUsuario.actual();
+        sesionVista = SesionUsuario.actual();
+        var sesion = sesionVista;
         if (sesion.idFarmacia() == null || sesion.idFarmacia() <= 0) {
             throw new IllegalStateException("El usuario no tiene farmacia asignada");
         }
@@ -98,6 +101,11 @@ public class ControladorAlertas {
 
         configurarColumnas();
         configurarFilas();
+        btnVerDetalle.setDisable(true);
+        tablaAlertas.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, anterior, actual) ->
+                        btnVerDetalle.setDisable(actual == null));
         configurarFiltros();
         configurarRefresco();
         cargar();
@@ -134,6 +142,14 @@ public class ControladorAlertas {
                     setStyle(EstiloAlertas.estiloFila(
                             EstiloAlertas.nivel(alerta.severidad()), isSelected()));
                 }
+            }
+
+            {
+                setOnMouseClicked(evento -> {
+                    if (evento.getClickCount() == 2 && !isEmpty()) {
+                        onVerDetalle();
+                    }
+                });
             }
 
             @Override
@@ -316,6 +332,33 @@ public class ControladorAlertas {
         } catch (IOException e) {
             lblEstado.setText("No se pudo guardar el archivo: "
                     + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+        }
+    }
+
+    @FXML
+    private void onVerDetalle() {
+        AlertaInventario seleccionada =
+                tablaAlertas.getSelectionModel().getSelectedItem();
+
+        if (seleccionada == null) {
+            lblEstado.setText(
+                    "Seleccione una alerta para consultar su producto o lote.");
+            return;
+        }
+
+        try {
+            if (SesionUsuario.actual() != sesionVista) {
+                lblEstado.setText(
+                        "La sesión ha cambiado. Vuelva a abrir las alertas.");
+                return;
+            }
+
+            CareStockApp.getInstance().mostrarDetalleAlerta(
+                    seleccionada, sesionVista.idFarmacia());
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            lblEstado.setText(
+                    "No fue posible abrir la alerta: " + e.getMessage());
         }
     }
 
