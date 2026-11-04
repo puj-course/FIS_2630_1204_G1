@@ -79,6 +79,11 @@ final class EstiloAlertas {
         return "-fx-background-color: " + LAVANDA_CLARO + "; -fx-text-fill: " + TEXTO_LAVANDA + ";" + BOTON;
     }
 
+    static String estiloBotonAccion() {
+        return "-fx-background-color: " + LAVANDA_CLARO
+                + "; -fx-text-fill: " + TEXTO_LAVANDA + ";" + BOTON;
+    }
+
     static Nivel nivelPorExistencias(int existencias) {
         return existencias <= 0 ? Nivel.CRITICO : Nivel.ADVERTENCIA;
     }

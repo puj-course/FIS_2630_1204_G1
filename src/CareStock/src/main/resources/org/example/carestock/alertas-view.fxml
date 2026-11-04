@@ -102,6 +102,10 @@
             <HBox spacing="12" alignment="CENTER_LEFT">
                 <Label fx:id="lblEstado" text="Consultando..."
                        textFill="#5B6663" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnGestionar"
+                        text="Gestionar alerta"
+                        onAction="#onGestionar"
+                        visible="false" managed="false" disable="true"/>
                 <Button fx:id="btnVerDetalle"
                         text="Ver producto / lote"
                         onAction="#onVerDetalle"

@@ -23,6 +23,7 @@ import org.example.carestock.dto.AlertaInventario.Severidad;
 import org.example.carestock.dto.AlertaInventario.TipoAlerta;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.service.ExportadorAlertasCsv;
+import org.example.carestock.service.PoliticaAccionesAlertas;
 import org.example.carestock.service.ServicioAlertasInventario;
 import org.example.carestock.service.SugerenciaReposicion;
 import org.example.carestock.session.SesionUsuario;
@@ -61,6 +62,7 @@ public class ControladorAlertas {
     @FXML private Button btnActualizar;
     @FXML private Button btnExportarCsv;
     @FXML private Button btnVerDetalle;
+    @FXML private Button btnGestionar;
     @FXML private TableView<AlertaInventario> tablaAlertas;
     @FXML private TableColumn<AlertaInventario, String> colSeveridad;
     @FXML private TableColumn<AlertaInventario, String> colTipo;
@@ -102,10 +104,11 @@ public class ControladorAlertas {
         configurarColumnas();
         configurarFilas();
         btnVerDetalle.setDisable(true);
+        btnGestionar.setStyle(EstiloAlertas.estiloBotonAccion());
         tablaAlertas.getSelectionModel()
                 .selectedItemProperty()
-                .addListener((obs, anterior, actual) ->
-                        btnVerDetalle.setDisable(actual == null));
+                .addListener((obs, anterior, actual) -> actualizarAcciones());
+        actualizarAcciones();
         configurarFiltros();
         configurarRefresco();
         cargar();
@@ -359,6 +362,43 @@ public class ControladorAlertas {
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblEstado.setText(
                     "No fue posible abrir la alerta: " + e.getMessage());
+        }
+    }
+
+    private void actualizarAcciones() {
+        AlertaInventario seleccionada = tablaAlertas.getSelectionModel().getSelectedItem();
+        boolean sesionCorrecta = SesionUsuario.estaActiva()
+                && SesionUsuario.actual() == sesionVista;
+        btnVerDetalle.setDisable(!sesionCorrecta || seleccionada == null);
+        var accion = sesionCorrecta
+                ? PoliticaAccionesAlertas.disponible(
+                        seleccionada, sesionVista, sesionVista.idFarmacia())
+                : java.util.Optional.<PoliticaAccionesAlertas.Accion>empty();
+        boolean permitida = accion.isPresent();
+        btnGestionar.setVisible(permitida);
+        btnGestionar.setManaged(permitida);
+        btnGestionar.setDisable(!permitida);
+        if (permitida) {
+            btnGestionar.setText(accion.get()
+                    == PoliticaAccionesAlertas.Accion.REPONER_STOCK
+                    ? "Reponer existencias" : "Gestionar lote");
+        }
+    }
+
+    @FXML
+    private void onGestionar() {
+        AlertaInventario seleccionada = tablaAlertas.getSelectionModel().getSelectedItem();
+        try {
+            if (!SesionUsuario.estaActiva() || SesionUsuario.actual() != sesionVista) {
+                throw new SecurityException("La sesión ha cambiado.");
+            }
+            PoliticaAccionesAlertas.exigir(
+                    seleccionada, sesionVista, sesionVista.idFarmacia());
+            CareStockApp.getInstance().mostrarGestionAlerta(
+                    seleccionada, sesionVista.idFarmacia());
+        } catch (SecurityException | IllegalArgumentException | IllegalStateException e) {
+            lblEstado.setText("No fue posible gestionar la alerta: " + e.getMessage());
+            actualizarAcciones();
         }
     }
 
