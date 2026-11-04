@@ -12,6 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.service.ServicioAlertasInventario;
 import org.example.carestock.service.ResolucionNavegacionAlertas;
+import org.example.carestock.service.PoliticaAccionesAlertas;
 import org.example.carestock.service.ResolucionNavegacionAlertas.Destino;
 import org.example.carestock.service.ValidadorDispensacion;
 import org.example.carestock.exception.ReglaNegocioException;
@@ -78,6 +79,9 @@ public class ControladorInventario {
     private final ObservableList<Lote> listaLotes;
     private FilteredList<Lote> datosFiltrados;
     private Lote loteSeleccionado;
+    private Integer idMedicamentoAlerta;
+    private boolean cargaInicialEnCurso;
+    private Destino destinoLotePendiente;
     private Predicate<Lote> filtroTexto = lote -> true;
     private Predicate<Lote> filtroEstado = lote -> true;
     private Predicate<Lote> filtroCategoria = lote -> true;
@@ -160,7 +164,7 @@ public class ControladorInventario {
 
         cmbCategoria.getItems().add(CATEGORIA_TODAS);
         cmbCategoria.getSelectionModel().selectFirst();
-        cargarCategorias();
+        // Las categorias se consultan en la carga asincrona.
 
         configurarEstiloFilas();
         configurarFiltroBusqueda();
@@ -181,8 +185,7 @@ public class ControladorInventario {
             }
         });
 
-        cargarDatosTabla();
-        cargarContadoresPorCategoria();
+        cargarDatosInicialesAsync();
     }
 
     public void abrirDesdeAlerta(Destino destino) {
@@ -193,6 +196,12 @@ public class ControladorInventario {
 
             lblLoteSeleccionadoInfo.setText(
                     "La farmacia activa ha cambiado. No es posible abrir el lote.");
+            return;
+        }
+
+        if (cargaInicialEnCurso) {
+            destinoLotePendiente = destino;
+            lblLoteSeleccionadoInfo.setText("Cargando lote solicitado...");
             return;
         }
 
@@ -212,6 +221,21 @@ public class ControladorInventario {
             lblLoteSeleccionadoInfo.setText(
                     "El lote ya no existe o no esta disponible en la farmacia activa.");
         }
+    }
+
+    public void abrirGestionStockMedicamento(Destino destino) {
+        if (destino == null
+                || destino.tipo() != org.example.carestock.dto.AlertaInventario.TipoAlerta.STOCK_MINIMO
+                || destino.categoria() != org.example.carestock.dto.AlertaInventario.Categoria.MEDICAMENTO
+                || !SesionUsuario.estaActiva()
+                || !PoliticaAccionesAlertas.gestorPermitido(SesionUsuario.actual().rol())
+                || !java.util.Objects.equals(destino.idFarmacia(),
+                        SesionUsuario.actual().idFarmacia())) {
+            throw new SecurityException("Sin permiso para reponer este medicamento.");
+        }
+        idMedicamentoAlerta = destino.idReferencia();
+        lblLoteSeleccionadoInfo.setText("Reponer " + destino.producto()
+                + ": seleccione 'Nuevo lote' para registrar la entrada.");
     }
 
     private void configurarFiltroBusqueda() {
@@ -335,7 +359,9 @@ public class ControladorInventario {
     private void onCrearLote() {
         GestorLotesDialogo gestor = new GestorLotesDialogo(
                 tablaLotes.getScene().getWindow());
-        if (gestor.crear()) onRefrescar();
+        boolean creado = idMedicamentoAlerta == null
+                ? gestor.crear() : gestor.crearParaMedicamento(idMedicamentoAlerta);
+        if (creado) onRefrescar();
     }
 
     @FXML
@@ -514,6 +540,164 @@ public class ControladorInventario {
         return confirmacion.showAndWait()
                 .filter(boton -> boton == ButtonType.OK)
                 .isPresent();
+    }
+
+
+    private record DatosInicioDashboard(
+            List<Lote> lotes,
+            Map<Integer, String> categorias,
+            Map<Integer, String> categoriasPorMedicamento,
+            Map<String, Integer> conteos,
+            ServicioAlertasInventario.Resumen alertas) { }
+
+    private void cargarDatosInicialesAsync() {
+        var sesionInicial = SesionUsuario.actual();
+        var fachada = inventario;
+        cargaInicialEnCurso = true;
+
+        lblTotalLotes.setText("Cargando...");
+        lblLoteSeleccionadoInfo.setText("Cargando inventario...");
+
+        Task<DatosInicioDashboard> tarea = new Task<>() {
+            @Override
+            protected DatosInicioDashboard call() throws Exception {
+                Map<Integer, String> categorias =
+                        fachada.listarCategoriasMedicamento();
+
+                List<Lote> lotes = fachada.listarLotes();
+
+                Map<Integer, String> porMedicamento =
+                        fachada.categoriaPorMedicamento();
+
+                Map<String, Integer> conteos =
+                        fachada.contarPorCategoria();
+
+                ServicioAlertasInventario.Resumen resumen = null;
+
+                try {
+                    resumen = fachada.resumenAlertas();
+                } catch (Exception ex) {
+                    LOGGER.log(System.Logger.Level.WARNING,
+                            "No fue posible consultar las alertas", ex);
+                }
+
+                return new DatosInicioDashboard(
+                        lotes, categorias, porMedicamento,
+                        conteos, resumen);
+            }
+        };
+
+        tarea.setOnSucceeded(evento -> {
+            cargaInicialEnCurso = false;
+
+            if (!SesionUsuario.estaActiva()
+                    || SesionUsuario.actual() != sesionInicial) {
+                return;
+            }
+
+            var datos = tarea.getValue();
+
+            cmbCategoria.getItems().addAll(
+                    datos.categorias().values());
+
+            categoriaPorMedicamento =
+                    datos.categoriasPorMedicamento();
+
+            tablaLotes.getSelectionModel().clearSelection();
+            listaLotes.setAll(datos.lotes());
+            aplicarFiltros();
+
+            lblTotalLotes.setText(
+                    String.valueOf(datos.lotes().size()));
+
+            long vencidos = datos.lotes().stream()
+                    .filter(l -> l.getFechaVencimiento() != null
+                            && !l.getFechaVencimiento()
+                                    .isAfter(LocalDate.now()))
+                    .count();
+
+            lblLotesVencidos.setText(Long.toString(vencidos));
+
+            lblTotalMedicamentos.setText(String.valueOf(
+                    datos.conteos().getOrDefault("Medicamento", 0)));
+            lblTotalAseo.setText(String.valueOf(
+                    datos.conteos().getOrDefault("Aseo", 0)));
+            lblTotalMaternidad.setText(String.valueOf(
+                    datos.conteos().getOrDefault("Maternidad", 0)));
+
+            if (datos.alertas() != null) {
+                var resumen = datos.alertas();
+
+                if (lblAlertaStock != null) {
+                    lblAlertaStock.setText(
+                            resumen.stockMinimo() + " productos");
+                }
+                if (lblAlertaVencimiento != null) {
+                    lblAlertaVencimiento.setText(
+                            resumen.vencimiento() + " lotes");
+                }
+                if (badgeNotificaciones != null) {
+                    badgeNotificaciones.setVisible(
+                            resumen.total() > 0);
+                }
+                if (lblContadorNotificaciones != null) {
+                    lblContadorNotificaciones.setText(
+                            String.valueOf(resumen.total()));
+                    lblContadorNotificaciones.setVisible(
+                            resumen.total() > 0);
+                }
+                if (btnAlertas != null) {
+                    mostrarResumenAlertas(resumen);
+                }
+            } else {
+                if (lblAlertaStock != null) {
+                    lblAlertaStock.setText("No disponible");
+                }
+                if (lblAlertaVencimiento != null) {
+                    lblAlertaVencimiento.setText("No disponible");
+                }
+                if (badgeNotificaciones != null) {
+                    badgeNotificaciones.setVisible(false);
+                }
+                if (lblContadorNotificaciones != null) {
+                    lblContadorNotificaciones.setVisible(false);
+                }
+            }
+
+            lblLoteSeleccionadoInfo.setText(
+                    "Ninguno (seleccione un lote)");
+
+            Destino pendiente = destinoLotePendiente;
+            destinoLotePendiente = null;
+
+            if (pendiente != null) {
+                abrirDesdeAlerta(pendiente);
+            }
+        });
+
+        tarea.setOnFailed(evento -> {
+            cargaInicialEnCurso = false;
+            destinoLotePendiente = null;
+
+            if (!SesionUsuario.estaActiva()
+                    || SesionUsuario.actual() != sesionInicial) {
+                return;
+            }
+
+            LOGGER.log(System.Logger.Level.ERROR,
+                    "Error al cargar el inventario inicial",
+                    tarea.getException());
+
+            lblTotalLotes.setText("No disponible");
+            lblLoteSeleccionadoInfo.setText(
+                    "Error al cargar inventario. "
+                    + "Use Refrescar para reintentar.");
+        });
+
+        Thread hilo = new Thread(
+                tarea, "carestock-dashboard-carga");
+        hilo.setDaemon(true);
+        hilo.start();
     }
 
     private void cargarContadoresPorCategoria() {

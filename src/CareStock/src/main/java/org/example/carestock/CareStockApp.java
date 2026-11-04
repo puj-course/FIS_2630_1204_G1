@@ -15,6 +15,8 @@ import org.example.carestock.controller.ConsultaInventarioController;
 import org.example.carestock.dto.AlertaInventario;
 import org.example.carestock.dto.AlertaInventario.TipoAlerta;
 import org.example.carestock.service.ResolucionNavegacionAlertas;
+import org.example.carestock.service.PoliticaAccionesAlertas;
+import org.example.carestock.dto.AlertaInventario.Categoria;
 import java.util.function.Consumer;
 import org.example.carestock.config.PrecalentadorConexionBD;
 
@@ -218,6 +220,34 @@ public class CareStockApp extends Application {
         }
     }
 
+    /** Abre una operación existente; nunca modifica inventario al navegar. */
+    public void mostrarGestionAlerta(AlertaInventario alerta, Integer farmaciaOrigen) {
+        if (!SesionUsuario.estaActiva()) {
+            throw new SecurityException("Debe iniciar sesión para gestionar alertas.");
+        }
+        var sesion = SesionUsuario.actual();
+        var accion = PoliticaAccionesAlertas.exigir(alerta, sesion, farmaciaOrigen);
+        var destino = ResolucionNavegacionAlertas.resolver(
+                alerta, farmaciaOrigen, sesion.idFarmacia());
+
+        if (accion == PoliticaAccionesAlertas.Accion.GESTIONAR_LOTE) {
+            transicionarEscena(
+                    "/org/example/carestock/inventario-view.fxml", 1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirDesdeAlerta(destino));
+        } else if (destino.categoria() == Categoria.MEDICAMENTO) {
+            transicionarEscena(
+                    "/org/example/carestock/inventario-view.fxml", 1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirGestionStockMedicamento(destino));
+        } else {
+            transicionarEscena(
+                    "/org/example/carestock/movimientos-view.fxml", 1100, 750,
+                    controlador -> ((org.example.carestock.controller.ControladorMovimientos) controlador)
+                            .abrirDesdeAlerta(destino));
+        }
+    }
+
     public void mostrarFormularioMovimientos() {
 
         if (!SesionUsuario.estaActiva()) {
@@ -225,11 +255,13 @@ public class CareStockApp extends Application {
             return;
         }
 
-        if (SesionUsuario.actual().idFarmacia() == null) {
+        var sesion = SesionUsuario.actual();
+        if (sesion.idFarmacia() == null || sesion.idFarmacia() <= 0
+                || !PoliticaAccionesAlertas.gestorPermitido(sesion.rol())) {
 
             Alert alerta = new Alert(
                     Alert.AlertType.WARNING,
-                    "Se requiere una farmacia asignada."
+                    "Solo administradores y farmacéuticos de la farmacia activa pueden registrar movimientos."
             );
 
             alerta.setHeaderText(null);

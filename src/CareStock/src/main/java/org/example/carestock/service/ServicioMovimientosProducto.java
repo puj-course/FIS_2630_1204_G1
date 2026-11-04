@@ -68,6 +68,10 @@ public final class ServicioMovimientosProducto {
         );
 
         var sesion = SesionUsuario.actual();
+        if (!PoliticaAccionesAlertas.gestorPermitido(sesion.rol())) {
+            throw new ReglaNegocioException(
+                    "Solo administradores y farmacéuticos pueden registrar movimientos.");
+        }
 
         if (sesion.id() != idUsuario
                 || !Objects.equals(
@@ -246,11 +250,15 @@ public final class ServicioMovimientosProducto {
                 FROM usuarios u
                 INNER JOIN farmacias f
                     ON f.id_farmacia = u.id_farmacia
+                INNER JOIN roles r
+                    ON r.id_rol = u.id_rol
                 WHERE u.id_usuario = ?
                   AND u.id_farmacia = ?
                   AND UPPER(TRIM(u.estado)) = 'ACTIVO'
                   AND UPPER(TRIM(f.estado)) = 'ACTIVA'
-                FOR SHARE OF u, f
+                  AND UPPER(BTRIM(r.nombre_rol)) IN
+                      ('ADMINISTRADOR', 'SUPER_ADMIN', 'FARMACEUTICO')
+                FOR SHARE OF u, f, r
                 """;
 
         try (PreparedStatement ps =

@@ -531,6 +531,7 @@ class NavegacionContextualControladoresTest {
             poner(c, "btnActualizar", new Button());
             poner(c, "btnExportarCsv", new Button());
             poner(c, "btnVerDetalle", new Button());
+            poner(c, "btnGestionar", new Button());
             poner(c, "tablaAlertas",
                     new TableView<AlertaInventario>());
 

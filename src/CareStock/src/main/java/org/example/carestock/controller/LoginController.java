@@ -71,6 +71,12 @@ public class LoginController {
     }
 
 
+    private static final class ErrorDeInicioDeSesion extends Exception {
+        private ErrorDeInicioDeSesion(Exception causa) {
+            super(causa);
+        }
+    }
+
     private boolean correoTocado;
     private boolean contrasenaTocada;
 
@@ -231,7 +237,13 @@ public class LoginController {
         Task<Usuario> tarea = new Task<>() {
             @Override
             protected Usuario call() throws Exception {
-                return authService.autenticar(correo, contrasena);
+                Usuario usuario = authService.autenticar(correo, contrasena);
+                try {
+                    inicioDeSesion.iniciar(usuario);
+                } catch (Exception ex) {
+                    throw new ErrorDeInicioDeSesion(ex);
+                }
+                return usuario;
             }
         };
 
@@ -240,7 +252,6 @@ public class LoginController {
 
             try {
                 guardarCorreo(correo);
-                inicioDeSesion.iniciar(tarea.getValue());
                 abrirDashboard.run();
             } catch (Exception ex) {
                 mostrarMensaje(
@@ -267,6 +278,8 @@ public class LoginController {
             // el listener del campo oculta mensajes anteriores.
             mostrarMensaje(causa instanceof ReglaNegocioException
                     ? causa.getMessage()
+                    : causa instanceof ErrorDeInicioDeSesion
+                    ? "No fue posible abrir la sesión. Inténtalo nuevamente."
                     : "No fue posible verificar las credenciales. "
                       + "Inténtalo nuevamente.");
         });
