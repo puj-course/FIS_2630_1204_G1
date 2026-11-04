@@ -4,6 +4,7 @@ module org.example.carestock {
     requires javafx.swing;
     requires javafx.media;
     requires java.sql;
+    requires java.prefs;
     requires java.net.http;
     requires jbcrypt;
     requires com.zaxxer.hikari;

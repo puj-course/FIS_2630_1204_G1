@@ -8,11 +8,29 @@ import java.util.List;
 
 public class PruebaConexion {
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("Uso: PruebaConexion <idFarmacia>");
+            return;
+        }
+
+        int idFarmacia;
+        try {
+            idFarmacia = Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            System.err.println("El identificador debe ser numerico.");
+            return;
+        }
+
+        if (idFarmacia <= 0) {
+            System.err.println("La farmacia debe tener un ID positivo.");
+            return;
+        }
+
         LoteDAO loteDAO = new LoteDAOImpl();
 
         try {
             System.out.println("Consultando lotes registrados en Neon DB...\n");
-            List<Lote> lotes = loteDAO.listarTodos();
+            List<Lote> lotes = loteDAO.listarPorFarmacia(idFarmacia);
 
             if (lotes.isEmpty()) {
                 System.out.println("ℹ️ No hay lotes registrados actualmente.");

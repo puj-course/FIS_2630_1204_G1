@@ -1,0 +1,104 @@
+.login-root {
+    -fx-font-family: "System";
+    -fx-background-color: #F8FAF8;
+    -fx-accent: #8366BE;
+    -fx-focus-color: #8366BE;
+    -fx-faint-focus-color: rgba(131,102,190,0.18);
+}
+
+.login-side {
+    -fx-background-color: #A7D8D8;
+}
+
+.login-heading {
+    -fx-text-fill: #153532;
+    -fx-font-weight: bold;
+}
+
+.login-side-description {
+    -fx-text-fill: #234A46;
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-border-color: #E5DCF1;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(
+        gaussian, rgba(48,38,69,0.15), 18, 0.12, 0, 6
+    );
+    -fx-padding: 32 36 32 36;
+}
+
+.login-muted {
+    -fx-text-fill: #495C59;
+}
+
+.login-input {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #98A7A4;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 0 12;
+    -fx-font-size: 13px;
+}
+
+.login-input:focused {
+    -fx-border-color: #8065BC;
+    -fx-border-width: 2;
+}
+
+.login-input:invalido {
+    -fx-border-color: #B63C45;
+    -fx-border-width: 2;
+}
+
+.login-error {
+    -fx-text-fill: #A52C3B;
+    -fx-font-size: 11px;
+}
+
+.login-eye {
+    -fx-background-color: transparent;
+    -fx-text-fill: #465957;
+    -fx-font-size: 17px;
+    -fx-cursor: hand;
+    -fx-padding: 4 9;
+}
+
+.login-eye:hover {
+    -fx-background-color: #F1EBF8;
+    -fx-background-radius: 6;
+}
+
+.login-action {
+    -fx-background-color: #8062BF;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.login-action:hover {
+    -fx-background-color: #67469E;
+}
+
+.login-action:pressed {
+    -fx-background-color: #50317F;
+}
+
+.login-action:disabled {
+    -fx-opacity: 0.68;
+}
+
+.login-notification {
+    -fx-background-color: #FCEDEE;
+    -fx-border-color: #E9A9AD;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 10 12;
+    -fx-text-fill: #8D2333;
+    -fx-font-size: 11px;
+}
