@@ -151,9 +151,11 @@ class AuthenticationServiceSeguridadAdicionalTest {
         when(dao.buscarPorEmail("ana@test.local"))
                 .thenThrow(error);
 
+        AuthenticationService auth = servicio(dao);
+
         Exception recibido = assertThrows(
                 Exception.class,
-                () -> servicio(dao).autenticar(
+                () -> auth.autenticar(
                         "ana@test.local", CLAVE));
 
         assertSame(error, recibido);
