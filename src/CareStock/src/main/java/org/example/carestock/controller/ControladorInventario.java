@@ -72,6 +72,7 @@ public class ControladorInventario {
     @FXML private Button btnCampana;
     @FXML private javafx.scene.shape.Circle badgeNotificaciones;
     @FXML private Label lblContadorNotificaciones;
+    @FXML private Button btnGenerarQR;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -850,5 +851,37 @@ public class ControladorInventario {
             LOGGER.log(System.Logger.Level.ERROR, "No fue posible cargar las notificaciones.", e);
         }
         contextMenu.show(btnCampana, javafx.geometry.Side.BOTTOM, 0, 0);
+    }
+        @FXML
+    private void onGenerarQR() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Selecciona un lote de la tabla para generar su código QR.");
+            return;
+        }
+
+        try {
+            String textoQR = "Lote: " + loteSeleccionado.getNumeroLote() + 
+                             "\nMedicamento ID: " + loteSeleccionado.getIdMedicamento() + 
+                             "\nVence: " + loteSeleccionado.getFechaVencimiento();
+
+            javafx.scene.image.Image imagenQR = org.example.carestock.utils.GeneradorQR.generar(textoQR, 250);
+            javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+            dialog.setTitle("Código QR del Lote");
+            dialog.setHeaderText("QR generado para el lote: " + loteSeleccionado.getNumeroLote());
+            javafx.scene.control.ButtonType btnCerrar = new javafx.scene.control.ButtonType("Cerrar", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+            dialog.getDialogPane().getButtonTypes().add(btnCerrar);
+            javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10);
+            vbox.setAlignment(javafx.geometry.Pos.CENTER);
+            vbox.setPadding(new javafx.geometry.Insets(20));
+            javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(imagenQR);
+            javafx.scene.control.Label lblInfo = new javafx.scene.control.Label(textoQR);
+            lblInfo.setStyle("-fx-font-size: 12px; -fx-text-fill: #20302F;");
+            vbox.getChildren().addAll(imageView, lblInfo);
+            dialog.getDialogPane().setContent(vbox);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo generar el código QR: " + e.getMessage());
+        }
     }
 }
