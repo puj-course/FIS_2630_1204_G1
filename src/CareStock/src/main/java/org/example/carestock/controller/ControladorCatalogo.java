@@ -1158,4 +1158,71 @@ public class ControladorCatalogo {
         }
         return stockActual + cantidadAComprar;
     }
+        @FXML
+    private void onSimularCompra() {
+        if (seleccionado == null) {
+            advertencia("Seleccione un producto de la tabla para simular la compra.");
+            return;
+        }
+
+        int stockActual = stock(seleccionado.producto());
+        String nombreProd = nombre(seleccionado.producto());
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Simulador de Compra (What-If)");
+        dialog.setHeaderText("Simulando compra para: " + nombreProd);
+
+        ButtonType btnCerrar = new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(btnCerrar);
+
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new javafx.geometry.Insets(10, 20, 10, 20));
+
+        Label lblStock = new Label("Stock actual: " + stockActual);
+        lblStock.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Label lblCantidad = new Label("Cantidad a comprar:");
+        TextField txtCantidadCompra = new TextField();
+        txtCantidadCompra.setPromptText("Ej: 50");
+
+        Button btnCalcular = new Button("Calcular");
+        btnCalcular.setStyle("-fx-background-color: #B7A6E0; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        Label lblResultado = new Label("");
+        lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
+
+        btnCalcular.setOnAction(e -> {
+            try {
+                int cantidad = Integer.parseInt(txtCantidadCompra.getText().trim());
+                
+                int nuevoStock = simularCompra(stockActual, cantidad);
+                
+                lblResultado.setText("Nuevo stock hipotético: " + nuevoStock + " unidades.");
+                
+                Integer minimo = stockMinimoDe(seleccionado.producto());
+                if (minimo != null) {
+                    if (stockActual <= minimo && nuevoStock > minimo) {
+                        lblResultado.setText(lblResultado.getText() + "\n✅ ¡El producto saldría de la alerta de stock mínimo!");
+                        lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #27AE60; -fx-font-weight: bold;");
+                    } else if (nuevoStock <= minimo) {
+                        lblResultado.setText(lblResultado.getText() + "\n⚠️ Aún seguiría en alerta de stock mínimo.");
+                        lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #E67E22; -fx-font-weight: bold;");
+                    } else {
+                         lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
+                    }
+                }
+            } catch (NumberFormatException ex) {
+                lblResultado.setText("Error: Ingrese un número entero válido.");
+                lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+            } catch (IllegalArgumentException ex) {
+                lblResultado.setText("Error: " + ex.getMessage());
+                lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+            }
+        });
+
+        vbox.getChildren().addAll(lblStock, new Separator(), lblCantidad, txtCantidadCompra, btnCalcular, new Separator(), lblResultado);
+        dialog.getDialogPane().setContent(vbox);
+
+        dialog.showAndWait();
+    }
 }
