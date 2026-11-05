@@ -348,6 +348,10 @@
                                                 <Button text="Desactivar"
                                                         onAction="#onDesactivar"
                                                         style="-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
+
+                                                <Button text="Simular Compra"
+                                                        onAction="#onSimularCompra"
+                                                        style="-fx-background-color: #A7D8D8; -fx-text-fill: #20302F; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
                                             </children>
                                         </HBox>
 
