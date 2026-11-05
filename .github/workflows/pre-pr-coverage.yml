@@ -1,0 +1,148 @@
+name: Pre-PR - Cobertura de codigo nuevo
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: carestock-pre-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cobertura:
+    name: Pruebas y cobertura nueva >= 80%
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    steps:
+      - name: Descargar repositorio e historial
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: src/CareStock/pom.xml
+
+      - name: Preparar Maven Wrapper
+        working-directory: src/CareStock
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
+
+      - name: Preparar pantalla virtual JavaFX
+        run: |
+          if ! command -v xvfb-run >/dev/null 2>&1 || ! command -v xauth >/dev/null 2>&1; then
+            sudo apt-get update -o Acquire::Retries=1
+            sudo apt-get install -y --no-install-recommends xvfb xauth
+          fi
+
+      - name: Ejecutar JUnit y generar JaCoCo
+        working-directory: src/CareStock
+        run: xvfb-run -a -s '-screen 0 1920x1080x24' ./mvnw -B -ntp clean verify
+
+      - name: Comprobar cobertura de codigo nuevo frente a main
+        run: |
+          git fetch --no-tags origin main
+          test -s src/CareStock/target/site/jacoco/jacoco.xml || {
+            echo '::error::No se genero el informe JaCoCo XML.'
+            exit 1
+          }
+          python3 - <<'PY'
+          import re
+          import subprocess
+          import sys
+          import xml.etree.ElementTree as ET
+          from collections import defaultdict
+          from pathlib import Path
+
+          source_root = 'src/CareStock/src/main/java/'
+          report = Path('src/CareStock/target/site/jacoco/jacoco.xml')
+          diff = subprocess.check_output([
+              'git', 'diff', '--no-ext-diff', '--no-renames', '--unified=0',
+              'origin/main...HEAD', '--', source_root
+          ], text=True)
+
+          changed = defaultdict(set)
+          file = None
+          for line in diff.splitlines():
+              if line.startswith('+++ b/'):
+                  path = line[6:]
+                  file = path[len(source_root):] if path.startswith(source_root) and path.endswith('.java') else None
+              elif line.startswith('@@ ') and file:
+                  match = re.match(r'@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@', line)
+                  if match:
+                      first = int(match.group(1))
+                      length = int(match.group(2) or 1)
+                      changed[file].update(range(first, first + length))
+
+          if not changed:
+              print('No se modifico codigo Java de produccion; control de cobertura no aplica.')
+              sys.exit(0)
+
+          jacoco = {}
+          for package in ET.parse(report).getroot().findall('package'):
+              folder = package.get('name', '')
+              for source in package.findall('sourcefile'):
+                  path = f"{folder}/{source.get('name')}".lstrip('/')
+                  jacoco[path] = {
+                      int(line.get('nr')): (
+                          int(line.get('ci', 0)),
+                          int(line.get('mb', 0)),
+                          int(line.get('cb', 0)),
+                      )
+                      for line in source.findall('line')
+                  }
+
+          total_lines = covered_lines = total_branches = covered_branches = 0
+          for file, lines in sorted(changed.items()):
+              if file in ('module-info.java', 'package-info.java'):
+                  continue
+              if file not in jacoco:
+                  print(f'::error::JaCoCo no reporto el archivo cambiado: {file}')
+                  sys.exit(1)
+              for number in lines:
+                  counters = jacoco[file].get(number)
+                  if counters is None:
+                      continue
+                  instructions_covered, missed_branches, hit_branches = counters
+                  total_lines += 1
+                  covered_lines += int(instructions_covered > 0)
+                  total_branches += missed_branches + hit_branches
+                  covered_branches += hit_branches
+
+          total = total_lines + total_branches
+          passed = covered_lines + covered_branches
+          if total == 0:
+              print('Cambios Java sin lineas ejecutables nuevas; control de cobertura no aplica.')
+              sys.exit(0)
+
+          rate = 100 * passed / total
+          print(f'Cobertura estimada de codigo nuevo: {rate:.2f}% (minimo 80%)')
+          print(f'Lineas cubiertas: {covered_lines}/{total_lines}')
+          print(f'Ramas cubiertas: {covered_branches}/{total_branches}')
+          if rate < 80:
+              print(f'::error::Cobertura nueva {rate:.2f}% < 80%. Agrega pruebas antes del PR.')
+              sys.exit(1)
+          print('Control aprobado. SonarQube validara el Quality Gate exacto en el PR.')
+          PY
+
+      - name: Publicar evidencia de pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-pre-pr
+          path: |
+            src/CareStock/target/surefire-reports/
+            src/CareStock/target/site/jacoco/
+          if-no-files-found: warn
+          retention-days: 14
