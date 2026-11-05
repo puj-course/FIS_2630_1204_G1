@@ -1191,9 +1191,25 @@ public class ControladorCatalogo {
         Label lblResultado = new Label("");
         lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
 
+                // Acción del botón Calcular
         btnCalcular.setOnAction(e -> {
             try {
-                int cantidad = Integer.parseInt(txtCantidadCompra.getText().trim());
+                String textoCantidad = txtCantidadCompra.getText().trim();
+                
+                if (textoCantidad.isEmpty()) {
+                    throw new IllegalArgumentException("Debe ingresar una cantidad.");
+                }
+
+                int cantidad;
+                try {
+                    cantidad = Integer.parseInt(textoCantidad);
+                } catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException("Ingrese solo números enteros.");
+                }
+
+                if (cantidad <= 0) {
+                    throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+                }
                 
                 int nuevoStock = simularCompra(stockActual, cantidad);
                 
@@ -1202,20 +1218,20 @@ public class ControladorCatalogo {
                 Integer minimo = stockMinimoDe(seleccionado.producto());
                 if (minimo != null) {
                     if (stockActual <= minimo && nuevoStock > minimo) {
-                        lblResultado.setText(lblResultado.getText() + "\n✅ ¡El producto saldría de la alerta de stock mínimo!");
+                        lblResultado.setText(lblResultado.getText() + "\n✅ ¡El producto pasaría de Stock Bajo a Stock Óptimo!");
                         lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #27AE60; -fx-font-weight: bold;");
                     } else if (nuevoStock <= minimo) {
-                        lblResultado.setText(lblResultado.getText() + "\n⚠️ Aún seguiría en alerta de stock mínimo.");
+                        lblResultado.setText(lblResultado.getText() + "\n⚠️ El producto aún seguiría en alerta de Stock Bajo.");
                         lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #E67E22; -fx-font-weight: bold;");
                     } else {
                          lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
                     }
                 }
-            } catch (NumberFormatException ex) {
-                lblResultado.setText("Error: Ingrese un número entero válido.");
-                lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
             } catch (IllegalArgumentException ex) {
                 lblResultado.setText("Error: " + ex.getMessage());
+                lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+            } catch (Exception ex) {
+                lblResultado.setText("Error inesperado: " + ex.getMessage());
                 lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
             }
         });
