@@ -235,6 +235,11 @@
                         <Button text="Actualizar tabla"
                                 onAction="#onRefrescar"
                                 style="-fx-background-color: #B7A6E0; -fx-text-fill: #FFFFFF; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 18;" />
+                        
+                        <Button fx:id="btnGenerarQR"
+                                text="Generar QR"
+                                onAction="#onGenerarQR"
+                                style="-fx-background-color: #E3F3F2; -fx-text-fill: #0E7C7B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 16;" />
 
                     </children>
                 </HBox>
