@@ -1,0 +1,56 @@
+name: Telegram - Actividad CareStock
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review, converted_to_draft, closed, assigned, unassigned, labeled, unlabeled, review_requested, review_request_removed]
+  pull_request_review:
+    types: [submitted, dismissed]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, edited, reopened, closed, assigned, unassigned, labeled, unlabeled]
+  issue_comment:
+    types: [created]
+  commit_comment:
+    types: [created]
+  create:
+  delete:
+  release:
+    types: [published]
+  workflow_run:
+    workflows:
+      - CI - CareStock
+      - CD - CareStock
+      - SonarQube - Analisis de calidad
+      - Release Windows - CareStock
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  enviar-telegram:
+    if: >-
+      (github.event_name != 'pull_request' &&
+       github.event_name != 'pull_request_review' &&
+       github.event_name != 'pull_request_review_comment') ||
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+
+    steps:
+      - name: Descargar codigo confiable de main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Enviar actividad al grupo
+        if: hashFiles('scripts/notificar_telegram.py') != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 scripts/notificar_telegram.py
