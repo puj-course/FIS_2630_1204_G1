@@ -1148,4 +1148,14 @@ public class ControladorCatalogo {
 
         alertaError.showAndWait();
     }
+    // ========================================
+    // SIMULADOR DE COMPRAS 
+    // ========================================
+
+    public int simularCompra(int stockActual, int cantidadAComprar) {
+        if (cantidadAComprar <= 0) {
+            throw new IllegalArgumentException("La cantidad a comprar debe ser mayor a cero.");
+        }
+        return stockActual + cantidadAComprar;
+    }
 }
