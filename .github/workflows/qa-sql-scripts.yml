@@ -1,0 +1,123 @@
+name: QA - SQL y scripts
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar-scripts:
+    name: Analisis estatico de Shell, PowerShell y Python
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validar sintaxis Shell
+        run: bash -n scripts/*.sh src/CareStock/recopilar-carestock.sh
+
+      - name: Revisar ShellCheck (errores)
+        run: |
+          shellcheck --severity=error \
+            scripts/*.sh \
+            src/CareStock/recopilar-carestock.sh
+
+      - name: Validar sintaxis Python
+        run: |
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+
+          for archivo in sorted(Path('scripts').rglob('*.py')):
+              ast.parse(
+                  archivo.read_text(encoding='utf-8'),
+                  filename=str(archivo)
+              )
+              print(f'Python OK: {archivo}')
+          PY
+
+      - name: Validar sintaxis PowerShell
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          foreach ($archivo in (Get-ChildItem scripts -Filter '*.ps1' -File)) {
+            $tokens = $null
+            $errores = $null
+
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              $archivo.FullName, [ref]$tokens, [ref]$errores
+            )
+
+            if ($errores.Count -gt 0) {
+              $errores | ForEach-Object {
+                Write-Error $_.ToString()
+              }
+              throw "Error de sintaxis en $($archivo.Name)"
+            }
+
+            Write-Host "PowerShell OK: $($archivo.Name)"
+          }
+
+  postgres:
+    name: PostgreSQL 16 - Integracion SMS (12 casos)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: carestock_ci
+          POSTGRES_DB: carestock_ci
+          POSTGRES_PASSWORD: local_qa_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U carestock_ci -d carestock_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: carestock_ci
+      PGPASSWORD: local_qa_only
+      PGDATABASE: carestock_ci
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Ejecutar migraciones y pruebas SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          psql --version
+
+          archivos=(
+            src/sql/ddl/01_schema_carestock.sql
+            src/sql/ddl/02_functions_triggers.sql
+            src/sql/ddl/04_multifarmacia_inventario.sql
+            src/sql/ddl/05_superadmin_jerarquia_usuarios_issue_456.sql
+            src/sql/ddl/12_tablas_aseo_maternidad.sql
+            scripts/migrations/885_sms_alertas.sql
+            scripts/tests/926_pre_migracion.sql
+            scripts/migrations/926_sms_destinatarios_preferencias.sql
+            scripts/tests/926_pruebas_integracion.sql
+          )
+
+          for archivo in "${archivos[@]}"; do
+            echo "::group::SQL $archivo"
+            psql -X -v ON_ERROR_STOP=1 -f "$archivo"
+            echo '::endgroup::'
+          done
+
+          echo 'Pruebas SQL finalizadas sin errores.'

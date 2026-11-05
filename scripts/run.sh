@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-cd "$(dirname "$0")/.."
-
-if [ ! -f ".env" ]; then
-    echo "ERROR: No existe el archivo .env"
-    exit 1
+# Compatibilidad con configuraciones locales existentes.
+if [[ -f "$RAIZ/.env" ]]; then
+  set -a
+  source "$RAIZ/.env"
+  set +a
 fi
 
-set -a
-source .env
-set +a
+cd "$RAIZ/src/CareStock"
 
-echo "=== CareStock ==="
-echo "Compilando y ejecutando pruebas..."
+echo '=== CareStock: compilacion y pruebas ==='
+bash ./mvnw -B -ntp clean verify
 
-./mvnw clean verify
-
-echo "Compilacion correcta."
-echo "Iniciando CareStock..."
-
-./mvnw javafx:run
+echo '=== Iniciando JavaFX ==='
+bash ./mvnw -B -ntp javafx:run

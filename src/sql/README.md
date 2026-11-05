@@ -24,23 +24,6 @@ La selección automática de la farmacia desde la sesión se integra posteriorme
 mediante el contexto de sesión y la vista de inventario.
 
 
-## Contexto de farmacia de usuarios - Issue #456
-
-Después de la migración multifarmacia de inventario, ejecutar:
-
-8. `ddl/05_usuario_farmacia_issue_456.sql`
-
-Esta migración:
-
-- incorpora `id_farmacia` en `USUARIOS`;
-- asocia los usuarios existentes con la Farmacia Principal;
-- incorpora la relación entre usuario y farmacia;
-- actualiza `fn_crear_usuario` para recibir la farmacia obtenida desde la sesión;
-- evita que `id_farmacia` tenga que ser ingresado manualmente desde JavaFX.
-
-La columna se conserva nullable para permitir posteriormente roles globales
-como `SUPER_ADMIN`, cuya definición de permisos se implementará por separado.
-
 ## Contexto de farmacia y administración jerárquica - Issue #456
 
 Después de la migración multifarmacia #457 ejecutar:
