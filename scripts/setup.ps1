@@ -1,10 +1,20 @@
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
+$raiz = Split-Path -Parent $PSScriptRoot
+$proyecto = Join-Path $raiz 'src/CareStock'
 
-if (-not (Get-Command java -ErrorAction SilentlyContinue)) { throw "Java no está instalado o no está en PATH." }
-if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) { throw "Maven no está instalado o no está en PATH." }
+if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
+    throw 'Falta Java 21 en PATH.'
+}
 
-java -version
-mvn -version
-mvn clean test
+Push-Location $proyecto
+try {
+    java -version
+    & .\mvnw.cmd -B -ntp clean test
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Fallaron las pruebas Maven.'
+    }
+} finally {
+    Pop-Location
+}
 
-Write-Host "CareStock listo. Configure DB_URL, DB_USER, DB_PASSWORD y CARESTOCK_USER_EMAIL antes de ejecutar."
+Write-Host 'Configuracion comprobada.'

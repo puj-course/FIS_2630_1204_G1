@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# En el estado actual, "deploy" valida y empaqueta el artefacto Java.
-# La aplicación es de escritorio JavaFX; no se despliega como servidor web.
-mvn -B clean package
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$RAIZ/src/CareStock"
 
-echo "Artefacto generado en target/."
+# CareStock es una aplicacion JavaFX de escritorio.
+bash ./mvnw -B -ntp clean package
+
+echo "Artefacto generado en $RAIZ/src/CareStock/target/"
