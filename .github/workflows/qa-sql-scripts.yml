@@ -106,6 +106,7 @@ jobs:
             src/sql/ddl/01_schema_carestock.sql
             src/sql/ddl/02_functions_triggers.sql
             src/sql/ddl/04_multifarmacia_inventario.sql
+            scripts/tests/ci_admin_inicial.sql
             src/sql/ddl/05_superadmin_jerarquia_usuarios_issue_456.sql
             src/sql/ddl/12_tablas_aseo_maternidad.sql
             scripts/migrations/885_sms_alertas.sql
