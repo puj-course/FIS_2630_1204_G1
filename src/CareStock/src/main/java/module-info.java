@@ -8,6 +8,9 @@ module org.example.carestock {
     requires java.net.http;
     requires jbcrypt;
     requires com.zaxxer.hikari;
+    requires java.desktop;
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -18,6 +21,7 @@ module org.example.carestock {
     opens org.example.carestock to javafx.fxml;
     opens org.example.carestock.model to javafx.fxml, javafx.base;
     opens org.example.carestock.controller to javafx.fxml;
+    opens org.example.carestock.utils to javafx.fxml;
 
     exports org.example.carestock;
     exports org.example.carestock.model;
@@ -31,5 +35,6 @@ module org.example.carestock {
     exports org.example.carestock.factory;
     exports org.example.carestock.DataTransferObject;
     exports org.example.carestock.session;
+    exports org.example.carestock.utils;
     requires org.slf4j.simple;
 }
