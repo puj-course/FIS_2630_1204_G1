@@ -1,0 +1,59 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -----------------------< org.example:CareStock >------------------------
+[INFO] Building CareStock 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- jacoco-maven-plugin:0.8.15:prepare-agent (prepare-agent) @ CareStock ---
+[INFO] argLine set to -javaagent:C:\\Users\\mateo\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.15\\org.jacoco.agent-0.8.15-runtime.jar=destfile=C:\\Users\\mateo\\Desktop\\FIS_2630_1204_G1\\src\\CareStock\\target\\jacoco.exec
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ CareStock ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 11 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ CareStock ---
+[WARNING] ***************************************************************************************************************************************
+[WARNING] * Required filename-based automodules detected: [jbcrypt-0.4.jar]. Please don't publish this project to a public artifact repository! *
+[WARNING] ***************************************************************************************************************************************
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 108 source files with javac [debug release 21 module-path] to target\classes
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ CareStock ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ CareStock ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 81 source files with javac [debug release 21 module-path] to target\test-classes
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/dao/LoteDaoJdbcTest.java: Some input files use or override a deprecated API.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/dao/LoteDaoJdbcTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/controller/ControladorCatalogoFormularioFxTest.java: C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\src\test\java\org\example\carestock\controller\ControladorCatalogoFormularioFxTest.java uses unchecked or unsafe operations.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/controller/ControladorCatalogoFormularioFxTest.java: Recompile with -Xlint:unchecked for details.
+[INFO]
+[INFO] --- maven-surefire-plugin:3.2.5:test (default-test) @ CareStock ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.example.carestock.service.RegistroReposicionTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.268 s -- in org.example.carestock.service.RegistroReposicionTest
+[INFO] Running org.example.carestock.service.ServicioPlanificacionReposicionTest
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\mateo\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.7\byte-buddy-agent-1.17.7.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.044 s -- in org.example.carestock.service.ServicioPlanificacionReposicionTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  37.446 s
+[INFO] Finished at: 2026-11-06T12:30:03-05:00
+[INFO] ------------------------------------------------------------------------
