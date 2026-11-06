@@ -3,9 +3,17 @@ package org.example.carestock.controller;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
+import java.util.Locale;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.geometry.Pos;
+import javafx.application.Platform;
 
 import org.example.carestock.CareStockApp;
 import org.example.carestock.DataTransferObject.LecturaCampos;
@@ -42,6 +50,19 @@ public class ControladorCatalogo {
     // ========================================
 
     @FXML private ComboBox<String> cmbCategoria;
+    @FXML private TextField txtBuscar;
+    @FXML private StackPane capaFormulario;
+    private boolean capaFormularioEnVentana;
+    @FXML private Button btnEditarCatalogo;
+    @FXML private Button btnLimpiar;
+    @FXML private Button btnRegistrarFormulario;
+    @FXML private Button btnActualizarFormulario;
+    @FXML private Button btnDesactivarFormulario;
+    @FXML private Button btnSimularFormulario;
+
+    private List<RegistroCatalogo<?>> registrosCompletos = List.of();
+    private boolean cargaCategoriaExitosa;
+
 
     @FXML
     private TableView<RegistroCatalogo<?>> tablaProductos;
@@ -116,6 +137,12 @@ public class ControladorCatalogo {
 
     private Inventario inventario;
     private RegistroCatalogo<?> seleccionado;
+    private Runnable alActualizarIndicadores = () -> { };
+
+    public void alActualizarIndicadores(Runnable accion) {
+        this.alActualizarIndicadores =
+                java.util.Objects.requireNonNull(accion);
+    }
 
     public record CategoriaMedicamento(
             int id,
@@ -130,8 +157,6 @@ public class ControladorCatalogo {
     // ========================================
     // INICIALIZACION
     // ========================================
-    @FXML private Button btnLimpiar;
-
     @FXML
     public void initialize() {
 
@@ -159,12 +184,20 @@ public class ControladorCatalogo {
         configurarTabla();
         configurarSeleccion();
         configurarCategorias();
+        configurarBusqueda();
 
         cmbCategoria.getSelectionModel()
                 .select("Medicamentos");
 
         boolean puedeEditar = SesionUsuario.esAdministrador();
         panelFormulario.setDisable(!puedeEditar);
+
+        if (btnLimpiar != null) {
+            btnLimpiar.setDisable(!puedeEditar);
+        }
+        if (btnEditarCatalogo != null) {
+            btnEditarCatalogo.setDisable(!puedeEditar);
+        }
         if (!puedeEditar) {
             lblEstado.setText("Modo consulta: solo ADMINISTRADOR puede modificar productos.");
         }
@@ -199,7 +232,7 @@ public class ControladorCatalogo {
             lblEstado.setText(
                     "Formulario listo para registrar."
             );
-            txtCodigo.requestFocus();
+            mostrarFormulario(true);
             return;
         }
 
@@ -209,6 +242,7 @@ public class ControladorCatalogo {
             if (fila.id() == idProducto.intValue()) {
                 tablaProductos.getSelectionModel().select(fila);
                 tablaProductos.scrollTo(fila);
+                mostrarFormulario(false);
                 return;
             }
         }
@@ -474,6 +508,9 @@ public class ControladorCatalogo {
                         cargarCategoriasMedicamento();
                     }
 
+                    if (txtBuscar != null) {
+                        txtBuscar.clear();
+                    }
                     cargarTabla();
                 });
     }
@@ -487,6 +524,177 @@ public class ControladorCatalogo {
         panel.setManaged(mostrar);
     }
 
+
+    public String categoriaActual() {
+        return cmbCategoria.getValue();
+    }
+
+    public List<RegistroCatalogo<?>> registrosDeCategoria() {
+        if (!cargaCategoriaExitosa) {
+            throw new IllegalStateException(
+                    "No se pudo consultar el catalogo");
+        }
+        return List.copyOf(registrosCompletos);
+    }
+
+
+    private void configurarBusqueda() {
+        if (txtBuscar != null) {
+            txtBuscar.textProperty().addListener(
+                    (obs, anterior, actual) -> actualizarBusqueda());
+        }
+    }
+
+    private void actualizarBusqueda() {
+        if (txtBuscar == null || tablaProductos == null) {
+            return;
+        }
+
+        String filtro = txtBuscar.getText() == null
+                ? ""
+                : txtBuscar.getText().trim()
+                        .toLowerCase(Locale.ROOT);
+
+        var encontrados = registrosCompletos.stream()
+                .filter(registro -> {
+                    Object producto = registro.producto();
+
+                    return (registro.id() + " "
+                            + codigo(producto) + " "
+                            + nombre(producto) + " "
+                            + descripcion(producto))
+                            .toLowerCase(Locale.ROOT)
+                            .contains(filtro);
+                })
+                .toList();
+
+        tablaProductos.setItems(
+                FXCollections.observableArrayList(encontrados));
+    }
+
+    private void mostrarFormulario(boolean nuevo) {
+        if (capaFormulario == null) {
+            return;
+        }
+
+        habilitarAccion(btnRegistrarFormulario, nuevo);
+        habilitarAccion(btnActualizarFormulario, !nuevo);
+        habilitarAccion(btnDesactivarFormulario, !nuevo);
+        habilitarAccion(btnSimularFormulario, !nuevo);
+
+        capaFormulario.setManaged(true);
+        capaFormulario.setVisible(true);
+        Platform.runLater(this::instalarCapaEnVentana);
+
+        Platform.runLater(() -> txtCodigo.requestFocus());
+    }
+
+    
+    /**
+     * Integra el formulario sobre la ventana principal.
+     * No crea otra Stage ni modifica el CRUD.
+     */
+    private void instalarCapaEnVentana() {
+        if (capaFormularioEnVentana || capaFormulario == null) {
+            return;
+        }
+
+        Scene escena = capaFormulario.getScene();
+
+        if (escena == null) {
+            return;
+        }
+
+        if (!(capaFormulario.getParent() instanceof Pane contenedor)) {
+            throw new IllegalStateException(
+                    "Contenedor del formulario no encontrado");
+        }
+
+        Parent raizActual = escena.getRoot();
+        StackPane raizSuperpuesta = new StackPane();
+
+        // Retirar la capa de su contenedor original.
+        contenedor.getChildren().remove(capaFormulario);
+
+        // Mantener el dashboard y superponer el formulario.
+        escena.setRoot(raizSuperpuesta);
+
+        raizSuperpuesta.getChildren().addAll(
+                raizActual, capaFormulario);
+
+        // Mantener el dashboard fijo y alineado arriba.
+        StackPane.setAlignment(raizActual, Pos.TOP_LEFT);
+
+        // Evitar que su tamano preferido desplace
+        // o recorte la barra superior.
+        if (raizActual instanceof Region fondoDashboard) {
+            fondoDashboard.setMinSize(0, 0);
+            fondoDashboard.setMaxSize(
+                    Double.MAX_VALUE,
+                    Double.MAX_VALUE);
+        }
+
+        // La capa modal ocupa el espacio disponible.
+        // Solo el formulario interior se centra.
+        capaFormulario.setMinSize(0, 0);
+
+
+        // La capa oscura ocupa toda la ventana.
+        capaFormulario.setMaxSize(
+                Double.MAX_VALUE, Double.MAX_VALUE);
+
+        StackPane.setAlignment(
+                capaFormulario, Pos.CENTER);
+
+        capaFormulario.toFront();
+
+        // Limitar el formulario y conservar su scroll.
+        if (!capaFormulario.getChildren().isEmpty()
+                && capaFormulario.getChildren().get(0) instanceof Region panel) {
+
+            panel.setMaxWidth(980);
+            panel.setMaxHeight(620);
+
+            StackPane.setAlignment(panel, Pos.CENTER);
+        }
+
+        capaFormularioEnVentana = true;
+    }
+
+private static void habilitarAccion(
+            Button boton, boolean mostrar) {
+
+        if (boton != null) {
+            boton.setVisible(mostrar);
+            boton.setManaged(mostrar);
+        }
+    }
+
+    @FXML
+    private void onCerrarFormulario() {
+        if (capaFormulario == null) {
+            return;
+        }
+
+        capaFormulario.setVisible(false);
+        capaFormulario.setManaged(false);
+    }
+
+    @FXML
+    private void onEditarSeleccionado() {
+        if (!validarPermisoEdicion()) {
+            return;
+        }
+
+        if (seleccionado == null) {
+            advertencia(
+                    "Seleccione primero un producto de la tabla.");
+            return;
+        }
+
+        mostrarFormulario(false);
+    }
+
     // ========================================
     // CONSULTAR PRODUCTOS
     // ========================================
@@ -497,6 +705,7 @@ public class ControladorCatalogo {
             return;
         }
 
+        cargaCategoriaExitosa = false;
         try {
 
             List<RegistroCatalogo<?>> datos =
@@ -519,9 +728,12 @@ public class ControladorCatalogo {
                         );
             }
 
+            registrosCompletos = List.copyOf(datos);
+
             tablaProductos.setItems(
-                    FXCollections.observableArrayList(datos)
-            );
+                    FXCollections.observableArrayList(datos));
+
+            actualizarBusqueda();
 
             lblEstado.setText(
                     "Se cargaron " + datos.size()
@@ -529,11 +741,21 @@ public class ControladorCatalogo {
                             + cmbCategoria.getValue() + "."
             );
 
+            cargaCategoriaExitosa = true;
+            actualizarBusqueda();
+            alActualizarIndicadores.run();
+
         } catch (Exception e) {
 
+            registrosCompletos = List.of();
+
             tablaProductos.setItems(
-                    FXCollections.observableArrayList()
-            );
+                    FXCollections.observableArrayList());
+
+            actualizarBusqueda();
+
+            actualizarBusqueda();
+            alActualizarIndicadores.run();
 
             mostrarError(
                     "No se pudo cargar el catalogo",
@@ -599,6 +821,7 @@ public class ControladorCatalogo {
         }
 
         cargarTabla();
+        alActualizarIndicadores.run();
     }
 
     /**
@@ -628,9 +851,13 @@ public class ControladorCatalogo {
 
     @FXML
     private void onNuevo() {
+        if (!validarPermisoEdicion()) {
+            return;
+        }
+
         tablaProductos.getSelectionModel().clearSelection();
         limpiar();
-        txtCodigo.requestFocus();
+        mostrarFormulario(true);
     }
 
     // ========================================
@@ -939,6 +1166,8 @@ public class ControladorCatalogo {
 
             limpiar();
             cargarTabla();
+            alActualizarIndicadores.run();
+            onCerrarFormulario();
 
             Alert alerta = new Alert(Alert.AlertType.INFORMATION);
             alerta.setTitle("Registro Exitoso");
@@ -1018,7 +1247,9 @@ public class ControladorCatalogo {
 
             limpiar();
             cargarTabla();
-            
+            alActualizarIndicadores.run();
+            onCerrarFormulario();
+
             Alert alerta = new Alert(Alert.AlertType.INFORMATION);
             alerta.setTitle("Actualización Exitosa");
             alerta.setHeaderText(null);
@@ -1100,6 +1331,8 @@ public class ControladorCatalogo {
 
             limpiar();
             cargarTabla();
+            alActualizarIndicadores.run();
+            onCerrarFormulario();
 
             lblEstado.setText("Producto desactivado.");
 
