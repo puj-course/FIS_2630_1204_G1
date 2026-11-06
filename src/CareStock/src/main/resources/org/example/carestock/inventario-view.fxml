@@ -86,6 +86,10 @@
                                 onAction="#onAbrirHistorial"
                                 style="-fx-background-color: #B7A6E0; -fx-text-fill: WHITE; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 16;" />
 
+                        <Button text="Reposición"
+                                onAction="#onAbrirReposicion"
+                                style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 12;" />
+
                         <Button fx:id="btnCatalogo"
                                 text="Catálogo"
                                 onAction="#onAbrirCatalogo"
