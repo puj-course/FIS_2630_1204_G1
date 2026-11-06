@@ -435,6 +435,11 @@ public class ControladorInventario {
     }
 
     @FXML
+    private void onAbrirReposicion() {
+        CareStockApp.getInstance().mostrarReposicion();
+    }
+
+    @FXML
     private void onAbrirCatalogo() {
         CareStockApp.getInstance().mostrarCatalogo();
     }

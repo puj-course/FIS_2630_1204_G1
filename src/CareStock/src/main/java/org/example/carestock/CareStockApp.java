@@ -351,6 +351,34 @@ public class CareStockApp extends Application {
                 1100, 750);
     }
 
+    /** Abre la planificación solo para administradores. */
+    public void mostrarReposicion() {
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        var sesion = SesionUsuario.actual();
+
+        if (!sesion.esAdministrador()
+                || sesion.idFarmacia() == null
+                || sesion.idFarmacia() <= 0) {
+
+            Alert aviso = new Alert(
+                    Alert.AlertType.WARNING,
+                    "Solo administradores con farmacia activa "
+                    + "pueden consultar la reposición.");
+
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
+            return;
+        }
+
+        transicionarEscena(
+                "/org/example/carestock/reposicion-view.fxml",
+                1180, 750);
+    }
+
     public void mostrarAlertas() {
         if (!SesionUsuario.estaActiva()) {
             mostrarLogin();
