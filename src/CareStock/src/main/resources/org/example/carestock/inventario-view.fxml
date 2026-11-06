@@ -7,7 +7,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21"
+<BorderPane fx:id="dashboardRoot" xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.carestock.controller.ControladorInventario"
             prefWidth="1100.0"
@@ -182,7 +182,7 @@
     <!-- ======================================= -->
 
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+        <ScrollPane fx:id="vistaLotes" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                     style="-fx-background: #FDFBF7; -fx-background-color: #FDFBF7; -fx-border-color: transparent;">
             <content>
                 <VBox spacing="16.0"

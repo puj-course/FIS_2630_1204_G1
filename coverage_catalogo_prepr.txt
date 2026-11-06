@@ -1,0 +1,77 @@
+
+=== COVERAGE NUEVO POR ARCHIVO ===
+
+org/example/carestock/controller/ControladorInventario.java
+  Coverage: 0.00%
+  Lineas: 0/127
+  Ramas: 0/30
+  Pendientes: 157
+    L449 [SIN CUBRIR, 2 ramas] if (!SesionUsuario.estaActiva()
+    L450 [SIN CUBRIR, 2 ramas] || SesionUsuario.actual().idFarmacia() == null) {
+    L451 [SIN CUBRIR, 0 ramas] throw new SecurityException(
+    L455 [SIN CUBRIR, 2 ramas] if (vistaCatalogo == null) {
+    L457 [SIN CUBRIR, 0 ramas] FXMLLoader loader = new FXMLLoader(
+    L458 [SIN CUBRIR, 0 ramas] getClass().getResource(
+    L461 [SIN CUBRIR, 0 ramas] Parent contenido = loader.load();
+    L463 [SIN CUBRIR, 2 ramas] if (!(contenido instanceof BorderPane panel)) {
+    L464 [SIN CUBRIR, 0 ramas] throw new IllegalStateException(
+    L468 [SIN CUBRIR, 0 ramas] controladorCatalogo = loader.getController();
+    L471 [SIN CUBRIR, 0 ramas] panel.setTop(encabezadoCatalogo());
+    L473 [SIN CUBRIR, 0 ramas] controladorCatalogo.alActualizarIndicadores(
+    L476 [SIN CUBRIR, 0 ramas] vistaCatalogo = panel;
+    L477 [SIN CUBRIR, 0 ramas] estiloCatalogoOriginal = btnCatalogo.getStyle();
+    L479 [SIN CUBRIR, 0 ramas] } catch (IOException e) {
+
+org/example/carestock/controller/ControladorCatalogo.java
+  Coverage: 24.26%
+  Lineas: 34/117
+  Ramas: 7/52
+  Pendientes: 128
+    L143 [SIN CUBRIR, 0 ramas] this.alActualizarIndicadores =
+    L144 [SIN CUBRIR, 0 ramas] java.util.Objects.requireNonNull(accion);
+    L145 [SIN CUBRIR, 0 ramas] }
+    L195 [PARCIAL, 1 ramas] if (btnLimpiar != null) {
+    L196 [SIN CUBRIR, 2 ramas] btnLimpiar.setDisable(!puedeEditar);
+    L198 [PARCIAL, 1 ramas] if (btnEditarCatalogo != null) {
+    L199 [SIN CUBRIR, 2 ramas] btnEditarCatalogo.setDisable(!puedeEditar);
+    L245 [SIN CUBRIR, 0 ramas] mostrarFormulario(false);
+    L511 [PARCIAL, 1 ramas] if (txtBuscar != null) {
+    L512 [SIN CUBRIR, 0 ramas] txtBuscar.clear();
+    L529 [SIN CUBRIR, 0 ramas] return cmbCategoria.getValue();
+    L533 [SIN CUBRIR, 2 ramas] if (!cargaCategoriaExitosa) {
+    L534 [SIN CUBRIR, 0 ramas] throw new IllegalStateException(
+    L537 [SIN CUBRIR, 0 ramas] return List.copyOf(registrosCompletos);
+    L542 [PARCIAL, 1 ramas] if (txtBuscar != null) {
+
+org/example/carestock/CareStockApp.java
+  Coverage: 73.08%
+  Lineas: 12/18
+  Ramas: 7/8
+  Pendientes: 7
+    L117 [SIN CUBRIR, 0 ramas] Alert aviso = new Alert(
+    L121 [SIN CUBRIR, 0 ramas] aviso.setHeaderText(null);
+    L122 [SIN CUBRIR, 0 ramas] aviso.showAndWait();
+    L135 [PARCIAL, 1 ramas] if (controladorDashboard != null) {
+    L139 [SIN CUBRIR, 0 ramas] transicionarEscena(
+    L142 [SIN CUBRIR, 0 ramas] controlador -> ((ControladorInventario) controlador)
+    L143 [SIN CUBRIR, 0 ramas] .abrirCatalogoIntegrado(categoria, id));
+
+org/example/carestock/service/IndicadoresCatalogo.java
+  Coverage: 97.78%
+  Lineas: 25/25
+  Ramas: 19/20
+  Pendientes: 1
+    L35 [PARCIAL, 1 ramas] && registro.producto() != null) {
+
+org/example/carestock/service/ResumenCategoriaCatalogo.java
+  Coverage: 98.33%
+  Lineas: 30/30
+  Ramas: 29/30
+  Pendientes: 1
+    L68 [PARCIAL, 1 ramas] } else if (stock > 0
+
+=== RESULTADO FINAL ===
+COVERAGE NUEVO: 35.67%
+UNIDADES CUBIERTAS: 163/457
+UNIDADES FALTANTES PARA 80%: 203
+ARCHIVOS ANALIZADOS: 5

@@ -9,7 +9,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.controller.ControladorCatalogo;
 import org.example.carestock.controller.ControladorInventario;
 import org.example.carestock.controller.ConsultaInventarioController;
 import org.example.carestock.dto.AlertaInventario;
@@ -27,6 +26,7 @@ public class CareStockApp extends Application {
     private static CareStockApp instance;
 
     private Stage primaryStage;
+    private ControladorInventario controladorDashboard;
 
     private record DestinoCatalogo(
             String categoria,
@@ -105,6 +105,7 @@ public class CareStockApp extends Application {
     // NAVEGACION: CATALOGO CRUD
     // ========================================
 
+
     public void mostrarCatalogo() {
 
         if (!SesionUsuario.estaActiva()) {
@@ -113,20 +114,34 @@ public class CareStockApp extends Application {
         }
 
         if (SesionUsuario.actual().idFarmacia() == null) {
-            Alert alerta = new Alert(
+            Alert aviso = new Alert(
                     Alert.AlertType.WARNING,
-                    "Se requiere una farmacia asignada para consultar el catalogo."
-            );
-            alerta.setHeaderText(null);
-            alerta.showAndWait();
+                    "Se requiere una farmacia asignada para consultar el catalogo.");
+
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
             return;
         }
 
-        transicionarEscena(
-                "/org/example/carestock/catalogo-view.fxml",
-                1150,
-                760
-        );
+        DestinoCatalogo destino = destinoCatalogo;
+        destinoCatalogo = null;
+
+        String categoria = destino == null
+                ? null : destino.categoria();
+
+        Integer id = destino == null
+                ? null : destino.id();
+
+        if (controladorDashboard != null) {
+            controladorDashboard.abrirCatalogoIntegrado(
+                    categoria, id);
+        } else {
+            transicionarEscena(
+                    "/org/example/carestock/inventario-view.fxml",
+                    1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirCatalogoIntegrado(categoria, id));
+        }
     }
 
     public void mostrarCatalogoParaRegistro(String categoria) {
@@ -386,21 +401,10 @@ public class CareStockApp extends Application {
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
-
-            if (fxmlRuta.endsWith("/catalogo-view.fxml")
-                    && destinoCatalogo != null) {
-
-                DestinoCatalogo destino = destinoCatalogo;
-                destinoCatalogo = null;
-
-                ControladorCatalogo controlador =
-                        loader.getController();
-
-                controlador.abrirDesdeConsulta(
-                        destino.categoria(),
-                        destino.id()
-                );
-            }
+            Object controlador = loader.getController();
+            controladorDashboard =
+                    controlador instanceof ControladorInventario panel
+                            ? panel : null;
 
             if (configuracion != null) {
                 configuracion.accept(loader.getController());

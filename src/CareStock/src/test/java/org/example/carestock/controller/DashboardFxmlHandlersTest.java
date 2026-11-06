@@ -55,4 +55,28 @@ class DashboardFxmlHandlersTest {
             assertTrue(comprobados > 0);
         }
     }
+    @Test
+    void dashboardTieneAnclasParaLaVistaIntegrada()
+            throws Exception {
+
+        try (InputStream stream =
+                     getClass().getResourceAsStream(
+                             "/org/example/carestock/inventario-view.fxml")) {
+
+            assertNotNull(stream);
+
+            String xml = new String(
+                    stream.readAllBytes(),
+                    StandardCharsets.UTF_8);
+
+            assertTrue(xml.contains(
+                    "fx:id=\"dashboardRoot\""));
+
+            assertTrue(xml.contains(
+                    "fx:id=\"vistaLotes\""));
+
+            assertTrue(xml.contains(
+                    "onAction=\"#onAbrirCatalogo\""));
+        }
+    }
 }

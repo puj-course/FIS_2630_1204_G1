@@ -44,7 +44,7 @@ class NavegacionRefactorizadaTest {
     }
 
     @Test
-    void inventarioNavegaCorrectamente() throws Exception {
+    void inventarioDelegaAperturaDelCatalogoIntegrado() throws Exception {
         CareStockApp app = mock(CareStockApp.class);
 
         try (MockedStatic<CareStockApp> estatico =
