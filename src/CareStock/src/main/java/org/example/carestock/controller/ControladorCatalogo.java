@@ -82,6 +82,7 @@ public class ControladorCatalogo {
 
     @FXML
     private VBox panelDescripcion, panelPrecioStock;
+    @FXML private CheckBox chkRequiereRefrigeracion;
 
     // ========================================
     // CAMPOS DE ASEO
@@ -331,6 +332,7 @@ public class ControladorCatalogo {
 
     private static Integer stockMinimoDe(Object producto) {
         if (producto instanceof Medicamento m) {
+            chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion()); 
             return m.getStockMinimo();
         }
         if (producto instanceof Aseo a) {
@@ -903,6 +905,7 @@ private static void habilitarAccion(
         );
 
         lblSeleccion.setText("Nuevo producto");
+        chkRequiereRefrigeracion.setSelected(false);
     }
 
     // ========================================
@@ -1123,6 +1126,7 @@ private static void habilitarAccion(
             p.setPrecio(leerPrecioMedicamento());
             p.setStockTotal(0);
             p.setEstado("ACTIVO");
+            p.setRequiereRefrigeracion(chkRequiereRefrigeracion.isSelected()); 
         });
     }
 
