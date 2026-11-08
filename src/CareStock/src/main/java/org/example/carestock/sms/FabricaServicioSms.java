@@ -1,74 +1,70 @@
 package org.example.carestock.sms;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 public final class FabricaServicioSms {
 
-    private FabricaServicioSms() {
-    }
+    private FabricaServicioSms() { }
 
     public static ServicioSms desdeEntorno() {
+        return desdeConfiguracion(System.getenv());
+    }
 
-        String modo = System.getenv()
-                .getOrDefault("SMS_PROVIDER", "simulado")
+    // Permite pruebas con configuración controlada.
+    static ServicioSms desdeConfiguracion(Map<String, String> entorno) {
+        Objects.requireNonNull(entorno, "entorno");
+
+        String modo = entorno.getOrDefault("SMS_PROVIDER", "simulado")
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
         DestinatariosPermitidosSms destinatarios =
                 DestinatariosPermitidosSms.desdeCsv(
-                        System.getenv("SMS_ALLOWED_TO")
-                );
+                        entorno.get("SMS_ALLOWED_TO"));
 
         return switch (modo) {
-
             case "simulado" ->
                     new ServicioSmsSimulado(destinatarios);
 
             case "twilio" -> {
-                exigirEnvioRealConfirmado();
-
+                exigirEnvioRealConfirmado(entorno);
                 yield new ServicioSmsTwilio(
-                        System.getenv("TWILIO_ACCOUNT_SID"),
-                        System.getenv("TWILIO_AUTH_TOKEN"),
-                        System.getenv("TWILIO_FROM_NUMBER"),
-                        destinatarios
-                );
+                        entorno.get("TWILIO_ACCOUNT_SID"),
+                        entorno.get("TWILIO_AUTH_TOKEN"),
+                        entorno.get("TWILIO_FROM_NUMBER"),
+                        destinatarios);
             }
 
             case "android" -> {
-                exigirEnvioRealConfirmado();
-
+                exigirEnvioRealConfirmado(entorno);
                 yield new ServicioSmsAndroid(
-                        System.getenv("SMS_GATEWAY_URL"),
-                        System.getenv("SMS_GATEWAY_USERNAME"),
-                        System.getenv("SMS_GATEWAY_PASSWORD"),
-                        destinatarios
-                );
+                        entorno.get("SMS_GATEWAY_URL"),
+                        entorno.get("SMS_GATEWAY_USERNAME"),
+                        entorno.get("SMS_GATEWAY_PASSWORD"),
+                        destinatarios);
             }
 
             case "simple-android" -> {
-                if (!"SI".equalsIgnoreCase(System.getenv("SMS_CONFIRM_REAL_SEND"))) {
-                    throw new IllegalStateException("Confirme SMS_CONFIRM_REAL_SEND=SI.");
-                }
+                exigirEnvioRealConfirmado(entorno);
                 yield new ServicioSmsSimpleAndroid(
-                        System.getenv("SMS_GATEWAY_URL"), destinatarios);
+                        entorno.get("SMS_GATEWAY_URL"),
+                        destinatarios);
             }
 
             default -> throw new IllegalArgumentException(
-                    "SMS_PROVIDER debe ser "
-                    + "simulado, twilio o android."
-            );
+                    "SMS_PROVIDER debe ser simulado, twilio, "
+                    + "android o simple-android.");
         };
     }
 
-    private static void exigirEnvioRealConfirmado() {
-
+    private static void exigirEnvioRealConfirmado(
+            Map<String, String> entorno) {
         if (!"SI".equalsIgnoreCase(
-                System.getenv("SMS_CONFIRM_REAL_SEND"))) {
-
+                entorno.get("SMS_CONFIRM_REAL_SEND"))) {
             throw new IllegalStateException(
-                    "Confirme SMS_CONFIRM_REAL_SEND=SI."
-            );
+                    "Confirme SMS_CONFIRM_REAL_SEND=SI.");
         }
     }
 }
