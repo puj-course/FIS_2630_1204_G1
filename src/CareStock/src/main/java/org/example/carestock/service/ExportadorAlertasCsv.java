@@ -22,7 +22,7 @@ public final class ExportadorAlertasCsv {
 
     private static final char SEPARADOR = ';';
     private static final String SALTO = "\n";
-    private static final char MARCA_UTF8 = '﻿';
+    private static final char MARCA_UTF8 = '\uFEFF';
 
     private ExportadorAlertasCsv() {
     }

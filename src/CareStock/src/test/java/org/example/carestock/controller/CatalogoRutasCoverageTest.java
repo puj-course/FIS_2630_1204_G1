@@ -236,20 +236,20 @@ class CatalogoRutasCoverageTest {
     }
 
     @Test
-    void indicadoresNoConsultanSiCatalogoNoEstaVisible()
-            throws Exception {
-
+    void indicadoresNoConsultanSiCatalogoNoEstaVisible() throws Exception {
         fx(() -> {
             var dashboard = preparar();
-
-            // Primera condición: no se ha abierto catálogo.
             privado(dashboard, "refrescarIndicadoresCatalogo");
+            Integer versionInicial = obtener(dashboard, "versionIndicadores");
+            assertEquals(0, versionInicial.intValue());
 
-            // Segunda condición: existe, pero no está visible.
-            campo(dashboard, "vistaCatalogo", new BorderPane());
-
+            BorderPane oculto = new BorderPane();
+            campo(dashboard, "vistaCatalogo", oculto);
             privado(dashboard, "refrescarIndicadoresCatalogo");
-
+            Integer versionFinal = obtener(dashboard, "versionIndicadores");
+            BorderPane root = obtener(dashboard, "dashboardRoot");
+            assertEquals(0, versionFinal.intValue());
+            assertNotSame(oculto, root.getCenter());
             return null;
         });
     }

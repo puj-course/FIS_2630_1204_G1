@@ -1,4 +1,5 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -25,6 +26,9 @@ import java.util.Objects;
  * justificados de existencias.
  */
 public final class ControladorAjustes {
+    private static final String ESTADO_ACTIVO_AJUSTES = "ACTIVO";
+    private static final String SESION_CAMBIADA = "La sesion cambio. Vuelve a iniciar sesion.";
+    private static final String ELEGIR_REFERENCIA = "Selecciona un producto o lote.";
 
     @FXML private Label lblUsuario;
     @FXML private Label lblFarmacia;
@@ -46,6 +50,10 @@ public final class ControladorAjustes {
     private String confirmacionPendiente;
 
     private final List<Opcion> opciones = new ArrayList<>();
+
+    // Punto de inyeccion para ejecutar las consultas de forma determinista en pruebas.
+    private java.util.function.Consumer<Task<?>> ejecutorConsulta =
+            tarea -> ejecutar(tarea, "consultar-ajustes");
 
     private record Opcion(
             Categoria categoria,
@@ -88,7 +96,7 @@ public final class ControladorAjustes {
                 (obs, antes, despues) -> {
                     lblExistencias.setText(
                             despues == null
-                            ? "Selecciona un producto o lote."
+                            ? ELEGIR_REFERENCIA
                             : "Existencias actuales: "
                                     + despues.stock() + " unidades");
                     txtNuevaCantidad.clear();
@@ -145,7 +153,7 @@ public final class ControladorAjustes {
     private void cargarReferencias() {
 
         if (!sesionValida()) {
-            error("La sesion cambio. Vuelve a iniciar sesion.");
+            error(SESION_CAMBIADA);
             return;
         }
 
@@ -167,7 +175,7 @@ public final class ControladorAjustes {
                 // Productos de aseo
                 for (var registro : inventario.listarAseo()) {
 
-                    if ("ACTIVO".equalsIgnoreCase(registro.estado())) {
+                    if (ESTADO_ACTIVO_AJUSTES.equalsIgnoreCase(registro.estado())) {
 
                         var producto = registro.producto();
 
@@ -183,7 +191,7 @@ public final class ControladorAjustes {
                 // Productos de maternidad
                 for (var registro : inventario.listarMaternidad()) {
 
-                    if ("ACTIVO".equalsIgnoreCase(registro.estado())) {
+                    if (ESTADO_ACTIVO_AJUSTES.equalsIgnoreCase(registro.estado())) {
 
                         var producto = registro.producto();
 
@@ -201,7 +209,7 @@ public final class ControladorAjustes {
 
                 for (var registro : inventario.listarMedicamentos()) {
 
-                    if ("ACTIVO".equalsIgnoreCase(registro.estado())) {
+                    if (ESTADO_ACTIVO_AJUSTES.equalsIgnoreCase(registro.estado())) {
                         medicamentos.put(
                                 registro.id(),
                                 registro.producto().getNombreComercial());
@@ -217,7 +225,7 @@ public final class ControladorAjustes {
                     if (nombre != null
                             && lote.getFechaVencimiento() != null
                             && lote.getFechaVencimiento()
-                                    .isAfter(LocalDate.now())
+                                    .isAfter(FechaNegocio.hoy())
                             && ("DISPONIBLE".equalsIgnoreCase(
                                     lote.getEstadoLote())
                             || "AGOTADO".equalsIgnoreCase(
@@ -247,7 +255,7 @@ public final class ControladorAjustes {
             if (!sesionValida()) {
                 opciones.clear();
                 filtrarReferencias(null);
-                error("La sesion cambio. Vuelve a iniciar sesion.");
+                error(SESION_CAMBIADA);
                 return;
             }
 
@@ -282,7 +290,7 @@ public final class ControladorAjustes {
             }
         });
 
-        ejecutar(tarea, "consultar-ajustes");
+        ejecutorConsulta.accept(tarea);
     }
 
     private void filtrarReferencias(Opcion anterior) {
@@ -306,7 +314,7 @@ public final class ControladorAjustes {
 
         if (cmbReferencia.getValue() == null) {
             lblExistencias.setText(
-                    "Selecciona un producto o lote.");
+                    ELEGIR_REFERENCIA);
             txtNuevaCantidad.clear();
         }
     }
@@ -319,14 +327,14 @@ public final class ControladorAjustes {
         }
 
         if (!sesionValida()) {
-            error("La sesion cambio. Vuelve a iniciar sesion.");
+            error(SESION_CAMBIADA);
             return;
         }
 
         Opcion opcion = cmbReferencia.getValue();
 
         if (opcion == null) {
-            error("Selecciona un producto o lote.");
+            error(ELEGIR_REFERENCIA);
             return;
         }
 
