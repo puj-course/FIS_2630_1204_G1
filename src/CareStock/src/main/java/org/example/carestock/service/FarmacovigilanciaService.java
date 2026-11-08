@@ -159,9 +159,13 @@ public class FarmacovigilanciaService {
         }
     }
 
+    protected String rolesPermitidosDispensacion() {
+        return System.getenv("CARESTOCK_ROLES_DISPENSACION");
+    }
+
     private void validarOperador(Connection con, int idUsuario, int idFarmacia)
             throws Exception {
-        String permitidos = System.getenv("CARESTOCK_ROLES_DISPENSACION");
+        String permitidos = rolesPermitidosDispensacion();
         if (permitidos == null || permitidos.isBlank()) {
             throw new ReglaNegocioException(
                     "Dispensacion bloqueada: configure CARESTOCK_ROLES_DISPENSACION");

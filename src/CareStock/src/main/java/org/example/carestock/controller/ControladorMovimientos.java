@@ -174,6 +174,12 @@ public class ControladorMovimientos {
         cargarProductos();
     }
 
+    void iniciarConsulta(Task<?> tarea) {
+        Thread hilo = new Thread(tarea, "cargar-productos-movimientos");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
     private void cargarProductos() {
         OpcionProducto seleccionPrevia = cmbProducto.getValue();
 
@@ -334,12 +340,7 @@ public class ControladorMovimientos {
             }
         });
 
-        Thread hilo = new Thread(
-                tarea, "cargar-productos-movimientos"
-        );
-
-        hilo.setDaemon(true);
-        hilo.start();
+        iniciarConsulta(tarea);
     }
 
     private void filtrarProductos() {
