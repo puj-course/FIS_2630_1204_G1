@@ -1,4 +1,5 @@
 package org.example.carestock.model;
+import org.example.carestock.utils.FechaNegocio;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
@@ -46,7 +47,7 @@ public class Lote implements Validable {
         if (fechaVencimiento == null) {
             throw new ReglaNegocioException("La fecha de vencimiento es obligatoria.");
         }
-        if (fechaVencimiento.isBefore(LocalDate.now())) {
+        if (fechaVencimiento.isBefore(FechaNegocio.hoy())) {
             throw new ReglaNegocioException("RIESGO SANITARIO: El lote " + numeroLote + " se encuentra VENCIDO (" + fechaVencimiento + ").");
         }
         if ("CUARENTENA".equalsIgnoreCase(estadoLote) || "BLOQUEADO".equalsIgnoreCase(estadoLote)) {
@@ -57,7 +58,7 @@ public class Lote implements Validable {
     @Override
     public boolean esAptoParaDispensar() {
         return fechaVencimiento != null
-                && fechaVencimiento.isAfter(LocalDate.now())
+                && fechaVencimiento.isAfter(FechaNegocio.hoy())
                 && cantidadActual > 0
                 && "DISPONIBLE".equalsIgnoreCase(estadoLote);
     }

@@ -15,7 +15,7 @@ public final class SesionUsuario {
 
     private static final String ROL_ADMINISTRADOR = "ADMINISTRADOR";
 
-    private static volatile DatosUsuario actual;
+    private static DatosUsuario actual;
 
     private SesionUsuario() {}
 
@@ -33,7 +33,7 @@ public final class SesionUsuario {
         }
     }
 
-    public static void iniciar(Usuario usuarioAutenticado) throws Exception {
+    public static synchronized void iniciar(Usuario usuarioAutenticado) throws Exception {
         if (usuarioAutenticado == null
                 || usuarioAutenticado.getIdUsuario() <= 0) {
 
@@ -92,16 +92,16 @@ public final class SesionUsuario {
         }
     }
 
-    public static boolean estaActiva() {
+    public static synchronized boolean estaActiva() {
         return actual != null;
     }
 
-    public static boolean esAdministrador() {
+    public static synchronized boolean esAdministrador() {
         DatosUsuario sesion = actual;
         return sesion != null && sesion.esAdministrador();
     }
 
-    public static DatosUsuario actual() {
+    public static synchronized DatosUsuario actual() {
         DatosUsuario sesion = actual;
 
         if (sesion == null) {
@@ -111,7 +111,7 @@ public final class SesionUsuario {
         return sesion;
     }
 
-    public static Usuario usuarioParaFachada() {
+    public static synchronized Usuario usuarioParaFachada() {
         DatosUsuario sesion = actual();
 
         Usuario usuario = new Usuario();
@@ -120,7 +120,7 @@ public final class SesionUsuario {
         return usuario;
     }
 
-    public static void cerrar() {
+    public static synchronized void cerrar() {
         actual = null;
         InventarioConsultas.invalidar();
     }

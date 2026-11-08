@@ -1,4 +1,5 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -273,7 +274,7 @@ public class ControladorReposicion {
                     "Exportar planificación de reposición");
 
             selector.setInitialFileName(
-                    "reposicion-" + LocalDate.now() + ".csv");
+                    "reposicion-" + FechaNegocio.hoy() + ".csv");
 
             selector.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(
