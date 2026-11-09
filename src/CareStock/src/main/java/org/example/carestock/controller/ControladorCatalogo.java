@@ -332,7 +332,6 @@ public class ControladorCatalogo {
 
     private static Integer stockMinimoDe(Object producto) {
         if (producto instanceof Medicamento m) {
-            chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion()); 
             return m.getStockMinimo();
         }
         if (producto instanceof Aseo a) {
