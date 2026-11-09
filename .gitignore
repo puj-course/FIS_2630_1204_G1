@@ -27,3 +27,14 @@ src/CareStock/config/conexion-local.properties
 
 # Respaldos locales con posibles credenciales
 **/ConexionBD.java.bak
+
+# Parches temporales del catalogo CareStock
+/ajustar_colores_catalogo.py
+/aplicar_catalogo.py
+/aplicar_regla_catalogo_historicos_verde.py
+/carestock_fix_verde_compatible.py
+/corregir_scroll_catalogo.py
+/src/CareStock/corregir_scroll_catalogo.py
+
+# Respaldo temporal de refactorizacion
+*.java.bak-cognitiva
