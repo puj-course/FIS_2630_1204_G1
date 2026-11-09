@@ -473,8 +473,27 @@ public class ControladorInventario {
 
                 controladorCatalogo = loader.getController();
 
-                // Reemplaza la cabecera duplicada del catalogo.
-                panel.setTop(encabezadoCatalogo());
+                // Integrar indicadores y catalogo
+                // en el mismo ScrollPane.
+                // La cabecera azul del dashboard
+                // permanece fija.
+
+                if (!(panel.getCenter() instanceof ScrollPane scrollCatalogo)
+                        || scrollCatalogo.getContent() == null) {
+                    throw new IllegalStateException(
+                            "El catalogo requiere un ScrollPane con contenido");
+                }
+
+                javafx.scene.Node contenidoOriginal =
+                        scrollCatalogo.getContent();
+
+                VBox contenidoConCabecera = new VBox(
+                        encabezadoCatalogo(),
+                        contenidoOriginal
+                );
+
+                scrollCatalogo.setContent(contenidoConCabecera);
+                panel.setTop(null);
 
                 controladorCatalogo.alActualizarIndicadores(
                         this::refrescarIndicadoresCatalogo);

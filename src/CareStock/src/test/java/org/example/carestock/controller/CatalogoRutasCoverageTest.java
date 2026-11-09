@@ -6,6 +6,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import org.example.carestock.facade.Inventario;
@@ -111,6 +112,8 @@ class CatalogoRutasCoverageTest {
             var dashboard = preparar();
             var catalogo = mock(ControladorCatalogo.class);
             var panel = new BorderPane();
+            var scrollCatalogo = new ScrollPane(new StackPane());
+            panel.setCenter(scrollCatalogo);
 
             when(catalogo.categoriaActual())
                     .thenReturn("Aseo", "Maternidad");
@@ -140,7 +143,15 @@ class CatalogoRutasCoverageTest {
                         dashboard, "dashboardRoot");
 
                 assertSame(panel, raiz.getCenter());
-                assertNotNull(panel.getTop());
+                assertNull(panel.getTop());
+                assertSame(scrollCatalogo, panel.getCenter());
+
+                VBox contenido = assertInstanceOf(
+                        VBox.class, scrollCatalogo.getContent());
+
+                assertEquals(2, contenido.getChildren().size());
+                assertTrue(contenido.getChildren().get(0) instanceof VBox);
+                assertTrue(contenido.getChildren().get(1) instanceof StackPane);
 
                 verify(catalogo).alActualizarIndicadores(any());
 

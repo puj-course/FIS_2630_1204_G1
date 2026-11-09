@@ -55,7 +55,7 @@ final class ConsultasSqlCatalogo {
             id_usuario_modificacion = ?,
             fecha_modificacion = CURRENT_TIMESTAMP
         WHERE id_aseo = ? AND id_farmacia = ?
-          AND estado = 'ACTIVO'
+          AND estado = 'ACTIVO' AND stock = 0
         """
     );
 
@@ -95,7 +95,7 @@ final class ConsultasSqlCatalogo {
             id_usuario_modificacion = ?,
             fecha_modificacion = CURRENT_TIMESTAMP
         WHERE id_maternidad = ? AND id_farmacia = ?
-          AND estado = 'ACTIVO'
+          AND estado = 'ACTIVO' AND stock = 0
         """
     );
 
