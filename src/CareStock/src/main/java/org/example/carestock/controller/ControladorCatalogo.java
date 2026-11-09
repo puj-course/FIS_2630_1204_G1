@@ -1020,6 +1020,7 @@ private static void habilitarAccion(
                     .ifPresent(
                             cmbCategoriaMedicamento::setValue
                     );
+             chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion());
         }
     }
 
