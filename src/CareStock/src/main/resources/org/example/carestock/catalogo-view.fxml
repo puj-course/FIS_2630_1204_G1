@@ -278,6 +278,10 @@
                                                                 <Label text="Las existencias se gestionan mediante lotes." wrapText="true" textFill="#6D8683" style="-fx-font-size: 11;" />
                                                             </children>
                                                         </VBox>
+                                                          <CheckBox fx:id="chkRequiereRefrigeracion" 
+                                                          text="Requiere Cadena de Frío (Refrigeración)" 
+                                                          textFill="#20302F" 
+                                                          style="-fx-font-weight: bold;" />
                                                     </children>
                                                 </VBox>
                                                 <Separator style="-fx-background-color: #E3D9F5;" />

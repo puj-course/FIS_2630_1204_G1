@@ -82,6 +82,7 @@ public class ControladorCatalogo {
 
     @FXML
     private VBox panelDescripcion, panelPrecioStock;
+    @FXML private CheckBox chkRequiereRefrigeracion;
 
     // ========================================
     // CAMPOS DE ASEO
@@ -903,6 +904,9 @@ private static void habilitarAccion(
         );
 
         lblSeleccion.setText("Nuevo producto");
+        if (chkRequiereRefrigeracion != null) {
+            chkRequiereRefrigeracion.setSelected(false);
+        }
     }
 
     // ========================================
@@ -1017,6 +1021,9 @@ private static void habilitarAccion(
                     .ifPresent(
                             cmbCategoriaMedicamento::setValue
                     );
+            if (chkRequiereRefrigeracion != null) {
+                chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion());
+            }
         }
     }
 
@@ -1123,6 +1130,8 @@ private static void habilitarAccion(
             p.setPrecio(leerPrecioMedicamento());
             p.setStockTotal(0);
             p.setEstado("ACTIVO");
+            boolean requiereFrio = chkRequiereRefrigeracion != null && chkRequiereRefrigeracion.isSelected();
+            p.setRequiereRefrigeracion(requiereFrio);
         });
     }
 
