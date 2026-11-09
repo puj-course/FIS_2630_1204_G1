@@ -16,10 +16,10 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
     public void guardar(Medicamento medicamento) throws Exception {
         medicamento.validar();
 
-        String sql = "INSERT INTO medicamentos (codigo_invima, nombre_comercial, principio_activo, " +
-                "concentracion, forma_farmaceutica, id_categoria, stock_minimo, stock_total, " +
-                "estado, id_farmacia, presentacion, id_usuario_creacion, precio) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                String sql = "INSERT INTO medicamentos (codigo_invima, nombre_comercial, principio_activo, " +
+            "concentracion, forma_farmaceutica, id_categoria, stock_minimo, stock_total, " +
+            "estado, id_farmacia, presentacion, id_usuario_creacion, precio, requiere_refrigeracion) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -47,6 +47,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
             if (medicamento.getPrecio() == null) ps.setNull(13, Types.NUMERIC);
             else ps.setBigDecimal(13, medicamento.getPrecio());
+                        ps.setBoolean(14, medicamento.isRequiereRefrigeracion()); 
 
             ps.executeUpdate();
 
@@ -197,7 +198,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
         if (ts != null) {
             m.setFechaModificacion(ts.toLocalDateTime());
         }
-
+        m.setRequiereRefrigeracion(rs.getBoolean("requiere_refrigeracion")); 
         return m;
     }
 }
