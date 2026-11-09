@@ -44,6 +44,13 @@ class CatalogoTablaFormularioFxmlTest {
     }
 
     @Test
+    void desplazamientoVerticalDelCatalogo() throws Exception {
+        Element scroll = buscar(cargar(), "scrollCatalogo");
+        assertEquals("ScrollPane", scroll.getLocalName());
+        assertEquals("AS_NEEDED", scroll.getAttribute("vbarPolicy"));
+    }
+
+    @Test
     void tablaVisiblePorDefecto() throws Exception {
         Element raiz = cargar();
 

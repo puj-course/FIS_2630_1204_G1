@@ -14,6 +14,9 @@ import org.example.carestock.dto.AlertaInventario.Severidad;
  */
 final class EstiloAlertas {
 
+    private static final String CSS_FONDO = "-fx-background-color: ";
+    private static final String CSS_TEXTO = "; -fx-text-fill: ";
+
     /** Nivel visual de una alerta. */
     enum Nivel {
         NINGUNO,
@@ -30,7 +33,7 @@ final class EstiloAlertas {
     static final String TEXTO_LAVANDA = "#6B5B95";
 
     static final String ESTILO_TOOLTIP_ALERTA =
-            "-fx-background-color: " + CORAL + "; -fx-text-fill: " + TEXTO_CORAL
+            CSS_FONDO + CORAL + CSS_TEXTO + TEXTO_CORAL
                     + "; -fx-font-weight: bold;";
 
     private static final String BOTON =
@@ -50,8 +53,8 @@ final class EstiloAlertas {
     }
 
     private static String estilo(String fondo, String texto, boolean negrita) {
-        return "-fx-background-color: " + fondo
-                + "; -fx-text-fill: " + texto
+        return CSS_FONDO + fondo
+                + CSS_TEXTO + texto
                 + "; -fx-text-background-color: " + texto + ";"
                 + (negrita ? " -fx-font-weight: bold;" : "");
     }
@@ -71,20 +74,40 @@ final class EstiloAlertas {
 
     static String estiloInsignia(int criticas, int advertencias) {
         if (criticas > 0) {
-            return "-fx-background-color: " + CORAL + "; -fx-text-fill: " + TEXTO_CORAL + ";" + BOTON;
+            return CSS_FONDO + CORAL + CSS_TEXTO + TEXTO_CORAL + ";" + BOTON;
         }
         if (advertencias > 0) {
-            return "-fx-background-color: " + DURAZNO + "; -fx-text-fill: " + TEXTO_OSCURO + ";" + BOTON;
+            return CSS_FONDO + DURAZNO + CSS_TEXTO + TEXTO_OSCURO + ";" + BOTON;
         }
-        return "-fx-background-color: " + LAVANDA_CLARO + "; -fx-text-fill: " + TEXTO_LAVANDA + ";" + BOTON;
+        return CSS_FONDO + LAVANDA_CLARO + CSS_TEXTO + TEXTO_LAVANDA + ";" + BOTON;
     }
 
     static String estiloBotonAccion() {
-        return "-fx-background-color: " + LAVANDA_CLARO
-                + "; -fx-text-fill: " + TEXTO_LAVANDA + ";" + BOTON;
+        return CSS_FONDO + LAVANDA_CLARO
+                + CSS_TEXTO + TEXTO_LAVANDA + ";" + BOTON;
     }
 
     static Nivel nivelPorExistencias(int existencias) {
         return existencias <= 0 ? Nivel.CRITICO : Nivel.ADVERTENCIA;
+    }
+
+    static Nivel nivelStockCatalogo(int stock, Integer minimo) {
+        if (stock <= 0) return Nivel.CRITICO;
+        if (minimo != null && minimo > 0 && stock < minimo) return Nivel.ADVERTENCIA;
+        return Nivel.NINGUNO;
+    }
+
+
+    static String estiloFilaCatalogo(String estado, int stock, Integer minimo) {
+        if (stock <= 0) return estiloFila(Nivel.CRITICO, false);
+        if ("INACTIVO".equalsIgnoreCase(estado)) {
+            return "-fx-background-color: #ECEFF2; -fx-text-fill: #59636D;"
+                    + " -fx-text-background-color: #59636D;";
+        }
+        if (nivelStockCatalogo(stock, minimo) == Nivel.ADVERTENCIA) {
+            return estiloFila(Nivel.ADVERTENCIA, false);
+        }
+        return "-fx-background-color: #D8F2DF; -fx-text-fill: #236344;"
+                + " -fx-text-background-color: #236344;";
     }
 }
