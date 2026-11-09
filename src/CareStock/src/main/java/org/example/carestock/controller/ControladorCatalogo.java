@@ -904,7 +904,9 @@ private static void habilitarAccion(
         );
 
         lblSeleccion.setText("Nuevo producto");
-        chkRequiereRefrigeracion.setSelected(false);
+        if (chkRequiereRefrigeracion != null) {
+            chkRequiereRefrigeracion.setSelected(false);
+        }
     }
 
     // ========================================
@@ -1019,7 +1021,9 @@ private static void habilitarAccion(
                     .ifPresent(
                             cmbCategoriaMedicamento::setValue
                     );
-             chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion());
+            if (chkRequiereRefrigeracion != null) {
+                chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion());
+            }
         }
     }
 
@@ -1126,7 +1130,8 @@ private static void habilitarAccion(
             p.setPrecio(leerPrecioMedicamento());
             p.setStockTotal(0);
             p.setEstado("ACTIVO");
-            p.setRequiereRefrigeracion(chkRequiereRefrigeracion.isSelected()); 
+            boolean requiereFrio = chkRequiereRefrigeracion != null && chkRequiereRefrigeracion.isSelected();
+            p.setRequiereRefrigeracion(requiereFrio);
         });
     }
 
