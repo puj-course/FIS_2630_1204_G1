@@ -98,6 +98,7 @@ public class ControladorInventario {
     @FXML private javafx.scene.shape.Circle badgeNotificaciones;
     @FXML private Label lblContadorNotificaciones;
     @FXML private Button btnGenerarQR;
+    @FXML private TableColumn<Lote, String> colRefrigeracion;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -163,7 +164,16 @@ public class ControladorInventario {
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
         colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
         colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
-    @Override
+        if (colRefrigeracion != null) {
+            colRefrigeracion.setCellValueFactory(cellData -> {
+                Lote lote = cellData.getValue();
+                if (lote != null && lote.isRequiereRefrigeracion()) {
+                    return new javafx.beans.property.ReadOnlyStringWrapper("❄️");
+                }
+                return new javafx.beans.property.ReadOnlyStringWrapper("");
+            });
+        }
+            @Override
     protected void updateItem(LocalDate fecha, boolean empty) {
         super.updateItem(fecha, empty);
         if (empty || fecha == null) {
