@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
-# Bibliotecas graficas de JavaFX y display virtual
+# JavaFX y acceso grafico
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libgtk-3-0 \
@@ -14,25 +14,29 @@ RUN apt-get update && \
         libxrandr2 \
         libgl1 \
         libasound2 \
+        libgstreamer1.0-0 \
+        libgstreamer-plugins-base1.0-0 \
         xvfb \
         xauth \
-        curl \
+        x11-utils \
+        x11vnc \
+        novnc \
+        websockify \
+        fontconfig \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Maven Wrapper del proyecto real
-COPY .mvn .mvn
-COPY mvnw pom.xml ./
+COPY target/CareStock-1.0-SNAPSHOT.jar /app/carestock.jar
+COPY target/docker-libs-linux/ /app/libs/
+COPY docker-start.sh /app/docker-start.sh
 
-RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
+RUN chmod +x /app/docker-start.sh
 
-# Codigo fuente de CareStock
-COPY src ./src
+RUN java --module-path /app/carestock.jar:/app/libs \
+    --validate-modules
 
-# Construir el proyecto
-RUN ./mvnw -B -DskipTests clean package
-
-# JavaFX en modo grafico virtual
 ENV JAVA_TOOL_OPTIONS="-Dprism.order=sw"
 
-CMD ["xvfb-run", "-a", "./mvnw", "-q", "javafx:run"]
+EXPOSE 6080
+
+CMD ["/app/docker-start.sh"]

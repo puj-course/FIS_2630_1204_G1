@@ -1,0 +1,21 @@
+name: carestock-remoto
+
+services:
+  carestock:
+    image: docker.io/mateosalazarb/carestock:1.0
+
+    ports:
+      - "127.0.0.1:6080:6080"
+
+    volumes:
+      - type: bind
+        source: ./conexion-local.properties
+        target: /app/config/conexion-local.properties
+        read_only: true
+        bind:
+          create_host_path: false
+
+    environment:
+      JAVA_TOOL_OPTIONS: "-Dprism.order=sw"
+
+    restart: unless-stopped
