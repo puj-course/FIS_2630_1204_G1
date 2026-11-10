@@ -16,6 +16,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 import org.example.carestock.CareStockApp;
+import org.example.carestock.DataTransferObject.FiltroDisponibilidad;
 import org.example.carestock.DataTransferObject.FiltroProductoInventario;
 import org.example.carestock.DataTransferObject.ProductoInventario;
 import org.example.carestock.facade.Inventario;
@@ -35,6 +36,7 @@ import java.util.List;
 public class ConsultaInventarioController {
 
     @FXML private ComboBox<String> cmbCategoria;
+    @FXML private ComboBox<String> cmbDisponibilidad;
     @FXML private TextField txtBuscar;
     @FXML private Button btnActualizar;
     @FXML private Button btnRegistrar;
@@ -126,6 +128,11 @@ public class ConsultaInventarioController {
 
         var encontrado = ResolucionNavegacionAlertas.buscarProducto(
                 destino, productos);
+
+        if (cmbDisponibilidad != null) {
+            cmbDisponibilidad.getSelectionModel().select(
+                    FiltroDisponibilidad.TODOS);
+        }
 
         cmbCategoria.getSelectionModel().select(
                 destino.categoria().etiqueta());
@@ -248,6 +255,25 @@ public class ConsultaInventarioController {
         txtBuscar.textProperty().addListener(
                 (observable, anterior, actual) -> aplicarFiltros()
         );
+
+        if (cmbDisponibilidad != null) {
+            cmbDisponibilidad.setItems(
+                    FXCollections.observableArrayList(
+                            FiltroDisponibilidad.opciones()));
+
+            cmbDisponibilidad.getSelectionModel().select(
+                    FiltroDisponibilidad.TODOS);
+
+            cmbDisponibilidad.valueProperty().addListener(
+                    (observable, anterior, actual) -> aplicarFiltros()
+            );
+        }
+    }
+
+    private String disponibilidadSeleccionada() {
+        return cmbDisponibilidad == null
+                ? FiltroDisponibilidad.TODOS
+                : cmbDisponibilidad.getValue();
     }
 
     private void configurarAcciones() {
@@ -297,6 +323,9 @@ public class ConsultaInventarioController {
                         producto,
                         cmbCategoria.getValue(),
                         txtBuscar.getText()
+                ) && FiltroDisponibilidad.coincide(
+                        producto,
+                        disponibilidadSeleccionada()
                 )
         );
 
