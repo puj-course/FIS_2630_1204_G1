@@ -108,6 +108,19 @@ public class ControladorMovimientos {
                 (obs, anterior, nueva) -> mostrarStock(nueva)
         );
 
+        
+        cmbMovimiento.valueProperty().addListener(
+                (obs, anterior, nueva) -> mostrarStock(cmbProducto.getValue())
+        );
+
+        txtCantidad.textProperty().addListener(
+                (obs, anterior, nueva) -> mostrarStock(cmbProducto.getValue())
+        );
+
+
+
+
+        
         txtCantidad.setTextFormatter(
                 new TextFormatter<>(cambio ->
                         cambio.getControlNewText()
