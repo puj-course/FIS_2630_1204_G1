@@ -11,7 +11,9 @@ public class Maternidad extends ProductoBase {
     private boolean hipoalergenico;
     private int edadGestacionalSugerida;
 
-    public Maternidad() {}
+    public Maternidad() {
+        // Constructor para formularios y mapeo de datos.
+    }
 
     // =========================================
     // REGLAS DE NEGOCIO - VALIDABLE

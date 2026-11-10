@@ -13,6 +13,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class EstiloAlertasTest {
 
     @Test
+    void catalogoUsaVerdeYRespetaPrioridades() {
+        assertTrue(EstiloAlertas.estiloFilaCatalogo("ACTIVO", 0, 0).contains("#F0A8A8"));
+        assertTrue(EstiloAlertas.estiloFilaCatalogo("ACTIVO", 4, 10).contains("#F6CE8E"));
+        assertTrue(EstiloAlertas.estiloFilaCatalogo("ACTIVO", 10, 10).contains("#D8F2DF"));
+        assertTrue(EstiloAlertas.estiloFilaCatalogo("ACTIVO", 20, 10).contains("#D8F2DF"));
+        assertTrue(EstiloAlertas.estiloFilaCatalogo("INACTIVO", 20, 10).contains("#ECEFF2"));
+        assertTrue(EstiloAlertas.estiloFilaCatalogo("INACTIVO", 0, 10).contains("#F0A8A8"));
+        assertEquals(Nivel.NINGUNO, EstiloAlertas.nivelStockCatalogo(10, 10));
+    }
+
+
+    @Test
     void severidadCriticaEsNivelCritico() {
         assertEquals(Nivel.CRITICO, EstiloAlertas.nivel(Severidad.CRITICA));
     }

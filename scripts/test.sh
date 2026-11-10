@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-mvn -B clean test
+
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$RAIZ/src/CareStock"
+
+bash ./mvnw -B -ntp clean verify

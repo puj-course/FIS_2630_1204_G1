@@ -33,6 +33,30 @@ public class RegistroLoteService {
                                 "Medicamento no existe, inactivo o pertenece a otra farmacia");
                     }
                 }
+                    // Validar cadena de frío (#1039)
+    String sqlMed = "SELECT requiere_refrigeracion FROM medicamentos WHERE id_medicamento = ?";
+    try (
+         PreparedStatement ps = con.prepareStatement(sqlMed)) {
+        ps.setInt(1, lote.getIdMedicamento());
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next() && rs.getBoolean("requiere_refrigeracion")) {
+                String sqlUbi = "SELECT estante, nivel FROM ubicaciones WHERE id_ubicacion = ?";
+                try (PreparedStatement psUbi = con.prepareStatement(sqlUbi)) {
+                    psUbi.setInt(1, lote.getIdUbicacion());
+                    try (ResultSet rsUbi = psUbi.executeQuery()) {
+                        if (rsUbi.next()) {
+                            String ubicacion = (rsUbi.getString("estante") + " " + rsUbi.getString("nivel")).toLowerCase();
+                            if (!ubicacion.contains("frio") && !ubicacion.contains("refrigerador")) {
+                                throw new ReglaNegocioException(
+                                    "El medicamento requiere cadena de frío, pero la ubicación seleccionada no es de refrigeración (debe contener 'Frío' o 'Refrigerador')."
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
                 String insertar = "INSERT INTO lotes " +
                         "(numero_lote,id_medicamento,cantidad_actual,fecha_vencimiento," +
                         "id_ubicacion,estado_lote,id_usuario) VALUES (?,?,?,?,?,?,?) RETURNING id_lote";

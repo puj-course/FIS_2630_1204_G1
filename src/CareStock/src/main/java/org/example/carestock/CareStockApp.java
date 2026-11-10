@@ -9,16 +9,27 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import org.example.carestock.session.SesionUsuario;
-import org.example.carestock.controller.ControladorCatalogo;
+import org.example.carestock.controller.ControladorInventario;
+import org.example.carestock.controller.ConsultaInventarioController;
+import org.example.carestock.dto.AlertaInventario;
+import org.example.carestock.dto.AlertaInventario.TipoAlerta;
+import org.example.carestock.service.ResolucionNavegacionAlertas;
+import org.example.carestock.service.PoliticaAccionesAlertas;
+import org.example.carestock.dto.AlertaInventario.Categoria;
+import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicReference;
 import org.example.carestock.config.PrecalentadorConexionBD;
 
 import java.net.URL;
 
 public class CareStockApp extends Application {
+    private static final String VISTA_INVENTARIO = "/org/example/carestock/inventario-view.fxml";
 
-    private static CareStockApp instance;
+    private static final AtomicReference<CareStockApp> INSTANCE = new AtomicReference<>();
 
+    private static final System.Logger LOGGER = System.getLogger(CareStockApp.class.getName());
     private Stage primaryStage;
+    private ControladorInventario controladorDashboard;
 
     private record DestinoCatalogo(
             String categoria,
@@ -28,12 +39,12 @@ public class CareStockApp extends Application {
     private DestinoCatalogo destinoCatalogo;
 
     public static CareStockApp getInstance() {
-        return instance;
+        return INSTANCE.get();
     }
 
     @Override
     public void start(Stage stage) throws Exception {
-        instance = this;
+        INSTANCE.set(this);
         this.primaryStage = stage;
 
         stage.setTitle("CareStock - Control de Inventario y Farmacovigilancia");
@@ -87,7 +98,7 @@ public class CareStockApp extends Application {
         }
 
         transicionarEscena(
-                "/org/example/carestock/inventario-view.fxml",
+                VISTA_INVENTARIO,
                 1100,
                 750
         );
@@ -97,6 +108,7 @@ public class CareStockApp extends Application {
     // NAVEGACION: CATALOGO CRUD
     // ========================================
 
+
     public void mostrarCatalogo() {
 
         if (!SesionUsuario.estaActiva()) {
@@ -105,20 +117,34 @@ public class CareStockApp extends Application {
         }
 
         if (SesionUsuario.actual().idFarmacia() == null) {
-            Alert alerta = new Alert(
+            Alert aviso = new Alert(
                     Alert.AlertType.WARNING,
-                    "Se requiere una farmacia asignada para consultar el catalogo."
-            );
-            alerta.setHeaderText(null);
-            alerta.showAndWait();
+                    "Se requiere una farmacia asignada para consultar el catalogo.");
+
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
             return;
         }
 
-        transicionarEscena(
-                "/org/example/carestock/catalogo-view.fxml",
-                1150,
-                760
-        );
+        DestinoCatalogo destino = destinoCatalogo;
+        destinoCatalogo = null;
+
+        String categoria = destino == null
+                ? null : destino.categoria();
+
+        Integer id = destino == null
+                ? null : destino.id();
+
+        if (controladorDashboard != null) {
+            controladorDashboard.abrirCatalogoIntegrado(
+                    categoria, id);
+        } else {
+            transicionarEscena(
+                    VISTA_INVENTARIO,
+                    1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirCatalogoIntegrado(categoria, id));
+        }
     }
 
     public void mostrarCatalogoParaRegistro(String categoria) {
@@ -185,6 +211,61 @@ public class CareStockApp extends Application {
         );
     }
     
+    public void mostrarDetalleAlerta(
+            AlertaInventario alerta, Integer farmaciaOrigen) {
+
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        var destino = ResolucionNavegacionAlertas.resolver(
+                alerta, farmaciaOrigen,
+                SesionUsuario.actual().idFarmacia());
+
+        if (destino.tipo() == TipoAlerta.STOCK_MINIMO) {
+            transicionarEscena(
+                    "/org/example/carestock/consulta-inventario-view.fxml",
+                    1120, 720,
+                    controlador -> ((ConsultaInventarioController) controlador)
+                            .abrirDesdeAlerta(destino));
+        } else {
+            transicionarEscena(
+                    VISTA_INVENTARIO,
+                    1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirDesdeAlerta(destino));
+        }
+    }
+
+    /** Abre una operación existente; nunca modifica inventario al navegar. */
+    public void mostrarGestionAlerta(AlertaInventario alerta, Integer farmaciaOrigen) {
+        if (!SesionUsuario.estaActiva()) {
+            throw new SecurityException("Debe iniciar sesión para gestionar alertas.");
+        }
+        var sesion = SesionUsuario.actual();
+        var accion = PoliticaAccionesAlertas.exigir(alerta, sesion, farmaciaOrigen);
+        var destino = ResolucionNavegacionAlertas.resolver(
+                alerta, farmaciaOrigen, sesion.idFarmacia());
+
+        if (accion == PoliticaAccionesAlertas.Accion.GESTIONAR_LOTE) {
+            transicionarEscena(
+                    VISTA_INVENTARIO, 1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirDesdeAlerta(destino));
+        } else if (destino.categoria() == Categoria.MEDICAMENTO) {
+            transicionarEscena(
+                    VISTA_INVENTARIO, 1100, 750,
+                    controlador -> ((ControladorInventario) controlador)
+                            .abrirGestionStockMedicamento(destino));
+        } else {
+            transicionarEscena(
+                    "/org/example/carestock/movimientos-view.fxml", 1100, 750,
+                    controlador -> ((org.example.carestock.controller.ControladorMovimientos) controlador)
+                            .abrirDesdeAlerta(destino));
+        }
+    }
+
     public void mostrarFormularioMovimientos() {
 
         if (!SesionUsuario.estaActiva()) {
@@ -192,11 +273,13 @@ public class CareStockApp extends Application {
             return;
         }
 
-        if (SesionUsuario.actual().idFarmacia() == null) {
+        var sesion = SesionUsuario.actual();
+        if (sesion.idFarmacia() == null || sesion.idFarmacia() <= 0
+                || !PoliticaAccionesAlertas.gestorPermitido(sesion.rol())) {
 
             Alert alerta = new Alert(
                     Alert.AlertType.WARNING,
-                    "Se requiere una farmacia asignada."
+                    "Solo administradores y farmacéuticos de la farmacia activa pueden registrar movimientos."
             );
 
             alerta.setHeaderText(null);
@@ -271,6 +354,34 @@ public class CareStockApp extends Application {
                 1100, 750);
     }
 
+    /** Abre la planificación solo para administradores. */
+    public void mostrarReposicion() {
+        if (!SesionUsuario.estaActiva()) {
+            mostrarLogin();
+            return;
+        }
+
+        var sesion = SesionUsuario.actual();
+
+        if (!sesion.esAdministrador()
+                || sesion.idFarmacia() == null
+                || sesion.idFarmacia() <= 0) {
+
+            Alert aviso = new Alert(
+                    Alert.AlertType.WARNING,
+                    "Solo administradores con farmacia activa "
+                    + "pueden consultar la reposición.");
+
+            aviso.setHeaderText(null);
+            aviso.showAndWait();
+            return;
+        }
+
+        transicionarEscena(
+                "/org/example/carestock/reposicion-view.fxml",
+                1180, 750);
+    }
+
     public void mostrarAlertas() {
         if (!SesionUsuario.estaActiva()) {
             mostrarLogin();
@@ -302,37 +413,30 @@ public class CareStockApp extends Application {
     // TRANSICION ENTRE VISTAS
     // ========================================
 
-    void transicionarEscena(
-            String fxmlRuta,
-            double ancho,
-            double alto
-    ) {
+    void transicionarEscena(String fxmlRuta, double ancho, double alto) {
+        transicionarEscena(fxmlRuta, ancho, alto, null);
+    }
+
+    private void transicionarEscena(
+            String fxmlRuta, double ancho, double alto,
+            Consumer<Object> configuracion) {
         try {
             URL fxmlUrl = getClass().getResource(fxmlRuta);
 
             if (fxmlUrl == null) {
-                System.err.println(
-                        "No se encontro el archivo FXML: " + fxmlRuta
-                );
+                LOGGER.log(System.Logger.Level.WARNING, "No se encontro el archivo FXML: {0}", fxmlRuta);
                 return;
             }
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
+            Object controlador = loader.getController();
+            controladorDashboard =
+                    controlador instanceof ControladorInventario panel
+                            ? panel : null;
 
-            if (fxmlRuta.endsWith("/catalogo-view.fxml")
-                    && destinoCatalogo != null) {
-
-                DestinoCatalogo destino = destinoCatalogo;
-                destinoCatalogo = null;
-
-                ControladorCatalogo controlador =
-                        loader.getController();
-
-                controlador.abrirDesdeConsulta(
-                        destino.categoria(),
-                        destino.id()
-                );
+            if (configuracion != null) {
+                configuracion.accept(loader.getController());
             }
 
             root.setOpacity(0);
@@ -360,10 +464,7 @@ public class CareStockApp extends Application {
             fadeIn.play();
 
         } catch (Exception e) {
-            System.err.println(
-                    "Error al cargar la pantalla: " + fxmlRuta
-            );
-            e.printStackTrace();
+            LOGGER.log(System.Logger.Level.ERROR, "Error al cargar la pantalla: " + fxmlRuta, e);
             throw new IllegalStateException("No se pudo cargar la vista " + fxmlRuta, e);
         }
     }

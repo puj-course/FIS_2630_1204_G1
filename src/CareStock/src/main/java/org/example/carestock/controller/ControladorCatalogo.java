@@ -3,9 +3,17 @@ package org.example.carestock.controller;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
+import java.util.Locale;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.geometry.Pos;
+import javafx.application.Platform;
 
 import org.example.carestock.CareStockApp;
 import org.example.carestock.DataTransferObject.LecturaCampos;
@@ -27,8 +35,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javafx.animation.PauseTransition;
-import javafx.util.Duration;
 /**
  * Controlador del catalogo de productos.
  *
@@ -36,12 +42,27 @@ import javafx.util.Duration;
  * La consulta unificada es una pantalla independiente.
  */
 public class ControladorCatalogo {
+    private static final String CATEGORIA_MEDICAMENTOS = "Medicamentos";
+    private static final String CATEGORIA_MATERNIDAD = "Maternidad";
 
     // ========================================
     // COMPONENTES GENERALES
     // ========================================
 
     @FXML private ComboBox<String> cmbCategoria;
+    @FXML private TextField txtBuscar;
+    @FXML private StackPane capaFormulario;
+    private boolean capaFormularioEnVentana;
+    @FXML private Button btnEditarCatalogo;
+    @FXML private Button btnLimpiar;
+    @FXML private Button btnRegistrarFormulario;
+    @FXML private Button btnActualizarFormulario;
+    @FXML private Button btnDesactivarFormulario;
+    @FXML private Button btnSimularFormulario;
+
+    private List<RegistroCatalogo<?>> registrosCompletos = List.of();
+    private boolean cargaCategoriaExitosa;
+
 
     @FXML
     private TableView<RegistroCatalogo<?>> tablaProductos;
@@ -61,6 +82,7 @@ public class ControladorCatalogo {
 
     @FXML
     private VBox panelDescripcion, panelPrecioStock;
+    @FXML private CheckBox chkRequiereRefrigeracion;
 
     // ========================================
     // CAMPOS DE ASEO
@@ -116,6 +138,12 @@ public class ControladorCatalogo {
 
     private Inventario inventario;
     private RegistroCatalogo<?> seleccionado;
+    private Runnable alActualizarIndicadores = () -> { };
+
+    public void alActualizarIndicadores(Runnable accion) {
+        this.alActualizarIndicadores =
+                java.util.Objects.requireNonNull(accion);
+    }
 
     public record CategoriaMedicamento(
             int id,
@@ -130,8 +158,6 @@ public class ControladorCatalogo {
     // ========================================
     // INICIALIZACION
     // ========================================
-    @FXML private Button btnLimpiar;
-
     @FXML
     public void initialize() {
 
@@ -150,21 +176,29 @@ public class ControladorCatalogo {
 
         cmbCategoria.setItems(
                 FXCollections.observableArrayList(
-                        "Medicamentos",
+                        CATEGORIA_MEDICAMENTOS,
                         "Aseo",
-                        "Maternidad"
+                        CATEGORIA_MATERNIDAD
                 )
         );
 
         configurarTabla();
         configurarSeleccion();
         configurarCategorias();
+        configurarBusqueda();
 
         cmbCategoria.getSelectionModel()
-                .select("Medicamentos");
+                .select(CATEGORIA_MEDICAMENTOS);
 
         boolean puedeEditar = SesionUsuario.esAdministrador();
         panelFormulario.setDisable(!puedeEditar);
+
+        if (btnLimpiar != null) {
+            btnLimpiar.setDisable(!puedeEditar);
+        }
+        if (btnEditarCatalogo != null) {
+            btnEditarCatalogo.setDisable(!puedeEditar);
+        }
         if (!puedeEditar) {
             lblEstado.setText("Modo consulta: solo ADMINISTRADOR puede modificar productos.");
         }
@@ -183,9 +217,9 @@ public class ControladorCatalogo {
         }
 
         String categoriaFormulario = switch (categoria) {
-            case "Medicamento", "Medicamentos" -> "Medicamentos";
+            case "Medicamento", CATEGORIA_MEDICAMENTOS -> CATEGORIA_MEDICAMENTOS;
             case "Aseo" -> "Aseo";
-            case "Maternidad" -> "Maternidad";
+            case CATEGORIA_MATERNIDAD -> CATEGORIA_MATERNIDAD;
             default -> throw new IllegalArgumentException(
                     "Categoria no reconocida"
             );
@@ -199,7 +233,7 @@ public class ControladorCatalogo {
             lblEstado.setText(
                     "Formulario listo para registrar."
             );
-            txtCodigo.requestFocus();
+            mostrarFormulario(true);
             return;
         }
 
@@ -209,6 +243,7 @@ public class ControladorCatalogo {
             if (fila.id() == idProducto.intValue()) {
                 tablaProductos.getSelectionModel().select(fila);
                 tablaProductos.scrollTo(fila);
+                mostrarFormulario(false);
                 return;
             }
         }
@@ -224,76 +259,104 @@ public class ControladorCatalogo {
     private void configurarTabla() {
 
         colId.setCellValueFactory(
-                c -> str(c.getValue().id())
-        );
+                c -> str(c.getValue().id()));
 
         colCodigo.setCellValueFactory(
-                c -> str(codigo(c.getValue().producto()))
-        );
+                c -> str(codigo(c.getValue().producto())));
 
         colNombre.setCellValueFactory(
-                c -> str(nombre(c.getValue().producto()))
-        );
+                c -> str(nombre(c.getValue().producto())));
 
         colDescripcion.setCellValueFactory(
-                c -> str(descripcion(c.getValue().producto()))
-        );
+                c -> str(descripcion(c.getValue().producto())));
 
         colPrecio.setCellValueFactory(
-                c -> str(precioTexto(c.getValue().producto()))
-        );
+                c -> str(precioTexto(c.getValue().producto())));
 
-        colStock.setCellFactory(col -> new TableCell<RegistroCatalogo<?>, String>() {
+        colStock.setCellValueFactory(
+                c -> str(stock(c.getValue().producto())));
+
+        colEstado.setCellValueFactory(
+                c -> str(c.getValue().estado()));
+
+        tablaProductos.setFixedCellSize(30);
+        tablaProductos.setFocusTraversable(true);
+
+        configurarCeldaStock();
+        configurarFilasCatalogo();
+    }
+
+    private void configurarCeldaStock() {
+        colStock.setCellFactory(col ->
+                new TableCell<RegistroCatalogo<?>, String>() {
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+
                 if (empty || item == null) {
                     setText(null);
                     setTooltip(null);
-                } else {
-                    setText(item);
-                    
-                    RegistroCatalogo<?> registro = getTableRow().getItem();
-                    Integer minimoProducto = registro == null
-                            ? null : stockMinimoDe(registro.producto());
-                    if (registro != null && minimoProducto != null) {
-                        if (stock(registro.producto()) <= minimoProducto) {
-                            Tooltip tooltip = new Tooltip("¡Alerta de stock mínimo!");
-                            tooltip.setStyle(EstiloAlertas.ESTILO_TOOLTIP_ALERTA);
-                            setTooltip(tooltip);
-                        } else {
-                            setTooltip(null);
-                        }
-                    } else {
-                        setTooltip(null);
-                    }
+                    return;
                 }
-            }
-        });
 
-        colEstado.setCellValueFactory(
-                c -> str(c.getValue().estado())
-        );
-        tablaProductos.setRowFactory(tv -> new TableRow<RegistroCatalogo<?>>() {
-            @Override
-            protected void updateItem(RegistroCatalogo<?> item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setStyle("");
-                } else {
-                    int stockActual = stock(item.producto());
-                    Integer stockMinimo = stockMinimoDe(item.producto());
+                setText(item);
 
-                    if (stockMinimo != null && stockActual <= stockMinimo) {
-                        setStyle(EstiloAlertas.estiloFila(
-                                EstiloAlertas.nivelPorExistencias(stockActual), false));
-                    } else {
-                        setStyle(""); 
-                    }
-                }
+                RegistroCatalogo<?> registro =
+                        getTableRow().getItem();
+
+                setTooltip(tooltipStock(registro));
             }
         });
     }
+
+    private Tooltip tooltipStock(RegistroCatalogo<?> registro) {
+        if (registro == null
+                || "INACTIVO".equalsIgnoreCase(registro.estado())) {
+            return null;
+        }
+
+        Integer minimo = stockMinimoDe(registro.producto());
+
+        if (minimo == null
+                || stock(registro.producto()) >= minimo) {
+            return null;
+        }
+
+        Tooltip tooltip =
+                new Tooltip("¡Alerta de stock mínimo!");
+
+        tooltip.setStyle(
+                EstiloAlertas.ESTILO_TOOLTIP_ALERTA);
+
+        return tooltip;
+    }
+
+    private void configurarFilasCatalogo() {
+        tablaProductos.setRowFactory(tv ->
+                new TableRow<RegistroCatalogo<?>>() {
+
+            @Override
+            protected void updateItem(
+                    RegistroCatalogo<?> item,
+                    boolean empty) {
+
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setStyle("");
+                    return;
+                }
+
+                setStyle(
+                        EstiloAlertas.estiloFilaCatalogo(
+                                item.estado(),
+                                stock(item.producto()),
+                                stockMinimoDe(item.producto())));
+            }
+        });
+    }
+
 
     private static Integer stockMinimoDe(Object producto) {
         if (producto instanceof Medicamento m) {
@@ -392,6 +455,16 @@ public class ControladorCatalogo {
         return ((Medicamento) producto).getStockTotal();
     }
 
+    private void actualizarDisponibilidadDesactivar() {
+        if (btnDesactivarFormulario == null) return;
+        boolean permitido = seleccionado != null
+                && "ACTIVO".equalsIgnoreCase(seleccionado.estado())
+                && stock(seleccionado.producto()) == 0;
+        btnDesactivarFormulario.setDisable(!permitido);
+        btnDesactivarFormulario.setTooltip(permitido ? null
+                : new Tooltip("Solo se puede desactivar con stock cero."));
+    }
+
     // ========================================
     // SELECCION
     // ========================================
@@ -416,6 +489,7 @@ public class ControladorCatalogo {
 
                         llenarFormulario(actual.producto());
                     }
+                    actualizarDisponibilidadDesactivar();
                 });
     }
 
@@ -429,7 +503,7 @@ public class ControladorCatalogo {
                 .addListener((obs, anterior, actual) -> {
 
                     boolean esMedicamento =
-                            "Medicamentos".equals(actual);
+                            CATEGORIA_MEDICAMENTOS.equals(actual);
 
                     visible(
                             panelAseo,
@@ -438,7 +512,7 @@ public class ControladorCatalogo {
 
                     visible(
                             panelMaternidad,
-                            "Maternidad".equals(actual)
+                            CATEGORIA_MATERNIDAD.equals(actual)
                     );
 
                     visible(
@@ -474,6 +548,9 @@ public class ControladorCatalogo {
                         cargarCategoriasMedicamento();
                     }
 
+                    if (txtBuscar != null) {
+                        txtBuscar.clear();
+                    }
                     cargarTabla();
                 });
     }
@@ -487,6 +564,178 @@ public class ControladorCatalogo {
         panel.setManaged(mostrar);
     }
 
+
+    public String categoriaActual() {
+        return cmbCategoria.getValue();
+    }
+
+    public List<RegistroCatalogo<?>> registrosDeCategoria() {
+        if (!cargaCategoriaExitosa) {
+            throw new IllegalStateException(
+                    "No se pudo consultar el catalogo");
+        }
+        return List.copyOf(registrosCompletos);
+    }
+
+
+    private void configurarBusqueda() {
+        if (txtBuscar != null) {
+            txtBuscar.textProperty().addListener(
+                    (obs, anterior, actual) -> actualizarBusqueda());
+        }
+    }
+
+    private void actualizarBusqueda() {
+        if (txtBuscar == null || tablaProductos == null) {
+            return;
+        }
+
+        String filtro = txtBuscar.getText() == null
+                ? ""
+                : txtBuscar.getText().trim()
+                        .toLowerCase(Locale.ROOT);
+
+        var encontrados = registrosCompletos.stream()
+                .filter(registro -> {
+                    Object producto = registro.producto();
+
+                    return (registro.id() + " "
+                            + codigo(producto) + " "
+                            + nombre(producto) + " "
+                            + descripcion(producto))
+                            .toLowerCase(Locale.ROOT)
+                            .contains(filtro);
+                })
+                .toList();
+
+        tablaProductos.setItems(
+                FXCollections.observableArrayList(encontrados));
+    }
+
+    private void mostrarFormulario(boolean nuevo) {
+        if (capaFormulario == null) {
+            return;
+        }
+
+        habilitarAccion(btnRegistrarFormulario, nuevo);
+        habilitarAccion(btnActualizarFormulario, !nuevo);
+        habilitarAccion(btnDesactivarFormulario, !nuevo);
+        actualizarDisponibilidadDesactivar();
+        habilitarAccion(btnSimularFormulario, !nuevo);
+
+        capaFormulario.setManaged(true);
+        capaFormulario.setVisible(true);
+        Platform.runLater(this::instalarCapaEnVentana);
+
+        Platform.runLater(() -> txtCodigo.requestFocus());
+    }
+
+    
+    /**
+     * Integra el formulario sobre la ventana principal.
+     * No crea otra Stage ni modifica el CRUD.
+     */
+    private void instalarCapaEnVentana() {
+        if (capaFormularioEnVentana || capaFormulario == null) {
+            return;
+        }
+
+        Scene escena = capaFormulario.getScene();
+
+        if (escena == null) {
+            return;
+        }
+
+        if (!(capaFormulario.getParent() instanceof Pane contenedor)) {
+            throw new IllegalStateException(
+                    "Contenedor del formulario no encontrado");
+        }
+
+        Parent raizActual = escena.getRoot();
+        StackPane raizSuperpuesta = new StackPane();
+
+        // Retirar la capa de su contenedor original.
+        contenedor.getChildren().remove(capaFormulario);
+
+        // Mantener el dashboard y superponer el formulario.
+        escena.setRoot(raizSuperpuesta);
+
+        raizSuperpuesta.getChildren().addAll(
+                raizActual, capaFormulario);
+
+        // Mantener el dashboard fijo y alineado arriba.
+        StackPane.setAlignment(raizActual, Pos.TOP_LEFT);
+
+        // Evitar que su tamano preferido desplace
+        // o recorte la barra superior.
+        if (raizActual instanceof Region fondoDashboard) {
+            fondoDashboard.setMinSize(0, 0);
+            fondoDashboard.setMaxSize(
+                    Double.MAX_VALUE,
+                    Double.MAX_VALUE);
+        }
+
+        // La capa modal ocupa el espacio disponible.
+        // Solo el formulario interior se centra.
+        capaFormulario.setMinSize(0, 0);
+
+
+        // La capa oscura ocupa toda la ventana.
+        capaFormulario.setMaxSize(
+                Double.MAX_VALUE, Double.MAX_VALUE);
+
+        StackPane.setAlignment(
+                capaFormulario, Pos.CENTER);
+
+        capaFormulario.toFront();
+
+        // Limitar el formulario y conservar su scroll.
+        if (!capaFormulario.getChildren().isEmpty()
+                && capaFormulario.getChildren().get(0) instanceof Region panel) {
+
+            panel.setMaxWidth(980);
+            panel.setMaxHeight(620);
+
+            StackPane.setAlignment(panel, Pos.CENTER);
+        }
+
+        capaFormularioEnVentana = true;
+    }
+
+private static void habilitarAccion(
+            Button boton, boolean mostrar) {
+
+        if (boton != null) {
+            boton.setVisible(mostrar);
+            boton.setManaged(mostrar);
+        }
+    }
+
+    @FXML
+    private void onCerrarFormulario() {
+        if (capaFormulario == null) {
+            return;
+        }
+
+        capaFormulario.setVisible(false);
+        capaFormulario.setManaged(false);
+    }
+
+    @FXML
+    private void onEditarSeleccionado() {
+        if (!validarPermisoEdicion()) {
+            return;
+        }
+
+        if (seleccionado == null) {
+            advertencia(
+                    "Seleccione primero un producto de la tabla.");
+            return;
+        }
+
+        mostrarFormulario(false);
+    }
+
     // ========================================
     // CONSULTAR PRODUCTOS
     // ========================================
@@ -497,6 +746,7 @@ public class ControladorCatalogo {
             return;
         }
 
+        cargaCategoriaExitosa = false;
         try {
 
             List<RegistroCatalogo<?>> datos =
@@ -507,10 +757,10 @@ public class ControladorCatalogo {
                 case "Aseo" ->
                         datos.addAll(inventario.listarAseo());
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         datos.addAll(inventario.listarMaternidad());
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         datos.addAll(inventario.listarMedicamentos());
 
                 default ->
@@ -519,9 +769,12 @@ public class ControladorCatalogo {
                         );
             }
 
+            registrosCompletos = List.copyOf(datos);
+
             tablaProductos.setItems(
-                    FXCollections.observableArrayList(datos)
-            );
+                    FXCollections.observableArrayList(datos));
+
+            actualizarBusqueda();
 
             lblEstado.setText(
                     "Se cargaron " + datos.size()
@@ -529,11 +782,21 @@ public class ControladorCatalogo {
                             + cmbCategoria.getValue() + "."
             );
 
+            cargaCategoriaExitosa = true;
+            actualizarBusqueda();
+            alActualizarIndicadores.run();
+
         } catch (Exception e) {
 
+            registrosCompletos = List.of();
+
             tablaProductos.setItems(
-                    FXCollections.observableArrayList()
-            );
+                    FXCollections.observableArrayList());
+
+            actualizarBusqueda();
+
+            actualizarBusqueda();
+            alActualizarIndicadores.run();
 
             mostrarError(
                     "No se pudo cargar el catalogo",
@@ -594,11 +857,12 @@ public class ControladorCatalogo {
     @FXML
     private void onRefrescar() {
 
-        if ("Medicamentos".equals(cmbCategoria.getValue())) {
+        if (CATEGORIA_MEDICAMENTOS.equals(cmbCategoria.getValue())) {
             cargarCategoriasMedicamento();
         }
 
         cargarTabla();
+        alActualizarIndicadores.run();
     }
 
     /**
@@ -628,9 +892,13 @@ public class ControladorCatalogo {
 
     @FXML
     private void onNuevo() {
+        if (!validarPermisoEdicion()) {
+            return;
+        }
+
         tablaProductos.getSelectionModel().clearSelection();
         limpiar();
-        txtCodigo.requestFocus();
+        mostrarFormulario(true);
     }
 
     // ========================================
@@ -676,6 +944,9 @@ public class ControladorCatalogo {
         );
 
         lblSeleccion.setText("Nuevo producto");
+        if (chkRequiereRefrigeracion != null) {
+            chkRequiereRefrigeracion.setSelected(false);
+        }
     }
 
     // ========================================
@@ -790,6 +1061,9 @@ public class ControladorCatalogo {
                     .ifPresent(
                             cmbCategoriaMedicamento::setValue
                     );
+            if (chkRequiereRefrigeracion != null) {
+                chkRequiereRefrigeracion.setSelected(m.isRequiereRefrigeracion());
+            }
         }
     }
 
@@ -896,6 +1170,8 @@ public class ControladorCatalogo {
             p.setPrecio(leerPrecioMedicamento());
             p.setStockTotal(0);
             p.setEstado("ACTIVO");
+            boolean requiereFrio = chkRequiereRefrigeracion != null && chkRequiereRefrigeracion.isSelected();
+            p.setRequiereRefrigeracion(requiereFrio);
         });
     }
 
@@ -917,12 +1193,12 @@ public class ControladorCatalogo {
                                 construirAseo()
                         );
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         inventario.registrarMaternidad(
                                 construirMaternidad()
                         );
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         inventario.registrarMedicamento(
                                 construirMedicamento()
                         ).getIdMedicamento();
@@ -939,6 +1215,8 @@ public class ControladorCatalogo {
 
             limpiar();
             cargarTabla();
+            alActualizarIndicadores.run();
+            onCerrarFormulario();
 
             Alert alerta = new Alert(Alert.AlertType.INFORMATION);
             alerta.setTitle("Registro Exitoso");
@@ -986,13 +1264,13 @@ public class ControladorCatalogo {
                                 construirAseo()
                         );
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         inventario.actualizarMaternidad(
                                 seleccionado.id(),
                                 construirMaternidad()
                         );
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         inventario.actualizarMedicamento(
                                 seleccionado.id(),
                                 construirMedicamento()
@@ -1018,7 +1296,9 @@ public class ControladorCatalogo {
 
             limpiar();
             cargarTabla();
-            
+            alActualizarIndicadores.run();
+            onCerrarFormulario();
+
             Alert alerta = new Alert(Alert.AlertType.INFORMATION);
             alerta.setTitle("Actualización Exitosa");
             alerta.setHeaderText(null);
@@ -1051,6 +1331,11 @@ public class ControladorCatalogo {
             advertencia("Seleccione un producto");
             return;
         }
+        if (!"ACTIVO".equalsIgnoreCase(seleccionado.estado())
+                || stock(seleccionado.producto()) != 0) {
+            advertencia("Solo se desactivan productos activos con stock cero.");
+            return;
+        }
 
         Alert confirmar = new Alert(
                 Alert.AlertType.CONFIRMATION,
@@ -1075,12 +1360,12 @@ public class ControladorCatalogo {
                                 seleccionado.id()
                         );
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         inventario.desactivarMaternidad(
                                 seleccionado.id()
                         );
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         inventario.desactivarMedicamento(
                                 seleccionado.id()
                         );
@@ -1100,6 +1385,8 @@ public class ControladorCatalogo {
 
             limpiar();
             cargarTabla();
+            alActualizarIndicadores.run();
+            onCerrarFormulario();
 
             lblEstado.setText("Producto desactivado.");
 
@@ -1147,5 +1434,145 @@ public class ControladorCatalogo {
         delay.play();
 
         alertaError.showAndWait();
+    }
+    // ========================================
+    // SIMULADOR DE COMPRAS 
+    // ========================================
+
+    public int simularCompra(int stockActual, int cantidadAComprar) {
+        if (cantidadAComprar <= 0) {
+            throw new IllegalArgumentException("La cantidad a comprar debe ser mayor a cero.");
+        }
+        return stockActual + cantidadAComprar;
+    }
+        @FXML
+    private void onSimularCompra() {
+        if (seleccionado == null) {
+            advertencia("Seleccione un producto de la tabla para simular la compra.");
+            return;
+        }
+
+        int stockActual = stock(seleccionado.producto());
+        String nombreProd = nombre(seleccionado.producto());
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Simulador de Compra (What-If)");
+        dialog.setHeaderText("Simulando compra para: " + nombreProd);
+
+        ButtonType btnCerrar = new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(btnCerrar);
+
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new javafx.geometry.Insets(10, 20, 10, 20));
+
+        Label lblStock = new Label("Stock actual: " + stockActual);
+        lblStock.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Label lblCantidad = new Label("Cantidad a comprar:");
+        TextField txtCantidadCompra = new TextField();
+        txtCantidadCompra.setPromptText("Ej: 50");
+
+        Button btnCalcular = new Button("Calcular");
+        btnCalcular.setStyle("-fx-background-color: #B7A6E0; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        Label lblResultado = new Label("");
+        lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
+
+                // Acción del botón Calcular
+        btnCalcular.setOnAction(e -> procesarSimulacion(
+                stockActual,
+                stockMinimoDe(seleccionado.producto()),
+                txtCantidadCompra,
+                lblResultado));
+
+        vbox.getChildren().addAll(
+                lblStock, new Separator(),
+                lblCantidad, txtCantidadCompra,
+                btnCalcular, new Separator(), lblResultado);
+
+        dialog.getDialogPane().setContent(vbox);
+        dialog.showAndWait();
+    }
+
+    void procesarSimulacion(
+            int stockActual,
+            Integer minimo,
+            TextField entrada,
+            Label resultado) {
+        try {
+            int cantidad = leerCantidadCompra(entrada.getText());
+            int nuevoStock = simularCompra(stockActual, cantidad);
+
+            mostrarResultadoCompra(
+                    resultado, stockActual, nuevoStock, minimo);
+
+        } catch (IllegalArgumentException ex) {
+            resultado.setText("Error: " + ex.getMessage());
+            resultado.setStyle(
+                    "-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+
+        } catch (RuntimeException ex) {
+            resultado.setText("Error inesperado: " + ex.getMessage());
+            resultado.setStyle(
+                    "-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+        }
+    }
+
+    static int leerCantidadCompra(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Debe ingresar una cantidad.");
+        }
+
+        final int cantidad;
+        try {
+            cantidad = Integer.parseInt(texto.trim());
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException(
+                    "Ingrese solo números enteros.", ex);
+        }
+
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException(
+                    "La cantidad debe ser mayor a cero.");
+        }
+
+        return cantidad;
+    }
+
+    static void mostrarResultadoCompra(
+            Label resultado,
+            int stockActual,
+            int nuevoStock,
+            Integer minimo) {
+
+        resultado.setText(
+                "Nuevo stock hipotético: " + nuevoStock + " unidades.");
+
+        if (minimo != null
+                && stockActual < minimo
+                && nuevoStock >= minimo) {
+
+            resultado.setText(resultado.getText()
+                    + "\n✅ ¡El producto pasaría de Stock Bajo a Stock Óptimo!");
+
+            resultado.setStyle(
+                    "-fx-font-size: 14px; -fx-text-fill: #27AE60;"
+                    + " -fx-font-weight: bold;");
+
+        } else if (minimo != null && nuevoStock < minimo) {
+
+            resultado.setText(resultado.getText()
+                    + "\n⚠️ El producto aún seguiría en alerta de Stock Bajo.");
+
+            resultado.setStyle(
+                    "-fx-font-size: 14px; -fx-text-fill: #E67E22;"
+                    + " -fx-font-weight: bold;");
+
+        } else {
+            resultado.setStyle(
+                    "-fx-font-size: 14px; -fx-text-fill: #6B5B95;"
+                    + " -fx-font-weight: bold;");
+        }
     }
 }

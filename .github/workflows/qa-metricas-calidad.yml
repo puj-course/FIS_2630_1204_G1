@@ -1,0 +1,51 @@
+name: QA - Metricas adicionales
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metricas:
+    name: LOC, complejidad ciclomatica y anidamiento
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v7
+
+      - name: Preparar Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Ejecutar metricas estaticas
+        run: |
+          java scripts/qa/MetricasCalidad.java \
+            src/CareStock/src/main/java \
+            src/CareStock/target/metricas-calidad
+
+      - name: Publicar resumen
+        run: |
+          cat src/CareStock/target/metricas-calidad/resumen.md \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar evidencias
+        uses: actions/upload-artifact@v4
+        with:
+          name: carestock-metricas-calidad
+          path: src/CareStock/target/metricas-calidad/
+          if-no-files-found: error
+          retention-days: 14

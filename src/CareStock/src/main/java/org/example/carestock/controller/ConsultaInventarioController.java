@@ -21,6 +21,8 @@ import org.example.carestock.DataTransferObject.ProductoInventario;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.proxy.InventarioConsultas;
 import org.example.carestock.session.SesionUsuario;
+import org.example.carestock.service.ResolucionNavegacionAlertas;
+import org.example.carestock.service.ResolucionNavegacionAlertas.Destino;
 
 import java.util.List;
 
@@ -58,6 +60,7 @@ public class ConsultaInventarioController {
     private Inventario inventario;
 
     private SesionUsuario.DatosUsuario sesionVista;
+    private Destino destinoAlerta;
 
     private boolean consultaExitosa;
     private boolean cargando;
@@ -93,6 +96,58 @@ public class ConsultaInventarioController {
         configurarAcciones();
 
         cargarDatos(false);
+    }
+
+    public void abrirDesdeAlerta(Destino destino) {
+        if (!mismaSesionYVista() || destino == null
+                || !java.util.Objects.equals(
+                        destino.idFarmacia(), sesionVista.idFarmacia())) {
+
+            lblEstado.setText(
+                    "La farmacia activa ha cambiado. No es posible abrir el producto.");
+            return;
+        }
+
+        destinoAlerta = destino;
+        lblEstado.setText("Localizando el producto de la alerta...");
+
+        if (consultaExitosa) {
+            seleccionarProductoDeAlerta();
+        }
+    }
+
+    private void seleccionarProductoDeAlerta() {
+        if (!mismaSesionYVista() || destinoAlerta == null) {
+            return;
+        }
+
+        Destino destino = destinoAlerta;
+        destinoAlerta = null;
+
+        var encontrado = ResolucionNavegacionAlertas.buscarProducto(
+                destino, productos);
+
+        cmbCategoria.getSelectionModel().select(
+                destino.categoria().etiqueta());
+
+        txtBuscar.setText(
+                destino.codigo() == null || destino.codigo().isBlank()
+                        ? destino.producto() : destino.codigo());
+
+        if (encontrado.isPresent()
+                && tablaInventario.getItems().contains(encontrado.get())) {
+
+            tablaInventario.getSelectionModel().select(encontrado.get());
+            tablaInventario.scrollTo(encontrado.get());
+
+            lblEstado.setText(
+                    "Producto seleccionado desde la alerta: "
+                            + destino.producto());
+        } else {
+            tablaInventario.getSelectionModel().clearSelection();
+            lblEstado.setText(
+                    "El producto ya no existe o no esta disponible en la farmacia activa.");
+        }
     }
 
     private void configurarColumnas() {
@@ -341,6 +396,7 @@ public class ConsultaInventarioController {
             consultaExitosa = true;
 
             aplicarFiltros();
+            seleccionarProductoDeAlerta();
             btnActualizar.setDisable(false);
             actualizarAcciones();
 

@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-command -v java >/dev/null 2>&1 || { echo "Java no está instalado."; exit 1; }
-command -v mvn >/dev/null 2>&1 || { echo "Maven no está instalado."; exit 1; }
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+command -v java >/dev/null 2>&1 || {
+  echo 'Falta Java 21 en PATH.'
+  exit 1
+}
+
+cd "$RAIZ/src/CareStock"
 
 java -version
-mvn -version
-mvn -B clean test
+bash ./mvnw -B -ntp clean test
 
-echo "CareStock listo. Configure DB_URL, DB_USER, DB_PASSWORD y CARESTOCK_USER_EMAIL antes de ejecutar."
+echo 'Configuracion comprobada.'

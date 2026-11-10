@@ -1,16 +1,32 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import java.io.IOException;
+import org.example.carestock.service.IndicadoresCatalogo;
+import org.example.carestock.service.ResumenCategoriaCatalogo;
 import org.example.carestock.CareStockApp;
 import org.example.carestock.session.SesionUsuario;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.service.ServicioAlertasInventario;
+import org.example.carestock.service.ResolucionNavegacionAlertas;
+import org.example.carestock.service.PoliticaAccionesAlertas;
+import org.example.carestock.service.ResolucionNavegacionAlertas.Destino;
 import org.example.carestock.service.ValidadorDispensacion;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Lote;
@@ -42,6 +58,19 @@ public class ControladorInventario {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private BorderPane dashboardRoot;
+    @FXML private ScrollPane vistaLotes;
+
+    private BorderPane vistaCatalogo;
+    private ControladorCatalogo controladorCatalogo;
+    private Label tituloTotalCatalogo;
+    private Label tituloIntermedioCatalogo;
+    private Label tituloAgotadosCatalogo;
+    private Label totalMedicamentosCatalogo;
+    private Label vencidosCatalogo;
+    private Label agotadosCatalogo;
+    private String estiloCatalogoOriginal;
+    private int versionIndicadores;
     @FXML private Button btnHistorial;
     @FXML private Button btnAjustes;
     @FXML private Button btnAlertas;
@@ -69,6 +98,8 @@ public class ControladorInventario {
     @FXML private Button btnCampana;
     @FXML private javafx.scene.shape.Circle badgeNotificaciones;
     @FXML private Label lblContadorNotificaciones;
+    @FXML private Button btnGenerarQR;
+    @FXML private TableColumn<Lote, String> colRefrigeracion;
 
     private static final String CATEGORIA_TODAS = "Todas";
 
@@ -76,6 +107,9 @@ public class ControladorInventario {
     private final ObservableList<Lote> listaLotes;
     private FilteredList<Lote> datosFiltrados;
     private Lote loteSeleccionado;
+    private Integer idMedicamentoAlerta;
+    private boolean cargaInicialEnCurso;
+    private Destino destinoLotePendiente;
     private Predicate<Lote> filtroTexto = lote -> true;
     private Predicate<Lote> filtroEstado = lote -> true;
     private Predicate<Lote> filtroCategoria = lote -> true;
@@ -131,7 +165,7 @@ public class ControladorInventario {
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
         colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
         colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
-    @Override
+            @Override
     protected void updateItem(LocalDate fecha, boolean empty) {
         super.updateItem(fecha, empty);
         if (empty || fecha == null) {
@@ -139,7 +173,7 @@ public class ControladorInventario {
             setTooltip(null);
         } else {
             setText(fecha.toString());
-            long dias = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fecha);
+            long dias = java.time.temporal.ChronoUnit.DAYS.between(FechaNegocio.hoy(), fecha);
             String mensaje;
             if (dias > 0) {
                 mensaje = "Vence en " + dias + " días";
@@ -158,7 +192,7 @@ public class ControladorInventario {
 
         cmbCategoria.getItems().add(CATEGORIA_TODAS);
         cmbCategoria.getSelectionModel().selectFirst();
-        cargarCategorias();
+        // Las categorias se consultan en la carga asincrona.
 
         configurarEstiloFilas();
         configurarFiltroBusqueda();
@@ -179,8 +213,57 @@ public class ControladorInventario {
             }
         });
 
-        cargarDatosTabla();
-        cargarContadoresPorCategoria();
+        cargarDatosInicialesAsync();
+    }
+
+    public void abrirDesdeAlerta(Destino destino) {
+        if (destino == null || !SesionUsuario.estaActiva()
+                || !java.util.Objects.equals(
+                        destino.idFarmacia(),
+                        SesionUsuario.actual().idFarmacia())) {
+
+            lblLoteSeleccionadoInfo.setText(
+                    "La farmacia activa ha cambiado. No es posible abrir el lote.");
+            return;
+        }
+
+        if (cargaInicialEnCurso) {
+            destinoLotePendiente = destino;
+            lblLoteSeleccionadoInfo.setText("Cargando lote solicitado...");
+            return;
+        }
+
+        onFiltrarTodos();
+
+        var encontrado = ResolucionNavegacionAlertas.buscarLote(
+                destino, listaLotes);
+
+        if (encontrado.isPresent()) {
+            datosFiltrados.setPredicate(
+                    lote -> lote.getIdLote() == destino.idReferencia());
+
+            tablaLotes.getSelectionModel().select(encontrado.get());
+            tablaLotes.scrollTo(encontrado.get());
+        } else {
+            tablaLotes.getSelectionModel().clearSelection();
+            lblLoteSeleccionadoInfo.setText(
+                    "El lote ya no existe o no esta disponible en la farmacia activa.");
+        }
+    }
+
+    public void abrirGestionStockMedicamento(Destino destino) {
+        if (destino == null
+                || destino.tipo() != org.example.carestock.dto.AlertaInventario.TipoAlerta.STOCK_MINIMO
+                || destino.categoria() != org.example.carestock.dto.AlertaInventario.Categoria.MEDICAMENTO
+                || !SesionUsuario.estaActiva()
+                || !PoliticaAccionesAlertas.gestorPermitido(SesionUsuario.actual().rol())
+                || !java.util.Objects.equals(destino.idFarmacia(),
+                        SesionUsuario.actual().idFarmacia())) {
+            throw new SecurityException("Sin permiso para reponer este medicamento.");
+        }
+        idMedicamentoAlerta = destino.idReferencia();
+        lblLoteSeleccionadoInfo.setText("Reponer " + destino.producto()
+                + ": seleccione 'Nuevo lote' para registrar la entrada.");
     }
 
     private void configurarFiltroBusqueda() {
@@ -249,7 +332,7 @@ public class ControladorInventario {
 
     @FXML
     private void onFiltrarVencidos() {
-        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(LocalDate.now());
+        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy());
         aplicarFiltros();
     }
 
@@ -264,7 +347,7 @@ public class ControladorInventario {
             return "RETENIDO";
         }
         if (lote.getFechaVencimiento() != null
-                && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy())) {
             return "DESHABILITADO";
         }
         return lote.getEstadoLote() == null
@@ -283,7 +366,7 @@ public class ControladorInventario {
                 if (lote == null || isEmpty()) {
                     setStyle("");
                 } else if (lote.getFechaVencimiento() != null
-                        && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                        && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy())) {
                     setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.CRITICO, isSelected()));
                 } else if (!"DISPONIBLE".equalsIgnoreCase(lote.getEstadoLote())) {
                     setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.ADVERTENCIA, isSelected()));
@@ -304,7 +387,9 @@ public class ControladorInventario {
     private void onCrearLote() {
         GestorLotesDialogo gestor = new GestorLotesDialogo(
                 tablaLotes.getScene().getWindow());
-        if (gestor.crear()) onRefrescar();
+        boolean creado = idMedicamentoAlerta == null
+                ? gestor.crear() : gestor.crearParaMedicamento(idMedicamentoAlerta);
+        if (creado) onRefrescar();
     }
 
     @FXML
@@ -352,8 +437,308 @@ public class ControladorInventario {
     }
 
     @FXML
+    private void onAbrirReposicion() {
+        CareStockApp.getInstance().mostrarReposicion();
+    }
+
+    @FXML
     private void onAbrirCatalogo() {
         CareStockApp.getInstance().mostrarCatalogo();
+    }
+
+    /**
+     * Integra el CRUD existente dentro del MainDashboard.
+     * No crea una nueva Scene ni una nueva Stage.
+     */
+    public void abrirCatalogoIntegrado(
+            String categoria, Integer idProducto) {
+
+        if (!SesionUsuario.estaActiva()
+                || SesionUsuario.actual().idFarmacia() == null) {
+            throw new SecurityException(
+                    "Se requiere una farmacia activa");
+        }
+
+        if (vistaCatalogo == null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource(
+                                "/org/example/carestock/catalogo-view.fxml"));
+
+                Parent contenido = loader.load();
+
+                if (!(contenido instanceof BorderPane panel)) {
+                    throw new IllegalStateException(
+                            "El catalogo debe usar BorderPane");
+                }
+
+                controladorCatalogo = loader.getController();
+
+                // Integrar indicadores y catalogo
+                // en el mismo ScrollPane.
+                // La cabecera azul del dashboard
+                // permanece fija.
+
+                if (!(panel.getCenter() instanceof ScrollPane scrollCatalogo)
+                        || scrollCatalogo.getContent() == null) {
+                    throw new IllegalStateException(
+                            "El catalogo requiere un ScrollPane con contenido");
+                }
+
+                javafx.scene.Node contenidoOriginal =
+                        scrollCatalogo.getContent();
+
+                VBox contenidoConCabecera = new VBox(
+                        encabezadoCatalogo(),
+                        contenidoOriginal
+                );
+
+                scrollCatalogo.setContent(contenidoConCabecera);
+                panel.setTop(null);
+
+                controladorCatalogo.alActualizarIndicadores(
+                        this::refrescarIndicadoresCatalogo);
+
+                vistaCatalogo = panel;
+                estiloCatalogoOriginal = btnCatalogo.getStyle();
+
+            } catch (IOException e) {
+                throw new IllegalStateException(
+                        "No se pudo integrar el catalogo", e);
+            }
+        }
+
+        dashboardRoot.setCenter(vistaCatalogo);
+
+        btnCatalogo.setStyle(
+                "-fx-background-color: #62518C; "
+                + "-fx-text-fill: white; "
+                + "-fx-font-weight: bold; "
+                + "-fx-background-radius: 8; "
+                + "-fx-border-color: white; "
+                + "-fx-border-radius: 8; "
+                + "-fx-border-width: 2;");
+
+        if (categoria != null) {
+            controladorCatalogo.abrirDesdeConsulta(
+                    categoria, idProducto);
+        }
+
+        refrescarIndicadoresCatalogo();
+    }
+
+    private VBox encabezadoCatalogo() {
+
+        Label titulo = new Label("Catálogo unificado");
+        titulo.setStyle(
+                "-fx-font-size: 22; -fx-font-weight: bold;");
+
+        Label subtitulo = new Label(
+                "Productos de la farmacia activa");
+
+        VBox izquierda = new VBox(4, titulo, subtitulo);
+        HBox.setHgrow(izquierda, Priority.ALWAYS);
+
+        Button volver = new Button("← Inventario de lotes");
+
+        volver.setStyle(
+                "-fx-background-color: #EDE7F7; "
+                + "-fx-text-fill: #62518C; "
+                + "-fx-font-weight: bold; "
+                + "-fx-cursor: hand; "
+                + "-fx-padding: 10 14;");
+
+        volver.setOnAction(evento -> volverALotes());
+
+        HBox fila = new HBox(16, izquierda, volver);
+        fila.setAlignment(Pos.CENTER_LEFT);
+
+        totalMedicamentosCatalogo = new Label("...");
+        vencidosCatalogo = new Label("...");
+        agotadosCatalogo = new Label("...");
+
+        tituloTotalCatalogo = new Label();
+        tituloIntermedioCatalogo = new Label();
+        tituloAgotadosCatalogo = new Label();
+
+        HBox tarjetas = new HBox(12,
+                tarjetaCatalogo(
+                        tituloTotalCatalogo, totalMedicamentosCatalogo),
+                tarjetaCatalogo(
+                        tituloIntermedioCatalogo, vencidosCatalogo),
+                tarjetaCatalogo(
+                        tituloAgotadosCatalogo, agotadosCatalogo));
+
+        VBox cabecera = new VBox(14, fila, tarjetas);
+        cabecera.setPadding(new Insets(15, 24, 12, 24));
+        cabecera.setStyle(
+                "-fx-background-color: #FDFBF7;");
+
+        return cabecera;
+    }
+
+    private VBox tarjetaCatalogo(
+            Label etiqueta, Label valor) {
+        etiqueta.setWrapText(true);
+
+        etiqueta.setStyle(
+                "-fx-font-size: 11; "
+                + "-fx-font-weight: bold; "
+                + "-fx-text-fill: #5B6663;");
+
+        valor.setStyle(
+                "-fx-font-size: 25; "
+                + "-fx-font-weight: bold; "
+                + "-fx-text-fill: #62518C;");
+
+        VBox tarjeta = new VBox(6, etiqueta, valor);
+        tarjeta.setPadding(new Insets(12));
+        tarjeta.setMaxWidth(Double.MAX_VALUE);
+
+        tarjeta.setStyle(
+                "-fx-background-color: white; "
+                + "-fx-background-radius: 10; "
+                + "-fx-border-color: #E3D9F5; "
+                + "-fx-border-radius: 10;");
+
+        HBox.setHgrow(tarjeta, Priority.ALWAYS);
+
+        return tarjeta;
+    }
+
+    private void volverALotes() {
+
+        versionIndicadores++;
+
+        dashboardRoot.setCenter(vistaLotes);
+
+        btnCatalogo.setStyle(estiloCatalogoOriginal);
+
+        onRefrescar();
+    }
+
+    /**
+     * Consulta en segundo plano para no bloquear JavaFX.
+     */
+    private void refrescarIndicadoresCatalogo() {
+
+        if (vistaCatalogo == null
+                || dashboardRoot.getCenter() != vistaCatalogo) {
+            return;
+        }
+
+        var sesion = SesionUsuario.actual();
+        int version = ++versionIndicadores;
+        String categoria = controladorCatalogo.categoriaActual();
+
+        if (!"Medicamentos".equals(categoria)) {
+            String grupo = "Aseo".equals(categoria)
+                    ? "ASEO" : "MATERNIDAD";
+
+            tituloTotalCatalogo.setText("TOTAL DE " + grupo);
+            tituloIntermedioCatalogo.setText(
+                    grupo + " BAJO MÍNIMO");
+            tituloAgotadosCatalogo.setText(
+                    grupo + " AGOTADOS");
+
+            try {
+                ResumenCategoriaCatalogo resumen =
+                        ResumenCategoriaCatalogo.calcular(
+                                categoria,
+                                controladorCatalogo.registrosDeCategoria());
+
+                totalMedicamentosCatalogo.setText(
+                        Integer.toString(resumen.total()));
+                vencidosCatalogo.setText(
+                        Integer.toString(resumen.bajoMinimo()));
+                agotadosCatalogo.setText(
+                        Integer.toString(resumen.agotados()));
+
+            } catch (RuntimeException e) {
+                LOGGER.log(
+                        System.Logger.Level.WARNING,
+                        "Error consultando indicadores de categoria",
+                        e);
+
+                totalMedicamentosCatalogo.setText("N/D");
+                vencidosCatalogo.setText("N/D");
+                agotadosCatalogo.setText("N/D");
+            }
+
+            return;
+        }
+
+        tituloTotalCatalogo.setText("TOTAL DE MEDICAMENTOS");
+        tituloIntermedioCatalogo.setText(
+                "MEDICAMENTOS CON LOTES VENCIDOS");
+        tituloAgotadosCatalogo.setText(
+                "MEDICAMENTOS AGOTADOS");
+
+        totalMedicamentosCatalogo.setText("...");
+        vencidosCatalogo.setText("...");
+        agotadosCatalogo.setText("...");
+
+        Task<IndicadoresCatalogo> tarea = new Task<>() {
+
+            @Override
+            protected IndicadoresCatalogo call()
+                    throws Exception {
+
+                return IndicadoresCatalogo.calcular(
+                        inventario.listarMedicamentos(),
+                        inventario.listarLotes(),
+                        FechaNegocio.hoy());
+            }
+        };
+
+        tarea.setOnSucceeded(evento -> {
+
+            if (indicadoresVigentes(version, sesion)) {
+
+                var datos = tarea.getValue();
+
+                totalMedicamentosCatalogo.setText(
+                        Integer.toString(datos.total()));
+
+                vencidosCatalogo.setText(
+                        Integer.toString(
+                                datos.conLotesVencidos()));
+
+                agotadosCatalogo.setText(
+                        Integer.toString(datos.agotados()));
+            }
+        });
+
+        tarea.setOnFailed(evento -> {
+
+            if (indicadoresVigentes(version, sesion)) {
+
+                LOGGER.log(
+                        System.Logger.Level.WARNING,
+                        "Error consultando indicadores del catalogo",
+                        tarea.getException());
+
+                totalMedicamentosCatalogo.setText("N/D");
+                vencidosCatalogo.setText("N/D");
+                agotadosCatalogo.setText("N/D");
+            }
+        });
+
+        Thread hilo = new Thread(
+                tarea, "catalogo-indicadores");
+
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
+    private boolean indicadoresVigentes(
+            int version,
+            SesionUsuario.DatosUsuario sesion) {
+
+        return version == versionIndicadores
+                && vistaCatalogo == dashboardRoot.getCenter()
+                && SesionUsuario.estaActiva()
+                && SesionUsuario.actual() == sesion;
     }
 
     @FXML
@@ -485,6 +870,164 @@ public class ControladorInventario {
                 .isPresent();
     }
 
+
+    private record DatosInicioDashboard(
+            List<Lote> lotes,
+            Map<Integer, String> categorias,
+            Map<Integer, String> categoriasPorMedicamento,
+            Map<String, Integer> conteos,
+            ServicioAlertasInventario.Resumen alertas) { }
+
+    private void cargarDatosInicialesAsync() {
+        var sesionInicial = SesionUsuario.actual();
+        var fachada = inventario;
+        cargaInicialEnCurso = true;
+
+        lblTotalLotes.setText("Cargando...");
+        lblLoteSeleccionadoInfo.setText("Cargando inventario...");
+
+        Task<DatosInicioDashboard> tarea = new Task<>() {
+            @Override
+            protected DatosInicioDashboard call() throws Exception {
+                Map<Integer, String> categorias =
+                        fachada.listarCategoriasMedicamento();
+
+                List<Lote> lotes = fachada.listarLotes();
+
+                Map<Integer, String> porMedicamento =
+                        fachada.categoriaPorMedicamento();
+
+                Map<String, Integer> conteos =
+                        fachada.contarPorCategoria();
+
+                ServicioAlertasInventario.Resumen resumen = null;
+
+                try {
+                    resumen = fachada.resumenAlertas();
+                } catch (Exception ex) {
+                    LOGGER.log(System.Logger.Level.WARNING,
+                            "No fue posible consultar las alertas", ex);
+                }
+
+                return new DatosInicioDashboard(
+                        lotes, categorias, porMedicamento,
+                        conteos, resumen);
+            }
+        };
+
+        tarea.setOnSucceeded(evento -> {
+            cargaInicialEnCurso = false;
+
+            if (!SesionUsuario.estaActiva()
+                    || SesionUsuario.actual() != sesionInicial) {
+                return;
+            }
+
+            var datos = tarea.getValue();
+
+            cmbCategoria.getItems().addAll(
+                    datos.categorias().values());
+
+            categoriaPorMedicamento =
+                    datos.categoriasPorMedicamento();
+
+            tablaLotes.getSelectionModel().clearSelection();
+            listaLotes.setAll(datos.lotes());
+            aplicarFiltros();
+
+            lblTotalLotes.setText(
+                    String.valueOf(datos.lotes().size()));
+
+            long vencidos = datos.lotes().stream()
+                    .filter(l -> l.getFechaVencimiento() != null
+                            && !l.getFechaVencimiento()
+                                    .isAfter(FechaNegocio.hoy()))
+                    .count();
+
+            lblLotesVencidos.setText(Long.toString(vencidos));
+
+            lblTotalMedicamentos.setText(String.valueOf(
+                    datos.conteos().getOrDefault("Medicamento", 0)));
+            lblTotalAseo.setText(String.valueOf(
+                    datos.conteos().getOrDefault("Aseo", 0)));
+            lblTotalMaternidad.setText(String.valueOf(
+                    datos.conteos().getOrDefault("Maternidad", 0)));
+
+            if (datos.alertas() != null) {
+                var resumen = datos.alertas();
+
+                if (lblAlertaStock != null) {
+                    lblAlertaStock.setText(
+                            resumen.stockMinimo() + " productos");
+                }
+                if (lblAlertaVencimiento != null) {
+                    lblAlertaVencimiento.setText(
+                            resumen.vencimiento() + " lotes");
+                }
+                if (badgeNotificaciones != null) {
+                    badgeNotificaciones.setVisible(
+                            resumen.total() > 0);
+                }
+                if (lblContadorNotificaciones != null) {
+                    lblContadorNotificaciones.setText(
+                            String.valueOf(resumen.total()));
+                    lblContadorNotificaciones.setVisible(
+                            resumen.total() > 0);
+                }
+                if (btnAlertas != null) {
+                    mostrarResumenAlertas(resumen);
+                }
+            } else {
+                if (lblAlertaStock != null) {
+                    lblAlertaStock.setText("No disponible");
+                }
+                if (lblAlertaVencimiento != null) {
+                    lblAlertaVencimiento.setText("No disponible");
+                }
+                if (badgeNotificaciones != null) {
+                    badgeNotificaciones.setVisible(false);
+                }
+                if (lblContadorNotificaciones != null) {
+                    lblContadorNotificaciones.setVisible(false);
+                }
+            }
+
+            lblLoteSeleccionadoInfo.setText(
+                    "Ninguno (seleccione un lote)");
+
+            Destino pendiente = destinoLotePendiente;
+            destinoLotePendiente = null;
+
+            if (pendiente != null) {
+                abrirDesdeAlerta(pendiente);
+            }
+        });
+
+        tarea.setOnFailed(evento -> {
+            cargaInicialEnCurso = false;
+            destinoLotePendiente = null;
+
+            if (!SesionUsuario.estaActiva()
+                    || SesionUsuario.actual() != sesionInicial) {
+                return;
+            }
+
+            LOGGER.log(System.Logger.Level.ERROR,
+                    "Error al cargar el inventario inicial",
+                    tarea.getException());
+
+            lblTotalLotes.setText("No disponible");
+            lblLoteSeleccionadoInfo.setText(
+                    "Error al cargar inventario. "
+                    + "Use Refrescar para reintentar.");
+        });
+
+        Thread hilo = new Thread(
+                tarea, "carestock-dashboard-carga");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
     private void cargarContadoresPorCategoria() {
     try {
         Map<String, Integer> conteo = inventario.contarPorCategoria();
@@ -517,7 +1060,7 @@ public class ControladorInventario {
             // Actualizar contadores KPI
             lblTotalLotes.setText(String.valueOf(lotes.size()));
             long vencidos = lotes.stream()
-                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(LocalDate.now()))
+                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(FechaNegocio.hoy()))
                     .count();
             lblLotesVencidos.setText(String.valueOf(vencidos));
             cargarResumenAlertas();
@@ -635,5 +1178,37 @@ public class ControladorInventario {
             LOGGER.log(System.Logger.Level.ERROR, "No fue posible cargar las notificaciones.", e);
         }
         contextMenu.show(btnCampana, javafx.geometry.Side.BOTTOM, 0, 0);
+    }
+        @FXML
+    private void onGenerarQR() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Selecciona un lote de la tabla para generar su código QR.");
+            return;
+        }
+
+        try {
+            String textoQR = "Lote: " + loteSeleccionado.getNumeroLote() + 
+                             "\nMedicamento ID: " + loteSeleccionado.getIdMedicamento() + 
+                             "\nVence: " + loteSeleccionado.getFechaVencimiento();
+
+            javafx.scene.image.Image imagenQR = org.example.carestock.utils.GeneradorQR.generar(textoQR, 250);
+            javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+            dialog.setTitle("Código QR del Lote");
+            dialog.setHeaderText("QR generado para el lote: " + loteSeleccionado.getNumeroLote());
+            javafx.scene.control.ButtonType btnCerrar = new javafx.scene.control.ButtonType("Cerrar", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+            dialog.getDialogPane().getButtonTypes().add(btnCerrar);
+            javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10);
+            vbox.setAlignment(javafx.geometry.Pos.CENTER);
+            vbox.setPadding(new javafx.geometry.Insets(20));
+            javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(imagenQR);
+            javafx.scene.control.Label lblInfo = new javafx.scene.control.Label(textoQR);
+            lblInfo.setStyle("-fx-font-size: 12px; -fx-text-fill: #20302F;");
+            vbox.getChildren().addAll(imageView, lblInfo);
+            dialog.getDialogPane().setContent(vbox);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo generar el código QR: " + e.getMessage());
+        }
     }
 }

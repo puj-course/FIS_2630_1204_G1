@@ -21,6 +21,11 @@ public class Medicamento implements Validable {
     private Integer idUsuarioCreacion;
     private Integer idUsuarioModificacion;
     private LocalDateTime fechaModificacion;
+    private boolean requiereRefrigeracion; 
+
+    public boolean isRequiereRefrigeracion() { return requiereRefrigeracion; }
+    public void setRequiereRefrigeracion(boolean requiereRefrigeracion) { this.requiereRefrigeracion = requiereRefrigeracion; }
+
     // Precio opcional en registros historicos; en nuevos registros se captura desde JavaFX.
     private BigDecimal precio;
 

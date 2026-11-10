@@ -1,4 +1,5 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -49,7 +50,7 @@ public final class GestorLotesDialogo {
         }
     }
 
-    private boolean formulario(Lote original) {
+    private boolean formulario(Lote original, Integer medicamentoInicial) {
 
         boolean nuevo = original == null;
 
@@ -86,7 +87,20 @@ public final class GestorLotesDialogo {
         cmbMed.getItems().setAll(medicamentos);
 
         if (nuevo) {
-            cmbMed.getSelectionModel().selectFirst();
+            if (medicamentoInicial == null) {
+                cmbMed.getSelectionModel().selectFirst();
+            } else {
+                var seleccionado = medicamentos.stream()
+                        .filter(m -> m.id() == medicamentoInicial)
+                        .findFirst();
+                if (seleccionado.isEmpty()) {
+                    aviso(Alert.AlertType.WARNING, "Medicamento no disponible",
+                            "El medicamento ya no está activo en la farmacia actual.");
+                    return false;
+                }
+                cmbMed.setValue(seleccionado.get());
+                cmbMed.setDisable(true);
+            }
         }
 
         cmbMed.setMaxWidth(Double.MAX_VALUE);
@@ -122,7 +136,7 @@ public final class GestorLotesDialogo {
 
         DatePicker fecha = new DatePicker(
                 nuevo
-                    ? LocalDate.now().plusMonths(12)
+                    ? FechaNegocio.hoy().plusMonths(12)
                     : original.getFechaVencimiento());
 
         fecha.setMaxWidth(Double.MAX_VALUE);
@@ -252,16 +266,23 @@ public final class GestorLotesDialogo {
     }
 
     public boolean crear() {
-        return formulario(null);
+        return formulario(null, null);
+    }
+
+    public boolean crearParaMedicamento(int idMedicamento) {
+        if (idMedicamento <= 0) {
+            throw new IllegalArgumentException("Medicamento inválido.");
+        }
+        return formulario(null, idMedicamento);
     }
 
     public boolean editar(Lote lote) {
-        return formulario(lote);
+        return formulario(lote, null);
     }
 
     public boolean retirar(Lote lote) {
 
-        if (lote.getCantidadActual() > 0 && (lote.getFechaVencimiento() == null || lote.getFechaVencimiento().isAfter(LocalDate.now()))) {
+        if (lote.getCantidadActual() > 0 && (lote.getFechaVencimiento() == null || lote.getFechaVencimiento().isAfter(FechaNegocio.hoy()))) {
 
             aviso(Alert.AlertType.WARNING,
                     "No se puede retirar",

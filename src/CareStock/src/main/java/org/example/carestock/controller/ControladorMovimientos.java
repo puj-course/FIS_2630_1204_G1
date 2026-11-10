@@ -8,6 +8,9 @@ import javafx.scene.control.*;
 
 import org.example.carestock.facade.Inventario;
 import org.example.carestock.session.SesionUsuario;
+import org.example.carestock.service.PoliticaAccionesAlertas;
+import org.example.carestock.service.ResolucionNavegacionAlertas.Destino;
+import org.example.carestock.dto.AlertaInventario.Categoria;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +43,8 @@ public class ControladorMovimientos {
     private int idFarmacia;
     private boolean registroEnCurso;
     private String confirmacionPendiente;
+    private Destino destinoAlerta;
+    private boolean productosCargados;
 
 
     private record OpcionProducto(
@@ -71,6 +76,9 @@ public class ControladorMovimientos {
             );
         }
 
+        if (!PoliticaAccionesAlertas.gestorPermitido(sesion.rol())) {
+            throw new SecurityException("No está autorizado para registrar movimientos.");
+        }
         idUsuario = sesion.id();
         idFarmacia = sesion.idFarmacia();
 
@@ -127,9 +135,49 @@ public class ControladorMovimientos {
                 );
     }
 
+    public void abrirDesdeAlerta(Destino destino) {
+        if (destino == null
+                || destino.tipo() != org.example.carestock.dto.AlertaInventario.TipoAlerta.STOCK_MINIMO
+                || (destino.categoria() != Categoria.ASEO
+                    && destino.categoria() != Categoria.MATERNIDAD)
+                || !sesionSinCambios()
+                || destino.idFarmacia() != idFarmacia) {
+            throw new SecurityException("No es posible gestionar el producto de otra farmacia.");
+        }
+        destinoAlerta = destino;
+        seleccionarDesdeAlerta();
+    }
+
+    private void seleccionarDesdeAlerta() {
+        if (destinoAlerta == null || !productosCargados || !sesionSinCambios()) {
+            return;
+        }
+        Destino destino = destinoAlerta;
+        destinoAlerta = null;
+        cmbCategoria.setValue(destino.categoria().etiqueta());
+        var coincidencia = cmbProducto.getItems().stream()
+                .filter(p -> p.id() == destino.idReferencia())
+                .filter(p -> destino.codigo() == null || destino.codigo().isBlank()
+                        || destino.codigo().equalsIgnoreCase(p.codigo()))
+                .findFirst();
+        if (coincidencia.isPresent()) {
+            cmbProducto.setValue(coincidencia.get());
+            cmbMovimiento.setValue("ENTRADA");
+            lblEstado.setText("Reposición del producto: " + destino.producto());
+        } else {
+            lblEstado.setText("El producto no está activo en la farmacia actual.");
+        }
+    }
+
     @FXML
     private void onActualizar() {
         cargarProductos();
+    }
+
+    void iniciarConsulta(Task<?> tarea) {
+        Thread hilo = new Thread(tarea, "cargar-productos-movimientos");
+        hilo.setDaemon(true);
+        hilo.start();
     }
 
     private void cargarProductos() {
@@ -143,6 +191,7 @@ public class ControladorMovimientos {
             return;
         }
 
+        productosCargados = false;
         btnActualizar.setDisable(true);
         btnValidar.setDisable(true);
 
@@ -222,6 +271,7 @@ public class ControladorMovimientos {
             }
 
             productos.setAll(tarea.getValue());
+            productosCargados = true;
             filtrarProductos();
 
             // Mantener la selección después de actualizar.
@@ -238,6 +288,8 @@ public class ControladorMovimientos {
             }
 
             btnValidar.setDisable(false);
+            boolean desdeAlerta = destinoAlerta != null;
+            seleccionarDesdeAlerta();
 
             if (confirmacionPendiente != null) {
                 lblEstado.setText(
@@ -245,7 +297,7 @@ public class ControladorMovimientos {
                         + " Existencias actualizadas."
                 );
                 confirmacionPendiente = null;
-            } else {
+            } else if (!desdeAlerta) {
                 lblEstado.setText(
                         productos.isEmpty()
                                 ? "No hay productos activos de aseo o maternidad."
@@ -259,6 +311,7 @@ public class ControladorMovimientos {
         tarea.setOnFailed(evento -> {
             btnActualizar.setDisable(false);
             productos.clear();
+            productosCargados = false;
             filtrarProductos();
 
             if (confirmacionPendiente != null) {
@@ -287,12 +340,7 @@ public class ControladorMovimientos {
             }
         });
 
-        Thread hilo = new Thread(
-                tarea, "cargar-productos-movimientos"
-        );
-
-        hilo.setDaemon(true);
-        hilo.start();
+        iniciarConsulta(tarea);
     }
 
     private void filtrarProductos() {

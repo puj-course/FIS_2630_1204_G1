@@ -1,0 +1,301 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< org.example:CareStock >------------------------
+[INFO] Building CareStock 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ CareStock ---
+[INFO] Deleting C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\target
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.15:prepare-agent (prepare-agent) @ CareStock ---
+[INFO] argLine set to -javaagent:C:\\Users\\mateo\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.15\\org.jacoco.agent-0.8.15-runtime.jar=destfile=C:\\Users\\mateo\\Desktop\\FIS_2630_1204_G1\\src\\CareStock\\target\\jacoco.exec
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ CareStock ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 11 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ CareStock ---
+[WARNING] ***************************************************************************************************************************************
+[WARNING] * Required filename-based automodules detected: [jbcrypt-0.4.jar]. Please don't publish this project to a public artifact repository! *
+[WARNING] ***************************************************************************************************************************************
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 105 source files with javac [debug release 21 module-path] to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ CareStock ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ CareStock ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 79 source files with javac [debug release 21 module-path] to target\test-classes
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/dao/LoteDaoJdbcTest.java: Some input files use or override a deprecated API.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/dao/LoteDaoJdbcTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/controller/ControladorCatalogoFormularioFxTest.java: C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\src\test\java\org\example\carestock\controller\ControladorCatalogoFormularioFxTest.java uses unchecked or unsafe operations.
+[INFO] /C:/Users/mateo/Desktop/FIS_2630_1204_G1/src/CareStock/src/test/java/org/example/carestock/controller/ControladorCatalogoFormularioFxTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.2.5:test (default-test) @ CareStock ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.example.carestock.CareStockAppGestion984Test
+nov 04, 2026 9:25:58 A. M. com.sun.javafx.application.PlatformImpl startup
+ADVERTENCIA: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @7b227d8d'
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\mateo\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.7\byte-buddy-agent-1.17.7.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.709 s -- in org.example.carestock.CareStockAppGestion984Test
+[INFO] Running org.example.carestock.CareStockAppNavegacionAlertasTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.362 s -- in org.example.carestock.CareStockAppNavegacionAlertasTest
+[INFO] Running org.example.carestock.CareStockAppNavegacionTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.363 s -- in org.example.carestock.CareStockAppNavegacionTest
+[INFO] Running org.example.carestock.controller.AccionesAlertasControladores984Test
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.608 s -- in org.example.carestock.controller.AccionesAlertasControladores984Test
+[INFO] Running org.example.carestock.controller.ControladorAlertasCoberturaMainTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s -- in org.example.carestock.controller.ControladorAlertasCoberturaMainTest
+[INFO] Running org.example.carestock.controller.ControladorCatalogoFormularioFxTest
+Error al cargar alertas: Error simulado
+Error al cargar alertas: Fallo de pruebas
+No fue posible consultar las categorias: Fallo simulado de categorias
+nov 04, 2026 9:26:07 A. M. org.example.carestock.controller.ControladorInventario cargarContadoresPorCategoria
+ADVERTENCIA: No fue posible cargar los contadores del inventario.
+java.lang.IllegalStateException: Fallo simulado
+	at org.example.carestock.facade.Inventario.contarPorCategoria(Inventario.java:463)
+	at org.example.carestock.controller.ControladorInventario.cargarContadoresPorCategoria(ControladorInventario.java:705)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.example.carestock.controller.ControladorCatalogoFormularioFxTest.llamar(ControladorCatalogoFormularioFxTest.java:708)
+	at org.example.carestock.controller.ControladorCatalogoFormularioFxTest.lambda$qaGateContadoresConError$119(ControladorCatalogoFormularioFxTest.java:3418)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:185)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+nov 04, 2026 9:26:07 A. M. org.example.carestock.controller.ControladorInventario onAbrirNotificaciones
+GRAVE: No fue posible cargar las notificaciones.
+java.lang.IllegalStateException: Fallo controlado
+	at org.example.carestock.facade.Inventario.listarAlertas(Inventario.java:405)
+	at org.example.carestock.controller.ControladorInventario.onAbrirNotificaciones(ControladorInventario.java:806)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.example.carestock.controller.ControladorCatalogoFormularioFxTest.llamar(ControladorCatalogoFormularioFxTest.java:708)
+	at org.example.carestock.controller.ControladorCatalogoFormularioFxTest.lambda$qaGateNotificacionesFallaConsulta$127(ControladorCatalogoFormularioFxTest.java:3518)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:185)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+nov 04, 2026 9:26:07 A. M. org.example.carestock.controller.ControladorInventario onAbrirNotificaciones
+GRAVE: No fue posible cargar las notificaciones.
+java.lang.IllegalStateException: Fallo de consulta simulado
+	at org.example.carestock.facade.Inventario.listarAlertas(Inventario.java:405)
+	at org.example.carestock.controller.ControladorInventario.onAbrirNotificaciones(ControladorInventario.java:806)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.example.carestock.controller.ControladorCatalogoFormularioFxTest.llamar(ControladorCatalogoFormularioFxTest.java:708)
+	at org.example.carestock.controller.ControladorCatalogoFormularioFxTest.lambda$qaGateMenuVacioYErrorDeConsulta$106(ControladorCatalogoFormularioFxTest.java:3139)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:185)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Error al cargar alertas: Error simulado
+[INFO] Tests run: 91, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.160 s -- in org.example.carestock.controller.ControladorCatalogoFormularioFxTest
+[INFO] Running org.example.carestock.controller.ControladoresProductosCoberturaTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.183 s -- in org.example.carestock.controller.ControladoresProductosCoberturaTest
+[INFO] Running org.example.carestock.controller.ControladorHistorialMovimientosTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in org.example.carestock.controller.ControladorHistorialMovimientosTest
+[INFO] Running org.example.carestock.controller.ControladorInventarioNavegacionTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.086 s -- in org.example.carestock.controller.ControladorInventarioNavegacionTest
+[INFO] Running org.example.carestock.controller.DashboardAsincrono984Test
+nov 04, 2026 9:26:08 A. M. org.example.carestock.controller.ControladorInventario lambda$cargarDatosInicialesAsync$22
+GRAVE: Error al cargar el inventario inicial
+java.lang.IllegalStateException: Base de datos sin conexion
+	at org.example.carestock.facade.Inventario.listarLotes(Inventario.java:392)
+	at org.example.carestock.controller.ControladorInventario$3.call(ControladorInventario.java:567)
+	at org.example.carestock.controller.ControladorInventario$3.call(ControladorInventario.java:561)
+	at javafx.concurrent.Task$TaskCallable.call(Task.java:1399)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+nov 04, 2026 9:26:08 A. M. org.example.carestock.controller.ControladorInventario$3 call
+ADVERTENCIA: No fue posible consultar las alertas
+java.lang.IllegalStateException: Vista SQL no disponible
+	at org.example.carestock.facade.Inventario.resumenAlertas(Inventario.java:420)
+	at org.example.carestock.controller.ControladorInventario$3.call(ControladorInventario.java:578)
+	at org.example.carestock.controller.ControladorInventario$3.call(ControladorInventario.java:561)
+	at javafx.concurrent.Task$TaskCallable.call(Task.java:1399)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.149 s -- in org.example.carestock.controller.DashboardAsincrono984Test
+[INFO] Running org.example.carestock.controller.DashboardFxmlHandlersTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in org.example.carestock.controller.DashboardFxmlHandlersTest
+[INFO] Running org.example.carestock.controller.EstiloAlertasTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.065 s -- in org.example.carestock.controller.EstiloAlertasTest
+[INFO] Running org.example.carestock.controller.FlujosGestionAlertas984Test
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.257 s -- in org.example.carestock.controller.FlujosGestionAlertas984Test
+[INFO] Running org.example.carestock.controller.LoginControllerFxTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.660 s -- in org.example.carestock.controller.LoginControllerFxTest
+[INFO] Running org.example.carestock.controller.LoginViewContractTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 s -- in org.example.carestock.controller.LoginViewContractTest
+[INFO] Running org.example.carestock.controller.LoginViewStructureTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in org.example.carestock.controller.LoginViewStructureTest
+[INFO] Running org.example.carestock.controller.MovimientosContextuales984Test
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s -- in org.example.carestock.controller.MovimientosContextuales984Test
+[INFO] Running org.example.carestock.controller.NavegacionContextualControladoresTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.128 s -- in org.example.carestock.controller.NavegacionContextualControladoresTest
+[INFO] Running org.example.carestock.controller.NavegacionRefactorizadaTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in org.example.carestock.controller.NavegacionRefactorizadaTest
+[INFO] Running org.example.carestock.controller.ValidacionFormularioSmsTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in org.example.carestock.controller.ValidacionFormularioSmsTest
+[INFO] Running org.example.carestock.dao.AlertasInventarioDaoCoberturaTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.935 s -- in org.example.carestock.dao.AlertasInventarioDaoCoberturaTest
+[INFO] Running org.example.carestock.dao.AlertasInventarioDaoMapeoTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s -- in org.example.carestock.dao.AlertasInventarioDaoMapeoTest
+[INFO] Running org.example.carestock.dao.CatalogoDaoJdbcTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.100 s -- in org.example.carestock.dao.CatalogoDaoJdbcTest
+[INFO] Running org.example.carestock.dao.ConsultaInventarioDaoCoberturaTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s -- in org.example.carestock.dao.ConsultaInventarioDaoCoberturaTest
+[INFO] Running org.example.carestock.dao.ConsultasSqlCatalogoTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in org.example.carestock.dao.ConsultasSqlCatalogoTest
+[INFO] Running org.example.carestock.dao.LoteDaoJdbcTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in org.example.carestock.dao.LoteDaoJdbcTest
+[INFO] Running org.example.carestock.dao.MedicamentoCatalogoJdbcTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in org.example.carestock.dao.MedicamentoCatalogoJdbcTest
+[INFO] Running org.example.carestock.dao.MedicamentoDaoCoberturaTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.153 s -- in org.example.carestock.dao.MedicamentoDaoCoberturaTest
+[INFO] Running org.example.carestock.DataTransferObject.DatosTransferenciaTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in org.example.carestock.DataTransferObject.DatosTransferenciaTest
+[INFO] Running org.example.carestock.DataTransferObject.FiltroProductoInventarioTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in org.example.carestock.DataTransferObject.FiltroProductoInventarioTest
+[INFO] Running org.example.carestock.DataTransferObject.LecturaCamposTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in org.example.carestock.DataTransferObject.LecturaCamposTest
+[INFO] Running org.example.carestock.dto.AlertaInventarioTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in org.example.carestock.dto.AlertaInventarioTest
+[INFO] Running org.example.carestock.facade.InventarioFachadaCoberturaTest
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.732 s -- in org.example.carestock.facade.InventarioFachadaCoberturaTest
+[INFO] Running org.example.carestock.factory.FabricaProductoTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in org.example.carestock.factory.FabricaProductoTest
+[INFO] Running org.example.carestock.model.AjusteExistenciasTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in org.example.carestock.model.AjusteExistenciasTest
+[INFO] Running org.example.carestock.model.DispositivoMedicoQualityGateTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in org.example.carestock.model.DispositivoMedicoQualityGateTest
+[INFO] Running org.example.carestock.model.LoteTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in org.example.carestock.model.LoteTest
+[INFO] Running org.example.carestock.model.MedicamentoTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in org.example.carestock.model.MedicamentoTest
+[INFO] Running org.example.carestock.model.ProductosBasicosTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in org.example.carestock.model.ProductosBasicosTest
+[INFO] Running org.example.carestock.model.RefactorizacionProductosTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in org.example.carestock.model.RefactorizacionProductosTest
+[INFO] Running org.example.carestock.model.StockMinimoCatalogoTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in org.example.carestock.model.StockMinimoCatalogoTest
+[INFO] Running org.example.carestock.proxy.CacheFarmaciaTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.159 s -- in org.example.carestock.proxy.CacheFarmaciaTest
+[INFO] Running org.example.carestock.proxy.ConsultaInventarioProxyTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in org.example.carestock.proxy.ConsultaInventarioProxyTest
+[INFO] Running org.example.carestock.proxy.VistasCacheTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in org.example.carestock.proxy.VistasCacheTest
+[INFO] Running org.example.carestock.service.AuthenticationServiceCoberturaAdicionalTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.084 s -- in org.example.carestock.service.AuthenticationServiceCoberturaAdicionalTest
+[INFO] Running org.example.carestock.service.AuthenticationServiceSeguridadAdicionalTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.069 s -- in org.example.carestock.service.AuthenticationServiceSeguridadAdicionalTest
+[INFO] Running org.example.carestock.service.AuthenticationServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.030 s -- in org.example.carestock.service.AuthenticationServiceTest
+[INFO] Running org.example.carestock.service.ConsultasSqlInventarioTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in org.example.carestock.service.ConsultasSqlInventarioTest
+[INFO] Running org.example.carestock.service.ControlVencimientosServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in org.example.carestock.service.ControlVencimientosServiceTest
+[INFO] Running org.example.carestock.service.ExportadorAlertasCsvTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in org.example.carestock.service.ExportadorAlertasCsvTest
+[INFO] Running org.example.carestock.service.PoliticaAccionesAlertasTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in org.example.carestock.service.PoliticaAccionesAlertasTest
+[INFO] Running org.example.carestock.service.RegistroLoteTransaccionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in org.example.carestock.service.RegistroLoteTransaccionTest
+[INFO] Running org.example.carestock.service.ResolucionNavegacionAlertasTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in org.example.carestock.service.ResolucionNavegacionAlertasTest
+[INFO] Running org.example.carestock.service.ServicioAjustesInventarioTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s -- in org.example.carestock.service.ServicioAjustesInventarioTest
+[INFO] Running org.example.carestock.service.ServicioAjustesTransaccionCoberturaTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in org.example.carestock.service.ServicioAjustesTransaccionCoberturaTest
+[INFO] Running org.example.carestock.service.ServicioAlertasInventarioTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s -- in org.example.carestock.service.ServicioAlertasInventarioTest
+[INFO] Running org.example.carestock.service.ServicioCrudLotesJdbcTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in org.example.carestock.service.ServicioCrudLotesJdbcTest
+[INFO] Running org.example.carestock.service.ServicioCrudLotesValidacionesTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in org.example.carestock.service.ServicioCrudLotesValidacionesTest
+[INFO] Running org.example.carestock.service.ServicioFarmacovigilanciaTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in org.example.carestock.service.ServicioFarmacovigilanciaTest
+[INFO] Running org.example.carestock.service.ServicioMovimientosPermisos984Test
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in org.example.carestock.service.ServicioMovimientosPermisos984Test
+[INFO] Running org.example.carestock.service.ServicioMovimientosProductoTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in org.example.carestock.service.ServicioMovimientosProductoTest
+[INFO] Running org.example.carestock.service.ServicioMovimientosQualityGateTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s -- in org.example.carestock.service.ServicioMovimientosQualityGateTest
+[INFO] Running org.example.carestock.service.ServicioRegistroLoteTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in org.example.carestock.service.ServicioRegistroLoteTest
+[INFO] Running org.example.carestock.service.SugerenciaReposicionTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in org.example.carestock.service.SugerenciaReposicionTest
+[INFO] Running org.example.carestock.service.ValidacionFormularioLoginCasosLimiteTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.085 s -- in org.example.carestock.service.ValidacionFormularioLoginCasosLimiteTest
+[INFO] Running org.example.carestock.service.ValidacionFormularioLoginSonarTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in org.example.carestock.service.ValidacionFormularioLoginSonarTest
+[INFO] Running org.example.carestock.service.ValidacionFormularioLoginTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in org.example.carestock.service.ValidacionFormularioLoginTest
+[INFO] Running org.example.carestock.service.ValidadorDispensacionTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in org.example.carestock.service.ValidadorDispensacionTest
+[INFO] Running org.example.carestock.service.ValidadorPrecioMedicamentoTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in org.example.carestock.service.ValidadorPrecioMedicamentoTest
+[INFO] Running org.example.carestock.session.SesionUsuarioCoberturaAdicionalTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in org.example.carestock.session.SesionUsuarioCoberturaAdicionalTest
+[INFO] Running org.example.carestock.session.SesionUsuarioTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.044 s -- in org.example.carestock.session.SesionUsuarioTest
+[INFO] Running org.example.carestock.sms.EnvioProtegidoSmsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.082 s -- in org.example.carestock.sms.EnvioProtegidoSmsTest
+[INFO] Running org.example.carestock.sms.FormateadorAlertasSmsTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in org.example.carestock.sms.FormateadorAlertasSmsTest
+[INFO] Running org.example.carestock.sms.RepositorioPreferenciasSmsJdbcCoberturaTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.095 s -- in org.example.carestock.sms.RepositorioPreferenciasSmsJdbcCoberturaTest
+[INFO] Running org.example.carestock.sms.ServicioAlertasSmsCoberturaTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.183 s -- in org.example.carestock.sms.ServicioAlertasSmsCoberturaTest
+[INFO] Running org.example.carestock.sms.ServicioPreferenciasSmsTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.221 s -- in org.example.carestock.sms.ServicioPreferenciasSmsTest
+[INFO] Running org.example.carestock.sms.ServicioSmsAndroidTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.536 s -- in org.example.carestock.sms.ServicioSmsAndroidTest
+[INFO] Running org.example.carestock.sms.ServicioSmsTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.034 s -- in org.example.carestock.sms.ServicioSmsTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 653, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ CareStock ---
+[INFO] Building jar: C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\target\CareStock-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.15:report (report) @ CareStock ---
+[INFO] Loading execution data file C:\Users\mateo\Desktop\FIS_2630_1204_G1\src\CareStock\target\jacoco.exec
+[INFO] Analyzed bundle 'CareStock' with 151 classes
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  42.496 s
+[INFO] Finished at: 2026-11-04T09:26:20-05:00
+[INFO] ------------------------------------------------------------------------
