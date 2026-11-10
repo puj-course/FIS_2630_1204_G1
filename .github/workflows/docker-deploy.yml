@@ -1,0 +1,133 @@
+name: Docker - CareStock
+
+on:
+  push:
+    branches:
+      - main
+      - feature/docker-deploy
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    name: Construir y validar imagen Docker
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v7
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: src/CareStock/pom.xml
+
+      - name: Preparar Maven y entorno JavaFX
+        working-directory: src/CareStock
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
+          if ! command -v xvfb-run >/dev/null 2>&1 || \
+             ! command -v xauth >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb xauth
+          fi
+
+      - name: Compilar y ejecutar pruebas
+        working-directory: src/CareStock
+        run: |
+          xvfb-run -a ./mvnw -B -ntp clean verify
+
+      - name: Preparar dependencias Linux
+        working-directory: src/CareStock
+        run: |
+          set -euo pipefail
+
+          ./mvnw -B -ntp \
+            org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory=target/docker-libs
+
+          mkdir -p target/docker-libs-linux
+
+          find target/docker-libs -maxdepth 1 \
+            -type f -name '*.jar' \
+            ! -name 'javafx-*' \
+            -exec cp {} target/docker-libs-linux/ \;
+
+          for modulo in base controls fxml graphics media swing; do
+            archivo="javafx-${modulo}-21-linux.jar"
+
+            if [ -f "target/docker-libs/$archivo" ]; then
+              cp "target/docker-libs/$archivo" \
+                target/docker-libs-linux/
+            else
+              curl -fLsS --retry 3 \
+                -o "target/docker-libs-linux/$archivo" \
+                "https://repo.maven.apache.org/maven2/org/openjfx/javafx-${modulo}/21/$archivo"
+            fi
+
+            jar tf "target/docker-libs-linux/$archivo" \
+              >/dev/null
+          done
+
+          test -f target/CareStock-1.0-SNAPSHOT.jar
+
+          test "$(find target/docker-libs-linux \
+            -name 'javafx-*-linux.jar' | wc -l)" -eq 6
+
+          echo "Dependencias Linux preparadas correctamente"
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Construir imagen Docker
+        uses: docker/build-push-action@v7
+        with:
+          context: ./src/CareStock
+          file: ./src/CareStock/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: carestock:ci
+
+      - name: Verificar imagen construida
+        run: |
+          docker image inspect carestock:ci
+          docker run --rm --entrypoint java \
+            carestock:ci --list-modules \
+            | grep 'jdk.unsupported.desktop'
+
+          docker run --rm --entrypoint sh \
+            carestock:ci -c \
+            'test -f /app/carestock.jar && test -f /app/docker-start.sh'
+
+      - name: Iniciar sesion en Docker Hub
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v4
+        with:
+          username: mateosalazarb
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publicar imagen en Docker Hub
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          docker tag carestock:ci \
+            "docker.io/mateosalazarb/carestock:${GITHUB_REF_NAME}"
+
+          docker tag carestock:ci \
+            docker.io/mateosalazarb/carestock:stable
+
+          docker push \
+            "docker.io/mateosalazarb/carestock:${GITHUB_REF_NAME}"
+
+          docker push \
+            docker.io/mateosalazarb/carestock:stable
