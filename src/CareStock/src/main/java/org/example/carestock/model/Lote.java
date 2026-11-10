@@ -47,7 +47,7 @@ public class Lote implements Validable {
         if (fechaVencimiento == null) {
             throw new ReglaNegocioException("La fecha de vencimiento es obligatoria.");
         }
-        if (fechaVencimiento.isBefore(FechaNegocio.hoy())) {
+        if (!fechaVencimiento.isAfter(LocalDate.now())) {
             throw new ReglaNegocioException("RIESGO SANITARIO: El lote " + numeroLote + " se encuentra VENCIDO (" + fechaVencimiento + ").");
         }
         if ("CUARENTENA".equalsIgnoreCase(estadoLote) || "BLOQUEADO".equalsIgnoreCase(estadoLote)) {

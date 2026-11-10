@@ -444,6 +444,8 @@
                         <TableColumn fx:id="colEstado"
                                      text="Estado Sanitario"
                                      prefWidth="170.0" />
+                         <TableColumn fx:id="colRefrigeracion"
+                                      text="❄️" prefWidth="40.0" />
 
                     </columns>
                 </TableView>
