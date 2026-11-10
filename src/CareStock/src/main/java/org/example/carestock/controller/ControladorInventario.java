@@ -1,4 +1,5 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -172,7 +173,7 @@ public class ControladorInventario {
             setTooltip(null);
         } else {
             setText(fecha.toString());
-            long dias = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fecha);
+            long dias = java.time.temporal.ChronoUnit.DAYS.between(FechaNegocio.hoy(), fecha);
             String mensaje;
             if (dias > 0) {
                 mensaje = "Vence en " + dias + " días";
@@ -331,7 +332,7 @@ public class ControladorInventario {
 
     @FXML
     private void onFiltrarVencidos() {
-        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(LocalDate.now());
+        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy());
         aplicarFiltros();
     }
 
@@ -346,7 +347,7 @@ public class ControladorInventario {
             return "RETENIDO";
         }
         if (lote.getFechaVencimiento() != null
-                && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy())) {
             return "DESHABILITADO";
         }
         return lote.getEstadoLote() == null
@@ -365,7 +366,7 @@ public class ControladorInventario {
                 if (lote == null || isEmpty()) {
                     setStyle("");
                 } else if (lote.getFechaVencimiento() != null
-                        && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                        && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy())) {
                     setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.CRITICO, isSelected()));
                 } else if (!"DISPONIBLE".equalsIgnoreCase(lote.getEstadoLote())) {
                     setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.ADVERTENCIA, isSelected()));
@@ -473,8 +474,27 @@ public class ControladorInventario {
 
                 controladorCatalogo = loader.getController();
 
-                // Reemplaza la cabecera duplicada del catalogo.
-                panel.setTop(encabezadoCatalogo());
+                // Integrar indicadores y catalogo
+                // en el mismo ScrollPane.
+                // La cabecera azul del dashboard
+                // permanece fija.
+
+                if (!(panel.getCenter() instanceof ScrollPane scrollCatalogo)
+                        || scrollCatalogo.getContent() == null) {
+                    throw new IllegalStateException(
+                            "El catalogo requiere un ScrollPane con contenido");
+                }
+
+                javafx.scene.Node contenidoOriginal =
+                        scrollCatalogo.getContent();
+
+                VBox contenidoConCabecera = new VBox(
+                        encabezadoCatalogo(),
+                        contenidoOriginal
+                );
+
+                scrollCatalogo.setContent(contenidoConCabecera);
+                panel.setTop(null);
 
                 controladorCatalogo.alActualizarIndicadores(
                         this::refrescarIndicadoresCatalogo);
@@ -667,7 +687,7 @@ public class ControladorInventario {
                 return IndicadoresCatalogo.calcular(
                         inventario.listarMedicamentos(),
                         inventario.listarLotes(),
-                        LocalDate.now());
+                        FechaNegocio.hoy());
             }
         };
 
@@ -921,7 +941,7 @@ public class ControladorInventario {
             long vencidos = datos.lotes().stream()
                     .filter(l -> l.getFechaVencimiento() != null
                             && !l.getFechaVencimiento()
-                                    .isAfter(LocalDate.now()))
+                                    .isAfter(FechaNegocio.hoy()))
                     .count();
 
             lblLotesVencidos.setText(Long.toString(vencidos));
@@ -1040,7 +1060,7 @@ public class ControladorInventario {
             // Actualizar contadores KPI
             lblTotalLotes.setText(String.valueOf(lotes.size()));
             long vencidos = lotes.stream()
-                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(LocalDate.now()))
+                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(FechaNegocio.hoy()))
                     .count();
             lblLotesVencidos.setText(String.valueOf(vencidos));
             cargarResumenAlertas();

@@ -1,4 +1,5 @@
 package org.example.carestock.model;
+import org.example.carestock.utils.FechaNegocio;
 
 import org.example.carestock.exception.ReglaNegocioException;
 
@@ -57,7 +58,7 @@ public class Lote implements Validable {
     @Override
     public boolean esAptoParaDispensar() {
         return fechaVencimiento != null
-                && fechaVencimiento.isAfter(LocalDate.now())
+                && fechaVencimiento.isAfter(FechaNegocio.hoy())
                 && cantidadActual > 0
                 && "DISPONIBLE".equalsIgnoreCase(estadoLote);
     }
