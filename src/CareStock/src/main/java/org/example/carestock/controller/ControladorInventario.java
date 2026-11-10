@@ -805,6 +805,44 @@ public class ControladorInventario {
         CareStockApp.getInstance().mostrarAlertas();
     }
 
+        @FXML
+    private void onSugerirLote() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida",
+                    "Selecciona primero un lote de la tabla.");
+            return;
+        }
+
+        java.util.Optional<Lote> sugerido =
+                org.example.carestock.service.SelectorLoteFefo.sugerir(
+                        listaLotes, loteSeleccionado.getIdMedicamento());
+
+        if (sugerido.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Sin lotes disponibles",
+                    "No hay lotes disponibles de este medicamento para dispensar.");
+            return;
+        }
+
+        Lote lote = sugerido.get();
+
+        if (lote.getIdLote() == loteSeleccionado.getIdLote()) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Lote ya sugerido",
+                    "El lote seleccionado ya es el que vence primero.");
+            return;
+        }
+
+        if (!tablaLotes.getItems().contains(lote)) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Lote oculto por los filtros",
+                    "El lote sugerido es " + lote.getNumeroLote()
+                            + ", pero los filtros actuales lo ocultan. "
+                            + "Limpia los filtros para verlo.");
+            return;
+        }
+
+        tablaLotes.getSelectionModel().select(lote);
+        tablaLotes.scrollTo(lote);
+    }
+    
     @FXML
     private void onDispensar() {
         if (loteSeleccionado == null) {
