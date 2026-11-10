@@ -2,6 +2,7 @@ package org.example.carestock.service;
 
 import org.example.carestock.config.ConexionBD;
 import org.example.carestock.exception.ReglaNegocioException;
+import org.example.carestock.utils.FechaNegocio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -78,7 +79,7 @@ class FarmacovigilanciaCoverage87Test {
             when(rsLote.getString("estado_medicamento"))
                 .thenReturn("ACTIVO");
             when(rsLote.getDate("fecha_vencimiento"))
-                .thenReturn(Date.valueOf(LocalDate.now().plusDays(30)));
+                .thenReturn(Date.valueOf(FechaNegocio.hoy().plusDays(30)));
 
             when(actualizarLote.executeUpdate()).thenReturn(1);
             when(actualizarMedicamento.executeUpdate()).thenReturn(1);
@@ -267,7 +268,7 @@ class FarmacovigilanciaCoverage87Test {
     void rechazaLoteVencidoAyer() throws Exception {
         try (Escenario e = new Escenario()) {
             when(e.rsLote.getDate("fecha_vencimiento"))
-                .thenReturn(Date.valueOf(LocalDate.now().minusDays(1)));
+                .thenReturn(Date.valueOf(FechaNegocio.hoy().minusDays(1)));
             e.rechaza("Lote vencido", 2);
         }
     }
@@ -276,7 +277,7 @@ class FarmacovigilanciaCoverage87Test {
     void rechazaLoteQueVenceHoy() throws Exception {
         try (Escenario e = new Escenario()) {
             when(e.rsLote.getDate("fecha_vencimiento"))
-                .thenReturn(Date.valueOf(LocalDate.now()));
+                .thenReturn(Date.valueOf(FechaNegocio.hoy()));
             e.rechaza("Lote vencido", 2);
         }
     }

@@ -1,5 +1,6 @@
 package org.example.carestock.service;
 
+import org.example.carestock.utils.FechaNegocio;
 import org.junit.jupiter.api.Test;
 import org.example.carestock.model.Lote;
 import java.time.LocalDate;
@@ -27,7 +28,7 @@ class ServicioCrudLotesValidacionesTest {
     @Test
     void permiteCrearLoteConDatosValidos() {
         assertDoesNotThrow(() -> ServicioCrudLotes.validarNuevo(
-                "LOT-001", 10, LocalDate.now().plusDays(60), 1));
+                "LOT-001", 10, FechaNegocio.hoy().plusDays(60), 1));
     }
 
     @Test
@@ -37,23 +38,23 @@ class ServicioCrudLotesValidacionesTest {
         }) {
             assertThrows(IllegalArgumentException.class,
                     () -> ServicioCrudLotes.validarNuevo(
-                            numero, 10, LocalDate.now().plusDays(30), 1));
+                            numero, 10, FechaNegocio.hoy().plusDays(30), 1));
         }
 
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        null, 10, LocalDate.now().plusDays(30), 1));
+                        null, 10, FechaNegocio.hoy().plusDays(30), 1));
     }
 
     @Test
     void rechazaCantidadInicialNoPositiva() {
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 0, LocalDate.now().plusDays(30), 1));
+                        "LOT-001", 0, FechaNegocio.hoy().plusDays(30), 1));
 
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", -10, LocalDate.now().plusDays(30), 1));
+                        "LOT-001", -10, FechaNegocio.hoy().plusDays(30), 1));
     }
 
     @Test
@@ -63,18 +64,18 @@ class ServicioCrudLotesValidacionesTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 10, LocalDate.now().minusDays(1), 1));
+                        "LOT-001", 10, FechaNegocio.hoy().minusDays(1), 1));
 
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 10, LocalDate.now(), 1));
+                        "LOT-001", 10, FechaNegocio.hoy(), 1));
     }
 
     @Test
     void exigeUbicacionValida() {
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 10, LocalDate.now().plusDays(30), 0));
+                        "LOT-001", 10, FechaNegocio.hoy().plusDays(30), 0));
     }
 
     @Test
@@ -99,7 +100,7 @@ class ServicioCrudLotesValidacionesTest {
     void permiteRetirarLoteVencido() {
         assertDoesNotThrow(
                 () -> ServicioCrudLotes.validarRetiro(
-                        10, "DISPONIBLE", LocalDate.now().minusDays(1)));
+                        10, "DISPONIBLE", FechaNegocio.hoy().minusDays(1)));
     }
 
     @Test
@@ -123,11 +124,11 @@ class ServicioCrudLotesValidacionesTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> servicio.crear(1, "LOT", 0,
-                        LocalDate.now().plusDays(30), 1));
+                        FechaNegocio.hoy().plusDays(30), 1));
 
         assertThrows(IllegalArgumentException.class,
                 () -> servicio.crear(0, "LOT", 10,
-                        LocalDate.now().plusDays(30), 1));
+                        FechaNegocio.hoy().plusDays(30), 1));
     }
 
     @Test
@@ -136,7 +137,7 @@ class ServicioCrudLotesValidacionesTest {
 
         assertThrows(NullPointerException.class,
                 () -> servicio.editar(null, "LOT",
-                        LocalDate.now().plusDays(30), 1));
+                        FechaNegocio.hoy().plusDays(30), 1));
 
         assertThrows(NullPointerException.class,
                 () -> servicio.retirar(null));
