@@ -508,6 +508,12 @@
                                     </children>
                                 </VBox>
 
+                                <Button text="Sugerir lote"
+                                        onAction="#onSugerirLote"
+                                        prefHeight="44.0"
+                                        style="-fx-background-color: #EDE7F7; -fx-text-fill: #6B5B95; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #B7A6E0; -fx-border-radius: 8; -fx-cursor: hand; -fx-padding: 0 24;" />
+
+
                                 <Button text="Dispensar medicamento"
                                         onAction="#onDispensar"
                                         prefHeight="44.0"
