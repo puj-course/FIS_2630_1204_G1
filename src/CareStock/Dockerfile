@@ -1,9 +1,10 @@
+# syntax=docker/dockerfile:1
 FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
 # JavaFX y acceso grafico
-RUN set -eu; \
+RUN --network=host set -eu; \
     intento=1; \
     until apt-get update -o Acquire::Retries=3 -o APT::Update::Error-Mode=any; do \
       if [ "$intento" -ge 3 ]; then \

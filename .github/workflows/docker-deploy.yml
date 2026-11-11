@@ -104,10 +104,24 @@ jobs:
         with:
           driver-opts: |
             network=host
+          buildkitd-flags: --allow-insecure-entitlement network.host
 
+      - name: Diagnosticar DNS del runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== DNS del runner ==='
+          cat /etc/resolv.conf
+          for host in archive.ubuntu.com security.ubuntu.com; do
+            getent ahostsv4 "$host" || {
+              echo "::error::DNS fallo para $host"
+              exit 1
+            }
+          done
       - name: Construir imagen Docker
         uses: docker/build-push-action@v7
         with:
+          allow: network.host
           context: ./src/CareStock
           file: ./src/CareStock/Dockerfile
           platforms: linux/amd64
