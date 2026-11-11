@@ -3,8 +3,17 @@ FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app
 
 # JavaFX y acceso grafico
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN set -eu; \
+    intento=1; \
+    until apt-get update -o Acquire::Retries=3 -o APT::Update::Error-Mode=any; do \
+      if [ "$intento" -ge 3 ]; then \
+        echo >&2 "ERROR: apt-get update fallo tras 3 intentos; revisar DNS del runner"; \
+        exit 1; \
+      fi; \
+      intento=$((intento + 1)); \
+      sleep 10; \
+    done; \
+    apt-get install -y -o Acquire::Retries=3 --no-install-recommends \
         libgtk-3-0 \
         libx11-6 \
         libxext6 \
