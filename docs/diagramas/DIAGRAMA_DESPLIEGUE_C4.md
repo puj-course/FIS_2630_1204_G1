@@ -7,50 +7,10 @@
 ## Alcance
 
 Se muestran **instancias ejecutadas** y los nodos que las alojan. No se presenta GitHub, Maven ni GitHub Actions como servidores de producción: pertenecen al proceso de construcción y entrega. Neon aloja la base PostgreSQL y **no** ejecuta una API de CareStock.
+<img width="872" height="2394" alt="Diagrama De Despliegue " src="https://github.com/user-attachments/assets/27783537-ca13-47a6-8984-d95318ddd4f4" />
 
-## Escenario A - Ejecución local del sistema
 
-```mermaid
-C4Deployment
-    title CareStock - Despliegue local con PostgreSQL en Neon
-
-    Deployment_Node(equipo, "Equipo del usuario", "Windows / sistema de escritorio compatible") {
-        Deployment_Node(jvm, "Entorno Java", "JDK 21 y JavaFX 21") {
-            Container(app, "CareStock", "Java 21 / JavaFX 21", "Aplicacion de escritorio con MVC, Facade, Proxy, DAO y HikariCP")
-        }
-    }
-
-    Deployment_Node(nube, "Nube Neon", "Servicio administrado de PostgreSQL") {
-        ContainerDb(bd, "Base de datos CareStock", "PostgreSQL", "Persistencia de usuarios, farmacias, productos, lotes y movimientos")
-    }
-
-    Rel(app, bd, "Consulta y modifica informacion", "JDBC / PostgreSQL con TLS, puerto 5432")
-```
-
-**Recorrido:** el usuario interactúa con ventanas JavaFX en su equipo. La JVM ejecuta el código de CareStock y abre conexiones con Neon a través de HikariCP/JDBC. No hay navegador, SPA ni API HTTP intermedia en la arquitectura actual.
-
-## Escenario B - Ejecución Docker opcional
-
-```mermaid
-C4Deployment
-    title CareStock - Despliegue opcional mediante Docker
-
-    Deployment_Node(host, "Equipo anfitrion", "Windows / Linux con Docker Engine") {
-        Deployment_Node(engine, "Docker Engine", "Entorno de contenedores") {
-            Deployment_Node(instancia, "Contenedor CareStock", "Eclipse Temurin 21 + Xvfb") {
-                Container(app_docker, "CareStock JavaFX", "Java 21 / Maven / JavaFX", "Ejecucion grafica con display virtual Xvfb")
-            }
-        }
-    }
-
-    Deployment_Node(neon, "Nube Neon", "PostgreSQL administrado") {
-        ContainerDb(bd_docker, "Base de datos CareStock", "PostgreSQL", "Datos persistentes compartidos por la aplicacion")
-    }
-
-    Rel(app_docker, bd_docker, "Lee y escribe datos", "JDBC / PostgreSQL con TLS, puerto 5432")
-```
-
-**Importante:** el `Dockerfile` ejecuta JavaFX mediante `xvfb-run`; esto **no publica una interfaz web** ni implica que se pueda ver la GUI automáticamente desde un navegador. Docker es una opción de empaquetado y ejecución, no el contenedor lógico C4 del nivel 2.
+Figura 1. Vista de Despliegue del sistema CareStock, elaborada en Visual Paradigm Online.
 
 ## Nodos, tecnología y artefactos
 
@@ -84,5 +44,3 @@ C4Deployment
 - `src/CareStock/src/main/java/org/example/carestock/config/ConexionBD.java`: JDBC y HikariCP con configuración local.
 - `src/CareStock/config/conexion-local.properties.example`: configuración de base de datos.
 - `src/CareStock/Dockerfile` y `compose.yaml`: ejecución Docker opcional.
-
-**Diagrama histórico:** [DIAGRAMA_DESPLIEGUE.md](DIAGRAMA_DESPLIEGUE.md).
