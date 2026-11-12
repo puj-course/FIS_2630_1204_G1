@@ -10,16 +10,23 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
 
     private static final String PLANTILLA =
             "sms_appointment_reminders";
+
     private static final String MARCA_HTTP =
             "__CARESTOCK_HTTP__:";
 
-    private static final Pattern CUENTA =
+    private static final String CURL_WINDOWS =
+            "C:\\Windows\\System32\\curl.exe";
+
+    private static final Pattern PATRON_CUENTA =
             Pattern.compile("AC[0-9a-fA-F]{32}");
-    private static final Pattern TOKEN =
+
+    private static final Pattern PATRON_TOKEN =
             Pattern.compile("[A-Za-z0-9]{16,128}");
+
     private static final Pattern SID =
             Pattern.compile(
-                "\"sid\"\\s*:\\s*\"((?:SM|MM)[0-9a-fA-F]{32})\"");
+                    "\"sid\"\\s*:\\s*\"((?:SM|MM)[0-9a-fA-F]{32})\"");
+
     private static final Pattern CODIGO_ERROR =
             Pattern.compile("\"code\"\\s*:\\s*(\\d{4,6})");
 
@@ -42,8 +49,14 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
             String token,
             String remitente,
             DestinatariosPermitidosSms permitidos) {
-        this(cuenta, token, remitente, permitidos,
-                ServicioSmsTwilioCurl::ejecutarCurl);
+
+        this(
+                cuenta,
+                token,
+                remitente,
+                permitidos,
+                ServicioSmsTwilioCurl::ejecutarCurl
+        );
     }
 
     ServicioSmsTwilioCurl(
@@ -54,13 +67,13 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
             Ejecutor ejecutor) {
 
         if (cuenta == null ||
-                !CUENTA.matcher(cuenta).matches()) {
+                !PATRON_CUENTA.matcher(cuenta).matches()) {
             throw new IllegalArgumentException(
                     "TWILIO_ACCOUNT_SID invalido");
         }
 
         if (token == null ||
-                !TOKEN.matcher(token).matches()) {
+                !PATRON_TOKEN.matcher(token).matches()) {
             throw new IllegalArgumentException(
                     "TWILIO_AUTH_TOKEN invalido");
         }
@@ -76,6 +89,7 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
 
     @Override
     public ResultadoSms enviar(String destino, String mensaje) {
+
         permitidos.exigirAutorizado(destino);
 
         if (!PLANTILLA.equals(mensaje)) {
@@ -112,12 +126,15 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
             }
 
             int http = Integer.parseInt(estado);
+
             String cuerpo = texto.substring(0, posicion);
 
             if (http < 200 || http >= 300) {
                 Matcher codigo = CODIGO_ERROR.matcher(cuerpo);
+
                 throw new ExcepcionSms(
-                        "Twilio rechazo el envio (HTTP " + http
+                        "Twilio rechazo el envio (HTTP "
+                        + http
                         + (codigo.find()
                             ? ", codigo " + codigo.group(1)
                             : "")
@@ -132,22 +149,31 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
             }
 
             return new ResultadoSms(
-                    true, false, http, sid.group(1));
+                    true,
+                    false,
+                    http,
+                    sid.group(1)
+            );
 
         } catch (InterruptedException e) {
+
             Thread.currentThread().interrupt();
-            throw new ExcepcionSms("curl interrumpido", e);
+
+            throw new ExcepcionSms(
+                    "curl interrumpido", e);
 
         } catch (IOException e) {
+
             throw new ExcepcionSms(
                     "No fue posible iniciar curl", e);
         }
     }
 
     private String configuracionCurl(
-            String destino, String mensaje) {
+            String destino,
+            String mensaje) {
 
-        // Credenciales por stdin, no por argumentos del proceso.
+        // Credenciales por stdin, nunca por argumentos.
         return "silent\nshow-error\n"
                 + "connect-timeout = 5\nmax-time = 20\n"
                 + "basic\nrequest = \"POST\"\n"
@@ -162,13 +188,27 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
                 + "%{http_code}\"\n";
     }
 
+    static ProcessBuilder crearProcesoCurl() {
+
+        // Ruta absoluta del ejecutable del sistema.
+        // No se busca curl.exe mediante PATH.
+        // -q impide cargar configuraciones .curlrc.
+        ProcessBuilder proceso = new ProcessBuilder(
+                CURL_WINDOWS,
+                "-q",
+                "--config",
+                "-"
+        );
+
+        proceso.redirectErrorStream(true);
+
+        return proceso;
+    }
+
     private static Salida ejecutarCurl(String configuracion)
             throws IOException, InterruptedException {
 
-        Process proceso = new ProcessBuilder(
-                "curl.exe", "--config", "-")
-                .redirectErrorStream(true)
-                .start();
+        Process proceso = crearProcesoCurl().start();
 
         try (var entrada = proceso.getOutputStream()) {
             entrada.write(
@@ -179,10 +219,14 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
 
         try (var salida = proceso.getInputStream()) {
             respuesta = new String(
-                    salida.readAllBytes(), StandardCharsets.UTF_8);
+                    salida.readAllBytes(),
+                    StandardCharsets.UTF_8
+            );
         }
 
         return new Salida(
-                proceso.waitFor(), respuesta);
+                proceso.waitFor(),
+                respuesta
+        );
     }
 }
