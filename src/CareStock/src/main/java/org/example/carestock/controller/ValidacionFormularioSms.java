@@ -31,6 +31,20 @@ public final class ValidacionFormularioSms {
             String fin,
             String zona,
             boolean consentimientoConfirmado) {
+        return crear(telefono, autorizado, stock, vencimiento,
+                inicio, fin, zona, consentimientoConfirmado, false);
+    }
+
+    public static ServicioPreferenciasSms.Solicitud crear(
+            String telefono,
+            boolean autorizado,
+            boolean stock,
+            boolean vencimiento,
+            String inicio,
+            String fin,
+            String zona,
+            boolean consentimientoConfirmado,
+            boolean acceso) {
 
         ValidacionSms.exigirNumeroValido(telefono);
 
@@ -84,6 +98,7 @@ public final class ValidacionFormularioSms {
                 vencimiento,
                 horaInicio,
                 horaFin,
-                zona);
+                zona,
+                acceso);
     }
 }

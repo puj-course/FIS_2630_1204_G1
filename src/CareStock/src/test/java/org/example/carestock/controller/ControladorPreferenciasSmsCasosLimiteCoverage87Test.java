@@ -83,6 +83,7 @@ class ControladorPreferenciasSmsCasosLimiteCoverage87Test {
         poner(c, "chkConfirmacion", new CheckBox());
         poner(c, "chkStock", new CheckBox());
         poner(c, "chkVencimientos", new CheckBox());
+        poner(c, "chkAccesos", new CheckBox());
         poner(c, "cmbZona", new ComboBox<String>());
         poner(c, "btnGuardar", new Button());
         poner(c, "btnDeshabilitar", new Button());

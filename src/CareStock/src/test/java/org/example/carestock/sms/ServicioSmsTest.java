@@ -84,6 +84,13 @@ class ServicioSmsTest {
                                 "application/x-www-form-urlencoded")
                     );
 
+                    assertEquals(
+                            "application/x-www-form-urlencoded",
+                            solicitud.headers()
+                                    .firstValue("Content-Type")
+                                    .orElse("")
+                    );
+
                     return new ServicioSmsTwilio.RespuestaHttp(
                             201, "{\"sid\":\"" + SID + "\"}"
                     );
@@ -118,6 +125,58 @@ class ServicioSmsTest {
         );
 
         assertTrue(error.getMessage().contains("HTTP 401"));
+        assertFalse(error.getMessage().contains("DATO_SENSIBLE"));
+    }
+
+    @Test
+    void twilioInformaCodigoDeErrorSinFiltrarDatosSensibles() {
+        ServicioSmsTwilio servicio = new ServicioSmsTwilio(
+                CUENTA,
+                "token-de-prueba",
+                "+15005550006",
+                destinatarios,
+                solicitud -> new ServicioSmsTwilio.RespuestaHttp(
+                        400,
+                        "{\"code\":572006,\"message\":"
+                        + "\"Numero secreto +573000000000\"}"
+                )
+        );
+
+        ExcepcionSms error = assertThrows(
+                ExcepcionSms.class,
+                () -> servicio.enviar(
+                        TELEFONO, "sms_appointment_reminders")
+        );
+
+        assertTrue(error.getMessage().contains("HTTP 400"));
+        assertTrue(
+                error.getMessage().contains(
+                        "codigo Twilio 572006")
+        );
+        assertFalse(
+                error.getMessage().contains("+573000000000")
+        );
+    }
+
+    @Test
+    void twilioErrorSinCodigoInformaTipoSinFiltrarRespuesta() {
+        ServicioSmsTwilio servicio = new ServicioSmsTwilio(
+                CUENTA, "token-de-prueba", "+15005550006",
+                destinatarios,
+                solicitud -> new ServicioSmsTwilio.RespuestaHttp(
+                        400, "{\"error\":\"DATO_SENSIBLE\"}"
+                )
+        );
+
+        ExcepcionSms error = assertThrows(
+                ExcepcionSms.class,
+                () -> servicio.enviar(
+                        TELEFONO, "sms_appointment_reminders")
+        );
+
+        assertTrue(error.getMessage().contains("HTTP 400"));
+        assertTrue(error.getMessage().contains(
+                "JSON sin codigo numerico"));
         assertFalse(error.getMessage().contains("DATO_SENSIBLE"));
     }
 

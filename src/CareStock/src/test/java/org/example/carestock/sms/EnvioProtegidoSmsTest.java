@@ -113,7 +113,7 @@ class EnvioProtegidoSmsTest {
 
         ServicioSms proveedor = (numero, mensaje) -> {
             assertEquals("+573001234567", numero);
-            assertEquals("sms_internal_alerts", mensaje);
+            assertEquals("sms_appointment_reminders", mensaje);
             envios.incrementAndGet();
             return new ResultadoSms(true, true, 0, "SIM-100");
         };
@@ -130,6 +130,62 @@ class EnvioProtegidoSmsTest {
             verify(e.actualizar()).setString(2, "SIM-100");
             verify(e.conexion()).commit();
             verify(e.conexion(), never()).rollback();
+        }
+    }
+
+    @Test
+    void accesoPermitidoSeEnviaConPreferenciaEspecifica() throws Exception {
+        Escenario e = escenario();
+        when(e.resultado().getString("clave")).thenReturn("ACCESO:abc");
+        when(e.resultado().getBoolean("notifica_stock_critico"))
+                .thenReturn(false);
+        when(e.resultado().getBoolean("notifica_inicio_sesion"))
+                .thenReturn(true);
+        when(e.resultado().getString("destinatario_rol"))
+                .thenReturn("ADMINISTRADOR");
+        ServicioSms proveedor = (telefono, mensaje) -> {
+            assertEquals("+573001234567", telefono);
+            assertEquals("Alerta de stock", mensaje);
+            return new ResultadoSms(true, true, 0, "SIM-ACCESO");
+        };
+        try (MockedStatic<ConexionBD> bd = mockStatic(ConexionBD.class)) {
+            bd.when(ConexionBD::getConexion).thenReturn(e.conexion());
+            new EnvioProtegidoSms(proveedor, Map.of()).procesar(7);
+            verify(e.actualizar()).setString(1, "SIMULADA");
+        }
+    }
+
+    @Test
+    void accesoNoSeEnviaSiDestinatarioDejoDeSerAdministrador() throws Exception {
+        Escenario e = escenario();
+        when(e.resultado().getString("clave")).thenReturn("ACCESO:abc");
+        when(e.resultado().getBoolean("notifica_inicio_sesion"))
+                .thenReturn(true);
+        when(e.resultado().getString("destinatario_rol"))
+                .thenReturn("AUXILIAR");
+        ServicioSms proveedor = mock(ServicioSms.class);
+        try (MockedStatic<ConexionBD> bd = mockStatic(ConexionBD.class)) {
+            bd.when(ConexionBD::getConexion).thenReturn(e.conexion());
+            new EnvioProtegidoSms(proveedor, Map.of()).procesar(7);
+            verifyNoInteractions(proveedor);
+            verify(e.actualizar()).setString(1, "FALLIDA");
+        }
+    }
+
+    @Test
+    void accesoSinPreferenciaNoSeEnvia() throws Exception {
+        Escenario e = escenario();
+        when(e.resultado().getString("clave")).thenReturn("ACCESO:abc");
+        AtomicInteger envios = new AtomicInteger();
+        ServicioSms proveedor = (telefono, mensaje) -> {
+            envios.incrementAndGet();
+            return new ResultadoSms(true, true, 0, "SIM");
+        };
+        try (MockedStatic<ConexionBD> bd = mockStatic(ConexionBD.class)) {
+            bd.when(ConexionBD::getConexion).thenReturn(e.conexion());
+            new EnvioProtegidoSms(proveedor, Map.of()).procesar(8);
+            assertEquals(0, envios.get());
+            verify(e.actualizar()).setString(1, "FALLIDA");
         }
     }
 

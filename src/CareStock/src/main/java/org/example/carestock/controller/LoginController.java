@@ -15,6 +15,9 @@ import org.example.carestock.CareStockApp;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.model.Usuario;
 import org.example.carestock.session.SesionUsuario;
+import org.example.carestock.sms.RegistroInicioSesionSms;
+
+import java.time.Instant;
 import org.example.carestock.service.AuthenticationService;
 import org.example.carestock.service.ValidacionFormularioLogin;
 
@@ -44,17 +47,25 @@ public class LoginController {
         void iniciar(Usuario usuario) throws Exception;
     }
 
+    @FunctionalInterface
+    interface AuditoriaAcceso {
+        void registrar(Usuario usuario) throws Exception;
+    }
+
     private final AuthenticationService authService;
     private final java.util.function.Supplier<Preferences> proveedorPreferencias;
     private final InicioDeSesion inicioDeSesion;
     private final Runnable abrirDashboard;
+    private final AuditoriaAcceso auditoriaAcceso;
 
     public LoginController() {
         this(
                 new AuthenticationService(),
                 () -> Preferences.userNodeForPackage(LoginController.class),
                 SesionUsuario::iniciar,
-                () -> CareStockApp.getInstance().mostrarDashboard()
+                () -> CareStockApp.getInstance().mostrarDashboard(),
+                usuario -> new RegistroInicioSesionSms().registrar(
+                        SesionUsuario.actual(), Instant.now())
         );
     }
 
@@ -63,11 +74,22 @@ public class LoginController {
             java.util.function.Supplier<Preferences> preferencias,
             InicioDeSesion inicioDeSesion,
             Runnable abrirDashboard) {
+        this(autenticacion, preferencias, inicioDeSesion,
+                abrirDashboard, usuario -> { });
+    }
 
-        this.authService = autenticacion;
-        this.proveedorPreferencias = preferencias;
-        this.inicioDeSesion = inicioDeSesion;
-        this.abrirDashboard = abrirDashboard;
+    LoginController(
+            AuthenticationService autenticacion,
+            java.util.function.Supplier<Preferences> preferencias,
+            InicioDeSesion inicioDeSesion,
+            Runnable abrirDashboard,
+            AuditoriaAcceso auditoriaAcceso) {
+
+        this.authService = java.util.Objects.requireNonNull(autenticacion);
+        this.proveedorPreferencias = java.util.Objects.requireNonNull(preferencias);
+        this.inicioDeSesion = java.util.Objects.requireNonNull(inicioDeSesion);
+        this.abrirDashboard = java.util.Objects.requireNonNull(abrirDashboard);
+        this.auditoriaAcceso = java.util.Objects.requireNonNull(auditoriaAcceso);
     }
 
 
@@ -242,6 +264,14 @@ public class LoginController {
                     inicioDeSesion.iniciar(usuario);
                 } catch (Exception ex) {
                     throw new ErrorDeInicioDeSesion(ex);
+                }
+                // El error SMS nunca convierte un acceso valido en fallido.
+                try {
+                    auditoriaAcceso.registrar(usuario);
+                } catch (Exception ex) {
+                    System.err.println(
+                            "Auditoria SMS de acceso no disponible: "
+                            + ex.getClass().getSimpleName());
                 }
                 return usuario;
             }

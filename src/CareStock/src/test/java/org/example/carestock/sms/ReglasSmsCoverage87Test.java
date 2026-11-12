@@ -168,6 +168,21 @@ class ReglasSmsCoverage87Test {
     }
 
     @Test
+    void eventoAccesoRequierePreferenciaEspecifica() {
+        assertEquals("ACCESO", ReglasNotificacionSms.tipo("ACCESO:uuid"));
+        assertFalse(ReglasNotificacionSms.esCritica("ACCESO:uuid"));
+        assertTrue(ReglasNotificacionSms.puedeGenerar(
+                true, true, true, true, true,
+                "ACCESO", false, false, true));
+        assertFalse(ReglasNotificacionSms.puedeGenerar(
+                true, true, true, true, true,
+                "ACCESO", true, true, false));
+        assertFalse(ReglasNotificacionSms.puedeGenerar(
+                true, false, true, true, true,
+                "ACCESO", false, false, true));
+    }
+
+    @Test
     void distingueAlertasCriticasDeAvisos() {
         assertTrue(ReglasNotificacionSms.esCritica("STOCK:15"));
         assertTrue(ReglasNotificacionSms.esCritica("LOTE:25"));

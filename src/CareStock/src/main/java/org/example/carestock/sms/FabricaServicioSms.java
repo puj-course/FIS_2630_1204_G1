@@ -37,6 +37,15 @@ public final class FabricaServicioSms {
                         destinatarios);
             }
 
+            case "twilio-curl" -> {
+                exigirEnvioRealConfirmado(entorno);
+                yield new ServicioSmsTwilioCurl(
+                        entorno.get("TWILIO_ACCOUNT_SID"),
+                        entorno.get("TWILIO_AUTH_TOKEN"),
+                        entorno.get("TWILIO_FROM_NUMBER"),
+                        destinatarios);
+            }
+
             case "android" -> {
                 exigirEnvioRealConfirmado(entorno);
                 yield new ServicioSmsAndroid(
@@ -54,7 +63,7 @@ public final class FabricaServicioSms {
             }
 
             default -> throw new IllegalArgumentException(
-                    "SMS_PROVIDER debe ser simulado, twilio, "
+                    "SMS_PROVIDER debe ser simulado, twilio, twilio-curl, "
                     + "android o simple-android.");
         };
     }

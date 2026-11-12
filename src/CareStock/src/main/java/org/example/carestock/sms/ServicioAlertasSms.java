@@ -96,6 +96,7 @@ public final class ServicioAlertasSms {
           AND activa = TRUE
           AND NOT (clave = ANY (?))
           AND clave NOT LIKE 'AVISO:%'
+          AND (clave LIKE 'STOCK:%' OR clave LIKE 'LOTE:%')
         """;
 
     private static final String RECLAMAR = """
@@ -109,6 +110,7 @@ public final class ServicioAlertasSms {
               ON u.id_usuario = d.id_usuario
              AND u.id_farmacia = d.id_farmacia
              AND u.estado = 'ACTIVO'
+            JOIN roles r ON r.id_rol = u.id_rol
             JOIN farmacias f
               ON f.id_farmacia = d.id_farmacia
              AND f.estado = 'ACTIVA'
@@ -124,9 +126,12 @@ public final class ServicioAlertasSms {
                   OR ((a.clave LIKE 'LOTE:%'
                      OR a.clave LIKE 'AVISO:VENCIMIENTO:%')
                     AND d.notifica_vencimiento_critico)
+                  OR (a.clave LIKE 'ACCESO:%'
+                      AND d.notifica_inicio_sesion
+                      AND UPPER(BTRIM(r.nombre_rol)) = 'ADMINISTRADOR')
               )
               AND (
-                  a.clave NOT LIKE 'AVISO:%'
+                  (a.clave NOT LIKE 'AVISO:%' AND a.clave NOT LIKE 'ACCESO:%')
                   OR d.horario_inicio IS NULL
                   OR (d.horario_inicio < d.horario_fin
                       AND (NOW() AT TIME ZONE d.zona_horaria)::time >= d.horario_inicio
@@ -168,10 +173,14 @@ public final class ServicioAlertasSms {
 
     public void ejecutarCiclo() throws SQLException {
 
-        sincronizar();
+        if (!soloAccesosFarmaciaUno()) {
+            sincronizar();
+        }
         EnvioProtegidoSms protegido =
                 new EnvioProtegidoSms(sms, config);
-        protegido.limpiarPendientes();
+        if (!soloAccesosFarmaciaUno()) {
+            protegido.limpiarPendientes();
+        }
 
         try (Connection con =
                      ConexionBD.getConexion();
@@ -335,12 +344,33 @@ public final class ServicioAlertasSms {
     ) {
     }
 
+    boolean soloAccesosFarmaciaUno() {
+        return "SI".equalsIgnoreCase(
+            config.getOrDefault(
+                "SMS_SOLO_ACCESOS_FARMACIA_1", "NO"));
+    }
+
+    String consultaReclamar() {
+        if (!soloAccesosFarmaciaUno()) {
+            return RECLAMAR;
+        }
+        String consulta = RECLAMAR.replace(
+            "WHERE a.activa",
+            "WHERE a.activa AND a.id_farmacia = 1 "
+            + "AND a.clave LIKE 'ACCESO:%'");
+        if (consulta.equals(RECLAMAR)) {
+            throw new IllegalStateException(
+                "No se pudo aplicar el filtro SMS");
+        }
+        return consulta;
+    }
+
     private Envio reclamar() throws SQLException {
 
         try (Connection con =
                      ConexionBD.getConexion();
              PreparedStatement ps =
-                     con.prepareStatement(RECLAMAR);
+                     con.prepareStatement(consultaReclamar());
              ResultSet rs = ps.executeQuery()) {
 
             return rs.next()
