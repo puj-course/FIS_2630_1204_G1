@@ -77,6 +77,12 @@ class DashboardFxmlHandlersTest {
 
             assertTrue(xml.contains(
                     "onAction=\"#onAbrirCatalogo\""));
+
+            assertTrue(xml.contains(
+                    "fx:id=\"btnPreferenciasSms\""));
+
+            assertTrue(xml.contains(
+                    "onAction=\"#onAbrirPreferenciasSms\""));
         }
     }
 }

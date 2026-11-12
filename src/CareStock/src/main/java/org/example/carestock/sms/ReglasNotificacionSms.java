@@ -17,6 +17,21 @@ public final class ReglasNotificacionSms {
             String tipo,
             boolean stock,
             boolean vencimiento) {
+        return puedeGenerar(destinatarioActivo, autorizado,
+                fechaConsentimientoPresente, usuarioActivo,
+                farmaciaActiva, tipo, stock, vencimiento, false);
+    }
+
+    public static boolean puedeGenerar(
+            boolean destinatarioActivo,
+            boolean autorizado,
+            boolean fechaConsentimientoPresente,
+            boolean usuarioActivo,
+            boolean farmaciaActiva,
+            String tipo,
+            boolean stock,
+            boolean vencimiento,
+            boolean acceso) {
 
         if (!destinatarioActivo || !autorizado
                 || !fechaConsentimientoPresente
@@ -27,6 +42,7 @@ public final class ReglasNotificacionSms {
         return switch (tipo == null ? "" : tipo) {
             case "STOCK" -> stock;
             case "VENCIMIENTO" -> vencimiento;
+            case "ACCESO" -> acceso;
             default -> false;
         };
     }
@@ -74,6 +90,10 @@ public final class ReglasNotificacionSms {
         if (clave.startsWith("LOTE:")
                 || clave.startsWith("AVISO:VENCIMIENTO:")) {
             return "VENCIMIENTO";
+        }
+
+        if (clave.startsWith("ACCESO:")) {
+            return "ACCESO";
         }
 
         return "";

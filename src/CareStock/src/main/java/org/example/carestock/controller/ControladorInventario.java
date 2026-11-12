@@ -58,6 +58,7 @@ public class ControladorInventario {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private Button btnPreferenciasSms;
     @FXML private BorderPane dashboardRoot;
     @FXML private ScrollPane vistaLotes;
 
@@ -156,6 +157,9 @@ public class ControladorInventario {
                     || "SUPER_ADMIN".equalsIgnoreCase(rol));
         btnAjustes.setVisible(puedeAjustar);
         btnAjustes.setManaged(puedeAjustar);
+        boolean puedeConfigurarSms = ValidacionFormularioSms.puedeAcceder(sesion);
+        btnPreferenciasSms.setVisible(puedeConfigurarSms);
+        btnPreferenciasSms.setManaged(puedeConfigurarSms);
         btnAlertas.setVisible(puedeConsultarCatalogo);
         btnAlertas.setManaged(puedeConsultarCatalogo);
 
@@ -439,6 +443,11 @@ public class ControladorInventario {
     @FXML
     private void onAbrirReposicion() {
         CareStockApp.getInstance().mostrarReposicion();
+    }
+
+    @FXML
+    private void onAbrirPreferenciasSms() {
+        CareStockApp.getInstance().mostrarConfiguracionSms();
     }
 
     @FXML

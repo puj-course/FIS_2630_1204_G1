@@ -40,6 +40,7 @@ public final class ControladorPreferenciasSms {
     @FXML private CheckBox chkConfirmacion;
     @FXML private CheckBox chkStock;
     @FXML private CheckBox chkVencimientos;
+    @FXML private CheckBox chkAccesos;
 
     @FXML private ComboBox<String> cmbZona;
 
@@ -127,6 +128,7 @@ public final class ControladorPreferenciasSms {
         chkConfirmacion.setSelected(false);
         chkStock.setSelected(false);
         chkVencimientos.setSelected(false);
+        chkAccesos.setSelected(false);
         cmbZona.setValue("America/Bogota");
     }
 
@@ -202,6 +204,7 @@ public final class ControladorPreferenciasSms {
                     chkStock.setSelected(s.notificaStockCritico());
                     chkVencimientos.setSelected(
                             s.notificaVencimientoCritico());
+                    chkAccesos.setSelected(s.notificaInicioSesion());
 
                     txtInicio.setText(hora(s.horarioInicio()));
                     txtFin.setText(hora(s.horarioFin()));
@@ -237,7 +240,8 @@ public final class ControladorPreferenciasSms {
                     txtInicio.getText(),
                     txtFin.getText(),
                     cmbZona.getValue(),
-                    chkConfirmacion.isSelected()
+                    chkConfirmacion.isSelected(),
+                    chkAccesos.isSelected()
             );
         } catch (IllegalArgumentException ex) {
             new Alert(Alert.AlertType.WARNING,
@@ -329,6 +333,14 @@ public final class ControladorPreferenciasSms {
             if (!sesionVigente()) return;
 
             Throwable error = tarea.getException();
+
+            java.util.logging.Logger.getLogger(
+                    ControladorPreferenciasSms.class.getName()
+            ).log(
+                    java.util.logging.Level.SEVERE,
+                    "Fallo al cargar o guardar Preferencias SMS",
+                    error
+            );
 
             String mensajeError = error instanceof SecurityException
                     ? "Operacion no autorizada."

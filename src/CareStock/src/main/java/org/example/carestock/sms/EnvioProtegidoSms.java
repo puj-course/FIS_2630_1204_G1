@@ -24,6 +24,7 @@ final class EnvioProtegidoSms {
             JOIN usuarios u
               ON u.id_usuario = d.id_usuario
              AND u.id_farmacia = d.id_farmacia
+            JOIN roles r ON r.id_rol = u.id_rol
             JOIN farmacias f
               ON f.id_farmacia = d.id_farmacia
             WHERE d.id_destinatario = a.id_destinatario
@@ -45,6 +46,12 @@ final class EnvioProtegidoSms {
                      OR a.clave LIKE 'AVISO:VENCIMIENTO:%')
                     AND d.notifica_vencimiento_critico
                 )
+                OR
+                (
+                    a.clave LIKE 'ACCESO:%'
+                    AND d.notifica_inicio_sesion
+                    AND UPPER(BTRIM(r.nombre_rol)) = 'ADMINISTRADOR'
+                )
               )
           )
         """;
@@ -57,11 +64,13 @@ final class EnvioProtegidoSms {
                d.autorizado_en,
                d.notifica_stock_critico,
                d.notifica_vencimiento_critico,
+               d.notifica_inicio_sesion,
                d.horario_inicio,
                d.horario_fin,
                d.zona_horaria,
                u.estado AS usuario_estado,
-               f.estado AS farmacia_estado
+               f.estado AS farmacia_estado,
+               r.nombre_rol AS destinatario_rol
         FROM sms_alertas a
         JOIN sms_destinatarios d
           ON d.id_destinatario = a.id_destinatario
@@ -69,6 +78,7 @@ final class EnvioProtegidoSms {
         JOIN usuarios u
           ON u.id_usuario = d.id_usuario
          AND u.id_farmacia = d.id_farmacia
+        JOIN roles r ON r.id_rol = u.id_rol
         JOIN farmacias f
           ON f.id_farmacia = d.id_farmacia
         WHERE a.id_alerta = ?
@@ -131,8 +141,17 @@ final class EnvioProtegidoSms {
                                             rs.getString("farmacia_estado")),
                                     ReglasNotificacionSms.tipo(clave),
                                     rs.getBoolean("notifica_stock_critico"),
-                                    rs.getBoolean("notifica_vencimiento_critico")
+                                    rs.getBoolean("notifica_vencimiento_critico"),
+                                    rs.getBoolean("notifica_inicio_sesion")
                             );
+
+                    if ("ACCESO".equals(
+                            ReglasNotificacionSms.tipo(clave))) {
+                        String rolDestino = rs.getString("destinatario_rol");
+                        elegible = elegible && rolDestino != null
+                                && "ADMINISTRADOR".equalsIgnoreCase(
+                                        rolDestino.trim());
+                    }
 
                     if (!elegible) {
                         actualizar(
@@ -176,8 +195,13 @@ final class EnvioProtegidoSms {
                     String mensaje = "SI".equalsIgnoreCase(
                             config.getOrDefault(
                                     "SMS_MODO_TRIAL", "NO"))
-                            ? "sms_internal_alerts"
+                            ? "sms_appointment_reminders"
                             : rs.getString("mensaje");
+
+                    System.err.println(
+                            "SMS_DIAG: plantilla_trial="
+                            + "sms_appointment_reminders".equals(mensaje)
+                    );
 
                     try {
                         ResultadoSms resultado =

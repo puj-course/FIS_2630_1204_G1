@@ -97,6 +97,7 @@ class ControladorPreferenciasSmsCoberturaExtraTest {
         campo(c, "chkConfirmacion", new CheckBox());
         campo(c, "chkStock", new CheckBox());
         campo(c, "chkVencimientos", new CheckBox());
+        campo(c, "chkAccesos", new CheckBox());
         campo(c, "cmbZona", new ComboBox<String>());
         campo(c, "btnGuardar", new Button());
         campo(c, "btnDeshabilitar", new Button());

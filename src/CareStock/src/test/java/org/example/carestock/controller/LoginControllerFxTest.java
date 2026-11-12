@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
@@ -353,6 +354,80 @@ class LoginControllerFxTest {
         verify(dashboard, timeout(5000)).run();
 
         verify(preferencias).remove("correo_recordado");
+    }
+
+    @Test
+    void accesoExitosoRegistraUnaAuditoriaSms() throws Exception {
+        var auditoria = mock(LoginController.AuditoriaAcceso.class);
+        when(autenticacion.autenticar(
+                "ana@test.local", "Clave#2026")).thenReturn(usuario());
+
+        enFx(() -> {
+            FXMLLoader cargador = new FXMLLoader(
+                    getClass().getResource(
+                            "/org/example/carestock/login-view.fxml"));
+            cargador.setControllerFactory(tipo -> new LoginController(
+                    autenticacion, () -> preferencias,
+                    iniciarSesion, dashboard, auditoria));
+            cargador.load();
+            controlador = cargador.getController();
+            completarCredenciales();
+            ((Button) campo("btnIngresar")).fire();
+            return null;
+        });
+
+        verify(auditoria, timeout(5000).times(1))
+                .registrar(any(Usuario.class));
+        verify(dashboard, timeout(5000)).run();
+    }
+
+    @Test
+    void credencialesIncorrectasNoGeneranAuditoria() throws Exception {
+        var auditoria = mock(LoginController.AuditoriaAcceso.class);
+        when(autenticacion.autenticar(
+                "ana@test.local", "Clave#2026"))
+                .thenThrow(new ReglaNegocioException("Acceso denegado"));
+
+        enFx(() -> {
+            FXMLLoader cargador = new FXMLLoader(
+                    getClass().getResource(
+                            "/org/example/carestock/login-view.fxml"));
+            cargador.setControllerFactory(tipo -> new LoginController(
+                    autenticacion, () -> preferencias,
+                    iniciarSesion, dashboard, auditoria));
+            cargador.load();
+            controlador = cargador.getController();
+            completarCredenciales();
+            ((Button) campo("btnIngresar")).fire();
+            return null;
+        });
+        Label mensaje = campo("lblNotificacion");
+        esperar(mensaje::isVisible);
+        verifyNoInteractions(auditoria, dashboard);
+    }
+
+    @Test
+    void errorAlAuditarNoBloqueaDashboard() throws Exception {
+        var auditoria = mock(LoginController.AuditoriaAcceso.class);
+        when(autenticacion.autenticar(
+                "ana@test.local", "Clave#2026")).thenReturn(usuario());
+        doThrow(new SQLException("SMS fuera de linea"))
+                .when(auditoria).registrar(any(Usuario.class));
+
+        enFx(() -> {
+            FXMLLoader cargador = new FXMLLoader(
+                    getClass().getResource(
+                            "/org/example/carestock/login-view.fxml"));
+            cargador.setControllerFactory(tipo -> new LoginController(
+                    autenticacion, () -> preferencias,
+                    iniciarSesion, dashboard, auditoria));
+            cargador.load();
+            controlador = cargador.getController();
+            completarCredenciales();
+            ((Button) campo("btnIngresar")).fire();
+            return null;
+        });
+        verify(dashboard, timeout(5000)).run();
     }
 
     @Test
