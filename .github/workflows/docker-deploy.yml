@@ -147,3 +147,23 @@ jobs:
 
           docker push \
             docker.io/mateosalazarb/carestock:stable
+
+      - name: Validar publicacion de Docker Hub
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          bash scripts/docker/verificar-publicacion.sh \
+            "docker.io/mateosalazarb/carestock:${GITHUB_REF_NAME}"
+
+          docker pull docker.io/mateosalazarb/carestock:stable
+
+          VERSION_ID="$(docker image inspect \
+            --format '{{.Id}}' \
+            "docker.io/mateosalazarb/carestock:${GITHUB_REF_NAME}")"
+
+          STABLE_ID="$(docker image inspect \
+            --format '{{.Id}}' \
+            docker.io/mateosalazarb/carestock:stable)"
+
+          test "$VERSION_ID" = "$STABLE_ID"
+
+          echo "OK: Version y stable contienen la misma imagen."
