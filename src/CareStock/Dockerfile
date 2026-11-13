@@ -1,14 +1,15 @@
 # syntax=docker/dockerfile:1
+
 FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
-# JavaFX y acceso grafico
-RUN --network=host set -eu; \
+# Dependencias graficas de JavaFX, Xvfb y noVNC
+RUN set -eu; \
     intento=1; \
     until apt-get update -o Acquire::Retries=3 -o APT::Update::Error-Mode=any; do \
       if [ "$intento" -ge 3 ]; then \
-        echo >&2 "ERROR: apt-get update fallo tras 3 intentos; revisar DNS del runner"; \
+        echo >&2 "ERROR: apt-get update fallo tras 3 intentos"; \
         exit 1; \
       fi; \
       intento=$((intento + 1)); \
@@ -36,12 +37,16 @@ RUN --network=host set -eu; \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+# Artefactos compilados de CareStock
 COPY target/CareStock-1.0-SNAPSHOT.jar /app/carestock.jar
 COPY target/docker-libs-linux/ /app/libs/
+
+# Script de inicio
 COPY docker-start.sh /app/docker-start.sh
 
 RUN chmod +x /app/docker-start.sh
 
+# Verificar modulos Java
 RUN java --module-path /app/carestock.jar:/app/libs \
     --validate-modules
 

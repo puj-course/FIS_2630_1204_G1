@@ -2,7 +2,7 @@ name: carestock-remoto
 
 services:
   carestock:
-    image: docker.io/mateosalazarb/carestock:1.0
+    image: docker.io/mateosalazarb/carestock:stable
 
     ports:
       - "127.0.0.1:6080:6080"

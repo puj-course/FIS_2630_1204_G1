@@ -5,21 +5,26 @@ on:
     branches:
       - main
       - feature/docker-deploy
+      - fix/docker-taller-reproducible
     tags:
       - 'v*'
     paths:
       - 'src/CareStock/**'
+      - 'scripts/docker/**'
       - '.github/workflows/docker-deploy.yml'
       - 'compose.yaml'
       - 'compose.remote.yaml'
+
   pull_request:
     branches:
       - main
     paths:
       - 'src/CareStock/**'
+      - 'scripts/docker/**'
       - '.github/workflows/docker-deploy.yml'
       - 'compose.yaml'
       - 'compose.remote.yaml'
+
   workflow_dispatch:
 
 permissions:
@@ -43,7 +48,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/CareStock/pom.xml
 
-      - name: Preparar Maven y entorno JavaFX
+      - name: Preparar Maven y JavaFX
         working-directory: src/CareStock
         run: |
           sed -i 's/\r$//' mvnw
@@ -88,40 +93,20 @@ jobs:
                 "https://repo.maven.apache.org/maven2/org/openjfx/javafx-${modulo}/21/$archivo"
             fi
 
-            jar tf "target/docker-libs-linux/$archivo" \
-              >/dev/null
+            jar tf "target/docker-libs-linux/$archivo" >/dev/null
           done
 
-          test -f target/CareStock-1.0-SNAPSHOT.jar
+          test -s target/CareStock-1.0-SNAPSHOT.jar
 
           test "$(find target/docker-libs-linux \
             -name 'javafx-*-linux.jar' | wc -l)" -eq 6
 
-          echo "Dependencias Linux preparadas correctamente"
-
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v4
-        with:
-          driver-opts: |
-            network=host
-          buildkitd-flags: --allow-insecure-entitlement network.host
 
-      - name: Diagnosticar DNS del runner
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo '=== DNS del runner ==='
-          cat /etc/resolv.conf
-          for host in archive.ubuntu.com security.ubuntu.com; do
-            getent ahostsv4 "$host" || {
-              echo "::error::DNS fallo para $host"
-              exit 1
-            }
-          done
       - name: Construir imagen Docker
         uses: docker/build-push-action@v7
         with:
-          allow: network.host
           context: ./src/CareStock
           file: ./src/CareStock/Dockerfile
           platforms: linux/amd64
@@ -129,9 +114,10 @@ jobs:
           push: false
           tags: carestock:ci
 
-      - name: Verificar imagen construida
+      - name: Verificar imagen
         run: |
           docker image inspect carestock:ci
+
           docker run --rm --entrypoint java \
             carestock:ci --list-modules \
             | grep 'jdk.unsupported.desktop'
