@@ -1,0 +1,1 @@
+Imagen: [mateosalazarb/carestock:stable mateosalazarb/carestock:v1.0.1] | Sistema: linux/amd64 | ID: sha256:9aa9cf3962bc22a4c92ae1e53fd87364f937009306043e5d612f88d2012e270a
