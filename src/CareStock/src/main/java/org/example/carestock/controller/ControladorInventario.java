@@ -100,8 +100,7 @@ public class ControladorInventario {
     @FXML private javafx.scene.shape.Circle badgeNotificaciones;
     @FXML private Label lblContadorNotificaciones;
     @FXML private Button btnGenerarQR;
-    @FXML private TableColumn<Lote, String> colRefrigeracion;
-
+    
     private static final String CATEGORIA_TODAS = "Todas";
 
     private Inventario inventario;
@@ -167,15 +166,6 @@ public class ControladorInventario {
         colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
         colIdMedicamento.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
-        if (colRefrigeracion != null) {
-            colRefrigeracion.setCellValueFactory(cellData -> {
-                Lote lote = cellData.getValue();
-                if (lote != null && lote.getRequiereRefrigeracion()) {
-                    return new javafx.beans.property.ReadOnlyStringWrapper("❄️");
-                }
-                return new javafx.beans.property.ReadOnlyStringWrapper("");
-            });
-        }
 
         colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
         colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
@@ -291,8 +281,6 @@ public class ControladorInventario {
         tablaLotes.setItems(datosOrdenados);
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
-
         private void aplicarFiltros() {
 
         LocalDate inicio = dateInicio.getValue();
@@ -1274,17 +1262,17 @@ Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use e
     // ========================================
 
     @FXML
-    private void onIrAAlertas() {
+    public void onIrAAlertas() {
         org.example.carestock.CareStockApp.getInstance().mostrarAlertas();
     }
 
     @FXML
-    private void onIrALotesPorVencer() {
+    public void onIrALotesPorVencer() {
         onFiltrarVencidos(); 
     }
 
     @FXML
-    private void onIrAHistorial() {
+    public void onIrAHistorial() {
         org.example.carestock.CareStockApp.getInstance().mostrarHistorialMovimientos();
     }
 }
