@@ -291,8 +291,6 @@ public class ControladorInventario {
         tablaLotes.setItems(datosOrdenados);
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
-
         private void aplicarFiltros() {
 
         LocalDate inicio = dateInicio.getValue();
