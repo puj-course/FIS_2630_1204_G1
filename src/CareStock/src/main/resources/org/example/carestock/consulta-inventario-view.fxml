@@ -42,6 +42,10 @@
                           prefWidth="180"
                           style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;"/>
 
+                <ComboBox fx:id="cmbDisponibilidad"
+                          prefWidth="170"
+                          style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D0D0D0;"/>
+
                 <TextField fx:id="txtBuscar"
                            promptText="Buscar por nombre o codigo"
                            HBox.hgrow="ALWAYS"

@@ -338,19 +338,21 @@ class CatalogoRamasExtraTest {
     }
 
     @Test
-    void busquedaIncompletaNoModificaLaTabla()
-            throws Exception {
-
+    void busquedaIncompletaNoModificaLaTabla() throws Exception {
         enFx(() -> {
             var catalogo = new ControladorCatalogo();
-
+            var tabla = new TableView<RegistroCatalogo<?>>();
+            tabla.getItems().add(new RegistroCatalogo<>(
+                    7, mock(Aseo.class), "ACTIVO"));
+            asignar(catalogo, "tablaProductos", tabla);
             ejecutar(catalogo, "actualizarBusqueda");
+            assertEquals(1, tabla.getItems().size());
+            assertEquals(7, tabla.getItems().get(0).id());
 
-            asignar(catalogo, "txtBuscar",
-                    new TextField("Aseo"));
-
+            asignar(catalogo, "tablaProductos", null);
+            asignar(catalogo, "txtBuscar", new TextField("Aseo"));
             ejecutar(catalogo, "actualizarBusqueda");
-
+            assertEquals(1, tabla.getItems().size());
             return null;
         });
     }

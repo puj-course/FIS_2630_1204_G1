@@ -1,4 +1,5 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -135,7 +136,7 @@ public final class GestorLotesDialogo {
 
         DatePicker fecha = new DatePicker(
                 nuevo
-                    ? LocalDate.now().plusMonths(12)
+                    ? FechaNegocio.hoy().plusMonths(12)
                     : original.getFechaVencimiento());
 
         fecha.setMaxWidth(Double.MAX_VALUE);
@@ -281,7 +282,7 @@ public final class GestorLotesDialogo {
 
     public boolean retirar(Lote lote) {
 
-        if (lote.getCantidadActual() > 0 && (lote.getFechaVencimiento() == null || lote.getFechaVencimiento().isAfter(LocalDate.now()))) {
+        if (lote.getCantidadActual() > 0 && (lote.getFechaVencimiento() == null || lote.getFechaVencimiento().isAfter(FechaNegocio.hoy()))) {
 
             aviso(Alert.AlertType.WARNING,
                     "No se puede retirar",

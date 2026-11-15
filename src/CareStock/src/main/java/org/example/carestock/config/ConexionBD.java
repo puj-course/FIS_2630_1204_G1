@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Conexion PostgreSQL / Neon mediante HikariCP.
@@ -17,23 +18,24 @@ import java.util.Properties;
  * Lee los datos desde config/conexion-local.properties.
  */
 public final class ConexionBD {
+    private static final String ARCHIVO_CONFIG = "conexion-local.properties";
 
-    private static volatile HikariDataSource pool;
+    private static final AtomicReference<HikariDataSource> POOL = new AtomicReference<>();
 
     private ConexionBD() {
     }
 
     public static Connection getConexion() throws SQLException {
 
-        HikariDataSource ds = pool;
+        HikariDataSource ds = POOL.get();
 
         if (ds == null) {
             synchronized (ConexionBD.class) {
-                ds = pool;
+                ds = POOL.get();
 
                 if (ds == null) {
                     ds = crearPool();
-                    pool = ds;
+                    POOL.set(ds);
                 }
             }
         }
@@ -82,7 +84,7 @@ public final class ConexionBD {
             Path externa = Path.of(
                     appData,
                     "CareStock",
-                    "conexion-local.properties"
+                    ARCHIVO_CONFIG
             );
 
             if (Files.isRegularFile(externa)) {
@@ -94,7 +96,7 @@ public final class ConexionBD {
         if (ruta == null) {
             Path local = Path.of(
                     "config",
-                    "conexion-local.properties"
+                    ARCHIVO_CONFIG
             );
 
             if (Files.isRegularFile(local)) {
@@ -108,7 +110,7 @@ public final class ConexionBD {
                     "src",
                     "CareStock",
                     "config",
-                    "conexion-local.properties"
+                    ARCHIVO_CONFIG
             );
 
             if (Files.isRegularFile(repositorio)) {
@@ -229,7 +231,7 @@ public final class ConexionBD {
 
     public static String estadoPool() {
 
-        HikariDataSource ds = pool;
+        HikariDataSource ds = POOL.get();
 
         if (ds == null || ds.isClosed()) {
             return "Pool no inicializado";
@@ -250,9 +252,9 @@ public final class ConexionBD {
 
     public static synchronized void cerrarPool() {
 
-        if (pool != null) {
-            pool.close();
-            pool = null;
+        HikariDataSource ds = POOL.getAndSet(null);
+        if (ds != null) {
+            ds.close();
         }
     }
 }

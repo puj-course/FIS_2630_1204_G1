@@ -1,4 +1,5 @@
 package org.example.carestock.service;
+import org.example.carestock.utils.FechaNegocio;
 
 import org.example.carestock.config.ConexionBD;
 import org.example.carestock.model.Lote;
@@ -148,7 +149,7 @@ public final class ServicioCrudLotes {
                     "La cantidad inicial debe ser mayor que cero");
         }
 
-        if (!fecha.isAfter(LocalDate.now())) {
+        if (!fecha.isAfter(FechaNegocio.hoy())) {
             throw new IllegalArgumentException(
                     "El nuevo lote debe tener vencimiento futuro");
         }
@@ -192,7 +193,7 @@ public final class ServicioCrudLotes {
         boolean deshabilitado =
                 "DESHABILITADO".equalsIgnoreCase(estado)
                 || (vencimiento != null
-                    && !vencimiento.isAfter(LocalDate.now()));
+                    && !vencimiento.isAfter(FechaNegocio.hoy()));
 
         if (stock != 0 && !deshabilitado) {
             throw new IllegalStateException(
@@ -454,7 +455,7 @@ public final class ServicioCrudLotes {
         validarCampos(numero, fecha, idUbicacion);
 
         if (!fecha.equals(original.getFechaVencimiento())
-                && !fecha.isAfter(LocalDate.now())) {
+                && !fecha.isAfter(FechaNegocio.hoy())) {
             throw new IllegalArgumentException(
                     "La nueva fecha debe ser futura");
         }

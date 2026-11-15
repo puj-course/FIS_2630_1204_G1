@@ -96,6 +96,7 @@ class ConsultasSqlCatalogoTest {
             assertTrue(sql.contains(id + " = ?"));
             assertTrue(sql.contains("id_farmacia = ?"));
             assertTrue(sql.contains("estado = 'ACTIVO'"));
+            assertTrue(sql.contains("stock = 0"));
             assertEquals(3, contarParametros(sql));
         }
     }

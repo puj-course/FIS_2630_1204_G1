@@ -1,0 +1,23 @@
+==================================
+CARESTOCK - VALIDACION DOCKER
+==================================
+Tue Nov 10 13:04:51 HPS 2026
+
+=== RAMA ===
+feature/docker-deploy
+
+=== DOCKER COMPOSE ===
+Configuracion Compose validada
+
+=== CONTENEDORES ===
+NAME                    IMAGE                     COMMAND                  SERVICE     CREATED          STATUS          PORTS
+carestock-carestock-1   carestock:taller-visual   "/__cacert_entrypoin…"   carestock   29 minutes ago   Up 29 minutes   127.0.0.1:6080->6080/tcp
+
+=== IMAGEN PUBLICADA ===
+Imagen: [carestock:taller-visual mateosalazarb/carestock:1.0] | ID: sha256:df0ffd0ad12df20f17ea853629f8e8a4cf1ce657257f7796e3af87f269e0979f
+
+=== DOCKER HUB ===
+Imagen remota verificada
+
+=== ACCESO HTTP NOVNC ===
+HTTP: 200

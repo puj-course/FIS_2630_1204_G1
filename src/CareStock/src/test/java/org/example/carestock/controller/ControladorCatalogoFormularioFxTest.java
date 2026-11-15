@@ -723,7 +723,8 @@ class ControladorCatalogoFormularioFxTest {
 
         for (String nombre : new String[]{
                 "btnCatalogo", "btnHistorial", "btnAjustes",
-                "btnAlertas", "btnExportarCSV", "btnNuevoLote",
+                "btnPreferenciasSms", "btnAlertas", "btnExportarCSV",
+                "btnNuevoLote",
                 "btnEditarLote", "btnRetirarLote"}) {
             insertar(c, nombre, new Button());
         }
@@ -2881,6 +2882,13 @@ class ControladorCatalogoFormularioFxTest {
                             obtener(controlador, "btnHistorial");
                     javafx.scene.control.Button ajustes =
                             obtener(controlador, "btnAjustes");
+                    javafx.scene.control.Button sms =
+                            obtener(controlador, "btnPreferenciasSms");
+                    boolean esperadoSms =
+                            "ADMINISTRADOR".equals(escenario.rol())
+                            && escenario.farmacia() != null;
+                    assertEquals(esperadoSms, sms.isVisible());
+                    assertEquals(esperadoSms, sms.isManaged());
 
                     assertEquals(
                             escenario.catalogo(),

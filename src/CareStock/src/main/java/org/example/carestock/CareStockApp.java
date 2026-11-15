@@ -17,14 +17,17 @@ import org.example.carestock.service.ResolucionNavegacionAlertas;
 import org.example.carestock.service.PoliticaAccionesAlertas;
 import org.example.carestock.dto.AlertaInventario.Categoria;
 import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicReference;
 import org.example.carestock.config.PrecalentadorConexionBD;
 
 import java.net.URL;
 
 public class CareStockApp extends Application {
+    private static final String VISTA_INVENTARIO = "/org/example/carestock/inventario-view.fxml";
 
-    private static CareStockApp instance;
+    private static final AtomicReference<CareStockApp> INSTANCE = new AtomicReference<>();
 
+    private static final System.Logger LOGGER = System.getLogger(CareStockApp.class.getName());
     private Stage primaryStage;
     private ControladorInventario controladorDashboard;
 
@@ -36,12 +39,12 @@ public class CareStockApp extends Application {
     private DestinoCatalogo destinoCatalogo;
 
     public static CareStockApp getInstance() {
-        return instance;
+        return INSTANCE.get();
     }
 
     @Override
     public void start(Stage stage) throws Exception {
-        instance = this;
+        INSTANCE.set(this);
         this.primaryStage = stage;
 
         stage.setTitle("CareStock - Control de Inventario y Farmacovigilancia");
@@ -95,7 +98,7 @@ public class CareStockApp extends Application {
         }
 
         transicionarEscena(
-                "/org/example/carestock/inventario-view.fxml",
+                VISTA_INVENTARIO,
                 1100,
                 750
         );
@@ -137,7 +140,7 @@ public class CareStockApp extends Application {
                     categoria, id);
         } else {
             transicionarEscena(
-                    "/org/example/carestock/inventario-view.fxml",
+                    VISTA_INVENTARIO,
                     1100, 750,
                     controlador -> ((ControladorInventario) controlador)
                             .abrirCatalogoIntegrado(categoria, id));
@@ -228,7 +231,7 @@ public class CareStockApp extends Application {
                             .abrirDesdeAlerta(destino));
         } else {
             transicionarEscena(
-                    "/org/example/carestock/inventario-view.fxml",
+                    VISTA_INVENTARIO,
                     1100, 750,
                     controlador -> ((ControladorInventario) controlador)
                             .abrirDesdeAlerta(destino));
@@ -247,12 +250,12 @@ public class CareStockApp extends Application {
 
         if (accion == PoliticaAccionesAlertas.Accion.GESTIONAR_LOTE) {
             transicionarEscena(
-                    "/org/example/carestock/inventario-view.fxml", 1100, 750,
+                    VISTA_INVENTARIO, 1100, 750,
                     controlador -> ((ControladorInventario) controlador)
                             .abrirDesdeAlerta(destino));
         } else if (destino.categoria() == Categoria.MEDICAMENTO) {
             transicionarEscena(
-                    "/org/example/carestock/inventario-view.fxml", 1100, 750,
+                    VISTA_INVENTARIO, 1100, 750,
                     controlador -> ((ControladorInventario) controlador)
                             .abrirGestionStockMedicamento(destino));
         } else {
@@ -421,9 +424,7 @@ public class CareStockApp extends Application {
             URL fxmlUrl = getClass().getResource(fxmlRuta);
 
             if (fxmlUrl == null) {
-                System.err.println(
-                        "No se encontro el archivo FXML: " + fxmlRuta
-                );
+                LOGGER.log(System.Logger.Level.WARNING, "No se encontro el archivo FXML: {0}", fxmlRuta);
                 return;
             }
 
@@ -463,10 +464,7 @@ public class CareStockApp extends Application {
             fadeIn.play();
 
         } catch (Exception e) {
-            System.err.println(
-                    "Error al cargar la pantalla: " + fxmlRuta
-            );
-            e.printStackTrace();
+            LOGGER.log(System.Logger.Level.ERROR, "Error al cargar la pantalla: " + fxmlRuta, e);
             throw new IllegalStateException("No se pudo cargar la vista " + fxmlRuta, e);
         }
     }

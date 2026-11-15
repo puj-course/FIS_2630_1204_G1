@@ -77,6 +77,10 @@
                             <CheckBox fx:id="chkVencimientos"
                                       text="Alertas de vencimientos críticos"/>
 
+                            <CheckBox fx:id="chkAccesos"
+                                      wrapText="true"
+                                      text="Notificar a este administrador cuando alguien inicie sesión en su farmacia"/>
+
                             <Separator/>
 
                             <Label text="Horario de notificaciones no urgentes"

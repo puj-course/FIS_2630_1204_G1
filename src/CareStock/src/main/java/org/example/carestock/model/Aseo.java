@@ -3,11 +3,12 @@ package org.example.carestock.model;
 import org.example.carestock.exception.ReglaNegocioException;
 
 public class Aseo extends ProductoBase {
+    private static final String ESTADO_ACTIVO = "ACTIVO";
 
     private int idAseo;
     private Integer idFarmacia;
     private Integer idUsuarioCreacion;
-    private String estado = "ACTIVO";
+    private String estado = ESTADO_ACTIVO;
     private int stockMinimo;
 
     // Atributos específicos de aseo
@@ -16,6 +17,7 @@ public class Aseo extends ProductoBase {
     private String componentesActivos;
 
     public Aseo() {
+        // Inicialización por formularios y mapeo JDBC.
     }
 
     // =========================================
@@ -26,7 +28,7 @@ public class Aseo extends ProductoBase {
     public void validar() throws ReglaNegocioException {
         validarCamposComunes("aseo");
         if (estado == null ||
-                !("ACTIVO".equalsIgnoreCase(estado) || "INACTIVO".equalsIgnoreCase(estado))) {
+                !(ESTADO_ACTIVO.equalsIgnoreCase(estado) || "INACTIVO".equalsIgnoreCase(estado))) {
             throw new ReglaNegocioException("El estado debe ser ACTIVO o INACTIVO.");
         }
         validarStockNoNegativo("aseo");
@@ -41,7 +43,7 @@ public class Aseo extends ProductoBase {
     public boolean esAptoParaDispensar() {
         try {
             validar();
-            return getStock() > 0 && "ACTIVO".equalsIgnoreCase(estado);
+            return getStock() > 0 && ESTADO_ACTIVO.equalsIgnoreCase(estado);
         } catch (ReglaNegocioException e) {
             return false;
         }

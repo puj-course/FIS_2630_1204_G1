@@ -1,4 +1,5 @@
 package org.example.carestock.controller;
+import org.example.carestock.utils.FechaNegocio;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -57,6 +58,7 @@ public class ControladorInventario {
     @FXML private Label lblRolSesion;
     @FXML private Label lblFarmaciaSesion;
     @FXML private Button btnCatalogo;
+    @FXML private Button btnPreferenciasSms;
     @FXML private BorderPane dashboardRoot;
     @FXML private ScrollPane vistaLotes;
 
@@ -155,6 +157,9 @@ public class ControladorInventario {
                     || "SUPER_ADMIN".equalsIgnoreCase(rol));
         btnAjustes.setVisible(puedeAjustar);
         btnAjustes.setManaged(puedeAjustar);
+        boolean puedeConfigurarSms = ValidacionFormularioSms.puedeAcceder(sesion);
+        btnPreferenciasSms.setVisible(puedeConfigurarSms);
+        btnPreferenciasSms.setManaged(puedeConfigurarSms);
         btnAlertas.setVisible(puedeConsultarCatalogo);
         btnAlertas.setManaged(puedeConsultarCatalogo);
 
@@ -182,7 +187,7 @@ public class ControladorInventario {
             setTooltip(null);
         } else {
             setText(fecha.toString());
-            long dias = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), fecha);
+            long dias = java.time.temporal.ChronoUnit.DAYS.between(FechaNegocio.hoy(), fecha);
             String mensaje;
             if (dias > 0) {
                 mensaje = "Vence en " + dias + " días";
@@ -286,6 +291,7 @@ public class ControladorInventario {
         tablaLotes.setItems(datosOrdenados);
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
 
         private void aplicarFiltros() {
 
@@ -341,7 +347,7 @@ public class ControladorInventario {
 
     @FXML
     private void onFiltrarVencidos() {
-        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(LocalDate.now());
+        filtroEstado = lote -> lote.getFechaVencimiento() != null && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy());
         aplicarFiltros();
     }
 
@@ -356,7 +362,7 @@ public class ControladorInventario {
             return "RETENIDO";
         }
         if (lote.getFechaVencimiento() != null
-                && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy())) {
             return "DESHABILITADO";
         }
         return lote.getEstadoLote() == null
@@ -375,7 +381,7 @@ public class ControladorInventario {
                 if (lote == null || isEmpty()) {
                     setStyle("");
                 } else if (lote.getFechaVencimiento() != null
-                        && !lote.getFechaVencimiento().isAfter(LocalDate.now())) {
+                        && !lote.getFechaVencimiento().isAfter(FechaNegocio.hoy())) {
                     setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.CRITICO, isSelected()));
                 } else if (!"DISPONIBLE".equalsIgnoreCase(lote.getEstadoLote())) {
                     setStyle(EstiloAlertas.estiloFila(EstiloAlertas.Nivel.ADVERTENCIA, isSelected()));
@@ -451,6 +457,11 @@ public class ControladorInventario {
     }
 
     @FXML
+    private void onAbrirPreferenciasSms() {
+        CareStockApp.getInstance().mostrarConfiguracionSms();
+    }
+
+    @FXML
     private void onAbrirCatalogo() {
         CareStockApp.getInstance().mostrarCatalogo();
     }
@@ -483,8 +494,27 @@ public class ControladorInventario {
 
                 controladorCatalogo = loader.getController();
 
-                // Reemplaza la cabecera duplicada del catalogo.
-                panel.setTop(encabezadoCatalogo());
+                // Integrar indicadores y catalogo
+                // en el mismo ScrollPane.
+                // La cabecera azul del dashboard
+                // permanece fija.
+
+                if (!(panel.getCenter() instanceof ScrollPane scrollCatalogo)
+                        || scrollCatalogo.getContent() == null) {
+                    throw new IllegalStateException(
+                            "El catalogo requiere un ScrollPane con contenido");
+                }
+
+                javafx.scene.Node contenidoOriginal =
+                        scrollCatalogo.getContent();
+
+                VBox contenidoConCabecera = new VBox(
+                        encabezadoCatalogo(),
+                        contenidoOriginal
+                );
+
+                scrollCatalogo.setContent(contenidoConCabecera);
+                panel.setTop(null);
 
                 controladorCatalogo.alActualizarIndicadores(
                         this::refrescarIndicadoresCatalogo);
@@ -677,7 +707,7 @@ public class ControladorInventario {
                 return IndicadoresCatalogo.calcular(
                         inventario.listarMedicamentos(),
                         inventario.listarLotes(),
-                        LocalDate.now());
+                        FechaNegocio.hoy());
             }
         };
 
@@ -795,6 +825,44 @@ public class ControladorInventario {
         CareStockApp.getInstance().mostrarAlertas();
     }
 
+        @FXML
+    private void onSugerirLote() {
+        if (loteSeleccionado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida",
+                    "Selecciona primero un lote de la tabla.");
+            return;
+        }
+
+        java.util.Optional<Lote> sugerido =
+                org.example.carestock.service.SelectorLoteFefo.sugerir(
+                        listaLotes, loteSeleccionado.getIdMedicamento());
+
+        if (sugerido.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Sin lotes disponibles",
+                    "No hay lotes disponibles de este medicamento para dispensar.");
+            return;
+        }
+
+        Lote lote = sugerido.get();
+
+        if (lote.getIdLote() == loteSeleccionado.getIdLote()) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Lote ya sugerido",
+                    "El lote seleccionado ya es el que vence primero.");
+            return;
+        }
+
+        if (!tablaLotes.getItems().contains(lote)) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Lote oculto por los filtros",
+                    "El lote sugerido es " + lote.getNumeroLote()
+                            + ", pero los filtros actuales lo ocultan. "
+                            + "Limpia los filtros para verlo.");
+            return;
+        }
+
+        tablaLotes.getSelectionModel().select(lote);
+        tablaLotes.scrollTo(lote);
+    }
+    
     @FXML
     private void onDispensar() {
         if (loteSeleccionado == null) {
@@ -931,7 +999,7 @@ public class ControladorInventario {
             long vencidos = datos.lotes().stream()
                     .filter(l -> l.getFechaVencimiento() != null
                             && !l.getFechaVencimiento()
-                                    .isAfter(LocalDate.now()))
+                                    .isAfter(FechaNegocio.hoy()))
                     .count();
 
             lblLotesVencidos.setText(Long.toString(vencidos));
@@ -1050,7 +1118,7 @@ public class ControladorInventario {
             // Actualizar contadores KPI
             lblTotalLotes.setText(String.valueOf(lotes.size()));
             long vencidos = lotes.stream()
-                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(LocalDate.now()))
+                    .filter(l -> l.getFechaVencimiento() != null && !l.getFechaVencimiento().isAfter(FechaNegocio.hoy()))
                     .count();
             lblLotesVencidos.setText(String.valueOf(vencidos));
             cargarResumenAlertas();
@@ -1200,5 +1268,23 @@ public class ControladorInventario {
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo generar el código QR: " + e.getMessage());
         }
+    }
+    // ========================================
+    // REDIRECCIONAMIENTO DE TAREAS PENDIENTES 
+    // ========================================
+
+    @FXML
+    private void onIrAAlertas() {
+        org.example.carestock.CareStockApp.getInstance().mostrarAlertas();
+    }
+
+    @FXML
+    private void onIrALotesPorVencer() {
+        onFiltrarVencidos(); 
+    }
+
+    @FXML
+    private void onIrAHistorial() {
+        org.example.carestock.CareStockApp.getInstance().mostrarHistorialMovimientos();
     }
 }

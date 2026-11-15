@@ -35,7 +35,7 @@ public class RegistroLoteService {
                 }
                     // Validar cadena de frío (#1039)
     String sqlMed = "SELECT requiere_refrigeracion FROM medicamentos WHERE id_medicamento = ?";
-    try (Connection con = ConexionBaseDatos.getConexion();
+    try (
          PreparedStatement ps = con.prepareStatement(sqlMed)) {
         ps.setInt(1, lote.getIdMedicamento());
         try (ResultSet rs = ps.executeQuery()) {

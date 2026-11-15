@@ -1,4 +1,5 @@
 package org.example.carestock.service;
+import org.example.carestock.utils.FechaNegocio;
 
 import org.example.carestock.config.ConexionBD;
 import org.example.carestock.exception.ReglaNegocioException;
@@ -23,6 +24,10 @@ public class FarmacovigilanciaService {
             throws ReglaNegocioException {
         throw new ReglaNegocioException(
                 "Dispensacion no autorizada: utilice la fachada Inventario");
+    }
+
+    static boolean loteConVencimientoVigente(LocalDate fecha) {
+        return fecha != null && fecha.isAfter(FechaNegocio.hoy());
     }
 
     public void dispensarMedicamento(int idLote, int cantidad,
@@ -85,7 +90,7 @@ public class FarmacovigilanciaService {
                         ? "" : estadoLote.trim())) {
                     throw new ReglaNegocioException("Lote no disponible: " + numeroLote);
                 }
-                if (vencimiento == null || !vencimiento.isAfter(LocalDate.now())) {
+                if (!loteConVencimientoVigente(vencimiento)) {
                     throw new ReglaNegocioException("Lote vencido: " + numeroLote);
                 }
                 if (disponible < cantidad) {
@@ -154,9 +159,13 @@ public class FarmacovigilanciaService {
         }
     }
 
+    protected String rolesPermitidosDispensacion() {
+        return System.getenv("CARESTOCK_ROLES_DISPENSACION");
+    }
+
     private void validarOperador(Connection con, int idUsuario, int idFarmacia)
             throws Exception {
-        String permitidos = System.getenv("CARESTOCK_ROLES_DISPENSACION");
+        String permitidos = rolesPermitidosDispensacion();
         if (permitidos == null || permitidos.isBlank()) {
             throw new ReglaNegocioException(
                     "Dispensacion bloqueada: configure CARESTOCK_ROLES_DISPENSACION");

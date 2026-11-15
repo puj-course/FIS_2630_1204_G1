@@ -29,6 +29,10 @@ public class GeneradorQR {
             throw new IllegalArgumentException("El texto para el QR no puede estar vacío.");
         }
 
+        if (tamaño <= 0) {
+            throw new IllegalArgumentException("El tamaño del QR debe ser mayor que cero.");
+        }
+
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);

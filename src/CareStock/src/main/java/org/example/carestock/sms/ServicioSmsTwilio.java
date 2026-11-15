@@ -18,6 +18,9 @@ public final class ServicioSmsTwilio implements ServicioSms {
     private static final Pattern PATRON_CUENTA_SID =
             Pattern.compile("AC[0-9a-fA-F]{32}");
 
+    private static final Pattern CODIGO_ERROR_TWILIO =
+            Pattern.compile("\"code\"\\s*:\\s*(\\d{4,6})");
+
     private static final Pattern SID_MENSAJE =
             Pattern.compile(
                 "\"sid\"\\s*:\\s*\"((?:SM|MM)[0-9a-fA-F]{32})\""
@@ -102,7 +105,7 @@ public final class ServicioSmsTwilio implements ServicioSms {
                 .header("Authorization", "Basic " + autenticacion)
                 .header(
                     "Content-Type",
-                    "application/x-www-form-urlencoded; charset=UTF-8"
+                    "application/x-www-form-urlencoded"
                 )
                 .POST(HttpRequest.BodyPublishers.ofString(
                         formulario, StandardCharsets.UTF_8))
@@ -114,9 +117,35 @@ public final class ServicioSmsTwilio implements ServicioSms {
 
             if (respuesta.codigo() < 200
                     || respuesta.codigo() >= 300) {
+                String contenido = respuesta.contenido() == null
+                        ? "" : respuesta.contenido();
+
+                System.err.println(
+                        "TWILIO_DIAG: HTTP="
+                        + respuesta.codigo()
+                        + ", longitud_respuesta="
+                        + contenido.length()
+                        + ", parece_json="
+                        + contenido.stripLeading().startsWith("{")
+                        + ", tiene_campo_code="
+                        + contenido.contains("\\\"code\\\"")
+                );
+
+                Matcher codigoError =
+                        CODIGO_ERROR_TWILIO.matcher(contenido);
+
+                String codigo = codigoError.find()
+                        ? ", codigo Twilio " + codigoError.group(1)
+                        : ", respuesta "
+                        + (contenido.isBlank()
+                                ? "vacia"
+                                : contenido.stripLeading().startsWith("{")
+                                        ? "JSON sin codigo numerico"
+                                        : "no JSON");
+
                 throw new ExcepcionSms(
                     "Twilio rechazo el envio (HTTP "
-                    + respuesta.codigo() + ")."
+                    + respuesta.codigo() + codigo + ")."
                 );
             }
 

@@ -1,16 +1,9 @@
-target/
-.idea/
-.vscode/
-bin/
-out/
-*.class
-*.log
+**
 
-# No incorporar credenciales a la imagen
-config/conexion-local.properties
-.env
-.env.*
+!Dockerfile
+!docker-start.sh
 
-# Archivos locales de desarrollo
-*.bak
-recopilar-carestock.sh
+!target/
+!target/CareStock-1.0-SNAPSHOT.jar
+!target/docker-libs-linux/
+!target/docker-libs-linux/*.jar

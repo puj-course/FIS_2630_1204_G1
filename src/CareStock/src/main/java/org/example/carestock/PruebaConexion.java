@@ -7,6 +7,7 @@ import org.example.carestock.model.Lote;
 import java.util.List;
 
 public class PruebaConexion {
+    private static final System.Logger LOGGER = System.getLogger(PruebaConexion.class.getName());
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Uso: PruebaConexion <idFarmacia>");
@@ -53,7 +54,6 @@ public class PruebaConexion {
 
         } catch (Exception e) {
             System.err.println("❌ Error al consultar lotes: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }

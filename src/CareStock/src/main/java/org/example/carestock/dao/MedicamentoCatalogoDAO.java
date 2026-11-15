@@ -14,9 +14,10 @@ import java.util.List;
 
 /** Operaciones de catalogo; no modifica existencias ni movimientos de lotes. */
 public class MedicamentoCatalogoDAO {
+    private static final String CAMPO_FARMACIA = "farmacia";
 
     public List<Medicamento> listarPorFarmacia(int idFarmacia) throws SQLException {
-        validarId(idFarmacia, "farmacia");
+        validarId(idFarmacia, CAMPO_FARMACIA);
         String sql = "SELECT * FROM medicamentos WHERE id_farmacia = ? "
                 + "ORDER BY nombre_comercial, id_medicamento";
         List<Medicamento> resultado = new ArrayList<>();
@@ -33,7 +34,7 @@ public class MedicamentoCatalogoDAO {
     public boolean actualizar(int idMedicamento, Medicamento producto,
                               int idFarmacia, int idUsuario) throws SQLException, ReglaNegocioException {
         validarId(idMedicamento, "medicamento");
-        validarId(idFarmacia, "farmacia");
+        validarId(idFarmacia, CAMPO_FARMACIA);
         validarId(idUsuario, "usuario");
         validarCampos(producto);
 
@@ -65,7 +66,7 @@ public class MedicamentoCatalogoDAO {
     public boolean desactivar(int idMedicamento, int idFarmacia, int idUsuario)
             throws SQLException {
         validarId(idMedicamento, "medicamento");
-        validarId(idFarmacia, "farmacia");
+        validarId(idFarmacia, CAMPO_FARMACIA);
         validarId(idUsuario, "usuario");
         String sql = "UPDATE medicamentos m SET estado = 'INACTIVO', "
                 + "id_usuario_modificacion = ?, fecha_modificacion = CURRENT_TIMESTAMP "

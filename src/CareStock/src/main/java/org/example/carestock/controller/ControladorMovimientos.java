@@ -108,6 +108,19 @@ public class ControladorMovimientos {
                 (obs, anterior, nueva) -> mostrarStock(nueva)
         );
 
+        
+        cmbMovimiento.valueProperty().addListener(
+                (obs, anterior, nueva) -> mostrarStock(cmbProducto.getValue())
+        );
+
+        txtCantidad.textProperty().addListener(
+                (obs, anterior, nueva) -> mostrarStock(cmbProducto.getValue())
+        );
+
+
+
+
+        
         txtCantidad.setTextFormatter(
                 new TextFormatter<>(cambio ->
                         cambio.getControlNewText()
@@ -172,6 +185,12 @@ public class ControladorMovimientos {
     @FXML
     private void onActualizar() {
         cargarProductos();
+    }
+
+    void iniciarConsulta(Task<?> tarea) {
+        Thread hilo = new Thread(tarea, "cargar-productos-movimientos");
+        hilo.setDaemon(true);
+        hilo.start();
     }
 
     private void cargarProductos() {
@@ -334,12 +353,7 @@ public class ControladorMovimientos {
             }
         });
 
-        Thread hilo = new Thread(
-                tarea, "cargar-productos-movimientos"
-        );
-
-        hilo.setDaemon(true);
-        hilo.start();
+        iniciarConsulta(tarea);
     }
 
     private void filtrarProductos() {
@@ -359,17 +373,42 @@ public class ControladorMovimientos {
         mostrarStock(null);
     }
 
-    private void mostrarStock(OpcionProducto producto) {
+     private void mostrarStock(OpcionProducto producto) {
+
+        if (producto == null) {
+            lblStock.setText(
+                    "Selecciona un producto para ver sus existencias."
+            );
+            lblStock.setStyle(
+                    "-fx-text-fill: #47706D; -fx-font-weight: bold;"
+            );
+            return;
+        }
+
+        String movimiento = cmbMovimiento == null
+                ? null : cmbMovimiento.getValue();
+        String cantidad = txtCantidad == null
+                ? null : txtCantidad.getText();
 
         lblStock.setText(
-                producto == null
-                        ? "Selecciona un producto para ver sus existencias."
-                        : "Existencias disponibles: "
-                                + producto.stock()
-                                + " unidades"
+                "Existencias disponibles: "
+                        + producto.stock()
+                        + " unidades · "
+                        + org.example.carestock.service.VistaPreviaStock
+                                .texto(producto.stock(), movimiento, cantidad)
+        );
+
+        boolean insuficiente = org.example.carestock.service.VistaPreviaStock
+                .quedaNegativo(producto.stock(), movimiento, cantidad);
+
+        lblStock.setStyle(
+                insuficiente
+                        ? "-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; "
+                                + "-fx-font-weight: bold; -fx-background-radius: 6; "
+                                + "-fx-padding: 4 8;"
+                        : "-fx-text-fill: #47706D; -fx-font-weight: bold;"
         );
     }
-
 
     @FXML
     private void onRegistrar() {

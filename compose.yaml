@@ -1,14 +1,25 @@
+name: carestock
+
 services:
   carestock:
+    image: carestock:taller-visual
+
     build:
       context: ./src/CareStock
       dockerfile: Dockerfile
 
-    image: carestock:latest
+    ports:
+      - "127.0.0.1:6080:6080"
 
-    # La configuracion local NO se copia a la imagen
     volumes:
-      - ./src/CareStock/config/conexion-local.properties:/app/config/conexion-local.properties:ro
+      - type: bind
+        source: ./src/CareStock/config/conexion-local.properties
+        target: /app/config/conexion-local.properties
+        read_only: true
+        bind:
+          create_host_path: false
 
     environment:
       JAVA_TOOL_OPTIONS: "-Dprism.order=sw"
+
+    restart: unless-stopped

@@ -222,7 +222,7 @@ class RepositorioPreferenciasSmsJdbcCoberturaTest {
 
         dao.guardar(1, 2, 7, solicitud());
 
-        verify(actualizar).setLong(9, 55L);
+        verify(actualizar).setLong(10, 55L);
         verify(actualizar).executeUpdate();
 
         verify(insertar, never()).executeUpdate();
@@ -244,7 +244,7 @@ class RepositorioPreferenciasSmsJdbcCoberturaTest {
         verify(inactivo).setString(
                 4, "+573001234567");
 
-        verify(actualizar).setLong(9, 66L);
+        verify(actualizar).setLong(10, 66L);
         verify(con).commit();
     }
 

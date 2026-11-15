@@ -40,6 +40,11 @@
         </HBox>
     </top>
     <center>
+        <ScrollPane fx:id="scrollCatalogo"
+                    fitToWidth="true" pannable="true"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background: #FDFBF7; -fx-background-color: #FDFBF7;">
+            <content>
         <StackPane style="-fx-background-color: #FDFBF7;">
             <children>
                 <VBox spacing="12" style="-fx-background-color: #FDFBF7; -fx-padding: 10 18 12 18;" maxWidth="Infinity">
@@ -56,6 +61,21 @@
                             </children>
                         </HBox>
                         <Label fx:id="lblEstado" text="Listo" wrapText="true" textFill="#6D8683" style="-fx-font-size: 12;" />
+                        <FlowPane fx:id="leyendaStock"
+                                  hgap="10" vgap="8"
+                                  alignment="CENTER_LEFT"
+                                  style="-fx-padding: 3 0 5 0;">
+                            <children>
+                                <Label text="ROJO: Sin existencias (stock 0)"
+                                       style="-fx-background-color: #F0A8A8; -fx-text-fill: #7A2E2E; -fx-padding: 6 10; -fx-background-radius: 6; -fx-font-weight: bold;" />
+                                <Label text="NARANJA: Stock bajo (menos del mínimo)"
+                                       style="-fx-background-color: #F6CE8E; -fx-text-fill: #20302F; -fx-padding: 6 10; -fx-background-radius: 6;" />
+                                <Label text="GRIS: Registro histórico inactivo"
+                                       style="-fx-background-color: #ECEFF2; -fx-text-fill: #59636D; -fx-padding: 6 10; -fx-background-radius: 6;" />
+                                <Label text="VERDE: Stock igual o superior al mínimo"
+                                       style="-fx-background-color: #D8F2DF; -fx-text-fill: #236344; -fx-padding: 6 10; -fx-background-radius: 6;" />
+                            </children>
+                        </FlowPane>
                         <VBox fx:id="panelListaCompleta" visible="true" managed="true" VBox.vgrow="ALWAYS">
                             <children>
                                 <TableView fx:id="tablaProductos" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #E3D9F5; -fx-border-width: 1;" prefHeight="410" VBox.vgrow="ALWAYS" minHeight="260">
@@ -295,5 +315,7 @@
                 </StackPane>
             </children>
         </StackPane>
+            </content>
+        </ScrollPane>
     </center>
 </BorderPane>

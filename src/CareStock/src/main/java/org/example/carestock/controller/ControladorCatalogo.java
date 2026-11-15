@@ -35,8 +35,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javafx.animation.PauseTransition;
-import javafx.util.Duration;
 /**
  * Controlador del catalogo de productos.
  *
@@ -44,6 +42,8 @@ import javafx.util.Duration;
  * La consulta unificada es una pantalla independiente.
  */
 public class ControladorCatalogo {
+    private static final String CATEGORIA_MEDICAMENTOS = "Medicamentos";
+    private static final String CATEGORIA_MATERNIDAD = "Maternidad";
 
     // ========================================
     // COMPONENTES GENERALES
@@ -176,9 +176,9 @@ public class ControladorCatalogo {
 
         cmbCategoria.setItems(
                 FXCollections.observableArrayList(
-                        "Medicamentos",
+                        CATEGORIA_MEDICAMENTOS,
                         "Aseo",
-                        "Maternidad"
+                        CATEGORIA_MATERNIDAD
                 )
         );
 
@@ -188,7 +188,7 @@ public class ControladorCatalogo {
         configurarBusqueda();
 
         cmbCategoria.getSelectionModel()
-                .select("Medicamentos");
+                .select(CATEGORIA_MEDICAMENTOS);
 
         boolean puedeEditar = SesionUsuario.esAdministrador();
         panelFormulario.setDisable(!puedeEditar);
@@ -217,9 +217,9 @@ public class ControladorCatalogo {
         }
 
         String categoriaFormulario = switch (categoria) {
-            case "Medicamento", "Medicamentos" -> "Medicamentos";
+            case "Medicamento", CATEGORIA_MEDICAMENTOS -> CATEGORIA_MEDICAMENTOS;
             case "Aseo" -> "Aseo";
-            case "Maternidad" -> "Maternidad";
+            case CATEGORIA_MATERNIDAD -> CATEGORIA_MATERNIDAD;
             default -> throw new IllegalArgumentException(
                     "Categoria no reconocida"
             );
@@ -259,76 +259,104 @@ public class ControladorCatalogo {
     private void configurarTabla() {
 
         colId.setCellValueFactory(
-                c -> str(c.getValue().id())
-        );
+                c -> str(c.getValue().id()));
 
         colCodigo.setCellValueFactory(
-                c -> str(codigo(c.getValue().producto()))
-        );
+                c -> str(codigo(c.getValue().producto())));
 
         colNombre.setCellValueFactory(
-                c -> str(nombre(c.getValue().producto()))
-        );
+                c -> str(nombre(c.getValue().producto())));
 
         colDescripcion.setCellValueFactory(
-                c -> str(descripcion(c.getValue().producto()))
-        );
+                c -> str(descripcion(c.getValue().producto())));
 
         colPrecio.setCellValueFactory(
-                c -> str(precioTexto(c.getValue().producto()))
-        );
+                c -> str(precioTexto(c.getValue().producto())));
 
-        colStock.setCellFactory(col -> new TableCell<RegistroCatalogo<?>, String>() {
+        colStock.setCellValueFactory(
+                c -> str(stock(c.getValue().producto())));
+
+        colEstado.setCellValueFactory(
+                c -> str(c.getValue().estado()));
+
+        tablaProductos.setFixedCellSize(30);
+        tablaProductos.setFocusTraversable(true);
+
+        configurarCeldaStock();
+        configurarFilasCatalogo();
+    }
+
+    private void configurarCeldaStock() {
+        colStock.setCellFactory(col ->
+                new TableCell<RegistroCatalogo<?>, String>() {
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+
                 if (empty || item == null) {
                     setText(null);
                     setTooltip(null);
-                } else {
-                    setText(item);
-                    
-                    RegistroCatalogo<?> registro = getTableRow().getItem();
-                    Integer minimoProducto = registro == null
-                            ? null : stockMinimoDe(registro.producto());
-                    if (registro != null && minimoProducto != null) {
-                        if (stock(registro.producto()) <= minimoProducto) {
-                            Tooltip tooltip = new Tooltip("¡Alerta de stock mínimo!");
-                            tooltip.setStyle(EstiloAlertas.ESTILO_TOOLTIP_ALERTA);
-                            setTooltip(tooltip);
-                        } else {
-                            setTooltip(null);
-                        }
-                    } else {
-                        setTooltip(null);
-                    }
+                    return;
                 }
-            }
-        });
 
-        colEstado.setCellValueFactory(
-                c -> str(c.getValue().estado())
-        );
-        tablaProductos.setRowFactory(tv -> new TableRow<RegistroCatalogo<?>>() {
-            @Override
-            protected void updateItem(RegistroCatalogo<?> item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setStyle("");
-                } else {
-                    int stockActual = stock(item.producto());
-                    Integer stockMinimo = stockMinimoDe(item.producto());
+                setText(item);
 
-                    if (stockMinimo != null && stockActual <= stockMinimo) {
-                        setStyle(EstiloAlertas.estiloFila(
-                                EstiloAlertas.nivelPorExistencias(stockActual), false));
-                    } else {
-                        setStyle(""); 
-                    }
-                }
+                RegistroCatalogo<?> registro =
+                        getTableRow().getItem();
+
+                setTooltip(tooltipStock(registro));
             }
         });
     }
+
+    private Tooltip tooltipStock(RegistroCatalogo<?> registro) {
+        if (registro == null
+                || "INACTIVO".equalsIgnoreCase(registro.estado())) {
+            return null;
+        }
+
+        Integer minimo = stockMinimoDe(registro.producto());
+
+        if (minimo == null
+                || stock(registro.producto()) >= minimo) {
+            return null;
+        }
+
+        Tooltip tooltip =
+                new Tooltip("¡Alerta de stock mínimo!");
+
+        tooltip.setStyle(
+                EstiloAlertas.ESTILO_TOOLTIP_ALERTA);
+
+        return tooltip;
+    }
+
+    private void configurarFilasCatalogo() {
+        tablaProductos.setRowFactory(tv ->
+                new TableRow<RegistroCatalogo<?>>() {
+
+            @Override
+            protected void updateItem(
+                    RegistroCatalogo<?> item,
+                    boolean empty) {
+
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setStyle("");
+                    return;
+                }
+
+                setStyle(
+                        EstiloAlertas.estiloFilaCatalogo(
+                                item.estado(),
+                                stock(item.producto()),
+                                stockMinimoDe(item.producto())));
+            }
+        });
+    }
+
 
     private static Integer stockMinimoDe(Object producto) {
         if (producto instanceof Medicamento m) {
@@ -427,6 +455,16 @@ public class ControladorCatalogo {
         return ((Medicamento) producto).getStockTotal();
     }
 
+    private void actualizarDisponibilidadDesactivar() {
+        if (btnDesactivarFormulario == null) return;
+        boolean permitido = seleccionado != null
+                && "ACTIVO".equalsIgnoreCase(seleccionado.estado())
+                && stock(seleccionado.producto()) == 0;
+        btnDesactivarFormulario.setDisable(!permitido);
+        btnDesactivarFormulario.setTooltip(permitido ? null
+                : new Tooltip("Solo se puede desactivar con stock cero."));
+    }
+
     // ========================================
     // SELECCION
     // ========================================
@@ -451,6 +489,7 @@ public class ControladorCatalogo {
 
                         llenarFormulario(actual.producto());
                     }
+                    actualizarDisponibilidadDesactivar();
                 });
     }
 
@@ -464,7 +503,7 @@ public class ControladorCatalogo {
                 .addListener((obs, anterior, actual) -> {
 
                     boolean esMedicamento =
-                            "Medicamentos".equals(actual);
+                            CATEGORIA_MEDICAMENTOS.equals(actual);
 
                     visible(
                             panelAseo,
@@ -473,7 +512,7 @@ public class ControladorCatalogo {
 
                     visible(
                             panelMaternidad,
-                            "Maternidad".equals(actual)
+                            CATEGORIA_MATERNIDAD.equals(actual)
                     );
 
                     visible(
@@ -581,6 +620,7 @@ public class ControladorCatalogo {
         habilitarAccion(btnRegistrarFormulario, nuevo);
         habilitarAccion(btnActualizarFormulario, !nuevo);
         habilitarAccion(btnDesactivarFormulario, !nuevo);
+        actualizarDisponibilidadDesactivar();
         habilitarAccion(btnSimularFormulario, !nuevo);
 
         capaFormulario.setManaged(true);
@@ -717,10 +757,10 @@ private static void habilitarAccion(
                 case "Aseo" ->
                         datos.addAll(inventario.listarAseo());
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         datos.addAll(inventario.listarMaternidad());
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         datos.addAll(inventario.listarMedicamentos());
 
                 default ->
@@ -817,7 +857,7 @@ private static void habilitarAccion(
     @FXML
     private void onRefrescar() {
 
-        if ("Medicamentos".equals(cmbCategoria.getValue())) {
+        if (CATEGORIA_MEDICAMENTOS.equals(cmbCategoria.getValue())) {
             cargarCategoriasMedicamento();
         }
 
@@ -1153,12 +1193,12 @@ private static void habilitarAccion(
                                 construirAseo()
                         );
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         inventario.registrarMaternidad(
                                 construirMaternidad()
                         );
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         inventario.registrarMedicamento(
                                 construirMedicamento()
                         ).getIdMedicamento();
@@ -1224,13 +1264,13 @@ private static void habilitarAccion(
                                 construirAseo()
                         );
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         inventario.actualizarMaternidad(
                                 seleccionado.id(),
                                 construirMaternidad()
                         );
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         inventario.actualizarMedicamento(
                                 seleccionado.id(),
                                 construirMedicamento()
@@ -1291,6 +1331,11 @@ private static void habilitarAccion(
             advertencia("Seleccione un producto");
             return;
         }
+        if (!"ACTIVO".equalsIgnoreCase(seleccionado.estado())
+                || stock(seleccionado.producto()) != 0) {
+            advertencia("Solo se desactivan productos activos con stock cero.");
+            return;
+        }
 
         Alert confirmar = new Alert(
                 Alert.AlertType.CONFIRMATION,
@@ -1315,12 +1360,12 @@ private static void habilitarAccion(
                                 seleccionado.id()
                         );
 
-                case "Maternidad" ->
+                case CATEGORIA_MATERNIDAD ->
                         inventario.desactivarMaternidad(
                                 seleccionado.id()
                         );
 
-                case "Medicamentos" ->
+                case CATEGORIA_MEDICAMENTOS ->
                         inventario.desactivarMedicamento(
                                 seleccionado.id()
                         );
@@ -1434,53 +1479,100 @@ private static void habilitarAccion(
         lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
 
                 // Acción del botón Calcular
-        btnCalcular.setOnAction(e -> {
-            try {
-                String textoCantidad = txtCantidadCompra.getText().trim();
-                
-                if (textoCantidad.isEmpty()) {
-                    throw new IllegalArgumentException("Debe ingresar una cantidad.");
-                }
+        btnCalcular.setOnAction(e -> procesarSimulacion(
+                stockActual,
+                stockMinimoDe(seleccionado.producto()),
+                txtCantidadCompra,
+                lblResultado));
 
-                int cantidad;
-                try {
-                    cantidad = Integer.parseInt(textoCantidad);
-                } catch (NumberFormatException ex) {
-                    throw new IllegalArgumentException("Ingrese solo números enteros.");
-                }
+        vbox.getChildren().addAll(
+                lblStock, new Separator(),
+                lblCantidad, txtCantidadCompra,
+                btnCalcular, new Separator(), lblResultado);
 
-                if (cantidad <= 0) {
-                    throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
-                }
-                
-                int nuevoStock = simularCompra(stockActual, cantidad);
-                
-                lblResultado.setText("Nuevo stock hipotético: " + nuevoStock + " unidades.");
-                
-                Integer minimo = stockMinimoDe(seleccionado.producto());
-                if (minimo != null) {
-                    if (stockActual <= minimo && nuevoStock > minimo) {
-                        lblResultado.setText(lblResultado.getText() + "\n✅ ¡El producto pasaría de Stock Bajo a Stock Óptimo!");
-                        lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #27AE60; -fx-font-weight: bold;");
-                    } else if (nuevoStock <= minimo) {
-                        lblResultado.setText(lblResultado.getText() + "\n⚠️ El producto aún seguiría en alerta de Stock Bajo.");
-                        lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #E67E22; -fx-font-weight: bold;");
-                    } else {
-                         lblResultado.setStyle("-fx-font-size: 14px; -fx-text-fill: #6B5B95; -fx-font-weight: bold;");
-                    }
-                }
-            } catch (IllegalArgumentException ex) {
-                lblResultado.setText("Error: " + ex.getMessage());
-                lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
-            } catch (Exception ex) {
-                lblResultado.setText("Error inesperado: " + ex.getMessage());
-                lblResultado.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
-            }
-        });
-
-        vbox.getChildren().addAll(lblStock, new Separator(), lblCantidad, txtCantidadCompra, btnCalcular, new Separator(), lblResultado);
         dialog.getDialogPane().setContent(vbox);
-
         dialog.showAndWait();
+    }
+
+    void procesarSimulacion(
+            int stockActual,
+            Integer minimo,
+            TextField entrada,
+            Label resultado) {
+        try {
+            int cantidad = leerCantidadCompra(entrada.getText());
+            int nuevoStock = simularCompra(stockActual, cantidad);
+
+            mostrarResultadoCompra(
+                    resultado, stockActual, nuevoStock, minimo);
+
+        } catch (IllegalArgumentException ex) {
+            resultado.setText("Error: " + ex.getMessage());
+            resultado.setStyle(
+                    "-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+
+        } catch (RuntimeException ex) {
+            resultado.setText("Error inesperado: " + ex.getMessage());
+            resultado.setStyle(
+                    "-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+        }
+    }
+
+    static int leerCantidadCompra(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Debe ingresar una cantidad.");
+        }
+
+        final int cantidad;
+        try {
+            cantidad = Integer.parseInt(texto.trim());
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException(
+                    "Ingrese solo números enteros.", ex);
+        }
+
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException(
+                    "La cantidad debe ser mayor a cero.");
+        }
+
+        return cantidad;
+    }
+
+    static void mostrarResultadoCompra(
+            Label resultado,
+            int stockActual,
+            int nuevoStock,
+            Integer minimo) {
+
+        resultado.setText(
+                "Nuevo stock hipotético: " + nuevoStock + " unidades.");
+
+        if (minimo != null
+                && stockActual < minimo
+                && nuevoStock >= minimo) {
+
+            resultado.setText(resultado.getText()
+                    + "\n✅ ¡El producto pasaría de Stock Bajo a Stock Óptimo!");
+
+            resultado.setStyle(
+                    "-fx-font-size: 14px; -fx-text-fill: #27AE60;"
+                    + " -fx-font-weight: bold;");
+
+        } else if (minimo != null && nuevoStock < minimo) {
+
+            resultado.setText(resultado.getText()
+                    + "\n⚠️ El producto aún seguiría en alerta de Stock Bajo.");
+
+            resultado.setStyle(
+                    "-fx-font-size: 14px; -fx-text-fill: #E67E22;"
+                    + " -fx-font-weight: bold;");
+
+        } else {
+            resultado.setStyle(
+                    "-fx-font-size: 14px; -fx-text-fill: #6B5B95;"
+                    + " -fx-font-weight: bold;");
+        }
     }
 }

@@ -1,10 +1,21 @@
+# syntax=docker/dockerfile:1
+
 FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
-# Bibliotecas graficas de JavaFX y display virtual
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Dependencias graficas de JavaFX, Xvfb y noVNC
+RUN set -eu; \
+    intento=1; \
+    until apt-get update -o Acquire::Retries=3 -o APT::Update::Error-Mode=any; do \
+      if [ "$intento" -ge 3 ]; then \
+        echo >&2 "ERROR: apt-get update fallo tras 3 intentos"; \
+        exit 1; \
+      fi; \
+      intento=$((intento + 1)); \
+      sleep 10; \
+    done; \
+    apt-get install -y -o Acquire::Retries=3 --no-install-recommends \
         libgtk-3-0 \
         libx11-6 \
         libxext6 \
@@ -14,25 +25,33 @@ RUN apt-get update && \
         libxrandr2 \
         libgl1 \
         libasound2 \
+        libgstreamer1.0-0 \
+        libgstreamer-plugins-base1.0-0 \
         xvfb \
         xauth \
-        curl \
+        x11-utils \
+        x11vnc \
+        novnc \
+        websockify \
+        fontconfig \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Maven Wrapper del proyecto real
-COPY .mvn .mvn
-COPY mvnw pom.xml ./
+# Artefactos compilados de CareStock
+COPY target/CareStock-1.0-SNAPSHOT.jar /app/carestock.jar
+COPY target/docker-libs-linux/ /app/libs/
 
-RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
+# Script de inicio
+COPY docker-start.sh /app/docker-start.sh
 
-# Codigo fuente de CareStock
-COPY src ./src
+RUN chmod +x /app/docker-start.sh
 
-# Construir el proyecto
-RUN ./mvnw -B -DskipTests clean package
+# Verificar modulos Java
+RUN java --module-path /app/carestock.jar:/app/libs \
+    --validate-modules
 
-# JavaFX en modo grafico virtual
 ENV JAVA_TOOL_OPTIONS="-Dprism.order=sw"
 
-CMD ["xvfb-run", "-a", "./mvnw", "-q", "javafx:run"]
+EXPOSE 6080
+
+CMD ["/app/docker-start.sh"]

@@ -1,13 +1,105 @@
-# CareStock - Diagrama de componentes C4 (nivel 3)
+# CareStock — Documentación de arquitectura de software con C4
+## 1. Diagrama de contexto — C4 nivel 1
 
-**Sistema:** CareStock  
-**Contenedor analizado:** aplicación de escritorio JavaFX 21 sobre Java 21  
-**Ubicación del código:** `src/CareStock/src/main/java/org/example/carestock/`  
-**Alcance:** arquitectura implementada; no representa una API web ni microservicios.
+<img width="913" height="382" alt="Diagrama de Contexto" src="https://github.com/user-attachments/assets/97db709b-bd43-4d00-ab70-065202d7505f" />
 
-**Nivel 3:** porque hace zoom dentro de un solo contenedor (la aplicación JavaFX) y muestra sus componentes internos y cómo se comunican. La base de datos aparece, pero únicamente como un elemento externo con el que se conecta.
 
-## Objetivo y límites
+**Figura 1.** Vista de contexto del sistema CareStock, elaborada en Visual Paradigm Online.
+
+### Objetivo
+
+Identificar el sistema de software desde el punto de vista de sus usuarios y su dependencia del servicio externo de mensajería. En esta vista se representa **CareStock como una unidad**, sin descomponer su interfaz, servicios ni base de datos.
+
+### Elementos
+
+| Elemento | Clasificación | Responsabilidad o relación con CareStock |
+|---|---|---|
+| CareStock | Sistema de software | Gestionar inventarios farmacéuticos y productos de aseo y maternidad |
+| Administrador | Persona | Utilizar las funciones administrativas autorizadas |
+| Auxiliar | Persona | Consultar y registrar operaciones de acuerdo con sus permisos |
+| Farmacéutico | Persona | Gestionar operaciones de inventario y dispensaciones autorizadas |
+| Proveedor de SMS | Sistema externo | Entregar las notificaciones SMS solicitadas desde el sistema |
+
+### Relaciones representadas
+
+| Origen | Destino | Etiqueta en el diagrama |
+|---|---|---|
+| Administrador | CareStock | Usa |
+| Auxiliar | CareStock | Usa |
+| Farmacéutico | CareStock | Usa |
+| CareStock | Proveedor de SMS | Usa servicio de SMS |
+| Proveedor de SMS | Administrador | Envía alertas por SMS |
+
+**Nota de alcance:** la relación de entrega al Administrador describe el escenario representado gráficamente. La identidad de los destinatarios efectivos y el proveedor activado dependen de la configuración de notificaciones; no se debe interpretar como una garantía de envío para todas las instalaciones.
+
+## 2. Diagrama de contenedores — C4 nivel 2
+
+
+<img width="885" height="626" alt="Diagrama de Contenedores" src="https://github.com/user-attachments/assets/8027fb8d-c294-4900-abf2-081e95d43ed6" />
+
+
+
+**Figura 2.** Vista de contenedores de CareStock, elaborada en Visual Paradigm Online.
+
+### Objetivo
+
+Descomponer el sistema CareStock en sus unidades tecnológicas principales y mostrar sus interacciones con los usuarios, la base de datos y el proveedor externo de SMS.
+
+### Contenedores dentro del límite de CareStock
+
+| Contenedor | Tecnología | Responsabilidad |
+|---|---|---|
+| Aplicación de escritorio CareStock | Java 21 / JavaFX 21 | Interfaz gráfica, lógica de negocio y acceso a datos, integrados en la misma aplicación |
+| Base de datos CareStock | PostgreSQL 16, instalación local o Neon | Persistencia de usuarios, productos, lotes, inventarios y movimientos |
+
+Los **tres actores** y el **proveedor SMS** están fuera del límite del sistema. PostgreSQL se representa **dentro del límite del sistema CareStock**, aunque su infraestructura física pueda estar alojada externamente en Neon: sigue siendo un almacén de datos propio del sistema.
+
+### Relaciones principales
+
+| Origen | Destino | Función o tecnología |
+|---|---|---|
+| Administrador / Auxiliar / Farmacéutico | Aplicación de escritorio CareStock | Uso de la interfaz JavaFX |
+| Aplicación de escritorio CareStock | Base de datos CareStock | Lectura y escritura de datos mediante JDBC / SQL; TLS cuando la conexión esté cifrada |
+| Aplicación de escritorio CareStock | Proveedor de SMS | Solicitud de envío de notificaciones, según la integración configurada |
+
+**Precisiones arquitectónicas:** no existe un backend HTTP independiente entre JavaFX y PostgreSQL en la arquitectura descrita. Si el proceso `sms/ProcesoSms.java` se despliega de forma autónoma en un entorno específico, corresponde documentar ese despliegue como un contenedor adicional o una vista complementaria, previa verificación de su ejecución real.
+
+## 3. Diagrama de componentes — C4 nivel 3
+
+
+<img width="976" height="787" alt="Diagrama de Componentes" src="https://github.com/user-attachments/assets/3d7b7b79-97a0-43c9-ad42-9def4ab0b968" />
+
+
+
+**Figura 3.** Componentes lógicos de la aplicación de escritorio CareStock, elaborados en Visual Paradigm Online.
+
+### Objetivo
+
+Hacer zoom sobre **un solo contenedor del nivel 2**, la *Aplicación de escritorio CareStock (Java 21 / JavaFX 21)*. Los actores, el proveedor SMS y PostgreSQL se muestran únicamente para contextualizar sus entradas y dependencias externas.
+
+### Componentes destacados en la vista gráfica
+
+| Componente | Tecnología o clases representativas | Responsabilidad |
+|---|---|---|
+| Presentación JavaFX | JavaFX, FXML, controladores | Interacción, formularios, navegación y eventos |
+| Autenticación y sesión | `AuthenticationService`, `SesionUsuario` | Verificación de credenciales y contexto de usuario |
+| Fachada de inventario | `Inventario` — GoF Facade | Centralización de operaciones de inventario |
+| Proxy de consultas | `ConsultaInventarioProxy` — GoF Proxy | Caché y segregación de consultas por farmacia |
+| Servicios de negocio | `service/*` | Movimientos, alertas y planificación de reposición |
+| Factory Method | `FabricaProducto` y fábricas concretas | Creación y validación de productos |
+| Dominio y DTO | `model/*`, `dto/*` | Entidades, validaciones y transporte de datos |
+| Persistencia DAO | `dao/*`, `CatalogoDAO` | SQL, operaciones CRUD y mapeo de resultados |
+| Gestión de conexiones | `ConexionBD`, HikariCP | Administración de conexiones a PostgreSQL |
+
+El **Template Method** se documenta como un comportamiento del componente de persistencia, a través de `CatalogoDAO`, aunque no se haya dibujado como una caja independiente en la imagen. **Facade, Proxy y Factory Method** se señalan como responsabilidades de sus componentes respectivos.
+
+**Lectura del diagrama:** las flechas representan dependencias o colaboraciones lógicas; no necesariamente llamadas en red. Para validar relaciones entre clases concretas deben consultarse el diagrama UML y el código fuente. En la versión gráfica algunas etiquetas de estereotipo se repiten por limitaciones de edición; la clasificación correcta es `[Componente: Java]` o `[Componente: JavaFX / FXML]`, no `[Contenedor: Componente]`.
+
+## 4. Detalle técnico y trazabilidad del nivel 3
+
+A continuación se conserva la descripción técnica original del componente C4, incluyendo el modelo Mermaid complementario, el análisis de patrones GoF, los flujos y la correspondencia con archivos Java reales. **La Figura 3** ofrece una vista sintética para documentación; **Mermaid** profundiza en las dependencias y la sesión.
+
+### Objetivo y límites
 
 Identificar los componentes lógicos dentro de la **misma aplicación de escritorio** y sus dependencias.
 
@@ -24,189 +116,11 @@ Los patrones implementados y representados son:
 
 **PostgreSQL/Neon está fuera del contenedor JavaFX.** La comunicación se realiza mediante JDBC y el pool de conexiones HikariCP.
 
-## Diagrama de componentes
+### Diagrama de componentes
 
-**Leyenda de conectores:**
+### Cómo leer el diagrama
 
-- **Gris grueso:** flujo principal de llamadas y dependencias entre componentes.
-- **Naranja punteado:** consultas transversales a la sesión activa para identificar al usuario, rol y farmacia.
-- **Azul grueso:** acceso final a PostgreSQL mediante JDBC sobre TLS.
-
-```mermaid
-%%{init: {
-  "theme": "base",
-  "flowchart": {
-    "curve": "linear",
-    "nodeSpacing": 75,
-    "rankSpacing": 110,
-    "padding": 45,
-    "useMaxWidth": true,
-    "htmlLabels": true
-  },
-  "themeVariables": {
-    "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
-    "fontSize": "16px",
-    "lineColor": "#5B6B7C",
-    "edgeLabelBackground": "#FFFFFF"
-  }
-}}%%
-flowchart TB
-
-    %% ============================================
-    %% 1. PRESENTACIÓN
-    %% ============================================
-
-    subgraph presentacion ["PRESENTACIÓN"]
-        ui("<b>Presentación</b><br/>JavaFX / FXML<br/>Controladores y vistas")
-    end
-
-    %% ============================================
-    %% 2. ACCESO Y SESIÓN
-    %% ============================================
-
-    subgraph acceso ["ACCESO Y SESIÓN"]
-        auth("<b>Autenticación</b><br/>AuthenticationService<br/>BCrypt")
-        sesion("<b>Sesión activa</b><br/>SesionUsuario<br/>Usuario, rol y farmacia")
-    end
-
-    %% ============================================
-    %% 3. LÓGICA DE NEGOCIO
-    %% ============================================
-
-    subgraph negocio ["LÓGICA DE NEGOCIO"]
-        fachada("<b>Fachada</b><br/>Inventario<br/>GoF Facade")
-
-        proxy("<b>Proxy de consulta</b><br/>ConsultaInventarioProxy<br/>Caché TTL / LRU")
-
-        servicios("<b>Servicios</b><br/>Registro de lotes<br/>Dispensación y vencimientos")
-    end
-
-    %% ============================================
-    %% 4. ACCESO A DATOS
-    %% ============================================
-
-    subgraph datos ["ACCESO A DATOS"]
-        dao("<b>Persistencia</b><br/>DAO / JDBC<br/>Template Method")
-
-        conexion("<b>Conexión</b><br/>ConexionBD<br/>HikariCP")
-    end
-
-    %% ============================================
-    %% 5. DOMINIO Y CREACIÓN DE PRODUCTOS
-    %% ============================================
-
-    subgraph dominio ["DOMINIO Y CREACIÓN"]
-        fabrica("<b>Factory Method</b><br/>FabricaProducto<br/>Aseo / Maternidad / Medicamento")
-
-        modelo("<b>Dominio y DTO</b><br/>Modelos y validaciones<br/>Objetos de transferencia")
-    end
-
-    %% ============================================
-    %% 6. BASE DE DATOS EXTERNA
-    %% ============================================
-
-    bd[("<b>CareStock DB</b><br/>PostgreSQL / Neon")]
-
-    %% ============================================
-    %% 7. FLUJO PRINCIPAL
-    %% ============================================
-
-    ui ==> fachada
-    ui ==> auth
-    ui ==> fabrica
-
-    fachada ==> proxy
-    fachada ==> servicios
-    fachada ==> dao
-
-    proxy ==>|"Sin caché"| dao
-
-    servicios ==> conexion
-    auth ==> dao
-
-    dao ==> conexion
-    dao ==> modelo
-
-    dao ==>|"Aseo / Maternidad"| fabrica
-
-    fabrica ==>|"Crea y valida"| modelo
-
-    %% ============================================
-    %% 8. CONEXIÓN A BASE DE DATOS
-    %% ============================================
-
-    conexion ==>|"JDBC / TLS"| bd
-
-    %% ============================================
-    %% 9. CONTEXTO TRANSVERSAL DE SESIÓN
-    %% ============================================
-
-    ui -.->|"Inicia / consulta"| sesion
-
-    fachada -.->|"Valida contexto"| sesion
-
-    proxy -.->|"Autoriza farmacia"| sesion
-
-    %% ============================================
-    %% 10. ESTILOS DE CONECTORES
-    %% ============================================
-
-    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12 stroke:#4A5B6D,stroke-width:4px
-
-    linkStyle 13 stroke:#2F6DB5,stroke-width:5px
-
-    linkStyle 14,15,16 stroke:#D9822B,stroke-width:2.5px,stroke-dasharray:6 4
-
-    %% ============================================
-    %% 11. ESTILOS DE COMPONENTES
-    %% ============================================
-
-    classDef presentacionC fill:#DCEBFA,stroke:#2F6DB5,stroke-width:2.5px,color:#0B2A4A
-
-    classDef seguridad fill:#FDE7D3,stroke:#D9822B,stroke-width:2.5px,color:#5A2E06
-
-    classDef negocioC fill:#D8F0E0,stroke:#2E9E5B,stroke-width:2.5px,color:#0F3D22
-
-    classDef dominioC fill:#EADCF7,stroke:#8A4FC7,stroke-width:2.5px,color:#3A1A5C
-
-    classDef datosC fill:#E3E8EE,stroke:#5B6B7C,stroke-width:2.5px,color:#1F2933
-
-    classDef bdC fill:#1F3A5F,stroke:#10243D,stroke-width:2.5px,color:#FFFFFF
-
-    %% ============================================
-    %% 12. ASIGNACIÓN DE ESTILOS
-    %% ============================================
-
-    class ui presentacionC
-
-    class auth,sesion seguridad
-
-    class fachada,proxy,servicios negocioC
-
-    class fabrica,modelo dominioC
-
-    class dao,conexion datosC
-
-    class bd bdC
-
-    %% ============================================
-    %% 13. COLORES DE LOS GRUPOS
-    %% ============================================
-
-    style presentacion fill:#EAF3FC,stroke:#2F6DB5,stroke-width:3px,color:#0B2A4A
-
-    style acceso fill:#FFF1E2,stroke:#D9822B,stroke-width:3px,color:#7A3E05
-
-    style negocio fill:#E6F7EC,stroke:#2E9E5B,stroke-width:3px,color:#0A4A26
-
-    style datos fill:#EDF0F4,stroke:#5B6B7C,stroke-width:3px,color:#1F2933
-
-    style dominio fill:#F3EAFB,stroke:#8A4FC7,stroke-width:3px,color:#4A1F7A
-```
-
-## Cómo leer el diagrama
-
-### 1. Presentación
+#### 1. Presentación
 
 La **presentación JavaFX** constituye el punto de entrada del usuario.
 
@@ -220,7 +134,7 @@ Desde esta capa se invoca:
 
 La presentación no debería ejecutar directamente sentencias SQL.
 
-### 2. Factory Method: creación de productos
+#### 2. Factory Method: creación de productos
 
 El patrón creacional **Factory Method reemplaza al anterior Builder** en la creación de productos del catálogo.
 
@@ -254,7 +168,7 @@ Las implementaciones concretas son:
 
 La creación de objetos no sustituye las responsabilidades de persistencia ni autorización de la fachada.
 
-### 3. Fachada de inventario
+#### 3. Fachada de inventario
 
 La clase `Inventario` implementa el patrón estructural **Facade**.
 
@@ -271,7 +185,7 @@ La fachada coordina servicios y DAO, manteniendo el contexto de la farmacia acti
 
 No representa una API REST ni un componente ejecutable independiente.
 
-### 4. Proxy de consultas
+#### 4. Proxy de consultas
 
 `ConsultaInventarioProxy` implementa el patrón estructural **Proxy** y controla el acceso a consultas del inventario.
 
@@ -286,7 +200,7 @@ Sus responsabilidades principales son:
 
 Cuando no existe una entrada válida en caché, el proxy delega la consulta al componente real de persistencia.
 
-### 5. Persistencia y Template Method
+#### 5. Persistencia y Template Method
 
 Los DAO encapsulan la comunicación con PostgreSQL, evitando que los controladores gestionen directamente las consultas SQL.
 
@@ -305,7 +219,7 @@ El patrón **Template Method** está presente en `CatalogoDAO`, que define opera
 
 Para productos de aseo y maternidad, los DAO también utilizan las fábricas correspondientes para reconstruir los objetos.
 
-### 6. Conexión a PostgreSQL
+#### 6. Conexión a PostgreSQL
 
 La clase `ConexionBD` administra el acceso a la base de datos.
 
@@ -317,7 +231,7 @@ El acceso se realiza mediante:
 
 En esta arquitectura no existe un backend HTTP intermedio.
 
-### 7. Sesión y autorización
+#### 7. Sesión y autorización
 
 `SesionUsuario` mantiene el contexto del usuario autenticado, incluyendo:
 
@@ -333,7 +247,7 @@ La fachada valida el contexto de las operaciones y el proxy restringe las consul
 
 La sesión no administra directamente el pool de conexiones JDBC.
 
-## Componentes y trazabilidad al código
+### Componentes y trazabilidad al código
 
 | Componente C4 | Archivos y paquetes reales | Responsabilidad |
 |---|---|---|
@@ -349,9 +263,9 @@ La sesión no administra directamente el pool de conexiones JDBC.
 | DAO | `dao/*`, incluyendo `CatalogoDAO` y `ConsultaInventarioDAO` | SQL, reconstrucción de entidades y persistencia |
 | Conexión | `config/ConexionBD.java` | Administración de conexiones JDBC mediante HikariCP |
 
-## Reglas arquitectónicas que se deben mostrar
+### Reglas arquitectónicas que se deben mostrar
 
-### 1. Un solo contenedor ejecutable
+#### 1. Un solo contenedor ejecutable
 
 CareStock es una aplicación de escritorio desarrollada con JavaFX.
 
@@ -359,7 +273,7 @@ Los componentes de presentación, dominio, servicios, seguridad y persistencia f
 
 No son microservicios independientes.
 
-### 2. Modelo-Vista-Controlador (MVC)
+#### 2. Modelo-Vista-Controlador (MVC)
 
 Las vistas FXML presentan información y capturan entradas del usuario.
 
@@ -367,7 +281,7 @@ Los controladores coordinan las interacciones y delegan operaciones a las capas 
 
 El dominio representa los productos y sus reglas, mientras que los DAO encapsulan SQL.
 
-### 3. Factory Method
+#### 3. Factory Method
 
 La creación de productos se delega a fábricas especializadas.
 
@@ -377,13 +291,13 @@ Las fábricas concretas determinan qué modelo se instancia.
 
 Este patrón permite incorporar nuevas categorías mediante nuevas implementaciones, manteniendo una estructura uniforme de creación.
 
-### 4. Facade
+#### 4. Facade
 
 `Inventario` constituye una interfaz de aplicación que centraliza las operaciones del inventario.
 
 Su responsabilidad consiste en coordinar los componentes internos y aplicar las reglas relacionadas con el contexto del usuario y la farmacia.
 
-### 5. Proxy
+#### 5. Proxy
 
 `ConsultaInventarioProxy` controla el acceso a consultas y utiliza caché para optimizar el rendimiento.
 
@@ -391,13 +305,13 @@ Las operaciones deben respetar la segregación por farmacia.
 
 La invalidación permite evitar que se mantengan datos obsoletos después de modificaciones.
 
-### 6. Template Method
+#### 6. Template Method
 
 `CatalogoDAO` define una secuencia común de operaciones de persistencia.
 
 Los DAO especializados implementan los pasos variables sin duplicar completamente el algoritmo.
 
-### 7. Acceso a datos
+#### 7. Acceso a datos
 
 La aplicación accede a PostgreSQL/Neon mediante conexiones proporcionadas por `ConexionBD`.
 
@@ -405,7 +319,7 @@ HikariCP administra el pool y JDBC ejecuta las operaciones SQL.
 
 La base de datos se representa fuera del contenedor JavaFX.
 
-### 8. Seguridad y segregación por farmacia
+#### 8. Seguridad y segregación por farmacia
 
 La autenticación identifica al usuario y establece el contexto de sesión.
 
@@ -413,7 +327,7 @@ La fachada y los componentes responsables de consultas deben validar las restric
 
 La presencia de `SesionUsuario` no implica por sí sola que todas las operaciones estén autorizadas.
 
-## Relación entre los patrones GoF implementados
+### Relación entre los patrones GoF implementados
 
 Los patrones implementados desempeñan responsabilidades complementarias:
 
@@ -426,7 +340,7 @@ Los patrones implementados desempeñan responsabilidades complementarias:
 
 Estos patrones colaboran sin reemplazar la arquitectura MVC.
 
-## Flujo de registro de productos
+### Flujo de registro de productos
 
 El registro de un producto desde JavaFX sigue conceptualmente esta secuencia:
 
@@ -442,16 +356,3 @@ El registro de un producto desde JavaFX sigue conceptualmente esta secuencia:
 10. La interfaz actualiza la información presentada al usuario.
 
 Este flujo permite separar la creación de objetos, las reglas de negocio, la persistencia y la presentación.
-
-## Notas arquitectónicas
-
-- El patrón Builder fue reemplazado por Factory Method en el catálogo de productos.
-- Las fábricas pertenecen al paquete `factory`, aunque en el diagrama se agrupan visualmente con el dominio debido a su responsabilidad de creación.
-- Factory Method no reemplaza la fachada ni los DAO.
-- Template Method continúa definiendo las operaciones comunes de persistencia en `CatalogoDAO`.
-- El Proxy administra consultas y caché; no se encarga de crear productos.
-- La sesión mantiene información del usuario y farmacia, pero no administra conexiones JDBC.
-- La representación de componentes es lógica: todas estas responsabilidades se ejecutan dentro de la misma aplicación JavaFX.
-- `InventarioConsultas` administra una instancia compartida del proxy. Esta característica no debe confundirse con el Factory Method de creación de productos.
-
-**Diagrama previo y trazabilidad detallada:** [DIAGRAMA_COMPONENTES_GENERAL.md](DIAGRAMA_COMPONENTES_GENERAL.md).

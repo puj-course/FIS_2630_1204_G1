@@ -65,6 +65,9 @@ class NavegacionRefactorizadaTest {
             ejecutar(controlador, "onAbrirHistorial");
             verify(app).mostrarHistorialMovimientos();
 
+            ejecutar(controlador, "onAbrirPreferenciasSms");
+            verify(app).mostrarConfiguracionSms();
+
             ejecutar(controlador, "onAbrirCatalogo");
             verify(app).mostrarCatalogo();
 

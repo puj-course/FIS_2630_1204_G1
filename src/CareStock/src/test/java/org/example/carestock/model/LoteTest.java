@@ -1,6 +1,7 @@
 package org.example.carestock.model;
 
 import org.example.carestock.exception.ReglaNegocioException;
+import org.example.carestock.utils.FechaNegocio;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LoteTest {
     private Lote valido() {
-        return new Lote("LOT-123", 1, 20, LocalDate.now().plusDays(30),
+        return new Lote("LOT-123", 1, 20, FechaNegocio.hoy().plusDays(30),
                 2, "DISPONIBLE", 7);
     }
 
@@ -36,7 +37,7 @@ class LoteTest {
         Lote l = valido();
         l.setFechaVencimiento(null);
         assertThrows(ReglaNegocioException.class, l::validar);
-        l.setFechaVencimiento(LocalDate.now().minusDays(1));
+        l.setFechaVencimiento(FechaNegocio.hoy().minusDays(1));
         assertThrows(ReglaNegocioException.class, l::validar);
     }
 
@@ -56,7 +57,7 @@ class LoteTest {
         l.setCantidadActual(0);
         assertFalse(l.esAptoParaDispensar());
         l.setCantidadActual(1);
-        l.setFechaVencimiento(LocalDate.now());
+        l.setFechaVencimiento(FechaNegocio.hoy());
         assertFalse(l.esAptoParaDispensar());
         l.setFechaVencimiento(null);
         assertFalse(l.esAptoParaDispensar());

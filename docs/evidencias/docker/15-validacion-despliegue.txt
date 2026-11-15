@@ -1,0 +1,15 @@
+=== CARESTOCK - VALIDACION DOCKER ===
+Tue Nov 10 12:30:27 HPS 2026
+
+=== RAMA ===
+feature/docker-deploy
+
+=== IMAGEN ===
+Imagen: [carestock:taller-visual] | ID: sha256:df0ffd0ad12df20f17ea853629f8e8a4cf1ce657257f7796e3af87f269e0979f
+
+=== CONTENEDOR ===
+CONTAINER ID   IMAGE                     COMMAND                  CREATED         STATUS         PORTS                      NAMES
+755473fe108d   carestock:taller-visual   "/__cacert_entrypoin…"   3 minutes ago   Up 3 minutes   127.0.0.1:6080->6080/tcp   carestock-visual
+
+=== ESTADO ===
+Estado: running

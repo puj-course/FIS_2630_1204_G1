@@ -59,6 +59,7 @@ public final class RepositorioPreferenciasSmsJdbc
             SELECT id_destinatario, telefono, autorizado,
                    notifica_stock_critico,
                    notifica_vencimiento_critico,
+                   notifica_inicio_sesion,
                    horario_inicio, horario_fin, zona_horaria
             FROM sms_destinatarios
             WHERE id_usuario = ?
@@ -91,7 +92,8 @@ public final class RepositorioPreferenciasSmsJdbc
                                         ? null : desde.toLocalTime(),
                                 hasta == null
                                         ? null : hasta.toLocalTime(),
-                                rs.getString("zona_horaria")
+                                rs.getString("zona_horaria"),
+                                rs.getBoolean("notifica_inicio_sesion")
                         )
                 );
             }
@@ -231,12 +233,13 @@ public final class RepositorioPreferenciasSmsJdbc
                 autorizado, autorizado_en, activo,
                 notifica_stock_critico,
                 notifica_vencimiento_critico,
-                horario_inicio, horario_fin, zona_horaria
+                horario_inicio, horario_fin, zona_horaria,
+                notifica_inicio_sesion
             )
             VALUES (
                 ?, ?, ?, ?,
                 CASE WHEN ? THEN NOW() ELSE NULL END,
-                TRUE, ?, ?, ?, ?, ?
+                TRUE, ?, ?, ?, ?, ?, ?
             )
             """;
 
@@ -253,6 +256,7 @@ public final class RepositorioPreferenciasSmsJdbc
             ponerHorario(ps, 9, s.horarioFin());
 
             ps.setString(10, s.zonaHoraria());
+            ps.setBoolean(11, s.notificaInicioSesion());
             ps.executeUpdate();
         }
     }
@@ -275,7 +279,8 @@ public final class RepositorioPreferenciasSmsJdbc
                 notifica_vencimiento_critico = ?,
                 horario_inicio = ?,
                 horario_fin = ?,
-                zona_horaria = ?
+                zona_horaria = ?,
+                notifica_inicio_sesion = ?
             WHERE id_destinatario = ?
             """;
 
@@ -290,7 +295,8 @@ public final class RepositorioPreferenciasSmsJdbc
             ponerHorario(ps, 7, s.horarioFin());
 
             ps.setString(8, s.zonaHoraria());
-            ps.setLong(9, id);
+            ps.setBoolean(9, s.notificaInicioSesion());
+            ps.setLong(10, id);
 
             if (ps.executeUpdate() != 1) {
                 throw new SQLException(

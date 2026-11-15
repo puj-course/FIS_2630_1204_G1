@@ -12,6 +12,7 @@ public class Cosmetico implements Validable {
     private String tipoPiel;
 
     public Cosmetico() {
+        // Constructor para formularios y mapeo de datos.
     }
 
     @Override

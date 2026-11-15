@@ -26,8 +26,20 @@ public final class ServicioPreferenciasSms {
             boolean notificaVencimientoCritico,
             LocalTime horarioInicio,
             LocalTime horarioFin,
-            String zonaHoraria
-    ) {}
+            String zonaHoraria,
+            boolean notificaInicioSesion
+    ) {
+        // Mantiene compatibles las pruebas y llamadas previas.
+        public Solicitud(String telefono, boolean autorizado,
+                boolean notificaStockCritico,
+                boolean notificaVencimientoCritico,
+                LocalTime horarioInicio, LocalTime horarioFin,
+                String zonaHoraria) {
+            this(telefono, autorizado, notificaStockCritico,
+                    notificaVencimientoCritico, horarioInicio,
+                    horarioFin, zonaHoraria, false);
+        }
+    }
 
     public record Configuracion(
             long idDestinatario,
