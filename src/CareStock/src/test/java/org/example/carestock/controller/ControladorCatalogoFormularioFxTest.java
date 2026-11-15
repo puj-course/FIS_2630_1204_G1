@@ -13,15 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import java.util.Map;
-import java.util.List;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import org.example.carestock.service.ServicioAlertasInventario;
 import org.example.carestock.dto.AlertaInventario;
 import org.example.carestock.model.Lote;
-import org.example.carestock.facade.Inventario;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;

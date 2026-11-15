@@ -12,6 +12,13 @@ import java.util.Map;
 
 public class MedicamentoDAOImpl implements MedicamentoDAO {
 
+    private static final String COLUMNAS_MEDICAMENTO =
+            "id_medicamento, codigo_invima, nombre_comercial, principio_activo, "
+            + "concentracion, forma_farmaceutica, id_categoria, stock_minimo, "
+            + "stock_total, estado, id_farmacia, presentacion, precio, "
+            + "id_usuario_creacion, id_usuario_modificacion, fecha_modificacion, "
+            + "requiere_refrigeracion";
+
     @Override
     public void guardar(Medicamento medicamento) throws Exception {
         medicamento.validar();
@@ -61,7 +68,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
     @Override
     public Medicamento buscarPorId(int idMedicamento) throws Exception {
-        String sql = "SELECT * FROM medicamentos WHERE id_medicamento = ?";
+        String sql = "SELECT " + COLUMNAS_MEDICAMENTO + " FROM medicamentos WHERE id_medicamento = ?";
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -77,7 +84,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
     @Override
     public Medicamento buscarPorCodigoInvima(String codigoInvima) throws Exception {
-        String sql = "SELECT * FROM medicamentos WHERE codigo_invima = ?";
+        String sql = "SELECT " + COLUMNAS_MEDICAMENTO + " FROM medicamentos WHERE codigo_invima = ?";
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -94,7 +101,8 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
     @Override
     public List<Medicamento> listarTodos() throws Exception {
         List<Medicamento> lista = new ArrayList<>();
-        String sql = "SELECT * FROM medicamentos ORDER BY nombre_comercial ASC";
+        String sql = "SELECT " + COLUMNAS_MEDICAMENTO
+                + " FROM medicamentos ORDER BY nombre_comercial ASC";
 
         try (Connection con = ConexionBD.getConexion();
              Statement st = con.createStatement();

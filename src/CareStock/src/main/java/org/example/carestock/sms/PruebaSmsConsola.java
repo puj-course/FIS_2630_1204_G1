@@ -1,6 +1,8 @@
 package org.example.carestock.sms;
 
 public final class PruebaSmsConsola {
+    private static final System.Logger LOGGER =
+            System.getLogger(PruebaSmsConsola.class.getName());
 
     private PruebaSmsConsola() {
     }
@@ -8,7 +10,7 @@ public final class PruebaSmsConsola {
     public static void main(String[] args) {
 
         if (args.length < 1 || args.length > 2) {
-            System.err.println(
+            LOGGER.log(System.Logger.Level.WARNING,
                 "Uso: PruebaSmsConsola +573001234567 [mensaje]"
             );
             System.exit(2);
@@ -24,13 +26,13 @@ public final class PruebaSmsConsola {
                     FabricaServicioSms.desdeEntorno()
                             .enviar(args[0], mensaje);
 
-            System.out.println(
+            LOGGER.log(System.Logger.Level.INFO,
                     resultado.simulado()
                     ? "SIMULACION CORRECTA: no se envio ningun SMS."
                     : "ACEPTADO POR TWILIO: pendiente de confirmar entrega."
             );
 
-            System.out.println(
+            LOGGER.log(System.Logger.Level.INFO,
                     "Referencia: " + resultado.referencia()
             );
 
@@ -39,7 +41,7 @@ public final class PruebaSmsConsola {
                  | ExcepcionSms
                  | IllegalStateException e) {
 
-            System.err.println(
+            LOGGER.log(System.Logger.Level.WARNING,
                     "Fallo de prueba SMS: " + e.getMessage()
             );
             System.exit(1);

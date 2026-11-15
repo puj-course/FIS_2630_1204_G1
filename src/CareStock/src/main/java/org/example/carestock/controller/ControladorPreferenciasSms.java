@@ -12,11 +12,11 @@ import org.example.carestock.sms.ServicioDirectorioSms;
 import org.example.carestock.sms.ServicioPreferenciasSms;
 
 import java.time.LocalTime;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public final class ControladorPreferenciasSms {
+    private static final String ZONA_BOGOTA = "America/Bogota";
 
     @FXML private Label lblFarmacia;
     @FXML private Label lblSeleccion;
@@ -73,12 +73,12 @@ public final class ControladorPreferenciasSms {
                 + " (#" + sesion.idFarmacia() + ")");
 
         cmbZona.setItems(FXCollections.observableArrayList(
-                "America/Bogota", "America/Lima",
+                ZONA_BOGOTA, "America/Lima",
                 "America/Mexico_City", "America/New_York",
                 "UTC"
         ));
         cmbZona.setEditable(true);
-        cmbZona.setValue("America/Bogota");
+        cmbZona.setValue(ZONA_BOGOTA);
 
         colUsuario.setCellValueFactory(c ->
                 new ReadOnlyStringWrapper(
@@ -92,10 +92,7 @@ public final class ControladorPreferenciasSms {
 
         colEstado.setCellValueFactory(c -> {
             var d = c.getValue();
-            return new ReadOnlyStringWrapper(
-                    !d.configurado() ? "Sin configurar"
-                    : d.autorizado() ? "Autorizado"
-                    : "No autorizado");
+            return new ReadOnlyStringWrapper(estadoDestinatario(d));
         });
 
         tablaDestinatarios.getSelectionModel()
@@ -106,6 +103,13 @@ public final class ControladorPreferenciasSms {
 
         limpiarFormulario();
         onActualizar();
+    }
+
+    private static String estadoDestinatario(ServicioDirectorioSms.Destinatario d) {
+        if (!d.configurado()) {
+            return "Sin configurar";
+        }
+        return d.autorizado() ? "Autorizado" : "No autorizado";
     }
 
     private boolean sesionVigente() {
@@ -129,7 +133,7 @@ public final class ControladorPreferenciasSms {
         chkStock.setSelected(false);
         chkVencimientos.setSelected(false);
         chkAccesos.setSelected(false);
-        cmbZona.setValue("America/Bogota");
+        cmbZona.setValue(ZONA_BOGOTA);
     }
 
     @FXML

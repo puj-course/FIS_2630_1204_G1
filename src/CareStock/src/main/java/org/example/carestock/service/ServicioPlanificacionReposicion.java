@@ -76,37 +76,46 @@ public final class ServicioPlanificacionReposicion {
         Map<ClaveProducto, RegistroReposicion> necesidades = new LinkedHashMap<>();
         for (AlertaInventario alerta : ServicioAlertasInventario.filtrar(
                 alertas, TipoAlerta.STOCK_MINIMO, null, null)) {
-            Integer minimo = alerta.umbral();
-            if (minimo == null) {
-                // Sin umbral conocido: no se asigna ningun numero ficticio.
-                continue;
+            RegistroReposicion registro = crearRegistro(alerta, catalogo);
+            if (registro != null) {
+                ClaveProducto clave = new ClaveProducto(
+                        alerta.categoria(), alerta.idReferencia());
+                necesidades.putIfAbsent(clave, registro);
             }
-            if (minimo < 0) {
-                throw new IllegalStateException("Stock minimo negativo en alertas");
-            }
-            if (alerta.existencias() > minimo) {
-                // Defensa ante datos desactualizados o inconsistentes.
-                continue;
-            }
-
-            ClaveProducto clave = new ClaveProducto(alerta.categoria(), alerta.idReferencia());
-            ProductoInventario producto = catalogo.get(clave);
-            String codigo = alerta.codigo();
-            if ((codigo == null || codigo.isBlank()) && producto != null) {
-                codigo = producto.codigo();
-            }
-
-            int faltante = Math.max(0, minimo - alerta.existencias());
-            Severidad severidad = alerta.existencias() == 0
-                    ? Severidad.CRITICA : Severidad.ADVERTENCIA;
-            RegistroReposicion registro = new RegistroReposicion(
-                    alerta.categoria(), alerta.idReferencia(), codigo, alerta.producto(),
-                    alerta.existencias(), minimo, faltante, severidad);
-            necesidades.putIfAbsent(clave, registro);
         }
 
         ServicioAlertasInventario.exigirSesion(idFarmacia);
         return necesidades.values().stream().sorted(ORDEN).toList();
+    }
+
+    private static RegistroReposicion crearRegistro(
+            AlertaInventario alerta,
+            Map<ClaveProducto, ProductoInventario> catalogo) {
+        Integer minimo = alerta.umbral();
+        // Nunca inventar un umbral inexistente.
+        if (minimo == null) {
+            return null;
+        }
+        if (minimo < 0) {
+            throw new IllegalStateException("Stock minimo negativo en alertas");
+        }
+        if (alerta.existencias() > minimo) {
+            return null;
+        }
+
+        ClaveProducto clave = new ClaveProducto(alerta.categoria(), alerta.idReferencia());
+        ProductoInventario producto = catalogo.get(clave);
+        String codigo = alerta.codigo();
+        if ((codigo == null || codigo.isBlank()) && producto != null) {
+            codigo = producto.codigo();
+        }
+
+        int faltante = Math.max(0, minimo - alerta.existencias());
+        Severidad severidad = alerta.existencias() == 0
+                ? Severidad.CRITICA : Severidad.ADVERTENCIA;
+        return new RegistroReposicion(
+                alerta.categoria(), alerta.idReferencia(), codigo, alerta.producto(),
+                alerta.existencias(), minimo, faltante, severidad);
     }
 
     private static Categoria convertirCategoria(String valor) {

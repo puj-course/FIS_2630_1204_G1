@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 public final class RegistrarDestinatarioSms {
+    private static final System.Logger LOGGER =
+            System.getLogger(RegistrarDestinatarioSms.class.getName());
 
     private RegistrarDestinatarioSms() {
     }
@@ -62,7 +64,7 @@ public final class RegistrarDestinatarioSms {
                 );
             }
 
-            System.out.println(
+            LOGGER.log(System.Logger.Level.INFO,
                     "Destinatario autorizado registrado."
             );
 

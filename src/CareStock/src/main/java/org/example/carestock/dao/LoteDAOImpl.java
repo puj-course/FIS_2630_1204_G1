@@ -9,6 +9,11 @@ import java.util.List;
 
 public class LoteDAOImpl implements LoteDAO {
 
+    private static final String COLUMNAS_LOTE =
+            "id_lote, numero_lote, id_medicamento, cantidad_actual, "
+            + "fecha_vencimiento, id_ubicacion, estado_lote, fecha_ingreso, "
+            + "id_usuario, id_usuario_modificacion, fecha_modificacion";
+
     @Override
     public void guardar(Lote lote) throws Exception {
         lote.validar();
@@ -44,7 +49,7 @@ public class LoteDAOImpl implements LoteDAO {
 
     @Override
     public Lote buscarPorId(int idLote) throws Exception {
-        String sql = "SELECT * FROM lotes WHERE id_lote = ?";
+        String sql = "SELECT " + COLUMNAS_LOTE + " FROM lotes WHERE id_lote = ?";
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -61,7 +66,8 @@ public class LoteDAOImpl implements LoteDAO {
     @Override
     public List<Lote> listarPorMedicamento(int idMedicamento) throws Exception {
         List<Lote> lista = new ArrayList<>();
-        String sql = "SELECT * FROM lotes WHERE id_medicamento = ? ORDER BY fecha_vencimiento ASC";
+        String sql = "SELECT " + COLUMNAS_LOTE
+                + " FROM lotes WHERE id_medicamento = ? ORDER BY fecha_vencimiento ASC";
 
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -104,7 +110,8 @@ public class LoteDAOImpl implements LoteDAO {
         return lista;
     }
 
-    @Deprecated
+    /** @deprecated Use {@link #listarPorFarmacia(int)}. */
+    @Deprecated(since = "1.0")
     @Override
     public List<Lote> listarTodos() throws Exception {
         throw new UnsupportedOperationException(

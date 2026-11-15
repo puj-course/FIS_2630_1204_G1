@@ -3,6 +3,8 @@ package org.example.carestock.sms;
 import org.example.carestock.config.ConexionBD;
 
 public final class ProcesoSms {
+    private static final System.Logger LOGGER =
+            System.getLogger(ProcesoSms.class.getName());
 
     private ProcesoSms() {
     }
@@ -41,7 +43,7 @@ public final class ProcesoSms {
                 new Thread(ConexionBD::cerrarPool)
         );
 
-        System.out.println(
+        LOGGER.log(System.Logger.Level.INFO,
                 "Worker SMS iniciado. Modo: "
                 + System.getenv().getOrDefault(
                         "SMS_PROVIDER", "simulado"
@@ -58,7 +60,7 @@ public final class ProcesoSms {
                 servicio.ejecutarCiclo();
 
             } catch (Exception e) {
-                System.err.println(
+                LOGGER.log(System.Logger.Level.WARNING,
                         "Ciclo SMS fallido: "
                         + e.getClass().getSimpleName()
                 );

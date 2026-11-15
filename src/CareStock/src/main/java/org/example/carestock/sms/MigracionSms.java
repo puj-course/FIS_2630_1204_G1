@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 public final class MigracionSms {
+    private static final System.Logger LOGGER =
+            System.getLogger(MigracionSms.class.getName());
 
     private MigracionSms() {
     }
@@ -46,7 +48,7 @@ public final class MigracionSms {
 
                 conexion.commit();
 
-                System.out.println(
+                LOGGER.log(System.Logger.Level.INFO,
                         "Migracion SMS ejecutada correctamente."
                 );
 

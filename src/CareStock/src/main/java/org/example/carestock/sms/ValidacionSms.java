@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public final class ValidacionSms {
 
     private static final Pattern E164 =
-            Pattern.compile("\\+[1-9][0-9]{7,14}");
+            Pattern.compile("\\+[1-9]\\d{7,14}");
 
     private ValidacionSms() {
     }

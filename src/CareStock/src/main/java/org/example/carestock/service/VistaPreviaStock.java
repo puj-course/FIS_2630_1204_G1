@@ -14,6 +14,7 @@ public final class VistaPreviaStock {
     public static final String ENTRADA = "ENTRADA";
     public static final String SALIDA = "SALIDA";
     public static final String NO_APLICA = "—";
+    private static final String PREFIJO_STOCK_RESULTANTE = "Stock resultante: ";
 
     private VistaPreviaStock() {
     }
@@ -62,11 +63,11 @@ public final class VistaPreviaStock {
     public static String texto(int stockActual, String tipo, String cantidadTexto) {
         OptionalInt resultado = stockResultante(stockActual, tipo, cantidadTexto);
         if (resultado.isEmpty()) {
-            return "Stock resultante: " + NO_APLICA;
+            return PREFIJO_STOCK_RESULTANTE + NO_APLICA;
         }
         if (resultado.getAsInt() < 0) {
-            return "Stock resultante: " + resultado.getAsInt() + " (stock insuficiente)";
+            return PREFIJO_STOCK_RESULTANTE + resultado.getAsInt() + " (stock insuficiente)";
         }
-        return "Stock resultante: " + resultado.getAsInt();
+        return PREFIJO_STOCK_RESULTANTE + resultado.getAsInt();
     }
 }

@@ -34,6 +34,9 @@ import java.util.List;
  * La carga se ejecuta fuera del hilo grafico de JavaFX.
  */
 public class ConsultaInventarioController {
+    private static final System.Logger LOGGER =
+            System.getLogger(ConsultaInventarioController.class.getName());
+    private static final String TIPO_MEDICAMENTO = "Medicamento";
 
     @FXML private ComboBox<String> cmbCategoria;
     @FXML private ComboBox<String> cmbDisponibilidad;
@@ -182,7 +185,7 @@ public class ConsultaInventarioController {
             ProductoInventario producto = c.getValue();
 
             boolean esMedicamento =
-                    "Medicamento".equalsIgnoreCase(
+                    TIPO_MEDICAMENTO.equalsIgnoreCase(
                             producto.categoria());
 
             boolean sinStock = producto.existencia() == 0;
@@ -238,7 +241,7 @@ public class ConsultaInventarioController {
         cmbCategoria.setItems(
                 FXCollections.observableArrayList(
                         FiltroProductoInventario.TODAS,
-                        "Medicamento",
+                        TIPO_MEDICAMENTO,
                         "Aseo",
                         "Maternidad"
                 )
@@ -445,7 +448,7 @@ public class ConsultaInventarioController {
 
             Throwable error = tarea.getException();
 
-            System.err.println(
+            LOGGER.log(System.Logger.Level.WARNING,
                     "Fallo de consulta de inventario: "
                             + (error == null
                             ? "Error desconocido"
@@ -491,11 +494,9 @@ public class ConsultaInventarioController {
     private void mostrarEstadisticasProxy() {
         var proxy = InventarioConsultas.compartida();
 
-        System.out.printf(
-                "Proxy inventario: aciertos=%d, consultas reales=%d%n",
-                proxy.aciertos(),
-                proxy.consultasReales()
-        );
+        LOGGER.log(System.Logger.Level.INFO,
+                "Proxy inventario: aciertos={0}, consultas reales={1}",
+                proxy.aciertos(), proxy.consultasReales());
     }
 
     @FXML
@@ -522,7 +523,7 @@ public class ConsultaInventarioController {
         if (categoria == null
                 || FiltroProductoInventario.TODAS
                         .equalsIgnoreCase(categoria)) {
-            categoria = "Medicamento";
+            categoria = TIPO_MEDICAMENTO;
         }
 
         vistaActiva = false;

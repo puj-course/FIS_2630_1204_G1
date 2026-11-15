@@ -16,7 +16,6 @@ import org.example.carestock.service.*;
 import org.example.carestock.session.SesionUsuario;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.util.List;
 
 /** HU.137 / #991: consulta, filtros y exportacion sin modificar inventario. */

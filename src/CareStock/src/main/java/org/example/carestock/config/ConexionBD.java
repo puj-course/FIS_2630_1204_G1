@@ -75,6 +75,22 @@ public final class ConexionBD {
 
 
 
+        Path ruta = localizarArchivoConfiguracion();
+
+        Properties propiedades = new Properties();
+
+        try (InputStream entrada = Files.newInputStream(ruta)) {
+            propiedades.load(entrada);
+        } catch (IOException e) {
+            throw new SQLException(
+                    "Error leyendo configuracion de Neon", e
+            );
+        }
+
+        return propiedades;
+    }
+
+    private static Path localizarArchivoConfiguracion() throws SQLException {
         Path ruta = null;
 
         // Configuracion externa para Windows instalado.
@@ -125,18 +141,7 @@ public final class ConexionBD {
                     + "en APPDATA/CareStock."
             );
         }
-
-        Properties propiedades = new Properties();
-
-        try (InputStream entrada = Files.newInputStream(ruta)) {
-            propiedades.load(entrada);
-        } catch (IOException e) {
-            throw new SQLException(
-                    "Error leyendo configuracion de Neon", e
-            );
-        }
-
-        return propiedades;
+        return ruta;
     }
 
     private static String obligatorio(

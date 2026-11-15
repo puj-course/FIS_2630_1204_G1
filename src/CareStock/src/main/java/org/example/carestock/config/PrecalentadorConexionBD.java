@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Prepara la primera conexion JDBC sin bloquear JavaFX.
  */
 public final class PrecalentadorConexionBD {
+    private static final System.Logger LOGGER =
+            System.getLogger(PrecalentadorConexionBD.class.getName());
 
     private static final AtomicBoolean INICIADO =
             new AtomicBoolean(false);
@@ -39,14 +41,14 @@ public final class PrecalentadorConexionBD {
                                 (System.nanoTime() - inicio)
                                         / 1_000_000;
 
-                        System.out.println(
+                        LOGGER.log(System.Logger.Level.INFO,
                                 "[CareStock] Pool JDBC precalentado en "
                                         + duracionMs + " ms"
                         );
 
                     } catch (SQLException e) {
 
-                        System.err.println(
+                        LOGGER.log(System.Logger.Level.WARNING,
                                 "[CareStock] No se pudo precalentar JDBC: "
                                         + e.getMessage()
                         );

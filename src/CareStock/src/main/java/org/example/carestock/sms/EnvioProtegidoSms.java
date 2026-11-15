@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 
 final class EnvioProtegidoSms {
+    private static final System.Logger LOGGER =
+            System.getLogger(EnvioProtegidoSms.class.getName());
+    private static final String ESTADO_FALLIDA = "FALLIDA";
 
     private static final String LIMPIAR = """
         UPDATE sms_alertas a
@@ -155,7 +158,7 @@ final class EnvioProtegidoSms {
 
                     if (!elegible) {
                         actualizar(
-                                con, alertaId, "FALLIDA",
+                                con, alertaId, ESTADO_FALLIDA,
                                 null,
                                 "Autorizacion o preferencia revocada",
                                 false
@@ -198,7 +201,7 @@ final class EnvioProtegidoSms {
                             ? "sms_appointment_reminders"
                             : rs.getString("mensaje");
 
-                    System.err.println(
+                    LOGGER.log(System.Logger.Level.WARNING,
                             "SMS_DIAG: plantilla_trial="
                             + "sms_appointment_reminders".equals(mensaje)
                     );
@@ -219,11 +222,14 @@ final class EnvioProtegidoSms {
                                                 "Envio sin autorizacion horaria"
                                         ));
 
-                        String estado = resultado.simulado()
-                                ? "SIMULADA"
-                                : resultado.aceptado()
-                                        ? "ACEPTADA"
-                                        : "FALLIDA";
+                        String estado;
+                        if (resultado.simulado()) {
+                            estado = "SIMULADA";
+                        } else if (resultado.aceptado()) {
+                            estado = "ACEPTADA";
+                        } else {
+                            estado = ESTADO_FALLIDA;
+                        }
 
                         actualizar(
                                 con, alertaId, estado,
@@ -233,7 +239,7 @@ final class EnvioProtegidoSms {
 
                     } catch (RuntimeException e) {
                         actualizar(
-                                con, alertaId, "FALLIDA",
+                                con, alertaId, ESTADO_FALLIDA,
                                 null,
                                 e.getClass().getSimpleName()
                                         + ": " + e.getMessage(),

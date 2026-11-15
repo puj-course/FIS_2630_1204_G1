@@ -8,8 +8,10 @@ public interface LoteDAO {
     Lote buscarPorId(int idLote) throws Exception;
     List<Lote> listarPorMedicamento(int idMedicamento) throws Exception;
 
-    /** Solo para procesos internos con autorizacion global explicita. */
-    @Deprecated
+    /**
+     * @deprecated Consulta global deshabilitada; use {@link #listarPorFarmacia(int)}.
+     */
+    @Deprecated(since = "1.0")
     List<Lote> listarTodos() throws Exception;
 
     /** Consulta de inventario acotada a una farmacia. */
