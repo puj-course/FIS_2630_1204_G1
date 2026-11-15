@@ -281,6 +281,7 @@ public class ControladorInventario {
         tablaLotes.setItems(datosOrdenados);
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
 
         private void aplicarFiltros() {
 
@@ -1257,5 +1258,23 @@ public class ControladorInventario {
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo generar el código QR: " + e.getMessage());
         }
+    }
+    // ========================================
+    // REDIRECCIONAMIENTO DE TAREAS PENDIENTES 
+    // ========================================
+
+    @FXML
+    private void onIrAAlertas() {
+        org.example.carestock.CareStockApp.getInstance().mostrarAlertas();
+    }
+
+    @FXML
+    private void onIrALotesPorVencer() {
+        onFiltrarVencidos(); 
+    }
+
+    @FXML
+    private void onIrAHistorial() {
+        org.example.carestock.CareStockApp.getInstance().mostrarHistorialMovimientos();
     }
 }
