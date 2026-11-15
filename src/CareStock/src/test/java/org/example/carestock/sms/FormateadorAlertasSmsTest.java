@@ -92,6 +92,17 @@ class FormateadorAlertasSmsTest {
     }
 
     @Test
+    void notificaVencimientoQueOcurreHoy() {
+        EventoSms evento = new EventoSms(
+                3, "LOTE:40", "VENCIMIENTO", "Medicamento",
+                "Acetaminofen", "L-HOY", 4, 0);
+
+        String mensaje = formateador.generar(evento, "Farmacia Principal", Map.of());
+        assertTrue(mensaje.contains("Vence hoy"));
+        assertTrue(mensaje.contains("L-HOY"));
+    }
+
+    @Test
     void permitePersonalizarLaPlantilla() {
 
         EventoSms evento = new EventoSms(

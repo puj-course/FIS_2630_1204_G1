@@ -181,6 +181,20 @@ class ServicioSmsTest {
     }
 
     @Test
+    void twilioRechazaRespuestaVaciaSinMostrarDetallesPrivados() {
+        ServicioSmsTwilio servicio = new ServicioSmsTwilio(
+                CUENTA, "token-de-prueba", "+15005550006",
+                destinatarios,
+                solicitud -> new ServicioSmsTwilio.RespuestaHttp(400, "   ")
+        );
+
+        ExcepcionSms error = assertThrows(ExcepcionSms.class,
+                () -> servicio.enviar(TELEFONO, "Aviso"));
+        assertTrue(error.getMessage().contains("HTTP 400"));
+        assertTrue(error.getMessage().contains("respuesta vacia"));
+    }
+
+    @Test
     void twilioGestionaFallosDeRed() {
 
         ServicioSmsTwilio servicio = new ServicioSmsTwilio(
