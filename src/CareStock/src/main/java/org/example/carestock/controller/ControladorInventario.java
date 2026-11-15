@@ -1262,17 +1262,17 @@ public class ControladorInventario {
     // ========================================
 
     @FXML
-    private void onIrAAlertas() {
+    public void onIrAAlertas() {
         org.example.carestock.CareStockApp.getInstance().mostrarAlertas();
     }
 
     @FXML
-    private void onIrALotesPorVencer() {
+    public void onIrALotesPorVencer() {
         onFiltrarVencidos(); 
     }
 
     @FXML
-    private void onIrAHistorial() {
+    public void onIrAHistorial() {
         org.example.carestock.CareStockApp.getInstance().mostrarHistorialMovimientos();
     }
 }
