@@ -124,7 +124,7 @@ public class ControladorMovimientos {
         txtCantidad.setTextFormatter(
                 new TextFormatter<>(cambio ->
                         cambio.getControlNewText()
-                                .matches("[0-9]{0,9}")
+                                .matches("\\d{0,9}")
                                 ? cambio : null
                 )
         );

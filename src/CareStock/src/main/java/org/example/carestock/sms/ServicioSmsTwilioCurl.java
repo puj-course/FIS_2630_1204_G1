@@ -120,7 +120,7 @@ public final class ServicioSmsTwilioCurl implements ServicioSms {
             String estado = texto.substring(
                     posicion + MARCA_HTTP.length()).trim();
 
-            if (!estado.matches("[0-9]{3}")) {
+            if (!estado.matches("\\d{3}")) {
                 throw new ExcepcionSms(
                         "Respuesta HTTP de curl invalida");
             }

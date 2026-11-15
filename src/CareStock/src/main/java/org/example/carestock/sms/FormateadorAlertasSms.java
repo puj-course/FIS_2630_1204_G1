@@ -29,11 +29,14 @@ public final class FormateadorAlertasSms {
                 vencimiento ? VENCE : STOCK
         );
 
-        String plazo = evento.dias() < 0
-                ? "Vencido hace " + (-evento.dias()) + " dias"
-                : evento.dias() == 0
-                        ? "Vence hoy"
-                        : "Vence en " + evento.dias() + " dias";
+        String plazo;
+        if (evento.dias() < 0) {
+            plazo = "Vencido hace " + (-evento.dias()) + " dias";
+        } else if (evento.dias() == 0) {
+            plazo = "Vence hoy";
+        } else {
+            plazo = "Vence en " + evento.dias() + " dias";
+        }
 
         Map<String, String> datos = Map.of(
                 "{marca}", limpio(config.getOrDefault(

@@ -14,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ServicioSmsTwilio implements ServicioSms {
+    private static final System.Logger LOGGER =
+            System.getLogger(ServicioSmsTwilio.class.getName());
 
     private static final Pattern PATRON_CUENTA_SID =
             Pattern.compile("AC[0-9a-fA-F]{32}");
@@ -120,7 +122,7 @@ public final class ServicioSmsTwilio implements ServicioSms {
                 String contenido = respuesta.contenido() == null
                         ? "" : respuesta.contenido();
 
-                System.err.println(
+                LOGGER.log(System.Logger.Level.WARNING,
                         "TWILIO_DIAG: HTTP="
                         + respuesta.codigo()
                         + ", longitud_respuesta="
@@ -134,14 +136,16 @@ public final class ServicioSmsTwilio implements ServicioSms {
                 Matcher codigoError =
                         CODIGO_ERROR_TWILIO.matcher(contenido);
 
-                String codigo = codigoError.find()
-                        ? ", codigo Twilio " + codigoError.group(1)
-                        : ", respuesta "
-                        + (contenido.isBlank()
-                                ? "vacia"
-                                : contenido.stripLeading().startsWith("{")
-                                        ? "JSON sin codigo numerico"
-                                        : "no JSON");
+                String codigo;
+                if (codigoError.find()) {
+                    codigo = ", codigo Twilio " + codigoError.group(1);
+                } else if (contenido.isBlank()) {
+                    codigo = ", respuesta vacia";
+                } else if (contenido.stripLeading().startsWith("{")) {
+                    codigo = ", respuesta JSON sin codigo numerico";
+                } else {
+                    codigo = ", respuesta no JSON";
+                }
 
                 throw new ExcepcionSms(
                     "Twilio rechazo el envio (HTTP "

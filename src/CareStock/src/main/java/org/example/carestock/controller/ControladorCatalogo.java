@@ -42,6 +42,8 @@ import java.util.Map;
  * La consulta unificada es una pantalla independiente.
  */
 public class ControladorCatalogo {
+    private static final String ESTADO_ACTIVO_CATALOGO = "ACTIVO";
+    private static final String ESTILO_NEGRITA = " -fx-font-weight: bold;";
     private static final String CATEGORIA_MEDICAMENTOS = "Medicamentos";
     private static final String CATEGORIA_MATERNIDAD = "Maternidad";
 
@@ -68,20 +70,42 @@ public class ControladorCatalogo {
     private TableView<RegistroCatalogo<?>> tablaProductos;
 
     @FXML
-    private TableColumn<RegistroCatalogo<?>, String>
-            colId, colCodigo, colNombre, colDescripcion,
-            colPrecio, colStock, colEstado;
+    private TableColumn<RegistroCatalogo<?>, String> colId;
+    @FXML
+    private TableColumn<RegistroCatalogo<?>, String> colCodigo;
+    @FXML
+    private TableColumn<RegistroCatalogo<?>, String> colNombre;
+    @FXML
+    private TableColumn<RegistroCatalogo<?>, String> colDescripcion;
+    @FXML
+    private TableColumn<RegistroCatalogo<?>, String> colPrecio;
+    @FXML
+    private TableColumn<RegistroCatalogo<?>, String> colStock;
+    @FXML
+    private TableColumn<RegistroCatalogo<?>, String> colEstado;
 
     @FXML
-    private Label lblSeleccion, lblEstado,
-            lblCodigoCampo, lblNombreCampo;
+    private Label lblSeleccion;
+    @FXML
+    private Label lblEstado;
+    @FXML
+    private Label lblCodigoCampo;
+    @FXML
+    private Label lblNombreCampo;
 
     @FXML
-    private TextField txtCodigo, txtNombre,
-            txtDescripcion, txtPrecio, txtStock;
-
+    private TextField txtCodigo;
     @FXML
-    private VBox panelDescripcion, panelPrecioStock;
+    private TextField txtNombre;
+    @FXML
+    private TextField txtDescripcion;
+    @FXML
+    private TextField txtPrecio;
+    @FXML
+    private TextField txtStock;
+
+    @FXML private VBox panelDescripcion;
+    @FXML private VBox panelPrecioStock;
     @FXML private CheckBox chkRequiereRefrigeracion;
 
     // ========================================
@@ -458,7 +482,7 @@ public class ControladorCatalogo {
     private void actualizarDisponibilidadDesactivar() {
         if (btnDesactivarFormulario == null) return;
         boolean permitido = seleccionado != null
-                && "ACTIVO".equalsIgnoreCase(seleccionado.estado())
+                && ESTADO_ACTIVO_CATALOGO.equalsIgnoreCase(seleccionado.estado())
                 && stock(seleccionado.producto()) == 0;
         btnDesactivarFormulario.setDisable(!permitido);
         btnDesactivarFormulario.setTooltip(permitido ? null
@@ -1169,7 +1193,7 @@ private static void habilitarAccion(
             p.setStockMinimo(minimo);
             p.setPrecio(leerPrecioMedicamento());
             p.setStockTotal(0);
-            p.setEstado("ACTIVO");
+            p.setEstado(ESTADO_ACTIVO_CATALOGO);
             boolean requiereFrio = chkRequiereRefrigeracion != null && chkRequiereRefrigeracion.isSelected();
             p.setRequiereRefrigeracion(requiereFrio);
         });
@@ -1331,7 +1355,7 @@ private static void habilitarAccion(
             advertencia("Seleccione un producto");
             return;
         }
-        if (!"ACTIVO".equalsIgnoreCase(seleccionado.estado())
+        if (!ESTADO_ACTIVO_CATALOGO.equalsIgnoreCase(seleccionado.estado())
                 || stock(seleccionado.producto()) != 0) {
             advertencia("Solo se desactivan productos activos con stock cero.");
             return;
@@ -1558,7 +1582,7 @@ private static void habilitarAccion(
 
             resultado.setStyle(
                     "-fx-font-size: 14px; -fx-text-fill: #27AE60;"
-                    + " -fx-font-weight: bold;");
+                    + ESTILO_NEGRITA);
 
         } else if (minimo != null && nuevoStock < minimo) {
 
@@ -1567,12 +1591,12 @@ private static void habilitarAccion(
 
             resultado.setStyle(
                     "-fx-font-size: 14px; -fx-text-fill: #E67E22;"
-                    + " -fx-font-weight: bold;");
+                    + ESTILO_NEGRITA);
 
         } else {
             resultado.setStyle(
                     "-fx-font-size: 14px; -fx-text-fill: #6B5B95;"
-                    + " -fx-font-weight: bold;");
+                    + ESTILO_NEGRITA);
         }
     }
 }

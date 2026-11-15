@@ -14,11 +14,11 @@ public record ProductoInventario(
 ) {
     public ProductoInventario {
         if (id <= 0) throw new IllegalArgumentException("ID de producto invalido");
-        categoria = Objects.requireNonNull(categoria, "categoria");
-        codigo = Objects.requireNonNull(codigo, "codigo");
-        nombre = Objects.requireNonNull(nombre, "nombre");
-        presentacion = Objects.requireNonNull(presentacion, "presentacion");
-        estado = Objects.requireNonNull(estado, "estado");
+        Objects.requireNonNull(categoria, "categoria");
+        Objects.requireNonNull(codigo, "codigo");
+        Objects.requireNonNull(nombre, "nombre");
+        Objects.requireNonNull(presentacion, "presentacion");
+        Objects.requireNonNull(estado, "estado");
         if (existencia < 0) throw new IllegalArgumentException("La existencia no puede ser negativa");
     }
 }

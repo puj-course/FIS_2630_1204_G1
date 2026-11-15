@@ -17,6 +17,18 @@ public record ResumenCategoriaCatalogo(
         int bajoMinimo,
         int agotados) {
 
+    private record Existencias(int stock, int minimo) { }
+
+    private static Existencias obtenerExistencias(String categoria, Object producto) {
+        if ("Aseo".equals(categoria) && producto instanceof Aseo aseo) {
+            return new Existencias(aseo.getStock(), aseo.getStockMinimo());
+        }
+        if ("Maternidad".equals(categoria) && producto instanceof Maternidad maternidad) {
+            return new Existencias(maternidad.getStock(), maternidad.getStockMinimo());
+        }
+        return null;
+    }
+
     public static ResumenCategoriaCatalogo calcular(
             String categoria,
             List<RegistroCatalogo<?>> registros) {
@@ -42,33 +54,16 @@ public record ResumenCategoriaCatalogo(
                 continue;
             }
 
-            int stock;
-            int minimo;
-
-            if ("Aseo".equals(categoria)
-                    && r.producto() instanceof Aseo p) {
-                stock = p.getStock();
-                minimo = p.getStockMinimo();
-            } else if ("Maternidad".equals(categoria)
-                    && r.producto() instanceof Maternidad p) {
-                stock = p.getStock();
-                minimo = p.getStockMinimo();
-            } else {
-                continue;
-            }
-
-            if (!ids.add(r.id())) {
-                continue;
-            }
-
-            total++;
-
-            if (stock == 0) {
-                agotados++;
-            } else if (stock > 0
-                    && minimo > 0
-                    && stock <= minimo) {
-                bajos++;
+            Existencias datos = obtenerExistencias(categoria, r.producto());
+            if (datos != null && ids.add(r.id())) {
+                total++;
+                if (datos.stock() == 0) {
+                    agotados++;
+                } else if (datos.stock() > 0
+                        && datos.minimo() > 0
+                        && datos.stock() <= datos.minimo()) {
+                    bajos++;
+                }
             }
         }
 

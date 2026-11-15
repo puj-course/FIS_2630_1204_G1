@@ -1,6 +1,7 @@
 package org.example.carestock.utils;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -12,34 +13,38 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public class GeneradorQR {
+
+    private GeneradorQR() {
+        // Clase utilitaria: no admite instancias.
+    }
 
     /**
      * Genera una imagen de código QR a partir de un texto.
      * 
      * @param texto El texto a codificar (ID del lote, nombre, etc).
-     * @param tamaño El tamaño de la imagen en píxeles (ej. 200x200).
+     * @param tamano El tamano de la imagen en píxeles (ej. 200x200).
      * @return Un objeto Image de JavaFX listo para ser mostrado.
      */
-    public static Image generar(String texto, int tamaño) throws Exception {
+    public static Image generar(String texto, int tamano) throws WriterException {
         if (texto == null || texto.isBlank()) {
             throw new IllegalArgumentException("El texto para el QR no puede estar vacío.");
         }
 
-        if (tamaño <= 0) {
-            throw new IllegalArgumentException("El tamaño del QR debe ser mayor que cero.");
+        if (tamano <= 0) {
+            throw new IllegalArgumentException("El tamano del QR debe ser mayor que cero.");
         }
 
-        Map<EncodeHintType, Object> hints = new HashMap<>();
+        Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.MARGIN, 1);
 
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = qrCodeWriter.encode(texto, BarcodeFormat.QR_CODE, tamaño, tamaño, hints);
+        BitMatrix bitMatrix = qrCodeWriter.encode(texto, BarcodeFormat.QR_CODE, tamano, tamano, hints);
         BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
         return convertirAJavaFXImage(bufferedImage);
     }

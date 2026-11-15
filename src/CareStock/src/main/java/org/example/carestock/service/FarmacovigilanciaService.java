@@ -18,8 +18,9 @@ public class FarmacovigilanciaService {
     /**
      * Firma antigua, conservada solamente para detectar llamadas inseguras.
      * No se debe permitir dispensar sin contexto de usuario/farmacia.
+     * @deprecated Use la dispensacion con contexto de farmacia y usuario.
      */
-    @Deprecated
+    @Deprecated(since = "1.0")
     public void dispensarMedicamento(int idLote, int cantidad)
             throws ReglaNegocioException {
         throw new ReglaNegocioException(

@@ -11,7 +11,6 @@ import org.example.carestock.service.ServicioCrudLotes;
 import org.example.carestock.service.ServicioCrudLotes.MedicamentoOpcion;
 import org.example.carestock.service.ServicioCrudLotes.UbicacionOpcion;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 

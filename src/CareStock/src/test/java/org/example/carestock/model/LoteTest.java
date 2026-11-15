@@ -3,7 +3,6 @@ package org.example.carestock.model;
 import org.example.carestock.exception.ReglaNegocioException;
 import org.example.carestock.utils.FechaNegocio;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 

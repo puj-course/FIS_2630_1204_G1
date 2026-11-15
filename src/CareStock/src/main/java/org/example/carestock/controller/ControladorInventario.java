@@ -37,9 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import javafx.concurrent.Task;
-import org.example.carestock.proxy.InventarioConsultas;
 
 public class ControladorInventario {
+    private static final String AVISO_SELECCION_LOTE = "Selecciona primero un lote de la tabla.";
+    private static final String TITULO_SELECCION_REQUERIDA = "Selección Requerida";
+    private static final String TEXTO_NO_DISPONIBLE = "No disponible";
 
     private static final System.Logger LOGGER =
             System.getLogger(ControladorInventario.class.getName());
@@ -401,7 +403,7 @@ public class ControladorInventario {
         if (loteSeleccionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING,
                     "Seleccion requerida",
-                    "Selecciona primero un lote de la tabla.");
+                    AVISO_SELECCION_LOTE);
             return;
         }
         GestorLotesDialogo gestor = new GestorLotesDialogo(
@@ -414,7 +416,7 @@ public class ControladorInventario {
         if (loteSeleccionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING,
                     "Seleccion requerida",
-                    "Selecciona primero un lote de la tabla.");
+                    AVISO_SELECCION_LOTE);
             return;
         }
         GestorLotesDialogo gestor = new GestorLotesDialogo(
@@ -793,7 +795,7 @@ public class ControladorInventario {
             }
 
         } catch (Exception e) {
-            System.out.println("Error al cargar alertas: " + e.getMessage());
+            LOGGER.log(System.Logger.Level.INFO, "Error al cargar alertas: " + e.getMessage());
             if (lblAlertaStock != null) lblAlertaStock.setText("0 productos");
             if (lblAlertaVencimiento != null) lblAlertaVencimiento.setText("0 lotes");
             if (badgeNotificaciones != null) badgeNotificaciones.setVisible(false);
@@ -817,8 +819,8 @@ public class ControladorInventario {
         @FXML
     private void onSugerirLote() {
         if (loteSeleccionado == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida",
-                    "Selecciona primero un lote de la tabla.");
+            mostrarAlerta(Alert.AlertType.WARNING, TITULO_SELECCION_REQUERIDA,
+                    AVISO_SELECCION_LOTE);
             return;
         }
 
@@ -855,7 +857,7 @@ public class ControladorInventario {
     @FXML
     private void onDispensar() {
         if (loteSeleccionado == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Por favor seleccione un lote directamente de la tabla.");
+            mostrarAlerta(Alert.AlertType.WARNING, TITULO_SELECCION_REQUERIDA, "Por favor seleccione un lote directamente de la tabla.");
             return;
         }
 
@@ -1026,10 +1028,10 @@ public class ControladorInventario {
                 }
             } else {
                 if (lblAlertaStock != null) {
-                    lblAlertaStock.setText("No disponible");
+                    lblAlertaStock.setText(TEXTO_NO_DISPONIBLE);
                 }
                 if (lblAlertaVencimiento != null) {
-                    lblAlertaVencimiento.setText("No disponible");
+                    lblAlertaVencimiento.setText(TEXTO_NO_DISPONIBLE);
                 }
                 if (badgeNotificaciones != null) {
                     badgeNotificaciones.setVisible(false);
@@ -1063,7 +1065,7 @@ public class ControladorInventario {
                     "Error al cargar el inventario inicial",
                     tarea.getException());
 
-            lblTotalLotes.setText("No disponible");
+            lblTotalLotes.setText(TEXTO_NO_DISPONIBLE);
             lblLoteSeleccionadoInfo.setText(
                     "Error al cargar inventario. "
                     + "Use Refrescar para reintentar.");
@@ -1100,7 +1102,7 @@ public class ControladorInventario {
                 categoriaPorMedicamento = inventario.categoriaPorMedicamento();
             } catch (Exception ex) {
                 categoriaPorMedicamento = Map.of();
-                System.err.println("No fue posible consultar las categorias: " + ex.getMessage());
+                LOGGER.log(System.Logger.Level.WARNING, "No fue posible consultar las categorias: " + ex.getMessage());
             }
             aplicarFiltros();
 
@@ -1229,7 +1231,7 @@ public class ControladorInventario {
         @FXML
     private void onGenerarQR() {
         if (loteSeleccionado == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Selecciona un lote de la tabla para generar su código QR.");
+            mostrarAlerta(Alert.AlertType.WARNING, TITULO_SELECCION_REQUERIDA, "Selecciona un lote de la tabla para generar su código QR.");
             return;
         }
 

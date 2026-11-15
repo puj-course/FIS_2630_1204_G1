@@ -24,11 +24,23 @@ import org.example.carestock.service.ValidacionFormularioLogin;
 import java.util.prefs.Preferences;
 
 public class LoginController {
+    private static final System.Logger LOGGER =
+            System.getLogger(LoginController.class.getName());
 
     private static final String CLAVE_CORREO = "correo_recordado";
 
     private static final PseudoClass INVALIDO =
             PseudoClass.getPseudoClass("invalido");
+
+    private static String describirErrorInicioSesion(Throwable causa) {
+        if (causa instanceof ReglaNegocioException) {
+            return causa.getMessage();
+        }
+        if (causa instanceof ErrorDeInicioDeSesion) {
+            return "No fue posible abrir la sesión. Inténtalo nuevamente.";
+        }
+        return "No fue posible verificar las credenciales. Inténtalo nuevamente.";
+    }
 
     @FXML private TextField txtEmail;
     @FXML private PasswordField txtPassword;
@@ -269,7 +281,7 @@ public class LoginController {
                 try {
                     auditoriaAcceso.registrar(usuario);
                 } catch (Exception ex) {
-                    System.err.println(
+                    LOGGER.log(System.Logger.Level.WARNING,
                             "Auditoria SMS de acceso no disponible: "
                             + ex.getClass().getSimpleName());
                 }
@@ -306,12 +318,7 @@ public class LoginController {
 
             // Mostrar despues de limpiar la contraseña:
             // el listener del campo oculta mensajes anteriores.
-            mostrarMensaje(causa instanceof ReglaNegocioException
-                    ? causa.getMessage()
-                    : causa instanceof ErrorDeInicioDeSesion
-                    ? "No fue posible abrir la sesión. Inténtalo nuevamente."
-                    : "No fue posible verificar las credenciales. "
-                      + "Inténtalo nuevamente.");
+            mostrarMensaje(describirErrorInicioSesion(causa));
         });
 
         Thread hilo = new Thread(tarea, "carestock-login");

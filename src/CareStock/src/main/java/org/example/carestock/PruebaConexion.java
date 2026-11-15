@@ -10,7 +10,7 @@ public class PruebaConexion {
     private static final System.Logger LOGGER = System.getLogger(PruebaConexion.class.getName());
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.err.println("Uso: PruebaConexion <idFarmacia>");
+            LOGGER.log(System.Logger.Level.WARNING, "Uso: PruebaConexion <idFarmacia>");
             return;
         }
 
@@ -18,42 +18,42 @@ public class PruebaConexion {
         try {
             idFarmacia = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
-            System.err.println("El identificador debe ser numerico.");
+            LOGGER.log(System.Logger.Level.WARNING, "El identificador debe ser numerico.");
             return;
         }
 
         if (idFarmacia <= 0) {
-            System.err.println("La farmacia debe tener un ID positivo.");
+            LOGGER.log(System.Logger.Level.WARNING, "La farmacia debe tener un ID positivo.");
             return;
         }
 
         LoteDAO loteDAO = new LoteDAOImpl();
 
         try {
-            System.out.println("Consultando lotes registrados en Neon DB...\n");
+            LOGGER.log(System.Logger.Level.INFO, "Consultando lotes registrados en Neon DB...\n");
             List<Lote> lotes = loteDAO.listarPorFarmacia(idFarmacia);
 
             if (lotes.isEmpty()) {
-                System.out.println("ℹ️ No hay lotes registrados actualmente.");
+                LOGGER.log(System.Logger.Level.INFO, "ℹ️ No hay lotes registrados actualmente.");
             } else {
-                System.out.printf("%-8s %-15s %-15s %-15s %-12s %-10s%n",
-                        "ID LOTE", "NÚMERO LOTE", "ID MEDICAMENTO", "CANTIDAD", "VENCIMIENTO", "ESTADO");
-                System.out.println("----------------------------------------------------------------------------------");
+                LOGGER.log(System.Logger.Level.INFO,
+                        String.format("%-8s %-15s %-15s %-15s %-12s %-10s",
+                                "ID LOTE", "NÚMERO LOTE", "ID MEDICAMENTO",
+                                "CANTIDAD", "VENCIMIENTO", "ESTADO"));
+                LOGGER.log(System.Logger.Level.INFO, "----------------------------------------------------------------------------------");
                 for (Lote l : lotes) {
-                    System.out.printf("%-8d %-15s %-15d %-15d %-12s %-10s%n",
-                            l.getIdLote(),
-                            l.getNumeroLote(),
-                            l.getIdMedicamento(),
-                            l.getCantidadActual(),
-                            l.getFechaVencimiento(),
-                            l.getEstadoLote());
+                    LOGGER.log(System.Logger.Level.INFO,
+                            String.format("%-8d %-15s %-15d %-15d %-12s %-10s",
+                                    l.getIdLote(), l.getNumeroLote(),
+                                    l.getIdMedicamento(), l.getCantidadActual(),
+                                    l.getFechaVencimiento(), l.getEstadoLote()));
                 }
             }
 
-            System.out.println("\n✅ ¡Tarea 2 completada con éxito! Modelo Lote, LoteDAO y FarmacovigilanciaService listos.");
+            LOGGER.log(System.Logger.Level.INFO, "\n✅ ¡Tarea 2 completada con éxito! Modelo Lote, LoteDAO y FarmacovigilanciaService listos.");
 
         } catch (Exception e) {
-            System.err.println("❌ Error al consultar lotes: " + e.getMessage());
+            LOGGER.log(System.Logger.Level.WARNING, "❌ Error al consultar lotes: " + e.getMessage());
         }
     }
 }

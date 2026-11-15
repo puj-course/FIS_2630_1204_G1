@@ -2,7 +2,6 @@ package org.example.carestock.service;
 
 import org.example.carestock.utils.FechaNegocio;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FarmacovigilanciaFechasSonarTest {

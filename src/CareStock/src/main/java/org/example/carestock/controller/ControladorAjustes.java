@@ -13,7 +13,6 @@ import org.example.carestock.service.ServicioAjustesInventario;
 import org.example.carestock.session.SesionUsuario;
 import org.example.carestock.exception.ReglaNegocioException;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,7 +51,7 @@ public final class ControladorAjustes {
     private final List<Opcion> opciones = new ArrayList<>();
 
     // Punto de inyeccion para ejecutar las consultas de forma determinista en pruebas.
-    private java.util.function.Consumer<Task<?>> ejecutorConsulta =
+    private final java.util.function.Consumer<Task<?>> ejecutorConsulta =
             tarea -> ejecutar(tarea, "consultar-ajustes");
 
     private record Opcion(
@@ -104,7 +103,7 @@ public final class ControladorAjustes {
 
         txtNuevaCantidad.setTextFormatter(
                 new TextFormatter<>(cambio ->
-                        cambio.getControlNewText().matches("[0-9]{0,9}")
+                        cambio.getControlNewText().matches("\\d{0,9}")
                                 ? cambio : null));
 
         cmbCategoria.getSelectionModel().selectFirst();

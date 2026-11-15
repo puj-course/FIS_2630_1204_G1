@@ -2,8 +2,6 @@ package org.example.carestock.service;
 
 import org.example.carestock.utils.FechaNegocio;
 import org.junit.jupiter.api.Test;
-import org.example.carestock.model.Lote;
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
