@@ -162,17 +162,18 @@ public class ControladorInventario {
         colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
         colIdMedicamento.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
-        colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
-        colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
         if (colRefrigeracion != null) {
             colRefrigeracion.setCellValueFactory(cellData -> {
                 Lote lote = cellData.getValue();
-                if (lote != null && lote.isRequiereRefrigeracion()) {
+                if (lote != null && lote.getRequiereRefrigeracion()) {
                     return new javafx.beans.property.ReadOnlyStringWrapper("❄️");
                 }
                 return new javafx.beans.property.ReadOnlyStringWrapper("");
             });
         }
+
+        colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
+        colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
             @Override
     protected void updateItem(LocalDate fecha, boolean empty) {
         super.updateItem(fecha, empty);
