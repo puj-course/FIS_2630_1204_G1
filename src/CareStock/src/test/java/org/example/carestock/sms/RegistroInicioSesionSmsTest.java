@@ -61,9 +61,11 @@ class RegistroInicioSesionSmsTest {
                 new SQLException("Sin conexion"));
         try (MockedStatic<ConexionBD> bd = mockStatic(ConexionBD.class)) {
             bd.when(ConexionBD::getConexion).thenReturn(con);
+            final var sonarPrecondicion1 = new RegistroInicioSesionSms();
+            final var sonarPrecondicion3 = sesion(1);
             assertThrows(SQLException.class,
-                    () -> new RegistroInicioSesionSms().registrar(
-                            sesion(1), INSTANTE));
+                    () -> sonarPrecondicion1.registrar(
+                            sonarPrecondicion3, INSTANTE));
             verify(con).close();
         }
     }
@@ -73,7 +75,8 @@ class RegistroInicioSesionSmsTest {
         var servicio = new RegistroInicioSesionSms();
         assertThrows(NullPointerException.class,
                 () -> servicio.registrar(null, INSTANTE));
+        final var sonarPrecondicion2 = sesion(1);
         assertThrows(NullPointerException.class,
-                () -> servicio.registrar(sesion(1), null));
+                () -> servicio.registrar(sonarPrecondicion2, null));
     }
 }

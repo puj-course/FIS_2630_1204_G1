@@ -170,8 +170,7 @@ class CatalogoInteraccionCoverageTest {
     }
 
     @Test
-    void consultaFallidaNoEntregaIndicadoresFalsos()
-            throws Exception {
+    void consultaFallidaNoEntregaIndicadoresFalsos() {
 
         var controlador = new ControladorCatalogo();
 

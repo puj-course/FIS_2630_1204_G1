@@ -2312,40 +2312,41 @@ class ControladorCatalogoFormularioFxTest {
             throws Exception {
         enFx(() -> {
             ControladorInventario c = inventarioFormulario();
+            llamar(c, "configurarFiltroBusqueda");
+
             Inventario fachada = obtener(c, "inventario");
 
-            when(fachada.listarCategoriasMedicamento())
-                    .thenReturn(java.util.Map.of(
-                            1, "Analgesicos",
-                            2, "Antibioticos"))
+            when(fachada.listarLotes()).thenReturn(List.of(
+                    lotePrueba(1, "LOTE-QA", "DISPONIBLE", -1, 20)));
+
+            when(fachada.categoriaPorMedicamento())
+                    .thenReturn(Map.of(1, "Analgesicos"))
                     .thenThrow(new IllegalStateException(
                             "Error de categorias simulado"));
 
-            llamar(c, "cargarCategorias");
+            llamar(c, "cargarDatosTabla");
 
-            javafx.scene.control.ComboBox<String> combo =
-                    obtener(c, "cmbCategoria");
+            Map<Integer, String> categorias =
+                    obtener(c, "categoriaPorMedicamento");
 
-            assertTrue(combo.getItems().contains("Analgesicos"));
-            assertTrue(combo.getItems().contains("Antibioticos"));
+            TableView<Lote> tabla = obtener(c, "tablaLotes");
 
-            try (org.mockito.MockedConstruction<
-                    javafx.scene.control.Alert> dialogos =
-                         mockConstruction(
-                                 javafx.scene.control.Alert.class)) {
+            assertEquals("Analgesicos", categorias.get(1));
+            assertEquals(1, tabla.getItems().size());
 
-                llamar(c, "cargarCategorias");
+            llamar(c, "cargarDatosTabla");
 
-                assertEquals(1, dialogos.constructed().size());
-            }
+            Map<Integer, String> categoriasTrasError =
+                    obtener(c, "categoriaPorMedicamento");
 
-            verify(fachada, times(2))
-                    .listarCategoriasMedicamento();
+            assertTrue(categoriasTrasError.isEmpty());
+            assertEquals(1, tabla.getItems().size());
+
+            verify(fachada, times(2)).categoriaPorMedicamento();
 
             return null;
         });
     }
-
 
 
     // ===== Lote 4: controladores, permisos y alertas =====

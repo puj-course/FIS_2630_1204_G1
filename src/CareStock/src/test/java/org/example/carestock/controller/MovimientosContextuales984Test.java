@@ -218,9 +218,10 @@ class MovimientosContextuales984Test {
             assertThrows(SecurityException.class,
                     () -> c.abrirDesdeAlerta(null));
 
+            final var sonarPrecondicion1 = destino(Categoria.ASEO, "COD-A", 8);
             assertThrows(SecurityException.class,
                     () -> c.abrirDesdeAlerta(
-                            destino(Categoria.ASEO, "COD-A", 8)));
+                            sonarPrecondicion1));
 
             Destino invalido = new Destino(
                     TipoAlerta.VENCIMIENTO,
@@ -232,9 +233,10 @@ class MovimientosContextuales984Test {
 
             poner(c, "idUsuario", 999);
 
+            final var sonarPrecondicion2 = destino(Categoria.ASEO, "COD-A", 4);
             assertThrows(SecurityException.class,
                     () -> c.abrirDesdeAlerta(
-                            destino(Categoria.ASEO, "COD-A", 4)));
+                            sonarPrecondicion2));
 
             return null;
         });

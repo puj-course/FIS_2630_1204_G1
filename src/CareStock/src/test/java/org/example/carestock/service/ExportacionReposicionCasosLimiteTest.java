@@ -266,10 +266,11 @@ class ExportacionReposicionCasosLimiteTest {
                 () -> ExportadorReposicionCsv
                         .generar(null));
 
+        final var sonarPrecondicion1 = Arrays.asList(
+                                (RegistroReposicion) null);
         assertThrows(
                 NullPointerException.class,
                 () -> ExportadorReposicionCsv
-                        .generar(Arrays.asList(
-                                (RegistroReposicion) null)));
+                        .generar(sonarPrecondicion1));
     }
 }

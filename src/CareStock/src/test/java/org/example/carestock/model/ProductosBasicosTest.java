@@ -95,7 +95,8 @@ class ProductosBasicosTest {
         assertThrows(ReglaNegocioException.class, m::validar);
         m = maternidad(); m.setStock(0);
         assertFalse(m.esAptoParaDispensar());
-        assertThrows(IllegalArgumentException.class, () -> new Maternidad().setDescripcion(" "));
+        final var sonarPrecondicion1 = new Maternidad();
+        assertThrows(IllegalArgumentException.class, () -> sonarPrecondicion1.setDescripcion(" "));
     }
 
     @Test

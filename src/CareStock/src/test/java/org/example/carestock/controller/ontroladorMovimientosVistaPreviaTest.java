@@ -80,7 +80,8 @@ class ControladorMovimientosVistaPreviaTest {
         MockedStatic<SesionUsuario> s = mockStatic(SesionUsuario.class);
         s.when(SesionUsuario::actual).thenReturn(ADMIN);
         s.when(SesionUsuario::estaActiva).thenReturn(true);
-        s.when(SesionUsuario::usuarioParaFachada).thenReturn(mock(Usuario.class));
+        Usuario usuarioSimulado = mock(Usuario.class);
+        s.when(SesionUsuario::usuarioParaFachada).thenReturn(usuarioSimulado);
         return s;
     }
 

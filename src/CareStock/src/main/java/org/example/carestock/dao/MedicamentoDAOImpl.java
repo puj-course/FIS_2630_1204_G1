@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MedicamentoDAOImpl implements MedicamentoDAO {
+    private static final String SELECT_SQL = "SELECT ";
+
 
     private static final String COLUMNAS_MEDICAMENTO =
             "id_medicamento, codigo_invima, nombre_comercial, principio_activo, "
@@ -68,7 +70,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
     @Override
     public Medicamento buscarPorId(int idMedicamento) throws Exception {
-        String sql = "SELECT " + COLUMNAS_MEDICAMENTO + " FROM medicamentos WHERE id_medicamento = ?";
+        String sql = SELECT_SQL + COLUMNAS_MEDICAMENTO + " FROM medicamentos WHERE id_medicamento = ?";
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -84,7 +86,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
 
     @Override
     public Medicamento buscarPorCodigoInvima(String codigoInvima) throws Exception {
-        String sql = "SELECT " + COLUMNAS_MEDICAMENTO + " FROM medicamentos WHERE codigo_invima = ?";
+        String sql = SELECT_SQL + COLUMNAS_MEDICAMENTO + " FROM medicamentos WHERE codigo_invima = ?";
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -101,7 +103,7 @@ public class MedicamentoDAOImpl implements MedicamentoDAO {
     @Override
     public List<Medicamento> listarTodos() throws Exception {
         List<Medicamento> lista = new ArrayList<>();
-        String sql = "SELECT " + COLUMNAS_MEDICAMENTO
+        String sql = SELECT_SQL + COLUMNAS_MEDICAMENTO
                 + " FROM medicamentos ORDER BY nombre_comercial ASC";
 
         try (Connection con = ConexionBD.getConexion();

@@ -49,8 +49,9 @@ class PoliticaAccionesAlertasTest {
             var a = alerta(tipo, Categoria.MEDICAMENTO, "LOT-21");
             assertTrue(PoliticaAccionesAlertas.disponible(a,
                     actor("AUXILIAR", 4), 4).isEmpty());
+            final var sonarPrecondicion1 = actor("AUXILIAR", 4);
             assertThrows(SecurityException.class, () ->
-                    PoliticaAccionesAlertas.exigir(a, actor("AUXILIAR", 4), 4));
+                    PoliticaAccionesAlertas.exigir(a, sonarPrecondicion1, 4));
         }
     }
 

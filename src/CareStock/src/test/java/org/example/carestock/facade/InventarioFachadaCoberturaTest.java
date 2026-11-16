@@ -315,8 +315,7 @@ class InventarioFachadaCoberturaTest {
     }
 
     @Test
-    void rechazaMedicamentoSinCategoria()
-            throws Exception {
+    void rechazaMedicamentoSinCategoria() {
 
         Inventario fachada = inventario();
 
@@ -639,8 +638,7 @@ class InventarioFachadaCoberturaTest {
     }
 
     @Test
-    void rechazaMedicamentoNuloYSinPrincipioActivo()
-            throws Exception {
+    void rechazaMedicamentoNuloYSinPrincipioActivo() {
         Inventario fachada = inventario();
 
         assertThrows(

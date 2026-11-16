@@ -194,8 +194,9 @@ class ServicioCrudLotesJdbcTest {
         try (MockedStatic<ConexionBD> bd = mockStatic(ConexionBD.class)) {
             bd.when(ConexionBD::getConexion).thenReturn(con);
 
+            final var sonarPrecondicion1 = new ServicioCrudLotes();
             assertThrows(SecurityException.class,
-                    () -> new ServicioCrudLotes()
+                    () -> sonarPrecondicion1
                             .crear(10, "LOTE-NUEVO", 12, fecha, 2));
 
             verify(con).rollback();

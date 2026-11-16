@@ -46,13 +46,17 @@ class FormateadorInicioSesionSmsTest {
 
     @Test
     void validaDatosObligatorios() {
+        final var sonarPrecondicion1 = Instant.now();
         assertThrows(NullPointerException.class,
-                () -> formateador.generar(null, Instant.now()));
+                () -> formateador.generar(null, sonarPrecondicion1));
+        final var sonarPrecondicion2 = sesion();
         assertThrows(NullPointerException.class,
-                () -> formateador.generar(sesion(), null));
+                () -> formateador.generar(sonarPrecondicion2, null));
+        final var sonarPrecondicion3 = new SesionUsuario.DatosUsuario(
+                        1, "Ana", "a@b", "ADMINISTRADOR", null, null);
+        final var sonarPrecondicion4 = Instant.now();
         assertThrows(IllegalArgumentException.class,
-                () -> formateador.generar(new SesionUsuario.DatosUsuario(
-                        1, "Ana", "a@b", "ADMINISTRADOR", null, null),
-                        Instant.now()));
+                () -> formateador.generar(sonarPrecondicion3,
+                        sonarPrecondicion4));
     }
 }

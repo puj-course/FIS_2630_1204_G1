@@ -22,8 +22,10 @@ class DatosTransferenciaTest {
         assertEquals("Analgesicos", datos.categorias().get(1));
         assertEquals("Analgesicos", datos.categoriaPorMedicamento().get(1));
         assertEquals(Integer.valueOf(1), datos.conteoTipos().get("DISPONIBLE"));
-        assertThrows(UnsupportedOperationException.class, () -> datos.lotes().clear());
-        assertThrows(UnsupportedOperationException.class, () -> datos.categorias().clear());
+        final var sonarPrecondicion1 = datos.lotes();
+        assertThrows(UnsupportedOperationException.class, () -> sonarPrecondicion1.clear());
+        final var sonarPrecondicion2 = datos.categorias();
+        assertThrows(UnsupportedOperationException.class, () -> sonarPrecondicion2.clear());
     }
 
     @Test
@@ -39,8 +41,10 @@ class DatosTransferenciaTest {
         assertEquals(1, datos.productos().size());
         assertEquals(123L, datos.creadoNanos());
         assertEquals(List.of(2, 1), new ArrayList<>(datos.categoriasMedicamento().keySet()));
-        assertThrows(UnsupportedOperationException.class, () -> datos.productos().clear());
+        final var sonarPrecondicion3 = datos.productos();
+        assertThrows(UnsupportedOperationException.class, () -> sonarPrecondicion3.clear());
+        final var sonarPrecondicion4 = datos.categoriasMedicamento();
         assertThrows(UnsupportedOperationException.class,
-                () -> datos.categoriasMedicamento().clear());
+                () -> sonarPrecondicion4.clear());
     }
 }

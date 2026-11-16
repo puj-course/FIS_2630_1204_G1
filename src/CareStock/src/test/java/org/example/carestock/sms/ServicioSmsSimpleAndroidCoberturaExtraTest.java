@@ -43,17 +43,19 @@ class ServicioSmsSimpleAndroidCoberturaExtraTest {
         };
 
         for (String direccion : direcciones) {
+            final var sonarPrecondicion1 = autorizados();
             assertThrows(IllegalArgumentException.class,
                     () -> new ServicioSmsSimpleAndroid(
-                            direccion, autorizados()));
+                            direccion, sonarPrecondicion1));
         }
     }
 
     @Test
     void rechazaConfiguracionNula() {
+        final var sonarPrecondicion2 = autorizados();
         assertThrows(IllegalArgumentException.class,
                 () -> new ServicioSmsSimpleAndroid(
-                        null, autorizados()));
+                        null, sonarPrecondicion2));
 
         assertThrows(NullPointerException.class,
                 () -> new ServicioSmsSimpleAndroid(

@@ -1,6 +1,5 @@
 package org.example.carestock.controller;
 
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
@@ -553,8 +552,6 @@ class NavegacionContextualControladoresTest {
 
                 c.initialize();
 
-                Timeline refresco = obtener(c, "refresco");
-
                 try {
                     Button boton = obtener(c, "btnVerDetalle");
                     TableView<AlertaInventario> tabla =
@@ -575,7 +572,22 @@ class NavegacionContextualControladoresTest {
                             tabla.getRowFactory().call(tabla)
                                     .getOnMouseClicked());
                 } finally {
-                    refresco.stop();
+                    // Simular salida de la escena para detener
+                    // automaticamente el refresco del controlador.
+                    TableView<AlertaInventario> tabla =
+                            obtener(c, "tablaAlertas");
+
+                    javafx.scene.layout.StackPane raizEscena =
+                            new javafx.scene.layout.StackPane(tabla);
+
+                    javafx.scene.Scene escena =
+                            new javafx.scene.Scene(raizEscena);
+
+                    assertSame(escena, tabla.getScene());
+
+                    raizEscena.getChildren().clear();
+
+                    assertNull(tabla.getScene());
                 }
             }
 

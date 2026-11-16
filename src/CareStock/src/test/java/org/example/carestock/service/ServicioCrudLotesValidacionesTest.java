@@ -34,25 +34,29 @@ class ServicioCrudLotesValidacionesTest {
         for (String numero : new String[]{
                 "", " ", "x".repeat(51)
         }) {
+            final var sonarPrecondicion1 = FechaNegocio.hoy().plusDays(30);
             assertThrows(IllegalArgumentException.class,
                     () -> ServicioCrudLotes.validarNuevo(
-                            numero, 10, FechaNegocio.hoy().plusDays(30), 1));
+                            numero, 10, sonarPrecondicion1, 1));
         }
 
+        final var sonarPrecondicion2 = FechaNegocio.hoy().plusDays(30);
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        null, 10, FechaNegocio.hoy().plusDays(30), 1));
+                        null, 10, sonarPrecondicion2, 1));
     }
 
     @Test
     void rechazaCantidadInicialNoPositiva() {
+        final var sonarPrecondicion3 = FechaNegocio.hoy().plusDays(30);
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 0, FechaNegocio.hoy().plusDays(30), 1));
+                        "LOT-001", 0, sonarPrecondicion3, 1));
 
+        final var sonarPrecondicion4 = FechaNegocio.hoy().plusDays(30);
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", -10, FechaNegocio.hoy().plusDays(30), 1));
+                        "LOT-001", -10, sonarPrecondicion4, 1));
     }
 
     @Test
@@ -60,20 +64,23 @@ class ServicioCrudLotesValidacionesTest {
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo("LOT-001", 10, null, 1));
 
+        final var sonarPrecondicion5 = FechaNegocio.hoy().minusDays(1);
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 10, FechaNegocio.hoy().minusDays(1), 1));
+                        "LOT-001", 10, sonarPrecondicion5, 1));
 
+        final var sonarPrecondicion6 = FechaNegocio.hoy();
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 10, FechaNegocio.hoy(), 1));
+                        "LOT-001", 10, sonarPrecondicion6, 1));
     }
 
     @Test
     void exigeUbicacionValida() {
+        final var sonarPrecondicion7 = FechaNegocio.hoy().plusDays(30);
         assertThrows(IllegalArgumentException.class,
                 () -> ServicioCrudLotes.validarNuevo(
-                        "LOT-001", 10, FechaNegocio.hoy().plusDays(30), 0));
+                        "LOT-001", 10, sonarPrecondicion7, 0));
     }
 
     @Test
@@ -120,22 +127,25 @@ class ServicioCrudLotesValidacionesTest {
     void creacionInvalidaSeRechazaAntesDeAccederABaseDatos() {
         ServicioCrudLotes servicio = new ServicioCrudLotes();
 
+        final var sonarPrecondicion8 = FechaNegocio.hoy().plusDays(30);
         assertThrows(IllegalArgumentException.class,
                 () -> servicio.crear(1, "LOT", 0,
-                        FechaNegocio.hoy().plusDays(30), 1));
+                        sonarPrecondicion8, 1));
 
+        final var sonarPrecondicion9 = FechaNegocio.hoy().plusDays(30);
         assertThrows(IllegalArgumentException.class,
                 () -> servicio.crear(0, "LOT", 10,
-                        FechaNegocio.hoy().plusDays(30), 1));
+                        sonarPrecondicion9, 1));
     }
 
     @Test
     void rechazaEdicionYRetiroSinLote() {
         ServicioCrudLotes servicio = new ServicioCrudLotes();
 
+        final var sonarPrecondicion10 = FechaNegocio.hoy().plusDays(30);
         assertThrows(NullPointerException.class,
                 () -> servicio.editar(null, "LOT",
-                        FechaNegocio.hoy().plusDays(30), 1));
+                        sonarPrecondicion10, 1));
 
         assertThrows(NullPointerException.class,
                 () -> servicio.retirar(null));

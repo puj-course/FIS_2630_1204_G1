@@ -158,8 +158,9 @@ class SesionUsuarioCoberturaAdicionalTest {
             db.when(ConexionBD::getConexion)
                     .thenReturn(conexion);
 
+            final var sonarPrecondicion1 = usuario();
             assertThrows(IllegalStateException.class,
-                    () -> SesionUsuario.iniciar(usuario()));
+                    () -> SesionUsuario.iniciar(sonarPrecondicion1));
 
             assertFalse(SesionUsuario.estaActiva());
             assertFalse(SesionUsuario.esAdministrador());
@@ -190,9 +191,10 @@ class SesionUsuarioCoberturaAdicionalTest {
             db.when(ConexionBD::getConexion)
                     .thenThrow(fallo);
 
+            final var sonarPrecondicion2 = usuario();
             SQLException recibida = assertThrows(
                     SQLException.class,
-                    () -> SesionUsuario.iniciar(usuario()));
+                    () -> SesionUsuario.iniciar(sonarPrecondicion2));
 
             assertSame(fallo, recibida);
             assertFalse(SesionUsuario.estaActiva());

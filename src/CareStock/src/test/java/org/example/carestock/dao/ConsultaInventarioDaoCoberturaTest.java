@@ -154,9 +154,10 @@ class ConsultaInventarioDaoCoberturaTest {
         try (var bd = mockStatic(ConexionBD.class)) {
             bd.when(ConexionBD::getConexion).thenReturn(con);
 
+            final var sonarPrecondicion1 = new ConsultaInventarioDAO();
             assertThrows(
                     IllegalArgumentException.class,
-                    () -> new ConsultaInventarioDAO()
+                    () -> sonarPrecondicion1
                             .listarPorFarmacia(7));
         }
     }
@@ -177,9 +178,10 @@ class ConsultaInventarioDaoCoberturaTest {
         try (var bd = mockStatic(ConexionBD.class)) {
             bd.when(ConexionBD::getConexion).thenReturn(con);
 
+            final var sonarPrecondicion2 = new ConsultaInventarioDAO();
             SQLException error = assertThrows(
                     SQLException.class,
-                    () -> new ConsultaInventarioDAO()
+                    () -> sonarPrecondicion2
                             .listarPorFarmacia(7));
 
             assertEquals("Error de consulta",

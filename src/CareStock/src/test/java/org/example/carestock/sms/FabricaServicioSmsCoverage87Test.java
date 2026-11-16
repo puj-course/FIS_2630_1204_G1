@@ -54,9 +54,10 @@ class FabricaServicioSmsCoverage87Test {
 
     @Test
     void rechazaListaDeDestinatariosAusente() {
+        final var sonarPrecondicion1 = Map.of("SMS_PROVIDER", "simulado");
         assertThrows(IllegalArgumentException.class,
                 () -> FabricaServicioSms.desdeConfiguracion(
-                        Map.of("SMS_PROVIDER", "simulado")));
+                        sonarPrecondicion1));
     }
 
     @Test
