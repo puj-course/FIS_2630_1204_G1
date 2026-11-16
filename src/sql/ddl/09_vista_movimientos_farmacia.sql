@@ -1,10 +1,4 @@
--- =============================================================================
--- Vista de movimientos de inventario por farmacia
---
--- LOG_MOVIMIENTOS no almacena id_farmacia directamente; se deduce a
--- través de LOTES -> MEDICAMENTOS -> id_farmacia, que es donde vive
--- la segregación real de cada registro de inventario.
--- =============================================================================
+
 
 BEGIN;
 
