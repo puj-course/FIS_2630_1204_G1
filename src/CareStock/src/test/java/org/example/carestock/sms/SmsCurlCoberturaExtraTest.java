@@ -40,24 +40,28 @@ class SmsCurlCoberturaExtraTest {
 
     @Test
     void cuentaNulaOInvalida() {
+        final var sonarPrecondicion1 = permitidos();
         assertThrows(IllegalArgumentException.class,
                 () -> new ServicioSmsTwilioCurl(
-                        null, TOKEN, REMITENTE, permitidos(), c -> null));
+                        null, TOKEN, REMITENTE, sonarPrecondicion1, c -> null));
 
+        final var sonarPrecondicion2 = permitidos();
         assertThrows(IllegalArgumentException.class,
                 () -> new ServicioSmsTwilioCurl(
-                        "INVALIDA", TOKEN, REMITENTE, permitidos(), c -> null));
+                        "INVALIDA", TOKEN, REMITENTE, sonarPrecondicion2, c -> null));
     }
 
     @Test
     void tokenNuloOInvalido() {
+        final var sonarPrecondicion3 = permitidos();
         assertThrows(IllegalArgumentException.class,
                 () -> new ServicioSmsTwilioCurl(
-                        CUENTA, null, REMITENTE, permitidos(), c -> null));
+                        CUENTA, null, REMITENTE, sonarPrecondicion3, c -> null));
 
+        final var sonarPrecondicion4 = permitidos();
         assertThrows(IllegalArgumentException.class,
                 () -> new ServicioSmsTwilioCurl(
-                        CUENTA, "INVALIDO", REMITENTE, permitidos(), c -> null));
+                        CUENTA, "INVALIDO", REMITENTE, sonarPrecondicion4, c -> null));
     }
 
     @Test

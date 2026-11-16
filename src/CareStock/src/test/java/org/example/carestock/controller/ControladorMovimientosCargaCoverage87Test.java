@@ -90,8 +90,9 @@ class ControladorMovimientosCargaCoverage87Test {
 
         s.when(SesionUsuario::actual).thenReturn(ADMIN);
         s.when(SesionUsuario::estaActiva).thenReturn(true);
+        Usuario usuarioSimulado = mock(Usuario.class);
         s.when(SesionUsuario::usuarioParaFachada)
-            .thenReturn(mock(Usuario.class));
+            .thenReturn(usuarioSimulado);
 
         return s;
     }

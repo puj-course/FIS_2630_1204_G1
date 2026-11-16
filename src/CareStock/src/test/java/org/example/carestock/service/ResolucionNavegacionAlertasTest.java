@@ -95,17 +95,20 @@ class ResolucionNavegacionAlertasTest {
 
     @Test
     void impideNavegarEntreFarmacias() {
+        final var sonarPrecondicion1 = alertaStock(Categoria.ASEO);
         assertThrows(IllegalStateException.class,
                 () -> ResolucionNavegacionAlertas.resolver(
-                        alertaStock(Categoria.ASEO), 9, 10));
+                        sonarPrecondicion1, 9, 10));
 
+        final var sonarPrecondicion2 = alertaStock(Categoria.ASEO);
         assertThrows(IllegalStateException.class,
                 () -> ResolucionNavegacionAlertas.resolver(
-                        alertaStock(Categoria.ASEO), 9, null));
+                        sonarPrecondicion2, 9, null));
 
+        final var sonarPrecondicion3 = alertaStock(Categoria.ASEO);
         assertThrows(IllegalStateException.class,
                 () -> ResolucionNavegacionAlertas.resolver(
-                        alertaStock(Categoria.ASEO), 0, 0));
+                        sonarPrecondicion3, 0, 0));
     }
 
     @Test

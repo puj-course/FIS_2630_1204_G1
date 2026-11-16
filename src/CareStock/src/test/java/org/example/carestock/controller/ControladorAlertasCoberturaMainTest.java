@@ -54,9 +54,10 @@ class ControladorAlertasCoberturaMainTest {
             sesion.when(SesionUsuario::estaActiva)
                     .thenReturn(false);
 
+            final var sonarPrecondicion1 = new ControladorAlertas();
             IllegalStateException error = assertThrows(
                     IllegalStateException.class,
-                    () -> new ControladorAlertas().initialize()
+                    () -> sonarPrecondicion1.initialize()
             );
 
             assertTrue(error.getMessage().contains("sesion"));
@@ -88,9 +89,10 @@ class ControladorAlertasCoberturaMainTest {
                             idFarmacia, null
                     ));
 
+            final var sonarPrecondicion2 = new ControladorAlertas();
             IllegalStateException error = assertThrows(
                     IllegalStateException.class,
-                    () -> new ControladorAlertas().initialize()
+                    () -> sonarPrecondicion2.initialize()
             );
 
             assertTrue(error.getMessage()

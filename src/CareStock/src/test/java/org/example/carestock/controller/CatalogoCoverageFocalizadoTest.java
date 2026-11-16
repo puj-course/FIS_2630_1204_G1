@@ -234,8 +234,9 @@ class CatalogoCoverageFocalizadoTest {
                      MockedConstruction<FXMLLoader> cargas = mockConstruction(
                              FXMLLoader.class, (loader, contexto) -> {
                                  when(loader.load()).thenReturn(panel);
+                                 ControladorCatalogo controladorSimulado = mock(ControladorCatalogo.class);
                                  when(loader.getController())
-                                         .thenReturn(mock(ControladorCatalogo.class));
+                                         .thenReturn(controladorSimulado);
                              })) {
                     sesion.when(SesionUsuario::estaActiva).thenReturn(true);
                     sesion.when(SesionUsuario::actual).thenReturn(datos);

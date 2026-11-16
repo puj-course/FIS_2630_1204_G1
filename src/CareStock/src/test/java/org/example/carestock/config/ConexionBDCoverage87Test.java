@@ -31,11 +31,11 @@ class ConexionBDCoverage87Test {
     }
 
     @AfterEach
-    void restaurar() throws Exception {
+    void restaurar() {
         referencia.set(original);
     }
 
-    private void establecer(HikariDataSource pool) throws Exception {
+    private void establecer(HikariDataSource pool) {
         referencia.set(pool);
     }
 
@@ -189,8 +189,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void parametroObligatorioAusenteLanzaError()
-            throws Exception {
+    void parametroObligatorioAusenteLanzaError() {
         Properties p = new Properties();
 
         InvocationTargetException error = assertThrows(
@@ -203,8 +202,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void parametroObligatorioEnBlancoLanzaError()
-            throws Exception {
+    void parametroObligatorioEnBlancoLanzaError() {
         Properties p = new Properties();
         p.setProperty("db.password", "  ");
 
@@ -253,8 +251,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void enteroNoNumericoProduceSQLException()
-            throws Exception {
+    void enteroNoNumericoProduceSQLException() {
         Properties p = new Properties();
         p.setProperty("db.pool.max", "incorrecto");
 
@@ -268,8 +265,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void enteroFueraDeRangoNumericoProduceSQLException()
-            throws Exception {
+    void enteroFueraDeRangoNumericoProduceSQLException() {
         Properties p = new Properties();
         p.setProperty("db.pool.max", "99999999999999999999");
 

@@ -159,10 +159,11 @@ class ExportacionReposicionTest {
             var servicio = mock(
                     ServicioPlanificacionReposicion.class);
 
+            final var sonarPrecondicion1 = List.of(fila);
             assertThrows(SecurityException.class,
                     () -> new AccionExportarReposicion(servicio)
                             .ejecutar(
-                                    List.of(fila),
+                                    sonarPrecondicion1,
                                     () -> temporal.resolve("no.csv")));
 
             verifyNoInteractions(servicio);
@@ -187,9 +188,10 @@ class ExportacionReposicionTest {
             var servicio = mock(
                     ServicioPlanificacionReposicion.class);
 
+            final var sonarPrecondicion2 = List.of(fila);
             assertThrows(SecurityException.class,
                     () -> new AccionExportarReposicion(servicio)
-                            .ejecutar(List.of(fila), () -> destino));
+                            .ejecutar(sonarPrecondicion2, () -> destino));
         }
 
         assertFalse(Files.exists(destino));
@@ -257,9 +259,10 @@ class ExportacionReposicionTest {
             mockSesion.when(SesionUsuario::actual)
                     .thenReturn(sesion("ADMINISTRADOR", 7));
 
+            final var sonarPrecondicion3 = List.of(fila);
             assertThrows(IllegalStateException.class,
                     () -> new AccionExportarReposicion(servicio)
-                            .ejecutar(List.of(fila), () -> destino));
+                            .ejecutar(sonarPrecondicion3, () -> destino));
         }
 
         assertFalse(Files.exists(destino));

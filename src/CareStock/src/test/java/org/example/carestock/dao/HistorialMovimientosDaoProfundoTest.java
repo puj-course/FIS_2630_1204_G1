@@ -215,8 +215,9 @@ class HistorialMovimientosDaoProfundoTest {
             sesion.when(SesionUsuario::estaActiva)
                 .thenReturn(false);
 
+            final var sonarPrecondicion1 = new HistorialMovimientosDao();
             assertThrows(IllegalStateException.class,
-                () -> new HistorialMovimientosDao().listar(20, 0));
+                () -> sonarPrecondicion1.listar(20, 0));
 
             bd.verifyNoInteractions();
         }
@@ -236,8 +237,9 @@ class HistorialMovimientosDaoProfundoTest {
             sesion.when(SesionUsuario::actual)
                 .thenReturn(usuario);
 
+            final var sonarPrecondicion2 = new HistorialMovimientosDao();
             assertThrows(IllegalStateException.class,
-                () -> new HistorialMovimientosDao().listar(10, 0));
+                () -> sonarPrecondicion2.listar(10, 0));
         }
     }
 
@@ -287,8 +289,9 @@ class HistorialMovimientosDaoProfundoTest {
             bd.when(ConexionBD::getConexion)
                 .thenReturn(jdbc.con);
 
+            final var sonarPrecondicion3 = new HistorialMovimientosDao();
             assertThrows(IllegalStateException.class,
-                () -> new HistorialMovimientosDao().listar(10, 0));
+                () -> sonarPrecondicion3.listar(10, 0));
 
             verify(jdbc.ps).executeQuery();
             verify(jdbc.con).close();

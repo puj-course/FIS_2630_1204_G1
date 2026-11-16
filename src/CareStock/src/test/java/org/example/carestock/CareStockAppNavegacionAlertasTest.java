@@ -302,9 +302,10 @@ class CareStockAppNavegacionAlertasTest {
         conSesion(FARMACIA, () -> {
             CareStockApp app = new CareStockApp();
 
+            final var sonarPrecondicion1 = stock(Categoria.ASEO);
             assertThrows(IllegalStateException.class,
                     () -> app.mostrarDetalleAlerta(
-                            stock(Categoria.ASEO), 99));
+                            sonarPrecondicion1, 99));
 
             return null;
         });
@@ -317,9 +318,10 @@ class CareStockAppNavegacionAlertasTest {
         conSesion(FARMACIA, () -> {
             CareStockApp app = new CareStockApp();
 
+            final var sonarPrecondicion2 = vencimiento("");
             assertThrows(IllegalArgumentException.class,
                     () -> app.mostrarDetalleAlerta(
-                            vencimiento(""), FARMACIA));
+                            sonarPrecondicion2, FARMACIA));
 
             return null;
         });

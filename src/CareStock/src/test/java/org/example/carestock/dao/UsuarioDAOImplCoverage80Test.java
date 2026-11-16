@@ -122,9 +122,10 @@ class UsuarioDAOImplCoverage80Test {
         when(sentencia.executeQuery())
             .thenThrow(new SQLException("Error JDBC QA"));
 
+        final var sonarPrecondicion1 = new UsuarioDAOImpl();
         SQLException error = assertThrows(
             SQLException.class,
-            () -> new UsuarioDAOImpl()
+            () -> sonarPrecondicion1
                 .buscarPorEmail("admin@qa.test"));
 
         assertEquals("Error JDBC QA", error.getMessage());
@@ -136,8 +137,9 @@ class UsuarioDAOImplCoverage80Test {
     @Test
     void rechazaEmailNuloSinFiltrarCredenciales()
             throws Exception {
+        final var sonarPrecondicion2 = new UsuarioDAOImpl();
         assertThrows(NullPointerException.class,
-            () -> new UsuarioDAOImpl()
+            () -> sonarPrecondicion2
                 .buscarPorEmail(null));
 
         verify(sentencia, never()).executeQuery();

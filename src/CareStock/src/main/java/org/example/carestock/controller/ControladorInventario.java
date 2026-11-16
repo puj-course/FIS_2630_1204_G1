@@ -1119,13 +1119,6 @@ public class ControladorInventario {
         }
     }
 
-    private void cargarCategorias() {
-        try {
-            cmbCategoria.getItems().addAll(inventario.listarCategoriasMedicamento().values());
-        } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexión", "No se pudieron obtener las categorías: " + e.getMessage());
-        }
-    }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);

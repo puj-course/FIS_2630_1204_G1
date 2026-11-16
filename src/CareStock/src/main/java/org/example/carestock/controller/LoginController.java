@@ -125,7 +125,7 @@ public class LoginController {
 
         txtEmail.focusedProperty().addListener(
                 (obs, antes, ahora) -> {
-                    if (!ahora) {
+                    if (Boolean.FALSE.equals(ahora)) {
                         correoTocado = true;
                         validarCorreo();
                     }
@@ -139,7 +139,7 @@ public class LoginController {
 
         txtPassword.focusedProperty().addListener(
                 (obs, antes, ahora) -> {
-                    if (!ahora) {
+                    if (Boolean.FALSE.equals(ahora)) {
                         contrasenaTocada = true;
                         validarContrasena();
                     }
@@ -147,7 +147,7 @@ public class LoginController {
 
         txtPasswordVisible.focusedProperty().addListener(
                 (obs, antes, ahora) -> {
-                    if (!ahora) {
+                    if (Boolean.FALSE.equals(ahora)) {
                         contrasenaTocada = true;
                         validarContrasena();
                     }

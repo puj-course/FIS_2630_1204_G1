@@ -30,7 +30,7 @@ class MedicamentoCatalogoJdbcTest {
     }
 
     @Test
-    void validaCamposObligatorios() throws Exception {
+    void validaCamposObligatorios() {
         assertThrows(IllegalArgumentException.class,
                 () -> MedicamentoCatalogoDAO.validarCampos(null));
 
@@ -182,15 +182,19 @@ class MedicamentoCatalogoJdbcTest {
         MedicamentoCatalogoDAO dao =
                 new MedicamentoCatalogoDAO();
 
+        Medicamento sonarObjetoInvalido1 = medicamento();
+        Medicamento sonarObjetoInvalido2 = medicamento();
+        Medicamento sonarObjetoInvalido3 = medicamento();
+
         assertAll(
             () -> assertThrows(IllegalArgumentException.class,
                     () -> dao.listarPorFarmacia(0)),
             () -> assertThrows(IllegalArgumentException.class,
-                    () -> dao.actualizar(0, medicamento(), 7, 9)),
+                    () -> dao.actualizar(0, sonarObjetoInvalido1, 7, 9)),
             () -> assertThrows(IllegalArgumentException.class,
-                    () -> dao.actualizar(15, medicamento(), 0, 9)),
+                    () -> dao.actualizar(15, sonarObjetoInvalido2, 0, 9)),
             () -> assertThrows(IllegalArgumentException.class,
-                    () -> dao.actualizar(15, medicamento(), 7, 0)),
+                    () -> dao.actualizar(15, sonarObjetoInvalido3, 7, 0)),
             () -> assertThrows(IllegalArgumentException.class,
                     () -> dao.desactivar(15, 0, 9))
         );

@@ -37,7 +37,7 @@ class ControladoresProductosCoberturaTest {
     }
 
     @Test
-    void presentaProductosDeAseo() throws Exception {
+    void presentaProductosDeAseo() {
         Aseo aseo = mock(Aseo.class);
 
         when(aseo.getCodigo()).thenReturn("ASE-001");
@@ -64,7 +64,7 @@ class ControladoresProductosCoberturaTest {
     }
 
     @Test
-    void presentaProductosDeMaternidad() throws Exception {
+    void presentaProductosDeMaternidad() {
         Maternidad maternidad = mock(Maternidad.class);
 
         when(maternidad.getCodigo()).thenReturn("MAT-001");
@@ -91,7 +91,7 @@ class ControladoresProductosCoberturaTest {
     }
 
     @Test
-    void presentaMedicamentos() throws Exception {
+    void presentaMedicamentos() {
         Medicamento medicamento = mock(Medicamento.class);
 
         when(medicamento.getCodigoInvima()).thenReturn("INV-001");

@@ -31,8 +31,9 @@ class ServicioDirectorioSmsCoberturaExtraTest {
             sesion.when(SesionUsuario::actual)
                     .thenReturn(auxiliar);
 
+            final var sonarPrecondicion1 = new ServicioDirectorioSms();
             assertThrows(SecurityException.class,
-                    () -> new ServicioDirectorioSms().listar());
+                    () -> sonarPrecondicion1.listar());
 
             db.verifyNoInteractions();
         }
@@ -50,8 +51,9 @@ class ServicioDirectorioSmsCoberturaExtraTest {
             sesion.when(SesionUsuario::actual)
                     .thenReturn(usuario);
 
+            final var sonarPrecondicion2 = new ServicioDirectorioSms();
             assertThrows(SecurityException.class,
-                    () -> new ServicioDirectorioSms().listar());
+                    () -> sonarPrecondicion2.listar());
         }
     }
 

@@ -252,8 +252,9 @@ class RepositorioPreferenciasSmsJdbcCoberturaTest {
     void rechazaAdministradorNoAutorizado() throws Exception {
         when(rsPermisos.next()).thenReturn(false);
 
+        final var sonarPrecondicion1 = solicitud();
         assertThrows(SecurityException.class,
-                () -> dao.guardar(1, 2, 7, solicitud()));
+                () -> dao.guardar(1, 2, 7, sonarPrecondicion1));
 
         verify(con).rollback();
         verify(con, never()).commit();
@@ -269,8 +270,9 @@ class RepositorioPreferenciasSmsJdbcCoberturaTest {
         when(rsPermisos.getInt("id_farmacia"))
                 .thenReturn(7, 8);
 
+        final var sonarPrecondicion2 = solicitud();
         assertThrows(SecurityException.class,
-                () -> dao.guardar(1, 2, 7, solicitud()));
+                () -> dao.guardar(1, 2, 7, sonarPrecondicion2));
 
         verify(con).rollback();
         verify(con, never()).commit();
@@ -286,8 +288,9 @@ class RepositorioPreferenciasSmsJdbcCoberturaTest {
         when(insertar.executeUpdate()).thenThrow(
                 new SQLException("Fallo de insercion"));
 
+        final var sonarPrecondicion3 = solicitud();
         assertThrows(SQLException.class,
-                () -> dao.guardar(1, 2, 7, solicitud()));
+                () -> dao.guardar(1, 2, 7, sonarPrecondicion3));
 
         verify(con).rollback();
         verify(con, never()).commit();
@@ -303,8 +306,9 @@ class RepositorioPreferenciasSmsJdbcCoberturaTest {
         when(rsActivo.getLong(1)).thenReturn(55L);
         when(actualizar.executeUpdate()).thenReturn(0);
 
+        final var sonarPrecondicion4 = solicitud();
         assertThrows(SQLException.class,
-                () -> dao.guardar(1, 2, 7, solicitud()));
+                () -> dao.guardar(1, 2, 7, sonarPrecondicion4));
 
         verify(con).rollback();
         verify(con, never()).commit();

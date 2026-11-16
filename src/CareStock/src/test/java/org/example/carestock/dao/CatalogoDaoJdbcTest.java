@@ -198,13 +198,16 @@ class CatalogoDaoJdbcTest {
     void rechazaRegistrosYContextosInvalidos() {
         AseoDAO dao = new AseoDAO();
 
+        Aseo sonarObjetoInvalido1 = aseo();
+        Aseo sonarObjetoInvalido2 = aseo();
+
         assertAll(
             () -> assertThrows(IllegalArgumentException.class,
                     () -> dao.guardar(null, 7, 9)),
             () -> assertThrows(IllegalArgumentException.class,
-                    () -> dao.guardar(aseo(), 0, 9)),
+                    () -> dao.guardar(sonarObjetoInvalido1, 0, 9)),
             () -> assertThrows(IllegalArgumentException.class,
-                    () -> dao.guardar(aseo(), 7, 0)),
+                    () -> dao.guardar(sonarObjetoInvalido2, 7, 0)),
             () -> assertThrows(IllegalArgumentException.class,
                     () -> dao.buscarPorId(0, 7)),
             () -> assertThrows(IllegalArgumentException.class,

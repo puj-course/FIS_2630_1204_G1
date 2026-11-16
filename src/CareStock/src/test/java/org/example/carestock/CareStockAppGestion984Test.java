@@ -214,9 +214,10 @@ class CareStockAppGestion984Test {
         conSesion(null, null, () -> {
             CareStockApp app = new CareStockApp();
 
+            final var sonarPrecondicion1 = stock(Categoria.ASEO);
             assertThrows(SecurityException.class,
                     () -> app.mostrarGestionAlerta(
-                            stock(Categoria.ASEO), FARMACIA));
+                            sonarPrecondicion1, FARMACIA));
             return null;
         });
     }
@@ -226,9 +227,10 @@ class CareStockAppGestion984Test {
         conSesion("AUXILIAR", FARMACIA, () -> {
             CareStockApp app = new CareStockApp();
 
+            final var sonarPrecondicion2 = stock(Categoria.ASEO);
             assertThrows(SecurityException.class,
                     () -> app.mostrarGestionAlerta(
-                            stock(Categoria.ASEO), FARMACIA));
+                            sonarPrecondicion2, FARMACIA));
             return null;
         });
     }
@@ -238,9 +240,10 @@ class CareStockAppGestion984Test {
         conSesion("FARMACEUTICO", FARMACIA, () -> {
             CareStockApp app = new CareStockApp();
 
+            final var sonarPrecondicion3 = stock(Categoria.MEDICAMENTO);
             assertThrows(SecurityException.class,
                     () -> app.mostrarGestionAlerta(
-                            stock(Categoria.MEDICAMENTO), 99));
+                            sonarPrecondicion3, 99));
             return null;
         });
     }

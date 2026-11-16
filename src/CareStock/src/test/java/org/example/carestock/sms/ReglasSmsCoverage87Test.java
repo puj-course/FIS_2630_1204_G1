@@ -252,8 +252,9 @@ class ReglasSmsCoverage87Test {
 
     @Test
     void conjuntoConNumeroInvalidoSeRechaza() {
+        final var sonarPrecondicion1 = Set.of("NO-ES-TELEFONO");
         assertThrows(IllegalArgumentException.class,
             () -> new DestinatariosPermitidosSms(
-                Set.of("NO-ES-TELEFONO")));
+                sonarPrecondicion1));
     }
 }

@@ -76,7 +76,6 @@ public class ControladorAlertas {
 
     private List<AlertaInventario> todas = List.of();
     private Inventario inventario;
-    private Timeline refresco;
     private boolean cargando;
     private SesionUsuario.DatosUsuario sesionVista;
 
@@ -181,7 +180,7 @@ public class ControladorAlertas {
     }
 
     private void configurarRefresco() {
-        refresco = new Timeline(new KeyFrame(INTERVALO_REFRESCO, e -> cargar()));
+        Timeline refresco = new Timeline(new KeyFrame(INTERVALO_REFRESCO, e -> cargar()));
         refresco.setCycleCount(Animation.INDEFINITE);
         refresco.play();
 

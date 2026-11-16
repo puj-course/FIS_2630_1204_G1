@@ -357,11 +357,12 @@ class ServicioAlertasSmsCoberturaTest {
     void rechazaLimiteDeEnviosFueraDeRango()
             throws Exception {
 
+        final var sonarPrecondicion1 = Map.of("SMS_MAX_POR_CICLO", "0");
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new ServicioAlertasSms(
                         proveedor,
-                        Map.of("SMS_MAX_POR_CICLO", "0"))
+                        sonarPrecondicion1)
                         .ejecutarCiclo());
 
         verify(psLimpiar).executeUpdate();

@@ -40,6 +40,7 @@ class AjusteExistenciasTest {
     void rechazaMotivoAusenteODemasiadoLargo() {
         assertThrows(IllegalArgumentException.class, () -> crear(null, 1, 2));
         assertThrows(IllegalArgumentException.class, () -> crear("  ", 1, 2));
-        assertThrows(IllegalArgumentException.class, () -> crear("x".repeat(251), 1, 2));
+        final var sonarPrecondicion1 = "x".repeat(251);
+        assertThrows(IllegalArgumentException.class, () -> crear(sonarPrecondicion1, 1, 2));
     }
 }
