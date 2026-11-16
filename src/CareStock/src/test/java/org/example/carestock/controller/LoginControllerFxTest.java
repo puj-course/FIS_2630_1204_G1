@@ -72,7 +72,7 @@ class LoginControllerFxTest {
             if (enFx(condicion::getAsBoolean)) {
                 return;
             }
-            Thread.sleep(25);
+            java.util.concurrent.locks.LockSupport.parkNanos(java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(25));
         }
 
         fail("La operacion JavaFX no finalizo.");
@@ -510,7 +510,7 @@ class LoginControllerFxTest {
                 "ana@test.local", "Clave#2026"))
                 .thenReturn(usuario());
 
-        doThrow(new Exception("Error JDBC simulado"))
+        doThrow(new SQLException("Error JDBC simulado"))
                 .when(iniciarSesion)
                 .iniciar(any(Usuario.class));
 

@@ -33,7 +33,7 @@ class ServicioDirectorioSmsCoberturaExtraTest {
 
             final var sonarPrecondicion1 = new ServicioDirectorioSms();
             assertThrows(SecurityException.class,
-                    () -> sonarPrecondicion1.listar());
+                    sonarPrecondicion1::listar);
 
             db.verifyNoInteractions();
         }
@@ -53,7 +53,7 @@ class ServicioDirectorioSmsCoberturaExtraTest {
 
             final var sonarPrecondicion2 = new ServicioDirectorioSms();
             assertThrows(SecurityException.class,
-                    () -> sonarPrecondicion2.listar());
+                    sonarPrecondicion2::listar);
         }
     }
 

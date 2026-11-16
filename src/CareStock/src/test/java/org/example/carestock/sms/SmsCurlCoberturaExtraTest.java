@@ -66,39 +66,39 @@ class SmsCurlCoberturaExtraTest {
 
     @Test
     void respuestaSinMarcaHttp() {
+        ServicioSmsTwilioCurl simulado = simular(0, "{\"sid\":\"invalido\"}");
         assertThrows(ExcepcionSms.class,
-                () -> simular(0, "{\"sid\":\"invalido\"}")
-                        .enviar(DESTINO, MENSAJE));
+                () -> simulado.enviar(DESTINO, MENSAJE));
     }
 
     @Test
     void respuestaConEstadoInvalido() {
+        ServicioSmsTwilioCurl simulado = simular(0, "{}__CARESTOCK_HTTP__:ABC");
         assertThrows(ExcepcionSms.class,
-                () -> simular(0, "{}__CARESTOCK_HTTP__:ABC")
-                        .enviar(DESTINO, MENSAJE));
+                () -> simulado.enviar(DESTINO, MENSAJE));
     }
 
     @Test
     void rechazoHttp400() {
-        assertThrows(ExcepcionSms.class,
-                () -> simular(0,
+        ServicioSmsTwilioCurl simulado = simular(0,
                         "{\"code\":21608,\"message\":\"Error\"}"
-                        + "__CARESTOCK_HTTP__:400")
-                        .enviar(DESTINO, MENSAJE));
+                        + "__CARESTOCK_HTTP__:400");
+        assertThrows(ExcepcionSms.class,
+                () -> simulado.enviar(DESTINO, MENSAJE));
     }
 
     @Test
     void respuestaExitosaSinSid() {
+        ServicioSmsTwilioCurl simulado = simular(0, "{}__CARESTOCK_HTTP__:201");
         assertThrows(ExcepcionSms.class,
-                () -> simular(0, "{}__CARESTOCK_HTTP__:201")
-                        .enviar(DESTINO, MENSAJE));
+                () -> simulado.enviar(DESTINO, MENSAJE));
     }
 
     @Test
     void respuestaConTextoNulo() {
+        ServicioSmsTwilioCurl simulado = simular(0, null);
         assertThrows(ExcepcionSms.class,
-                () -> simular(0, null)
-                        .enviar(DESTINO, MENSAJE));
+                () -> simulado.enviar(DESTINO, MENSAJE));
     }
 
     @Test

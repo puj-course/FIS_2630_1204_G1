@@ -4,11 +4,9 @@ import org.example.carestock.config.ConexionBD;
 import org.example.carestock.dto.AlertaInventario;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +47,8 @@ public class AlertasInventarioDao {
     }
 
     private static AlertaInventario mapear(ResultSet rs) throws SQLException {
-        Date vencimiento = rs.getDate("fecha_vencimiento");
-        Timestamp movimiento = rs.getTimestamp("ultimo_movimiento_fecha");
+        java.time.LocalDate vencimiento = rs.getObject("fecha_vencimiento", java.time.LocalDate.class);
+        java.time.LocalDateTime movimiento = rs.getObject("ultimo_movimiento_fecha", java.time.LocalDateTime.class);
 
         return new AlertaInventario(
                 AlertaInventario.TipoAlerta.valueOf(rs.getString("tipo_alerta")),
@@ -61,10 +59,10 @@ public class AlertasInventarioDao {
                 rs.getString("numero_lote"),
                 rs.getInt("existencias"),
                 rs.getObject("umbral", Integer.class),
-                vencimiento == null ? null : vencimiento.toLocalDate(),
+                vencimiento,
                 rs.getObject("dias_para_vencer", Integer.class),
                 AlertaInventario.Severidad.valueOf(rs.getString("severidad")),
-                movimiento == null ? null : movimiento.toLocalDateTime(),
+                movimiento,
                 rs.getString("ultimo_movimiento_tipo"),
                 rs.getString("ultimo_movimiento_usuario"));
     }

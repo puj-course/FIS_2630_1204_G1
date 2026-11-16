@@ -75,8 +75,8 @@ class AlertasInventarioDaoMapeoTest {
         assertNull(alerta.fechaVencimiento());
         assertNull(alerta.ultimoMovimientoFecha());
 
-        verify(rs).getDate("fecha_vencimiento");
-        verify(rs).getTimestamp("ultimo_movimiento_fecha");
+        verify(rs).getObject("fecha_vencimiento", LocalDate.class);
+        verify(rs).getObject("ultimo_movimiento_fecha", LocalDateTime.class);
     }
 
     @Test
@@ -106,10 +106,10 @@ class AlertasInventarioDaoMapeoTest {
                 .thenReturn(8);
         when(rs.getObject("dias_para_vencer", Integer.class))
                 .thenReturn(10);
-        when(rs.getDate("fecha_vencimiento"))
-                .thenReturn(java.sql.Date.valueOf(vencimiento));
-        when(rs.getTimestamp("ultimo_movimiento_fecha"))
-                .thenReturn(java.sql.Timestamp.valueOf(movimiento));
+        when(rs.getObject("fecha_vencimiento", LocalDate.class))
+                .thenReturn(vencimiento);
+        when(rs.getObject("ultimo_movimiento_fecha", LocalDateTime.class))
+                .thenReturn(movimiento);
         when(rs.getString("ultimo_movimiento_tipo"))
                 .thenReturn("ENTRADA");
         when(rs.getString("ultimo_movimiento_usuario"))

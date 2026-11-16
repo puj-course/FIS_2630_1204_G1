@@ -49,6 +49,40 @@ public final class GestorLotesDialogo {
         }
     }
 
+    private boolean seleccionarMedicamentoInicial(
+            ComboBox<MedicamentoOpcion> cmbMed,
+            List<MedicamentoOpcion> medicamentos,
+            Integer medicamentoInicial) {
+        if (medicamentoInicial == null) {
+            cmbMed.getSelectionModel().selectFirst();
+            return true;
+        }
+        var seleccionado = medicamentos.stream()
+                .filter(m -> m.id() == medicamentoInicial)
+                .findFirst();
+        if (seleccionado.isEmpty()) {
+            aviso(Alert.AlertType.WARNING, "Medicamento no disponible",
+                    "El medicamento ya no está activo en la farmacia actual.");
+            return false;
+        }
+        cmbMed.setValue(seleccionado.get());
+        cmbMed.setDisable(true);
+        return true;
+    }
+
+    private void configurarUbicacionInicial(
+            ComboBox<UbicacionOpcion> cmbUbicacion, Lote original) {
+        if (original == null) {
+            cmbUbicacion.getSelectionModel().selectFirst();
+        } else {
+            cmbUbicacion.getItems().stream()
+                    .filter(u -> original.getIdUbicacion() != null
+                            && u.id() == original.getIdUbicacion())
+                    .findFirst()
+                    .ifPresent(cmbUbicacion::setValue);
+        }
+    }
+
     private boolean formulario(Lote original, Integer medicamentoInicial) {
 
         boolean nuevo = original == null;
@@ -85,21 +119,9 @@ public final class GestorLotesDialogo {
 
         cmbMed.getItems().setAll(medicamentos);
 
-        if (nuevo) {
-            if (medicamentoInicial == null) {
-                cmbMed.getSelectionModel().selectFirst();
-            } else {
-                var seleccionado = medicamentos.stream()
-                        .filter(m -> m.id() == medicamentoInicial)
-                        .findFirst();
-                if (seleccionado.isEmpty()) {
-                    aviso(Alert.AlertType.WARNING, "Medicamento no disponible",
-                            "El medicamento ya no está activo en la farmacia actual.");
-                    return false;
-                }
-                cmbMed.setValue(seleccionado.get());
-                cmbMed.setDisable(true);
-            }
+        if (nuevo && !seleccionarMedicamentoInicial(
+                cmbMed, medicamentos, medicamentoInicial)) {
+            return false;
         }
 
         cmbMed.setMaxWidth(Double.MAX_VALUE);
@@ -109,15 +131,7 @@ public final class GestorLotesDialogo {
 
         cmbUbicacion.getItems().setAll(ubicaciones);
 
-        if (nuevo) {
-            cmbUbicacion.getSelectionModel().selectFirst();
-        } else {
-            cmbUbicacion.getItems().stream()
-                    .filter(u -> original.getIdUbicacion() != null
-                            && u.id() == original.getIdUbicacion())
-                    .findFirst()
-                    .ifPresent(cmbUbicacion::setValue);
-        }
+        configurarUbicacionInicial(cmbUbicacion, original);
 
         cmbUbicacion.setMaxWidth(Double.MAX_VALUE);
 
@@ -199,6 +213,28 @@ public final class GestorLotesDialogo {
         dialogo.getDialogPane().getButtonTypes()
                 .addAll(confirmar, ButtonType.CANCEL);
 
+        return procesarDialogoLote(dialogo, confirmar, original,
+                new CamposLote(cmbMed, cmbUbicacion, txtNumero, txtCantidad, fecha));
+    }
+
+    private record CamposLote(
+            ComboBox<MedicamentoOpcion> medicamento,
+            ComboBox<UbicacionOpcion> ubicacion,
+            TextField numero,
+            TextField cantidad,
+            DatePicker fecha) { }
+
+    private boolean procesarDialogoLote(
+            Dialog<ButtonType> dialogo,
+            ButtonType confirmar,
+            Lote original,
+            CamposLote campos) {
+        boolean nuevo = original == null;
+        ComboBox<MedicamentoOpcion> cmbMed = campos.medicamento();
+        ComboBox<UbicacionOpcion> cmbUbicacion = campos.ubicacion();
+        TextField txtNumero = campos.numero();
+        TextField txtCantidad = campos.cantidad();
+        DatePicker fecha = campos.fecha();
         while (true) {
 
             Optional<ButtonType> elegido =
@@ -261,8 +297,7 @@ public final class GestorLotesDialogo {
                         "No se aplicaron cambios",
                         ex.getMessage());
             }
-        }
-    }
+        }    }
 
     public boolean crear() {
         return formulario(null, null);

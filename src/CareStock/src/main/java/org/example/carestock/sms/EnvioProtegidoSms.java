@@ -135,18 +135,12 @@ final class EnvioProtegidoSms {
 
                     boolean elegible =
                             ReglasNotificacionSms.puedeGenerar(
-                                    rs.getBoolean("destinatario_activo"),
-                                    rs.getBoolean("autorizado"),
-                                    rs.getTimestamp("autorizado_en") != null,
-                                    "ACTIVO".equalsIgnoreCase(
-                                            rs.getString("usuario_estado")),
-                                    "ACTIVA".equalsIgnoreCase(
-                                            rs.getString("farmacia_estado")),
-                                    ReglasNotificacionSms.tipo(clave),
-                                    rs.getBoolean("notifica_stock_critico"),
-                                    rs.getBoolean("notifica_vencimiento_critico"),
-                                    rs.getBoolean("notifica_inicio_sesion")
-                            );
+                    new ReglasNotificacionSms.CondicionesSms(
+                            rs.getBoolean("destinatario_activo"), rs.getBoolean("autorizado"), rs.getTimestamp("autorizado_en") != null, "ACTIVO".equalsIgnoreCase(
+                                            rs.getString("usuario_estado")), "ACTIVA".equalsIgnoreCase(
+                                            rs.getString("farmacia_estado"))),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            ReglasNotificacionSms.tipo(clave), rs.getBoolean("notifica_stock_critico"), rs.getBoolean("notifica_vencimiento_critico"), rs.getBoolean("notifica_inicio_sesion")));
 
                     if ("ACCESO".equals(
                             ReglasNotificacionSms.tipo(clave))) {

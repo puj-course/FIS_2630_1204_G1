@@ -150,6 +150,12 @@ class ServicioAjustesJdbcCoverage87Test {
                 () -> assertEquals(FARMACIA, resultado.idFarmacia())
             );
 
+            verificarAuditoriaAjuste(e, categoria);
+        }
+    }
+
+    private static void verificarAuditoriaAjuste(
+            Escenario e, Categoria categoria) throws java.sql.SQLException {
             verify(e.actualizar).setInt(1, 9);
             verify(e.auditoria).setInt(4, USUARIO);
             verify(e.auditoria).setInt(5, FARMACIA);
@@ -175,8 +181,8 @@ class ServicioAjustesJdbcCoverage87Test {
 
             e.cache.verify(() ->
                 InventarioConsultas.invalidarFarmacia(FARMACIA));
-        }
     }
+
 
     @Test
     void permisoRevocadoAntesDeBloquearStock()

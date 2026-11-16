@@ -127,6 +127,35 @@ public class ControladorInventario {
             throw new IllegalStateException("No hay sesion autenticada");
         }
         inventario = new Inventario(SesionUsuario.usuarioParaFachada());
+        configurarSesionDashboard();
+
+        colIdLote.setCellValueFactory(new PropertyValueFactory<>("idLote"));
+        colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
+        colIdMedicamento.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
+        colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
+        colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
+        configurarColumnaVencimiento();
+        colEstado.setCellValueFactory(datos ->
+                new javafx.beans.property.ReadOnlyStringWrapper(
+                        estadoMostrado(datos.getValue())));
+
+        cmbCategoria.getItems().add(CATEGORIA_TODAS);
+        cmbCategoria.getSelectionModel().selectFirst();
+        // Las categorias se consultan en la carga asincrona.
+
+        configurarEstiloFilas();
+        configurarFiltroBusqueda();
+                // #809: Configurar los DatePickers para el filtro
+        dateInicio.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
+        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
+
+        // Selección intuitiva de fila
+        configurarSeleccionLotes();
+
+        cargarDatosInicialesAsync();
+    }
+
+    private void configurarSesionDashboard() {
         var sesion = SesionUsuario.actual();
         lblUsuarioSesion.setText(sesion.nombre());
         lblEmailSesion.setText(sesion.email());
@@ -164,12 +193,9 @@ public class ControladorInventario {
         btnAlertas.setVisible(puedeConsultarCatalogo);
         btnAlertas.setManaged(puedeConsultarCatalogo);
 
-        colIdLote.setCellValueFactory(new PropertyValueFactory<>("idLote"));
-        colNumeroLote.setCellValueFactory(new PropertyValueFactory<>("numeroLote"));
-        colIdMedicamento.setCellValueFactory(new PropertyValueFactory<>("idMedicamento"));
-        colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadActual"));
+    }
 
-        colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimiento"));
+    private void configurarColumnaVencimiento() {
         colFechaVencimiento.setCellFactory(col -> new TableCell<Lote, LocalDate>() {
             @Override
     protected void updateItem(LocalDate fecha, boolean empty) {
@@ -192,21 +218,9 @@ public class ControladorInventario {
         }
     }
 });
-        colEstado.setCellValueFactory(datos ->
-                new javafx.beans.property.ReadOnlyStringWrapper(
-                        estadoMostrado(datos.getValue())));
+    }
 
-        cmbCategoria.getItems().add(CATEGORIA_TODAS);
-        cmbCategoria.getSelectionModel().selectFirst();
-        // Las categorias se consultan en la carga asincrona.
-
-        configurarEstiloFilas();
-        configurarFiltroBusqueda();
-                // #809: Configurar los DatePickers para el filtro
-        dateInicio.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
-        dateFin.valueProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
-
-        // Selección intuitiva de fila
+    private void configurarSeleccionLotes() {
         tablaLotes.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             loteSeleccionado = newSel;
             if (newSel != null) {
@@ -219,7 +233,6 @@ public class ControladorInventario {
             }
         });
 
-        cargarDatosInicialesAsync();
     }
 
     public void abrirDesdeAlerta(Destino destino) {
@@ -795,11 +808,15 @@ public class ControladorInventario {
 
         } catch (Exception e) {
             LOGGER.log(System.Logger.Level.INFO, "Error al cargar alertas: " + e.getMessage());
+            limpiarResumenAlertas();
+        }
+    }
+
+    private void limpiarResumenAlertas() {
             if (lblAlertaStock != null) lblAlertaStock.setText("0 productos");
             if (lblAlertaVencimiento != null) lblAlertaVencimiento.setText("0 lotes");
             if (badgeNotificaciones != null) badgeNotificaciones.setVisible(false);
             if (lblContadorNotificaciones != null) lblContadorNotificaciones.setVisible(false);
-        }
     }
 
     private void mostrarResumenAlertas(ServicioAlertasInventario.Resumen resumen) {
@@ -971,7 +988,35 @@ public class ControladorInventario {
                 return;
             }
 
-            var datos = tarea.getValue();
+            mostrarDatosInicioDashboard(tarea.getValue());
+        });
+
+        tarea.setOnFailed(evento -> {
+            cargaInicialEnCurso = false;
+            destinoLotePendiente = null;
+
+            if (!SesionUsuario.estaActiva()
+                    || SesionUsuario.actual() != sesionInicial) {
+                return;
+            }
+
+            LOGGER.log(System.Logger.Level.ERROR,
+                    "Error al cargar el inventario inicial",
+                    tarea.getException());
+
+            lblTotalLotes.setText(TEXTO_NO_DISPONIBLE);
+            lblLoteSeleccionadoInfo.setText(
+                    "Error al cargar inventario. "
+                    + "Use Refrescar para reintentar.");
+        });
+
+        Thread hilo = new Thread(
+                tarea, "carestock-dashboard-carga");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
+    private void mostrarDatosInicioDashboard(DatosInicioDashboard datos) {
 
             cmbCategoria.getItems().addAll(
                     datos.categorias().values());
@@ -1001,8 +1046,23 @@ public class ControladorInventario {
             lblTotalMaternidad.setText(String.valueOf(
                     datos.conteos().getOrDefault("Maternidad", 0)));
 
-            if (datos.alertas() != null) {
-                var resumen = datos.alertas();
+            actualizarAlertasInicio(datos.alertas());
+
+            lblLoteSeleccionadoInfo.setText(
+                    "Ninguno (seleccione un lote)");
+
+            Destino pendiente = destinoLotePendiente;
+            destinoLotePendiente = null;
+
+            if (pendiente != null) {
+                abrirDesdeAlerta(pendiente);
+            }
+    }
+
+    private void actualizarAlertasInicio(
+            ServicioAlertasInventario.Resumen resumenAlertas) {
+            if (resumenAlertas != null) {
+                var resumen = resumenAlertas;
 
                 if (lblAlertaStock != null) {
                     lblAlertaStock.setText(
@@ -1040,40 +1100,6 @@ public class ControladorInventario {
                 }
             }
 
-            lblLoteSeleccionadoInfo.setText(
-                    "Ninguno (seleccione un lote)");
-
-            Destino pendiente = destinoLotePendiente;
-            destinoLotePendiente = null;
-
-            if (pendiente != null) {
-                abrirDesdeAlerta(pendiente);
-            }
-        });
-
-        tarea.setOnFailed(evento -> {
-            cargaInicialEnCurso = false;
-            destinoLotePendiente = null;
-
-            if (!SesionUsuario.estaActiva()
-                    || SesionUsuario.actual() != sesionInicial) {
-                return;
-            }
-
-            LOGGER.log(System.Logger.Level.ERROR,
-                    "Error al cargar el inventario inicial",
-                    tarea.getException());
-
-            lblTotalLotes.setText(TEXTO_NO_DISPONIBLE);
-            lblLoteSeleccionadoInfo.setText(
-                    "Error al cargar inventario. "
-                    + "Use Refrescar para reintentar.");
-        });
-
-        Thread hilo = new Thread(
-                tarea, "carestock-dashboard-carga");
-        hilo.setDaemon(true);
-        hilo.start();
     }
 
     private void cargarContadoresPorCategoria() {
@@ -1097,12 +1123,7 @@ public class ControladorInventario {
             tablaLotes.getSelectionModel().clearSelection();
             loteSeleccionado = null;
             listaLotes.setAll(lotes);
-            try {
-                categoriaPorMedicamento = inventario.categoriaPorMedicamento();
-            } catch (Exception ex) {
-                categoriaPorMedicamento = Map.of();
-                LOGGER.log(System.Logger.Level.WARNING, "No fue posible consultar las categorias: " + ex.getMessage());
-            }
+            consultarCategoriasTabla();
             aplicarFiltros();
 
             // Actualizar contadores KPI
@@ -1118,6 +1139,15 @@ public class ControladorInventario {
         }
     }
 
+
+    private void consultarCategoriasTabla() {
+            try {
+                categoriaPorMedicamento = inventario.categoriaPorMedicamento();
+            } catch (Exception ex) {
+                categoriaPorMedicamento = Map.of();
+                LOGGER.log(System.Logger.Level.WARNING, "No fue posible consultar las categorias: " + ex.getMessage());
+            }
+    }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);

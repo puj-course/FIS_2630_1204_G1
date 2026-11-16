@@ -237,16 +237,8 @@ public final class ControladorPreferenciasSms {
 
         try {
             solicitud = ValidacionFormularioSms.crear(
-                    txtTelefono.getText(),
-                    chkAutorizado.isSelected(),
-                    chkStock.isSelected(),
-                    chkVencimientos.isSelected(),
-                    txtInicio.getText(),
-                    txtFin.getText(),
-                    cmbZona.getValue(),
-                    chkConfirmacion.isSelected(),
-                    chkAccesos.isSelected()
-            );
+                    new ValidacionFormularioSms.DatosSms(
+                            txtTelefono.getText(), chkAutorizado.isSelected(), chkStock.isSelected(), chkVencimientos.isSelected(), txtInicio.getText(), txtFin.getText(), cmbZona.getValue(), chkConfirmacion.isSelected(), chkAccesos.isSelected()));
         } catch (IllegalArgumentException ex) {
             new Alert(Alert.AlertType.WARNING,
                     ex.getMessage()).showAndWait();

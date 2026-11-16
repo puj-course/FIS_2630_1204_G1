@@ -280,8 +280,10 @@ public final class ServicioAlertasSms {
                                 )
                                 .stream()
                                 .filter(e -> ReglasNotificacionSms.puedeGenerar(
-                                        true, true, true, true, true,
-                                        e.tipo(), stock, vencimiento))
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            e.tipo(), stock, vencimiento, false)))
                                 .toList();
 
                         String[] claves = eventos.stream()

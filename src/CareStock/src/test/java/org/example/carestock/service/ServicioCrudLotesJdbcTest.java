@@ -41,7 +41,6 @@ class ServicioCrudLotesJdbcTest {
         when(con.getAutoCommit()).thenReturn(true);
 
         when(con.prepareStatement(anyString())).thenAnswer(inv -> {
-            String sql = inv.getArgument(0);
             PreparedStatement ps = mock(PreparedStatement.class);
             ResultSet rs = mock(ResultSet.class);
 

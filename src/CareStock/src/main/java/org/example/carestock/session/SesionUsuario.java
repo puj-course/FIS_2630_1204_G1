@@ -33,7 +33,7 @@ public final class SesionUsuario {
         }
     }
 
-    public static synchronized void iniciar(Usuario usuarioAutenticado) throws Exception {
+    public static synchronized void iniciar(Usuario usuarioAutenticado) throws java.sql.SQLException {
         if (usuarioAutenticado == null
                 || usuarioAutenticado.getIdUsuario() <= 0) {
 

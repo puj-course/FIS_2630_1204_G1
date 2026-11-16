@@ -30,7 +30,8 @@ public final class ServicioAlertasInventario {
         this.dao = Objects.requireNonNull(dao, "El DAO de alertas es obligatorio");
     }
 
-    public List<AlertaInventario> listar(int idFarmacia) throws Exception {
+    public List<AlertaInventario> listar(int idFarmacia)
+            throws java.sql.SQLException, ReglaNegocioException {
         if (idFarmacia <= 0) {
             throw new IllegalArgumentException("Farmacia inválida");
         }

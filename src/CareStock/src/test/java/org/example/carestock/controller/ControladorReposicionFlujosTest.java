@@ -231,7 +231,7 @@ class ControladorReposicionFlujosTest {
                 return;
             }
 
-            Thread.sleep(30);
+            java.util.concurrent.locks.LockSupport.parkNanos(java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(30));
         }
 
         fail("No apareció el estado esperado: "

@@ -112,7 +112,8 @@ class AuthenticationServiceTest {
         when(dao.buscarPorEmail("ana@test.local"))
                 .thenThrow(new IllegalStateException("Repositorio no disponible"));
 
+        AuthenticationService autenticacion = servicio(dao);
         assertThrows(IllegalStateException.class,
-                () -> servicio(dao).autenticar("ana@test.local", "clave"));
+                () -> autenticacion.autenticar("ana@test.local", "clave"));
     }
 }

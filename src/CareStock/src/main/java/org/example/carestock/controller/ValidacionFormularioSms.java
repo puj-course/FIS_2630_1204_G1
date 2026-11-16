@@ -22,20 +22,7 @@ public final class ValidacionFormularioSms {
                 && sesion.idFarmacia() > 0;
     }
 
-    public static ServicioPreferenciasSms.Solicitud crear(
-            String telefono,
-            boolean autorizado,
-            boolean stock,
-            boolean vencimiento,
-            String inicio,
-            String fin,
-            String zona,
-            boolean consentimientoConfirmado) {
-        return crear(telefono, autorizado, stock, vencimiento,
-                inicio, fin, zona, consentimientoConfirmado, false);
-    }
-
-    public static ServicioPreferenciasSms.Solicitud crear(
+    public record DatosSms(
             String telefono,
             boolean autorizado,
             boolean stock,
@@ -44,7 +31,18 @@ public final class ValidacionFormularioSms {
             String fin,
             String zona,
             boolean consentimientoConfirmado,
-            boolean acceso) {
+            boolean acceso) { }
+
+    public static ServicioPreferenciasSms.Solicitud crear(DatosSms datos) {
+        String telefono = datos.telefono();
+        boolean autorizado = datos.autorizado();
+        boolean stock = datos.stock();
+        boolean vencimiento = datos.vencimiento();
+        String inicio = datos.inicio();
+        String fin = datos.fin();
+        String zona = datos.zona();
+        boolean consentimientoConfirmado = datos.consentimientoConfirmado();
+        boolean acceso = datos.acceso();
 
         ValidacionSms.exigirNumeroValido(telefono);
 
