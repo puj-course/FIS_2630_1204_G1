@@ -26,6 +26,7 @@ class ControladorRedireccionesTest {
                 ControladorInventario controlador = new ControladorInventario();
                 
                 assertDoesNotThrow(() -> controlador.onIrAAlertas());
+                assertDoesNotThrow(() -> controlador.onIrALotesPorVencer());
                 assertDoesNotThrow(() -> controlador.onIrAHistorial());
                 
                 Mockito.verify(appMock, Mockito.times(1)).mostrarAlertas();
