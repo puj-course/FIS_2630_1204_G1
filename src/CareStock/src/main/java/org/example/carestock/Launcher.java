@@ -2,9 +2,13 @@ package org.example.carestock;
 
 import javafx.application.Application;
 
-public class Launcher {
+public final class Launcher {
+
+    private Launcher() {
+        // Clase de punto de entrada.
+    }
+
     public static void main(String[] args) {
-        // Llamada directa al método launch de JavaFX pasando tu clase principal
-        Application.launch(HelloApplication.class, args);
+        Application.launch(CareStockApp.class, args);
     }
 }

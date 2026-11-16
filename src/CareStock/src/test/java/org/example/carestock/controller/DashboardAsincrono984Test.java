@@ -137,7 +137,7 @@ class DashboardAsincrono984Test {
     private static void esperar(BooleanSupplier verificacion) throws Exception {
         for (int i = 0; i < 400; i++) {
             if (enFx(verificacion::getAsBoolean)) return;
-            Thread.sleep(25);
+            java.util.concurrent.locks.LockSupport.parkNanos(java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(25));
         }
         fail("La tarea de carga no concluyo en el tiempo de prueba");
     }

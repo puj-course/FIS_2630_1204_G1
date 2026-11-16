@@ -8,41 +8,32 @@ public final class ReglasNotificacionSms {
 
     private ReglasNotificacionSms() {}
 
-    public static boolean puedeGenerar(
+    public record CondicionesSms(
             boolean destinatarioActivo,
             boolean autorizado,
             boolean fechaConsentimientoPresente,
             boolean usuarioActivo,
-            boolean farmaciaActiva,
-            String tipo,
-            boolean stock,
-            boolean vencimiento) {
-        return puedeGenerar(destinatarioActivo, autorizado,
-                fechaConsentimientoPresente, usuarioActivo,
-                farmaciaActiva, tipo, stock, vencimiento, false);
-    }
+            boolean farmaciaActiva) { }
 
-    public static boolean puedeGenerar(
-            boolean destinatarioActivo,
-            boolean autorizado,
-            boolean fechaConsentimientoPresente,
-            boolean usuarioActivo,
-            boolean farmaciaActiva,
+    public record PreferenciasEvento(
             String tipo,
             boolean stock,
             boolean vencimiento,
-            boolean acceso) {
+            boolean acceso) { }
 
-        if (!destinatarioActivo || !autorizado
-                || !fechaConsentimientoPresente
-                || !usuarioActivo || !farmaciaActiva) {
+    public static boolean puedeGenerar(
+            CondicionesSms condiciones, PreferenciasEvento preferencias) {
+        if (!condiciones.destinatarioActivo()
+                || !condiciones.autorizado()
+                || !condiciones.fechaConsentimientoPresente()
+                || !condiciones.usuarioActivo()
+                || !condiciones.farmaciaActiva()) {
             return false;
         }
-
-        return switch (tipo == null ? "" : tipo) {
-            case "STOCK" -> stock;
-            case "VENCIMIENTO" -> vencimiento;
-            case "ACCESO" -> acceso;
+        return switch (preferencias.tipo() == null ? "" : preferencias.tipo()) {
+            case "STOCK" -> preferencias.stock();
+            case "VENCIMIENTO" -> preferencias.vencimiento();
+            case "ACCESO" -> preferencias.acceso();
             default -> false;
         };
     }

@@ -149,7 +149,8 @@ class CacheFarmaciaTest {
         Callable<String> consulta = () -> "v" + cargas.incrementAndGet();
 
         assertEquals("v1", c.obtener(1, consulta, () -> true));
-        Thread.sleep(1100);
+        java.util.concurrent.locks.LockSupport.parkNanos(
+                java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(1100));
         assertEquals("v2", c.obtener(1, consulta, () -> true));
     }
 

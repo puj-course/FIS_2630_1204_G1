@@ -116,25 +116,28 @@ class ServicioPreferenciasSmsTest {
     @Test
     void sv05SinConsentimientoNoGenera() {
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, false, false, true, true,
-                "STOCK", true, true
-        ));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, false, false, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", true, true, false)));
     }
 
     @Test
     void sv06StockDeshabilitado() {
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, true, true, true, true,
-                "STOCK", false, true
-        ));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", false, true, false)));
     }
 
     @Test
     void sv07VencimientoDeshabilitado() {
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, true, true, true, true,
-                "VENCIMIENTO", true, false
-        ));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "VENCIMIENTO", true, false, false)));
     }
 
     @Test
@@ -164,14 +167,16 @@ class ServicioPreferenciasSmsTest {
     @Test
     void sv10UsuarioOFarmaciaInactivos() {
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, true, true, false, true,
-                "STOCK", true, true
-        ));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, false, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", true, true, false)));
 
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, true, true, true, false,
-                "STOCK", true, true
-        ));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, false),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", true, true, false)));
     }
 
     @Test

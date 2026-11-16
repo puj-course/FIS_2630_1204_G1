@@ -56,12 +56,12 @@ public class LoginController {
 
     @FunctionalInterface
     interface InicioDeSesion {
-        void iniciar(Usuario usuario) throws Exception;
+        void iniciar(Usuario usuario) throws java.sql.SQLException;
     }
 
     @FunctionalInterface
     interface AuditoriaAcceso {
-        void registrar(Usuario usuario) throws Exception;
+        void registrar(Usuario usuario) throws java.sql.SQLException;
     }
 
     private final AuthenticationService authService;

@@ -31,42 +31,55 @@ class ReglasSmsCoverage87Test {
         condiciones[indice] = false;
 
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-            condiciones[0], condiciones[1],
-            condiciones[2], condiciones[3],
-            condiciones[4], "STOCK", true, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            condiciones[0], condiciones[1], condiciones[2], condiciones[3], condiciones[4]),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", true, true, false)));
     }
 
     @Test
     void generaAlertasHabilitadasPorTipo() {
         assertTrue(ReglasNotificacionSms.puedeGenerar(
-            true, true, true, true, true,
-            "STOCK", true, false));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", true, false, false)));
 
         assertTrue(ReglasNotificacionSms.puedeGenerar(
-            true, true, true, true, true,
-            "VENCIMIENTO", false, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "VENCIMIENTO", false, true, false)));
     }
 
     @Test
     void noGeneraAlertasDeshabilitadas() {
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-            true, true, true, true, true,
-            "STOCK", false, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "STOCK", false, true, false)));
 
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-            true, true, true, true, true,
-            "VENCIMIENTO", true, false));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "VENCIMIENTO", true, false, false)));
     }
 
     @Test
     void rechazaTipoDesconocidoONulo() {
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-            true, true, true, true, true,
-            null, true, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            null, true, true, false)));
 
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-            true, true, true, true, true,
-            "OTRO", true, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "OTRO", true, true, false)));
     }
 
     @ParameterizedTest
@@ -172,14 +185,20 @@ class ReglasSmsCoverage87Test {
         assertEquals("ACCESO", ReglasNotificacionSms.tipo("ACCESO:uuid"));
         assertFalse(ReglasNotificacionSms.esCritica("ACCESO:uuid"));
         assertTrue(ReglasNotificacionSms.puedeGenerar(
-                true, true, true, true, true,
-                "ACCESO", false, false, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "ACCESO", false, false, true)));
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, true, true, true, true,
-                "ACCESO", true, true, false));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, true, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "ACCESO", true, true, false)));
         assertFalse(ReglasNotificacionSms.puedeGenerar(
-                true, false, true, true, true,
-                "ACCESO", false, false, true));
+                    new ReglasNotificacionSms.CondicionesSms(
+                            true, false, true, true, true),
+                    new ReglasNotificacionSms.PreferenciasEvento(
+                            "ACCESO", false, false, true)));
     }
 
     @Test

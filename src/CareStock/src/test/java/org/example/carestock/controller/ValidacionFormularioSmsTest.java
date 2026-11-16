@@ -69,16 +69,16 @@ class ValidacionFormularioSmsTest {
     void ui11NoActivaSinConfirmacionExplicita() {
         assertThrows(IllegalArgumentException.class,
                 () -> ValidacionFormularioSms.crear(
-                        "+573001234567", true, true, true,
-                        "", "", "America/Bogota", false));
+                    new ValidacionFormularioSms.DatosSms(
+                            "+573001234567", true, true, true, "", "", "America/Bogota", false, false)));
     }
 
     @Test
     void rechazaZonaHorariaInvalida() {
         assertThrows(IllegalArgumentException.class,
                 () -> ValidacionFormularioSms.crear(
-                        "+573001234567", false, false, false,
-                        "", "", "Zona/Falsa", false));
+                    new ValidacionFormularioSms.DatosSms(
+                            "+573001234567", false, false, false, "", "", "Zona/Falsa", false, false)));
     }
 
     private static org.example.carestock.sms
@@ -88,8 +88,8 @@ class ValidacionFormularioSmsTest {
                     String inicio, String fin) {
 
         return ValidacionFormularioSms.crear(
-                telefono, autorizado, stock, vence,
-                inicio, fin, "America/Bogota", autorizado);
+                    new ValidacionFormularioSms.DatosSms(
+                            telefono, autorizado, stock, vence, inicio, fin, "America/Bogota", autorizado, false));
     }
 
     private static SesionUsuario.DatosUsuario sesion(

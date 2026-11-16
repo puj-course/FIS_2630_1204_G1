@@ -160,8 +160,10 @@ class ExportacionReposicionTest {
                     ServicioPlanificacionReposicion.class);
 
             final var sonarPrecondicion1 = List.of(fila);
+            AccionExportarReposicion accion = new AccionExportarReposicion(servicio);
+
             assertThrows(SecurityException.class,
-                    () -> new AccionExportarReposicion(servicio)
+                    () -> accion
                             .ejecutar(
                                     sonarPrecondicion1,
                                     () -> temporal.resolve("no.csv")));
@@ -189,8 +191,10 @@ class ExportacionReposicionTest {
                     ServicioPlanificacionReposicion.class);
 
             final var sonarPrecondicion2 = List.of(fila);
+            AccionExportarReposicion accion = new AccionExportarReposicion(servicio);
+
             assertThrows(SecurityException.class,
-                    () -> new AccionExportarReposicion(servicio)
+                    () -> accion
                             .ejecutar(sonarPrecondicion2, () -> destino));
         }
 
@@ -260,8 +264,10 @@ class ExportacionReposicionTest {
                     .thenReturn(sesion("ADMINISTRADOR", 7));
 
             final var sonarPrecondicion3 = List.of(fila);
+            AccionExportarReposicion accion = new AccionExportarReposicion(servicio);
+
             assertThrows(IllegalStateException.class,
-                    () -> new AccionExportarReposicion(servicio)
+                    () -> accion
                             .ejecutar(sonarPrecondicion3, () -> destino));
         }
 

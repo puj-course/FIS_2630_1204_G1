@@ -70,8 +70,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void poolCerradoTieneEstadoNoInicializado()
-            throws Exception {
+    void poolCerradoTieneEstadoNoInicializado() {
         HikariDataSource pool = mock(HikariDataSource.class);
         when(pool.isClosed()).thenReturn(true);
         establecer(pool);
@@ -81,8 +80,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void poolSinMetricasIndicaInicializacion()
-            throws Exception {
+    void poolSinMetricasIndicaInicializacion() {
         HikariDataSource pool = mock(HikariDataSource.class);
         when(pool.isClosed()).thenReturn(false);
         when(pool.getHikariPoolMXBean()).thenReturn(null);
@@ -93,8 +91,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void estadoIncluyeTodasLasMetricasDelPool()
-            throws Exception {
+    void estadoIncluyeTodasLasMetricasDelPool() {
         HikariDataSource pool = mock(HikariDataSource.class);
         HikariPoolMXBean mx = mock(HikariPoolMXBean.class);
 
@@ -121,8 +118,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void cerrarPoolLiberaYEliminaReferencia()
-            throws Exception {
+    void cerrarPoolLiberaYEliminaReferencia() {
         HikariDataSource pool = mock(HikariDataSource.class);
         establecer(pool);
 
@@ -135,8 +131,7 @@ class ConexionBDCoverage87Test {
     }
 
     @Test
-    void cerrarPoolDosVecesNoDuplicaCierre()
-            throws Exception {
+    void cerrarPoolDosVecesNoDuplicaCierre() {
         HikariDataSource pool = mock(HikariDataSource.class);
         establecer(pool);
 
