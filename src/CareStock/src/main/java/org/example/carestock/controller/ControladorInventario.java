@@ -102,8 +102,7 @@ public class ControladorInventario {
     @FXML private javafx.scene.shape.Circle badgeNotificaciones;
     @FXML private Label lblContadorNotificaciones;
     @FXML private Button btnGenerarQR;
-    @FXML private TableColumn<Lote, String> colRefrigeracion;
-
+    
     private static final String CATEGORIA_TODAS = "Todas";
 
     private Inventario inventario;
@@ -297,7 +296,6 @@ public class ControladorInventario {
         tablaLotes.setItems(datosOrdenados);
         tablaLotes.setPlaceholder(new Label("No hay datos disponibles para los filtros seleccionados."));
     }
-
         private void aplicarFiltros() {
 
         LocalDate inicio = dateInicio.getValue();
@@ -1283,5 +1281,23 @@ public class ControladorInventario {
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo generar el código QR: " + e.getMessage());
         }
+    }
+    // ========================================
+    // REDIRECCIONAMIENTO DE TAREAS PENDIENTES 
+    // ========================================
+
+    @FXML
+    public void onIrAAlertas() {
+        org.example.carestock.CareStockApp.getInstance().mostrarAlertas();
+    }
+
+    @FXML
+    public void onIrALotesPorVencer() {
+        onFiltrarVencidos(); 
+    }
+
+    @FXML
+    public void onIrAHistorial() {
+        org.example.carestock.CareStockApp.getInstance().mostrarHistorialMovimientos();
     }
 }
